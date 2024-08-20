@@ -2,6 +2,7 @@ import Head from "next/head";
 import Banner from "../components/Home/Banner/Banner";
 import WhoIsMesbah from "../components/Home/WhoIsMesbah/WhoIsMesbah";
 import AboutUs from "../components/Home/AboutUs/AboutUs";
+import ExperticeTabs from "../components/Expertice/ExperticeTabs";
 
 
 
@@ -20,6 +21,7 @@ const page = () => {
                 <Banner />
                 <AboutUs />
                 <WhoIsMesbah />
+                <ExperticeTabs />
 
             </main>
         </>
