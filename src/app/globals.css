@@ -10,3 +10,30 @@
     font-family: 'New Amsterdam', sans-serif;
     font-weight: 700;
 }
+
+@import url('https://fonts.googleapis.com/css2?family=New+Amsterdam:wght@400;700&display=swap');
+
+/* Apply New Amsterdam Font with Weight 700 and Italic to .amsfonts Class */
+.amsfonts-it {
+    font-family: 'New Amsterdam', sans-serif;
+    font-weight: 700;
+    font-style: italic;
+}
+
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;1,400&display=swap');
+
+/* Apply Poppins Font with Weight 400 and Italic to .poppins-font Class */
+.poppins-it {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-style: italic;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap');
+
+/* Apply Poppins Font with Weight 400 to .poppins-font Class */
+.poppins {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+}
