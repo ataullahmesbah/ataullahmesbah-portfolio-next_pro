@@ -4,6 +4,12 @@ import Image from 'next/image';
 import React from 'react';
 import { FaFacebook, FaTwitter, FaLinkedin, FaMedium, FaEnvelope, FaPhone } from 'react-icons/fa';
 
+export const metadata = {
+    title: 'Contact | Ataullah Mesbah',
+    description: "Connect with Ataullah Mesbah, an SEO expert and experienced traveler. Book a call to learn more about SEO and digital marketing strategies."
+}
+
+
 const page = () => {
     return (
         <div className="">
