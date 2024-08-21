@@ -11,18 +11,6 @@
     font-weight: 700;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
-
-/* Apply Lobster font globally */
-body {
-    font-family: 'Lobster', cursive;
-}
-
-/* Or apply to specific classes */
-.lobster {
-    font-family: 'Lobster', cursive;
-}
-
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
 
