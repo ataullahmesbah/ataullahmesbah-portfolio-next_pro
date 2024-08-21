@@ -129,7 +129,7 @@ const Page = () => {
                     </div>
 
 
-                    {/* Right Side */}
+                    {/*  Right Side  */}
                     <div className="lg:w-1/2 flex justify-center">
                         <div className="border-4 p-3 rounded-md border-gray-600">
                             <Image
