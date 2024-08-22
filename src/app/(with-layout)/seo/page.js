@@ -74,6 +74,20 @@ const page = () => {
             </div>
 
 
+            {/* SEO services */}
+            <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 items-center text-center poppins-regular py-8 px-4 lg:px-8 gap-4 text-white">
+                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">E-commerce SEO</div>
+                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">Technical SEO</div>
+                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">Keyword Research</div>
+                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">International SEO</div>
+                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">Local SEO</div>
+                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">On-Page SEO</div>
+                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">Off-Page SEO</div>
+                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">Link Building</div>
+            </div>
+
+
+
 
 
             <div className="bg-white py-12">
