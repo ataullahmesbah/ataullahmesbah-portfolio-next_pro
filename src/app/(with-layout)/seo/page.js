@@ -75,16 +75,22 @@ const page = () => {
 
 
             {/* SEO services */}
-            <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 items-center text-center poppins-regular py-8 px-4 lg:px-8 gap-4 text-white">
-                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">E-commerce SEO</div>
-                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">Technical SEO</div>
-                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">Keyword Research</div>
-                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">International SEO</div>
-                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">Local SEO</div>
-                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">On-Page SEO</div>
-                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">Off-Page SEO</div>
-                <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-4 rounded-md">Link Building</div>
+            <div className="max-w-7xl mx-auto items-center text-center poppins-regular py-8 px-4 lg:px-8 text-white text-xs md:text-base lg:text-base">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 justify-center mx-auto">
+                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">E-commerce SEO</div>
+                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">Technical SEO</div>
+                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">Keyword Research</div>
+                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">International SEO</div>
+                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">Local SEO</div>
+                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">On-Page SEO</div>
+                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">Off-Page SEO</div>
+                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">Link Building</div>
+                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">SEO Consulting</div>
+                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">SEO Audit</div>
+                </div>
             </div>
+
+
 
 
 
