@@ -47,7 +47,7 @@ const Navbar = () => {
                     {/* Services Dropdown */}
                     <div className="inline-block relative">
                         <button onClick={toggleDropdown} className="flex items-center focus:outline-none">
-                            Services
+                        Marketing Services
                             {isDropdownOpen ? <FaCaretUp className="ml-1" /> : <FaCaretDown className="ml-1" />}
                         </button>
 
