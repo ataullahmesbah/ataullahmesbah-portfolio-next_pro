@@ -1,6 +1,6 @@
 [
     {
-        "_id": "1",
+        "_id": "5vxfshk866lppag1",
         "user_name": "John Doe",
         "user_position": "Marketing Manager",
         "rating": 5,
@@ -9,16 +9,16 @@
         "categories": "Marketing"
     },
     {
-        "_id": "2",
+        "_id": "5vxfshk866lppag2",
         "user_name": "Jane Smith",
         "user_position": "Software Engineer",
-        "rating": 4,
+        "rating": 4.9,
         "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever.",
         "image": "https://i.ibb.co/gR2V4cn/image.jpg",
         "categories": "Development"
     },
     {
-        "_id": "3",
+        "_id": "5vxfshk866lppag3",
         "user_name": "Emily Johnson",
         "user_position": "UI/UX Designer",
         "rating": 5,
@@ -27,16 +27,16 @@
         "categories": "Design"
     },
     {
-        "_id": "4",
+        "_id": "5vxfshk866lppag4",
         "user_name": "Michael Brown",
         "user_position": "Product Manager",
-        "rating": 4,
+        "rating": 4.7,
         "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever.",
         "image": "https://i.ibb.co/gR2V4cn/image.jpg",
         "categories": "Product Management"
     },
     {
-        "_id": "5",
+        "_id": "5vxfshk866lppag5",
         "user_name": "Sarah Williams",
         "user_position": "Content Strategist",
         "rating": 5,
@@ -45,7 +45,7 @@
         "categories": "Content"
     },
     {
-        "_id": "6",
+        "_id": "5vxfshk866lppag6",
         "user_name": "David Lee",
         "user_position": "SEO Specialist",
         "rating": 5,
@@ -54,12 +54,21 @@
         "categories": "SEO"
     },
     {
-        "_id": "7",
+        "_id": "5vxfshk866lppag7",
         "user_name": "Jessica Taylor",
         "user_position": "Data Analyst",
         "rating": 4,
         "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever.",
         "image": "https://i.ibb.co/gR2V4cn/image.jpg",
         "categories": "Data Analysis"
+    },
+    {
+        "_id": "5vxfshk866lp5ag10",
+        "user_name": "Taylor",
+        "user_position": "Data Analyst",
+        "rating": 4.4,
+        "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever.",
+        "image": "https://i.ibb.co/gR2V4cn/image.jpg",
+        "categories": "UI Analysis"
     }
 ]
