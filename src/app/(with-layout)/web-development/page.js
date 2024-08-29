@@ -1,6 +1,9 @@
 
 
+import ContactAssistance from '@/app/components/Share/ConatctAssistance/ContactAssistance';
 import DevelopmentForm from '@/app/components/Share/DevelopmentForm/DevelopmentForm';
+import WebService from '@/app/components/Share/WebService/WebService';
+
 import Link from 'next/link';
 
 export const metadata = {
@@ -52,6 +55,24 @@ const page = () => {
                         {/* Development Form */}
                         <DevelopmentForm />
                     </div>
+
+                    <div>
+                        {/* TO DO List */}
+                    </div>
+
+                    <div>
+                        {/* TO DO List */}
+                        <WebService />
+                    </div>
+                    <div>
+                        {/* TO DO List */}
+                        <ContactAssistance />
+                    </div>
+
+
+
+
+
                 </div>
             </div>
         </section>

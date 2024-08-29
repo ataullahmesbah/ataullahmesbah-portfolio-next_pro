@@ -1,0 +1,81 @@
+[
+    {
+        "id": 1,
+        "category": "Custom Website Services",
+        "services": [
+            {
+                "name": "Node.js Development",
+                "description": "Build scalable backend solutions using Node.js. Our Node.js development services focus on creating high-performance, real-time applications with a robust architecture. Whether you need a RESTful API or a complex web application, our team leverages the asynchronous, event-driven nature of Node.js to deliver reliable and efficient solutions.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            },
+            {
+                "name": "MongoDB Solutions",
+                "description": "Design robust databases with MongoDB for high-performance applications. MongoDB provides a flexible, scalable NoSQL database that handles large volumes of data and complex queries. Our MongoDB solutions ensure optimal data modeling, efficient indexing, and real-time data processing for your application needs.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            },
+            {
+                "name": "Express.js Development",
+                "description": "Utilize Express.js to build web applications and APIs with a streamlined, minimalistic framework. Express.js is ideal for creating server-side logic, handling routes, and integrating with databases. Our development services ensure a scalable, maintainable codebase for your backend needs.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            },
+            {
+                "name": "MERN Stack Development",
+                "description": "Full-stack development with MongoDB, Express.js, React, and Node.js. The MERN stack is a powerful combination for building modern, dynamic web applications. We create seamless user experiences and robust backend systems, integrating all four technologies to deliver high-quality, end-to-end solutions.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            },
+            {
+                "name": "Web Security",
+                "description": "Implement top-notch security practices to protect your web applications. Our web security services include vulnerability assessments, secure coding practices, and penetration testing to safeguard against threats and ensure your application remains secure and compliant with industry standards.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "category": "Ecommerce Website Services",
+        "services": [
+            {
+                "name": "Ecommerce Platform Development",
+                "description": "Build robust ecommerce platforms tailored to your business needs. Our services include custom ecommerce solutions, shopping cart integration, secure payment gateways, and scalable infrastructure to support high traffic and transactions, ensuring a seamless shopping experience for your customers.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            },
+            {
+                "name": "Shopify Solutions",
+                "description": "Create and customize your Shopify store for better sales. Our Shopify solutions cover theme customization, app integration, and store optimization to enhance user experience, increase conversion rates, and streamline your ecommerce operations.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "category": "WordPress Website Services",
+        "services": [
+            {
+                "name": "WordPress Customization",
+                "description": "Customize WordPress themes to suit your brand's identity. We offer design and functionality enhancements, plugin integrations, and custom development to tailor your WordPress site to your specific needs and ensure a unique, engaging online presence.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            },
+            {
+                "name": "Plugin Development",
+                "description": "Develop custom plugins to add unique functionality to your WordPress site. Whether you need specialized features, integrations with third-party services, or performance improvements, our plugin development services provide bespoke solutions that enhance your site's capabilities.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            }
+        ]
+    },
+    {
+        "id": 4,
+        "category": "Speed & Core Vitals",
+        "services": [
+            {
+                "name": "Page Speed Optimization",
+                "description": "Improve your website's loading speed for a better user experience. We analyze your site's performance, identify bottlenecks, and implement optimization strategies such as image compression, caching, and code minification to ensure fast load times and improved user satisfaction.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            },
+            {
+                "name": "Core Web Vitals Optimization",
+                "description": "Optimize your site according to Google's Core Web Vitals. We focus on enhancing key performance metrics such as loading performance, interactivity, and visual stability to meet Google's standards, improve your site's ranking, and provide a better overall user experience.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            }
+        ]
+    }
+]
