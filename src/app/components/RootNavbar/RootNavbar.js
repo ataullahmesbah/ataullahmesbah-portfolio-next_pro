@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FaAddressCard, FaFacebookSquare, FaMediumM, FaTwitter, FaYoutube } from "react-icons/fa";
+import { FaAddressCard, FaFacebookF, FaLinkedinIn, FaMediumM, FaTwitter, FaYoutube, } from "react-icons/fa";
 
 const RootNavbar = () => {
     return (
@@ -22,17 +22,20 @@ const RootNavbar = () => {
 
             {/* Social Icons */}
             <div className="flex justify-center sm:justify-end items-center space-x-4 text-lg">
-                <Link href='https://facebook.com' aria-label="Facebook">
-                    <FaFacebookSquare />
+                <Link href='https://www.facebook.com/ataullah.mesbah.7' target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">
+                    <FaFacebookF />
                 </Link>
-                <Link href='https://medium.com' aria-label="Medium">
+                <Link href='https://medium.com/@ataullahmesbah' target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">
                     <FaMediumM />
                 </Link>
-                <Link href='https://twitter.com' aria-label="Twitter">
+                <Link href='https://x.com/ataullah_mesbah' target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">
                     <FaTwitter />
                 </Link>
-                <Link href='https://youtube.com' aria-label="YouTube">
+                <Link href='https://youtube.com' target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">
                     <FaYoutube />
+                </Link>
+                <Link href="https://www.linkedin.com/in/ataullah-mesbah/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">
+                    <FaLinkedinIn />
                 </Link>
             </div>
 

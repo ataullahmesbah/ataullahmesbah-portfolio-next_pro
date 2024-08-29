@@ -1,5 +1,6 @@
 import Navbar from "../components/Navbar/Navbar";
 import RootNavbar from "../components/RootNavbar/RootNavbar";
+import Footer from "../components/Share/Footer/Footer";
 
 
 const RootLayout = ({ children }) => {
@@ -9,6 +10,7 @@ const RootLayout = ({ children }) => {
             <RootNavbar />
             <Navbar />
             {children}
+            <Footer />
 
         </div>
     );
