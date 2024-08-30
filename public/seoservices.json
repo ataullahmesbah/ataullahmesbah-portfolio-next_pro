@@ -1,0 +1,110 @@
+[
+    {
+        "_id": "seo1234abcd5678efgh90",
+        "category": "On-Page SEO",
+        "services": [
+            {
+                "_id": "seo5678abcd1234efgh90",
+                "name": "Keyword Research",
+                "description": "Identify the best keywords to target for your SEO strategy. Our keyword research services focus on finding high-volume, low-competition keywords that can drive targeted traffic to your website.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            },
+            {
+                "_id": "seo9101abcd1234efgh56",
+                "name": "Content Optimization",
+                "description": "Optimize your website content for search engines and users. We ensure your content is well-structured, relevant, and enriched with keywords, helping you rank higher and provide a better user experience.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            }
+        ]
+    },
+    {
+        "_id": "seo2345abcd6789efgh12",
+        "category": "Off-Page SEO",
+        "services": [
+            {
+                "_id": "seo6789abcd1234efgh12",
+                "name": "Link Building",
+                "description": "Build high-quality backlinks to improve your site's authority and ranking. Our link-building strategies focus on acquiring relevant, natural links from reputable sources to boost your SEO efforts.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            },
+            {
+                "_id": "seo3456abcd7890efgh34",
+                "name": "Social Media Marketing",
+                "description": "Leverage social media platforms to enhance your SEO. We create and manage social media campaigns that drive traffic, build brand awareness, and improve your site's search engine rankings.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            }
+        ]
+    },
+    {
+        "_id": "seo4567abcd8901efgh45",
+        "category": "Technical SEO",
+        "services": [
+            {
+                "_id": "seo7890abcd1234efgh56",
+                "name": "Site Audit",
+                "description": "Conduct a comprehensive SEO audit to identify technical issues affecting your site's performance. We analyze your site's structure, speed, and usability, providing actionable insights to enhance your SEO.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            },
+            {
+                "_id": "seo5678abcd9012efgh67",
+                "name": "Page Speed Optimization",
+                "description": "Optimize your website's loading speed to improve user experience and SEO. We implement techniques like image optimization, caching, and minification to enhance your site's performance.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            }
+        ]
+    },
+    {
+        "_id": "seo6789abcd0123efgh78",
+        "category": "Local SEO",
+        "services": [
+            {
+                "_id": "seo8901abcd2345efgh89",
+                "name": "Google My Business Optimization",
+                "description": "Optimize your Google My Business profile to improve local search visibility. We enhance your listing with accurate information, engaging photos, and customer reviews to attract local customers.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            },
+            {
+                "_id": "seo9012abcd3456efgh90",
+                "name": "Local Citations",
+                "description": "Build and manage local citations to boost your local SEO. We ensure your business information is consistent across online directories and platforms, improving your local search rankings.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            }
+        ]
+    },
+    {
+        "_id": "seo7890abcd2345efgh12",
+        "category": "Ecommerce SEO",
+        "services": [
+            {
+                "_id": "seo0123abcd4567efgh23",
+                "name": "Product Page Optimization",
+                "description": "Optimize your ecommerce product pages for search engines. We focus on enhancing titles, descriptions, and images to improve visibility and attract more customers.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            },
+            {
+                "_id": "seo3456abcd6789efgh34",
+                "name": "Category Page SEO",
+                "description": "Improve the SEO of your ecommerce category pages. We optimize your site's structure, navigation, and content to ensure better ranking and user experience.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            }
+        ]
+    },
+    {
+        "_id": "seo8901abcd3456efgh45",
+        "category": "International SEO",
+        "services": [
+            {
+                "_id": "seo2345abcd6789efgh56",
+                "name": "Multilingual SEO",
+                "description": "Optimize your website for multiple languages to reach a global audience. Our multilingual SEO services include keyword research, content localization, and hreflang implementation.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            },
+            {
+                "_id": "seo5678abcd9012efgh67",
+                "name": "Geotargeting",
+                "description": "Implement geotargeting strategies to improve your website's visibility in specific countries or regions. We configure your site's settings to deliver relevant content to users based on their location.",
+                "image": "https://i.ibb.co/d5FW2dK/image.png"
+            }
+        ]
+    }
+]

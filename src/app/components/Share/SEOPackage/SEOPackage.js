@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FaCheckCircle } from 'react-icons/fa'; // Importing icon for bullet points
 
-const WebPackage = () => {
+const SEOPackage = () => {
     // State to store packages data
     const [packagesData, setPackagesData] = useState([]);
 
@@ -12,7 +12,7 @@ const WebPackage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('/webpackage.json');
+                const response = await fetch('/seopackages.json');
                 if (!response.ok) {
                     throw new Error('Failed to fetch data');
                 }
@@ -30,7 +30,7 @@ const WebPackage = () => {
         <section className="py-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h1 className="text-4xl font-bold text-center text-gray-800 mb-12">
-                    Web Service Packages
+                    SEO Packages
                 </h1>
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {packagesData.map((pkg) => (
@@ -64,9 +64,9 @@ const WebPackage = () => {
                             </div>
 
                             {/* Contact button */}
-                            <div className="mt-4">
+                            <div className="mt-4 shadow-md drop-shadow-xl">
                                 <Link href="/contact">
-                                    <button className="w-full px-6 py-2 bg-sky-700 text-white rounded hover:bg-opacity-75 hover:bg-sky-800 transition duration-300 ease-in-out">
+                                    <button className="w-full px-6 py-2 bg-sky-700 text-white rounded hover:bg-opacity-75 hover:bg-sky-800 transition duration-300 ease-in-out ">
                                         Contact
                                     </button>
                                 </Link>
@@ -79,4 +79,4 @@ const WebPackage = () => {
     );
 };
 
-export default WebPackage;
+export default SEOPackage;

@@ -1,0 +1,44 @@
+[
+    {
+        "_id": "23asf54as6df7a6sd",
+        "name": "Basic SEO Package",
+        "description": "Ideal for small businesses looking to improve their search engine visibility.",
+        "features": [
+            "Keyword Research",
+            "On-Page SEO Optimization",
+            "Google Analytics Setup",
+            "Monthly Performance Report"
+        ],
+        "price": 499,
+        "discount": 399
+    },
+    {
+        "_id": "98adsf45as8df76a",
+        "name": "Standard SEO Package",
+        "description": "Comprehensive SEO services for medium-sized businesses aiming for better ranking.",
+        "features": [
+            "Advanced Keyword Research",
+            "On-Page & Off-Page SEO",
+            "Content Optimization",
+            "Competitor Analysis",
+            "Monthly SEO Report"
+        ],
+        "price": 899,
+        "discount": 799
+    },
+    {
+        "_id": "34asd5f4as6df87d",
+        "name": "Premium SEO Package",
+        "description": "Best for large businesses needing in-depth SEO strategies and ongoing optimization.",
+        "features": [
+            "Full SEO Audit",
+            "Custom SEO Strategy",
+            "Link Building",
+            "Content Marketing",
+            "Dedicated SEO Specialist",
+            "Weekly Performance Reports"
+        ],
+        "price": 1500,
+        "discount": 1299
+    }
+]

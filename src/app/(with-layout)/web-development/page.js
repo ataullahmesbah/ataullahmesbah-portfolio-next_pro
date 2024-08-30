@@ -8,9 +8,10 @@ import WebService from '@/app/components/Share/WebService/WebService';
 import Link from 'next/link';
 
 export const metadata = {
-    title: 'Web Development Services',
-    description: "Connect with Ataullah Mesbah, an SEO expert and experienced traveler. Book a call to learn more about SEO and digital marketing strategies."
-}
+    title: 'Web Development Services | Custom Website Solutions',
+    description: 'Explore our professional web development services, offering custom website solutions including e-commerce, portfolio sites, and real-time applications. Our expert developers use the latest technologies like Node.js, MongoDB, Next.js, and MERN stack to build responsive, SEO-friendly, and high-performance websites tailored to your business needs.',
+};
+
 
 const page = () => {
     return (
