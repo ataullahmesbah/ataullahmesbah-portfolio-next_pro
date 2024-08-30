@@ -26,11 +26,11 @@ const ContactForm = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="max-w-7xl mx-auto px-4 py-12 poppins-regular">
             {/* Contact Information Section */}
             <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-gray-800">Contact Us</h2>
-                <p className="text-gray-600 mt-2">We're here to help! Feel free to reach out to us anytime.</p>
+                <h2 className="text-3xl font-bold text-gray-800">Book A Meeting Today!</h2>
+                <p className="text-gray-600 mt-2">We’re here to help! Feel free to reach out to us anytime.</p>
             </div>
 
             {/* Contact Form Section */}
@@ -103,7 +103,7 @@ const ContactForm = () => {
                     <div className="text-center">
                         <button
                             type="submit"
-                            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-200"
+                            className="bg-sky-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-sky-900 transition duration-200"
                         >
                             Submit
                         </button>

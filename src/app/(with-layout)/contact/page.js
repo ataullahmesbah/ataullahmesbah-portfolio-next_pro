@@ -18,8 +18,8 @@ const page = () => {
             <div className='bg-blue-50'>
                 <div className="flex flex-col lg:flex-row items-center lg:justify-between max-w-7xl mx-auto rounded-lg p-6 lg:p-12 ">
                     <div className="text-center lg:text-left mb-6 lg:mb-0">
-                        <h2 className="text-3xl font-bold text-gray-800">Let's Get In Touch</h2>
-                        <p className="mt-4 text-gray-700">Have any questions or want to connect? Feel free to reach out. I'm here to help!</p>
+                        <h2 className="text-3xl font-bold text-gray-800">Let’s Get In Touch</h2>
+                        <p className="mt-4 text-gray-700">Have any questions or want to connect? Feel free to reach out. I’m here to help!</p>
                     </div>
                     <div>
                         <Image
