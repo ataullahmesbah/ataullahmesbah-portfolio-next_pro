@@ -54,7 +54,7 @@ const Navbar = () => {
                         {isDropdownOpen && (
                             <div className="absolute left-0 mt-2 w-96 bg-white shadow-lg rounded-lg py-2 z-20" onMouseLeave={closeDropdown}>
                                 <Link href='/web-development' className="block px-4 py-2 text-gray-800 hover:bg-blue-200" onClick={() => setIsMobileMenuOpen(false)}>
-                                    Web Developer
+                                    Web Development
                                 </Link>
                                 <Link href='/seo' className="block px-4 py-2 w-full text-gray-800 hover:bg-blue-200" onClick={() => setIsMobileMenuOpen(false)}>
                                     Search Engine Optimization

@@ -1,0 +1,67 @@
+[
+    {
+        "_id": "97hdfgfsd544kvhfh",
+        "name": "Custom Website Projects (Node.js, MongoDB, Express)",
+        "description": "Build custom web applications using the MERN stack.",
+        "features": [
+            "Full Stack Development",
+            "REST API Integration",
+            "Database Design & Setup",
+            "Scalable Architecture"
+        ],
+        "price": 2300,
+        "discount": 2199
+    },
+    {
+        "_id": "67hdfgfsd544kvhfh",
+        "name": "Ecommerce Package",
+        "description": "Build a fully functional e-commerce site with payment integration.",
+        "features": [
+            "Product Listing",
+            "Payment Gateway Integration",
+            "Inventory Management",
+            "Customer Account Setup"
+        ],
+        "price": 2700,
+        "discount": 2599
+    },
+    {
+        "_id": "87hdfgfsd544kvhfh",
+        "name": "Real-Time Website Package",
+        "description": "Develop a real-time website with interactive features.",
+        "features": [
+            "Live Chat Integration",
+            "Real-Time Updates",
+            "User Authentication",
+            "Dynamic Content Loading"
+        ],
+        "price": 3100,
+        "discount": 2985
+    },
+    {
+        "_id": "57hdfgfsd544kvhfh",
+        "name": "WordPress Website Package",
+        "description": "Complete WordPress site setup including themes and plugins.",
+        "features": [
+            "Custom Theme Development",
+            "SEO Optimization",
+            "Security Setup",
+            "Responsive Design"
+        ],
+        "price": 1000,
+        "discount": 899
+    },
+    {
+        "_id": "77hdfgfsd544kvhfh",
+        "name": "Portfolio Package",
+        "description": "Create a professional portfolio website to showcase your work.",
+        "features": [
+            "Gallery & Portfolio Pages",
+            "Contact Form Integration",
+            "Mobile-Friendly Design",
+            "SEO Ready"
+        ],
+        "price": 499,
+        "discount": 350
+    }
+]
