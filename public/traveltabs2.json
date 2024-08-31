@@ -1,0 +1,44 @@
+{
+    "places": [
+        {
+            "_id": 1,
+            "image": "/path/to/image1.jpg",
+            "title": "Bali",
+            "description": "A beautiful island in Indonesia."
+        },
+        {
+            "_id": 2,
+            "image": "/path/to/image2.jpg",
+            "title": "Tokyo",
+            "description": "The bustling capital of Japan."
+        },
+        {
+            "_id": 3,
+            "image": "/path/to/image3.jpg",
+            "title": "Paris",
+            "description": "The city of love and lights in France."
+        }
+    ],
+    "travelInfo": [
+        {
+            "title": "My Travel Journey",
+            "description": "Traveling has always been a passion of mine. From the tranquil beaches of Bali to the bustling streets of Tokyo, I've had the privilege of experiencing some of the most beautiful and diverse places on earth.",
+            "items": [
+                "Explored over 20 countries",
+                "Hiked through the Himalayas",
+                "Dived in the Great Barrier Reef",
+                "Visited numerous UNESCO World Heritage Sites",
+                "Experienced diverse cultures and cuisines"
+            ]
+        },
+        {
+            "title": "More Adventures",
+            "description": "I've had the privilege of experiencing some of the most beautiful and diverse places on earth.",
+            "items": [
+                "Explored over 20 countries",
+                "Hiked through the Himalayas",
+                "Dived in the Great Barrier Reef"
+            ]
+        }
+    ]
+}

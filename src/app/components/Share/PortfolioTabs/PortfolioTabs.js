@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import SEOTabs from '../../Home/SEOTabs/SEOTabs';
 import WebTabs from '../../Home/WebTabs/WebTabs';
+import TravelTabs from '../../Home/TravelTabs/TravelTabs';
+import SportsTabs from '../../Home/SportsTabs/SportsTabs';
 
 
 
@@ -16,9 +18,9 @@ const PortfolioTabs = () => {
             case 'Web Development':
                 return <WebTabs />;
             case 'Travel':
-            // return <Travel />;
+                return <TravelTabs />;
             case 'Sports':
-            // return <Sports />;
+                return <SportsTabs />;
             default:
                 return null;
         }

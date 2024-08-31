@@ -1,0 +1,40 @@
+[
+    {
+        "_id": "travel001",
+        "title": "Nature Escapes",
+        "description": "Explore breathtaking landscapes and nature trails around the world.",
+        "image": "https://i.ibb.co/gR2V4cn/image.jpg"
+    },
+    {
+        "_id": "travel002",
+        "title": "Historic Sites",
+        "description": "Discover ancient ruins and historic landmarks from different cultures.",
+        "image": "https://i.ibb.co/gR2V4cn/image.jpg"
+    },
+    {
+        "_id": "travel003",
+        "title": "Mountain Adventures",
+        "description": "Climb the highest peaks and experience the thrill of mountain adventures.",
+        "image": "https://i.ibb.co/gR2V4cn/image.jpg"
+    },
+    {
+        "_id": "travel004",
+        "title": "Coastal Journeys",
+        "description": "Relax on beautiful beaches and explore vibrant coastal towns.",
+        "image": "https://i.ibb.co/gR2V4cn/image.jpg"
+    },
+    {
+        "_id": "travel005",
+        "title": "Urban Exploration",
+        "description": "Wander through bustling cities and uncover hidden gems in urban areas.",
+        "image": "https://i.ibb.co/gR2V4cn/image.jpg"
+    },
+    {
+        "_id": "travel005",
+        "title": "Urban Exploration",
+        "description": "Wander through bustling cities and uncover hidden gems in urban areas.",
+        "image": "https://i.ibb.co/gR2V4cn/image.jpg"
+    }
+]
+
+
