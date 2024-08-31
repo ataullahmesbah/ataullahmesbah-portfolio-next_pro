@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "title": "Off-Page SEO",
+        "image": "https://i.ibb.co/Gk7yctj/image.png"
+    },
+    {
+        "id": 2,
+        "title": "On-Page SEO",
+        "image": "https://i.ibb.co/RTGYkfd/image.png"
+    },
+    {
+        "id": 3,
+        "title": "Keyword Research",
+        "image": "https://i.ibb.co/xmHD01D/image.png"
+    },
+    {
+        "id": 4,
+        "title": "Technical SEO",
+        "image": "https://i.ibb.co/18r9XRf/image.png"
+    },
+    {
+        "id": 5,
+        "title": "Local SEO",
+        "image": "https://i.ibb.co/cvqgWM1/image.png"
+    },
+    {
+        "id": 6,
+        "title": "Link Building",
+        "image": "https://i.ibb.co/0X86f1J/image.png"
+    }
+]

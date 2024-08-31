@@ -3,6 +3,7 @@ import Banner from "../components/Home/Banner/Banner";
 import WhoIsMesbah from "../components/Home/WhoIsMesbah/WhoIsMesbah";
 import AboutUs from "../components/Home/AboutUs/AboutUs";
 import Testimonials from "../components/Share/Testimonials/Testimonials";
+import PortfolioTabs from "../components/Share/PortfolioTabs/PortfolioTabs";
 
 
 
@@ -22,6 +23,7 @@ const page = () => {
                 <Banner />
                 <AboutUs />
                 <WhoIsMesbah />
+                <PortfolioTabs />
                 <Testimonials />
 
 
