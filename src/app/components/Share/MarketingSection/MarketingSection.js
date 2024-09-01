@@ -1,15 +1,16 @@
 'use client';
 
+import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { FaSearch, FaBullseye, FaShareAlt, FaPenNib, FaChartLine, FaCode } from 'react-icons/fa';
 
 const iconMap = {
-    FaSearch: <FaSearch className="text-blue-500 w-12 h-12" />,
+    FaSearch: <FaSearch className="text-blue-600 w-12 h-12" />,
     FaBullseye: <FaBullseye className="text-green-500 w-12 h-12" />,
     FaShareAlt: <FaShareAlt className="text-pink-500 w-12 h-12" />,
     FaPenNib: <FaPenNib className="text-purple-500 w-12 h-12" />,
     FaChartLine: <FaChartLine className="text-yellow-500 w-12 h-12" />,
-    FaCode: <FaCode className="text-red-500 w-12 h-12" />,
+    FaCode: <FaCode className="text-sky-900 w-12 h-12" />,
 };
 
 const MarketingSection = () => {
@@ -24,7 +25,7 @@ const MarketingSection = () => {
     }, []);
 
     return (
-        <div className="bg-white py-16 px-4">
+        <div className="bg-white py-16 px-4 poppins-regular">
             <div className="max-w-7xl mx-auto text-center">
                 <h2 className="text-3xl font-extrabold text-gray-900">Showcasing My Digital Marketing Expertise</h2>
                 <p className="mt-4 text-lg text-gray-600">
@@ -42,8 +43,12 @@ const MarketingSection = () => {
                         </div>
                         <h3 className="text-xl font-bold text-gray-900">{service.title}</h3>
                         <p className="mt-4 text-gray-600">{service.description}</p>
-                        <button className="mt-6 px-5 py-2 border border-gray-900 text-gray-900 font-medium rounded hover:bg-gray-900 hover:text-white transition">
-                            Learn More
+
+
+                        <button className="mt-6 px-5 py-2 border-2 border-sky-800   text-black font-medium rounded-md hover:bg-sky-900  hover:text-white transition">
+                            <Link href={service.link} >
+                                Learn More
+                            </Link >
                         </button>
                     </div>
                 ))}

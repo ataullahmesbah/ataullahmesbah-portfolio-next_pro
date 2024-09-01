@@ -2,31 +2,37 @@
     {
         "icon": "FaSearch",
         "title": "SEO Strategy",
-        "description": "Crafted SEO strategies that increase visibility and drive organic growth for diverse brands."
+        "description": "Crafted SEO strategies that increase visibility and drive organic growth for diverse brands.",
+        "link": "/seo"
     },
     {
         "icon": "FaBullseye",
         "title": "Pay-Per-Click Advertising",
-        "description": "Managed high-performing PPC campaigns, optimizing spend to maximize ROI for my clients."
+        "description": "Managed high-performing PPC campaigns, optimizing spend to maximize ROI for my clients.",
+        "link": "/seo"
     },
     {
         "icon": "FaShareAlt",
         "title": "Social Media Management",
-        "description": "Developed engaging social media campaigns that boost brand awareness and audience engagement."
+        "description": "Developed engaging social media campaigns that boost brand awareness and audience engagement.",
+        "link": "/seo"
     },
     {
         "icon": "FaPenNib",
         "title": "Content Creation",
-        "description": "Produced compelling content that resonates with audiences and enhances brand storytelling."
+        "description": "Produced compelling content that resonates with audiences and enhances brand storytelling.",
+        "link": "/seo"
     },
     {
         "icon": "FaChartLine",
         "title": "Data Analytics",
-        "description": "Utilized analytics to drive insights and optimize digital strategies for measurable success."
+        "description": "Utilized analytics to drive insights and optimize digital strategies for measurable success.",
+        "link": "/seo"
     },
     {
         "icon": "FaCode",
         "title": "Web Development",
-        "description": "Built responsive and dynamic websites, blending creativity with technical proficiency."
+        "description": "Built responsive and dynamic websites, blending creativity with technical proficiency.",
+        "link": "/web-development"
     }
 ]

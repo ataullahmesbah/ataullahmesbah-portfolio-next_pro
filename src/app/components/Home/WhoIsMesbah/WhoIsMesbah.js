@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Head from 'next/head';
+import SEU from '/public/images/SEU.jpg'
 
 const WhoIsMesbah = () => {
     return (
@@ -28,10 +29,10 @@ const WhoIsMesbah = () => {
                         </header>
 
                         <p>
-                            Ataullah Mesbah's journey began in the small village of Shirajpur, where his passion for technology and exploration was first ignited. Graduating from Southeast University, his thirst for knowledge and adventure led him to become a proud member of Pouvoir en ligne, a leading ad agency in Canada located at 60 rue Cartier, St. Lambert, Montreal, QC.
+                            Ataullah Mesbah’s journey began in the small village of Shirajpur, where his passion for technology and exploration was first ignited. Graduating from Southeast University, his thirst for knowledge and adventure led him to become a proud member of Pouvoir en ligne, a leading ad agency in Canada located at 60 rue Cartier, St. Lambert, Montreal, QC.
                         </p>
                         <p>
-                            With over 100 successful projects for companies and clients across various industries, Ataullah's expertise spans web development, search engine optimization, and affiliate marketing. His professional prowess is matched only by his love for travel, which has taken him across the globe, discovering new cultures, landscapes, and inspirations along the way.
+                            With over 100 successful projects for companies and clients across various industries, Ataullah’s expertise spans web development, search engine optimization, and affiliate marketing. His professional prowess is matched only by his love for travel, which has taken him across the globe, discovering new cultures, landscapes, and inspirations along the way.
                         </p>
                         <p>
                             As someone who has both lived in a remote village and thrived in international business, Ataullah Mesbah is a symbol of determination and global perspective, always seeking new horizons.
@@ -43,7 +44,7 @@ const WhoIsMesbah = () => {
                     <div className='lg:w-1/2 flex justify-center lg:justify-end'>
                         <div className="border-2 p-3 rounded-md border-gray-600">
                             <Image
-                                src='https://i.ibb.co/gR2V4cn/image.jpg'
+                                src={SEU}
                                 alt="Ataullah Mesbah"
                                 width={500}
                                 height={500}
