@@ -1,0 +1,32 @@
+[
+    {
+        "icon": "FaSearch",
+        "title": "SEO Strategy",
+        "description": "Crafted SEO strategies that increase visibility and drive organic growth for diverse brands."
+    },
+    {
+        "icon": "FaBullseye",
+        "title": "Pay-Per-Click Advertising",
+        "description": "Managed high-performing PPC campaigns, optimizing spend to maximize ROI for my clients."
+    },
+    {
+        "icon": "FaShareAlt",
+        "title": "Social Media Management",
+        "description": "Developed engaging social media campaigns that boost brand awareness and audience engagement."
+    },
+    {
+        "icon": "FaPenNib",
+        "title": "Content Creation",
+        "description": "Produced compelling content that resonates with audiences and enhances brand storytelling."
+    },
+    {
+        "icon": "FaChartLine",
+        "title": "Data Analytics",
+        "description": "Utilized analytics to drive insights and optimize digital strategies for measurable success."
+    },
+    {
+        "icon": "FaCode",
+        "title": "Web Development",
+        "description": "Built responsive and dynamic websites, blending creativity with technical proficiency."
+    }
+]

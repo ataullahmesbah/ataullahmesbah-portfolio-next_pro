@@ -39,10 +39,6 @@ const SportsTabs = () => {
                                     <h2 className="text-xl font-semibold">{memories[0].title}</h2>
                                     <p className="text-sm">{new Date(memories[0].date).toLocaleDateString()}</p>
                                 </div>
-                                <div className="absolute bottom-0 left-0 p-4 text-white w-full">
-                                    <h2 className="text-xl font-semibold">{memories[0].title}</h2>
-                                    <p className="text-sm">{new Date(memories[0].date).toLocaleDateString()}</p>
-                                </div>
                                 <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-center text-white p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform">
                                     <h2 className="text-2xl font-semibold mb-2">{memories[0].title}</h2>
                                     <p className="mb-2">{memories[0].description}</p>

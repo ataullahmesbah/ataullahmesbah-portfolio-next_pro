@@ -4,6 +4,9 @@ import WhoIsMesbah from "../components/Home/WhoIsMesbah/WhoIsMesbah";
 import AboutUs from "../components/Home/AboutUs/AboutUs";
 import Testimonials from "../components/Share/Testimonials/Testimonials";
 import PortfolioTabs from "../components/Share/PortfolioTabs/PortfolioTabs";
+import ContactAssistance from "../components/Share/ConatctAssistance/ContactAssistance";
+import Sponser from "../components/Sponser/Sponser";
+import MarketingSection from "../components/Share/MarketingSection/MarketingSection";
 
 
 
@@ -21,10 +24,13 @@ const page = () => {
 
             <main className="">
                 <Banner />
+                <Sponser />
                 <AboutUs />
-                <WhoIsMesbah />
                 <PortfolioTabs />
+                <WhoIsMesbah />
+                <MarketingSection />
                 <Testimonials />
+                <ContactAssistance />
 
 
             </main>
