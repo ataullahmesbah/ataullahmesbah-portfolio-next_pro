@@ -29,10 +29,10 @@ const AboutUs = () => {
                             About Ataullah Mesbah
                         </h2>
                         <p className="text-base sm:text-lg text-gray-700 mb-4">
-                            Hello! I'm Ataullah Mesbah, a passionate developer, SEO expert, and traveler with a love for creating dynamic web applications and exploring new places. With a background in software development and a knack for problem-solving, I specialize in building intuitive and efficient digital solutions.
+                            Hello! I’m Ataullah Mesbah, a passionate developer, SEO expert, and traveler with a love for creating dynamic web applications and exploring new places. With a background in software development and a knack for problem-solving, I specialize in building intuitive and efficient digital solutions.
                         </p>
                         <p className="text-base sm:text-lg text-gray-700 mb-6">
-                            My journey in the tech world has been both challenging and rewarding. I've had the opportunity to work on a variety of projects that span across different industries. Whether it's crafting a sleek website or optimizing it for search engines, I'm dedicated to delivering high-quality results.
+                            My journey in the tech world has been both challenging and rewarding. I’ve had the opportunity to work on a variety of projects that span across different industries. Whether it’s crafting a sleek website or optimizing it for search engines, I’m dedicated to delivering high-quality results.
                         </p>
                         {/* Get Started button */}
                         <Link href='/about' className="flex flex-col items-center md:items-start w-full">

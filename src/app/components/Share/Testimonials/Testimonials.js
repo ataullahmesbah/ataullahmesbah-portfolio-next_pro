@@ -119,7 +119,7 @@ const Testimonials = () => {
                 </Swiper>
 
                 {/* Pagination Dots */}
-                <div className="swiper-pagination"></div>
+                
             </div>
 
             {/* Display average rating and total reviews */}

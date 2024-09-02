@@ -47,7 +47,7 @@ const Navbar = () => {
                     {/* Services Dropdown */}
                     <div className="inline-block relative">
                         <button onClick={toggleDropdown} className="flex items-center focus:outline-none">
-                        Marketing Services
+                            Marketing Services
                             {isDropdownOpen ? <FaCaretUp className="ml-1" /> : <FaCaretDown className="ml-1" />}
                         </button>
 
@@ -66,11 +66,14 @@ const Navbar = () => {
                         )}
                     </div>
 
+                    <Link href='/blog' onClick={() => setIsMobileMenuOpen(false)}>
+                        Blog
+                    </Link>
                     <Link href='/about' onClick={() => setIsMobileMenuOpen(false)}>
                         About
                     </Link>
                     <Link href='/contact' onClick={() => setIsMobileMenuOpen(false)}>
-                        Contact Us
+                        Contact
                     </Link>
                     <Link href='/login' onClick={() => setIsMobileMenuOpen(false)}>
                         Login
