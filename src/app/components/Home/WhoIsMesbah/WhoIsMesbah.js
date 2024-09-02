@@ -41,15 +41,16 @@ const WhoIsMesbah = () => {
 
 
                     {/* Right Side */}
-                    <div className='lg:w-1/2 flex justify-center lg:justify-end'>
-                        <div className="border-2 p-3 rounded-md border-gray-600">
+                    <div className='w-full lg:w-1/2 flex justify-center lg:justify-end'>
+                        <div className="border-2 p-3 rounded-md border-gray-600 max-w-xs sm:max-w-sm lg:max-w-md">
                             <Image
                                 src={SEU}
                                 alt="Ataullah Mesbah"
+                                layout="responsive"
                                 width={500}
                                 height={500}
                                 objectFit="cover"
-                                className="rounded-xl w-96 h-96 max-w-xs lg:max-w-md"
+                                className="rounded-xl"
                             />
                         </div>
                     </div>

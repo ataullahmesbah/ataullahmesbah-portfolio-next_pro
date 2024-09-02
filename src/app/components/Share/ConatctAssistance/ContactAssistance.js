@@ -1,6 +1,8 @@
-'use client'
+'use client';
 
 import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ContactAssistance = () => {
     const [formData, setFormData] = useState({
@@ -20,9 +22,27 @@ const ContactAssistance = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        // Simple form validation
+        if (!formData.name || !formData.email || !formData.phone || !formData.comment) {
+            toast.error("Please fill out all required fields.");
+            return;
+        }
+
+        // Show success toast notification
+        toast.success("Your message has been sent successfully!");
+
         // Handle form submission logic here
         console.log('Form Data:', formData);
         // You can send formData to your backend or API for further processing
+
+        // Optionally, reset form
+        setFormData({
+            comment: '',
+            name: '',
+            email: '',
+            phone: ''
+        });
     };
 
     return (
@@ -84,8 +104,10 @@ const ContactAssistance = () => {
                         Submit
                     </button>
                 </div>
-
             </form>
+
+            {/* ToastContainer to show the toast notifications */}
+            <ToastContainer />
         </div>
     );
 };

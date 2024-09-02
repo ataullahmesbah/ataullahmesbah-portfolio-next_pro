@@ -20,26 +20,15 @@
     font-weight: 400;
 }
 
-/* Italic 400 */
-.poppins-italic {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 400;
-    font-style: italic;
-}
 
-/* Regular 500 */
-.poppins-medium {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 700;
-}
 
 
 /* Add this to your global CSS file or in a <style jsx global> tag */
 
 .swiper-pagination {
-    @apply mt-4; /* Adds margin on top to space out the dots */
-    position: relative; /* Make sure the dots stay within the container */
-    z-index: 10; /* Ensure they are above other elements */
+    @apply mt-4; 
+    position: relative; 
+    z-index: 10; 
 }
 
 .swiper-pagination-bullet {

@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 const AboutUs = () => {
     return (
@@ -33,9 +34,12 @@ const AboutUs = () => {
                         <p className="text-base sm:text-lg text-gray-700 mb-6">
                             My journey in the tech world has been both challenging and rewarding. I've had the opportunity to work on a variety of projects that span across different industries. Whether it's crafting a sleek website or optimizing it for search engines, I'm dedicated to delivering high-quality results.
                         </p>
-                        <a href="#contact" className="inline-block bg-[#00CCFF] text-white py-2 px-6 rounded-lg hover:bg-opacity-80 transition duration-300">
-                            Get in Touch
-                        </a>
+                        {/* Get Started button */}
+                        <Link href='/about' className="flex flex-col items-center md:items-start w-full">
+                            <button className="mt-6 w-36 bg-sky-800 text-white py-3 px-4 rounded-lg hover:bg-opacity-80 transition duration-300">
+                                Get in Touch
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </div>
