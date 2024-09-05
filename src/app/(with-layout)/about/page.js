@@ -5,6 +5,7 @@ import AboutBanner from "@/app/components/Share/AboutBanner/AboutBanner";
 import SEU from '/public/images/SEU.jpg';
 import Testimonials from "@/app/components/Share/Testimonials/Testimonials";
 import Link from "next/link";
+import { FaArrowAltCircleRight } from "react-icons/fa";
 
 export const metadata = {
     title: "About | Ataullah Mesbah",
@@ -72,7 +73,7 @@ const page = () => {
                 </div>
             </section>
 
-
+            {/* SEO Section */}
             <section className="bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-10 poppins-regular">
                     {/* Left Side */}
@@ -95,7 +96,11 @@ const page = () => {
                         <p className="text-base text-gray-700 leading-relaxed">
                             His commitment to excellence and his strategic approach have earned him recognition in the industry, making him a sought-after SEO consultant for businesses looking to enhance their digital footprint and achieve sustainable growth.
                         </p>
-                        <Link href='/seo' className="text-blue-500 hover:underline">Get Know SEO</Link>
+                        <Link href='/seo' className="flex gap-3 items-center text-sky-800">
+                            <p className=" hover:underline">Get to Know SEO </p>
+
+                            <FaArrowAltCircleRight />
+                        </Link>
                     </div>
 
                     {/* Right Side */}
@@ -115,6 +120,8 @@ const page = () => {
                     </div>
                 </div>
             </section>
+
+
 
             {/* Web Development */}
             <section className="bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
@@ -136,7 +143,7 @@ const page = () => {
                     </div>
 
                     {/* Right Side */}
-                    <div className="lg:w-1/2 space-y-4 poppins-regular">
+                    <div className="lg:w-1/2 space-y-3 poppins-regular">
                         <h4 className="text-2xl font-bold text-gray-800">
                             My Web Development Journey
                         </h4>
@@ -148,7 +155,14 @@ const page = () => {
                         </p>
                         <p className="text-base text-gray-700 leading-relaxed">
                             My dedication to continuous learning and staying updated with the latest industry trends has allowed me to refine my skills and deliver high-quality results. Whether developing from scratch or enhancing existing systems, I strive to provide innovative solutions that drive success and exceed expectations.
+
+                            <Link href='/web-development' className="flex gap-3 items-center text-sky-800">
+                                <p className=" hover:underline">Get to Know Web Development </p>
+
+                                <FaArrowAltCircleRight />
+                            </Link>
                         </p>
+
                     </div>
                 </div>
             </section>

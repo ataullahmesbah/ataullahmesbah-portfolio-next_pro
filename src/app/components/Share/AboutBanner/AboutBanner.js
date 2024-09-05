@@ -35,16 +35,16 @@ const AboutBanner = () => {
 
                 {/* Social Media Icons */}
                 <div className="flex justify-center  gap-6 mb-6">
-                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-500 transition duration-300">
+                    <a href="https://www.facebook.com/ataullah.mesbah.7" target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-500 transition duration-300">
                         <FaFacebook size={30} />
                     </a>
-                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-300 transition duration-300">
+                    <a href="https://x.com/ataullah_mesbah" target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-300 transition duration-300">
                         <FaTwitter size={30} />
                     </a>
-                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-700 transition duration-300">
+                    <a href="https://www.linkedin.com/in/ataullah-mesbah" target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-700 transition duration-300">
                         <FaLinkedin size={30} />
                     </a>
-                    <a href="https://medium.com" target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-500 transition duration-300">
+                    <a href="https://medium.com/@ataullahmesbah" target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-500 transition duration-300">
                         <FaMedium size={30} />
                     </a>
                 </div>
