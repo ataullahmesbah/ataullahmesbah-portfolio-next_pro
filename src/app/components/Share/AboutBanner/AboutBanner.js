@@ -31,7 +31,7 @@ const AboutBanner = () => {
                     A Passionate SEO Expert & Web Developer, dedicated to driving digital success and building innovative web solutions.
                 </p>
 
-                
+
 
                 {/* Social Media Icons */}
                 <div className="flex justify-center  gap-6 mb-6">

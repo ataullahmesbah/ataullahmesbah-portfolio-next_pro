@@ -4,6 +4,7 @@ import Sponser from "@/app/components/Sponser/Sponser";
 import AboutBanner from "@/app/components/Share/AboutBanner/AboutBanner";
 import SEU from '/public/images/SEU.jpg';
 import Testimonials from "@/app/components/Share/Testimonials/Testimonials";
+import Link from "next/link";
 
 export const metadata = {
     title: "About | Ataullah Mesbah",
@@ -30,7 +31,7 @@ const page = () => {
             {/* Who is Ataullah Mesbah Section */}
             <section className="bg-blue-50 py-10 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-10 poppins-regular">
-                    {/* Right Side */}
+                    {/* left Side */}
                     <div className='w-full lg:w-1/2 flex justify-center lg:justify-end'>
                         <div className="border-2 p-3 rounded-md border-gray-600 max-w-xs sm:max-w-sm lg:max-w-md">
                             <Image
@@ -40,12 +41,13 @@ const page = () => {
                                 width={500}
                                 height={500}
                                 objectFit="cover"
+                                placeholder="blur"
                                 className="rounded-xl"
                             />
                         </div>
                     </div>
 
-                    {/* Left Side */}
+                    {/* right Side */}
                     <div className="lg:w-1/2 space-y-6">
                         <header>
                             <div className="flex items-center gap-2 mb-4">
@@ -74,10 +76,15 @@ const page = () => {
             <section className="bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-10 poppins-regular">
                     {/* Left Side */}
-                    <div className=" space-y-4">
-                        <h4 className="text-2xl font-bold text-gray-800">
-                            SEO Expert Ataullah Mesbah
-                        </h4>
+                    <div className="space-y-4">
+
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="border-l-4 border-sky-800 h-10"></div>
+                            <h4 className="text-3xl font-bold text-gray-800">
+                                SEO Expert Ataullah Mesbah
+                            </h4>
+                        </div>
+
                         <p className="text-base text-gray-700 leading-relaxed">
                             Ataullah Mesbah began his SEO journey in 2020, driven by a passion for digital marketing and a keen interest in search engine optimization. He started by mastering industry-leading tools such as Ahrefs, Moz, and SEMrush. His dedication to learning and adapting to the ever-evolving digital landscape has positioned him as a prominent figure in the SEO community.
                         </p>
@@ -88,10 +95,11 @@ const page = () => {
                         <p className="text-base text-gray-700 leading-relaxed">
                             His commitment to excellence and his strategic approach have earned him recognition in the industry, making him a sought-after SEO consultant for businesses looking to enhance their digital footprint and achieve sustainable growth.
                         </p>
+                        <Link href='/seo' className="text-blue-500 hover:underline">Get Know SEO</Link>
                     </div>
 
                     {/* Right Side */}
-                    <div className='w-full lg:w-1/2 flex justify-center lg:justify-end'>
+                    <div className='w-full flex justify-center lg:justify-end'>
                         <div className="border-2 p-3 rounded-md border-gray-600 max-w-xs sm:max-w-sm lg:max-w-md">
                             <Image
                                 src={SEU}
@@ -99,6 +107,7 @@ const page = () => {
                                 layout="responsive"
                                 width={500}
                                 height={500}
+                                placeholder="blur"
                                 objectFit="cover"
                                 className="rounded-xl"
                             />
@@ -119,6 +128,7 @@ const page = () => {
                                 layout="responsive"
                                 width={500}
                                 height={500}
+                                placeholder="blur"
                                 objectFit="cover"
                                 className="rounded-xl"
                             />
