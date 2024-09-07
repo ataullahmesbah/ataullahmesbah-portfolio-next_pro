@@ -31,6 +31,7 @@ const ContactForm = () => {
             <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold text-gray-800">Book A Meeting Today!</h2>
                 <p className="text-gray-600 mt-2">We’re here to help! Feel free to reach out to us anytime.</p>
+                <hr className="my-6 border-gray-300 w-1/2 mx-auto" />
             </div>
 
             {/* Contact Form Section */}

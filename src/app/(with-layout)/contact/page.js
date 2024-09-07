@@ -1,6 +1,7 @@
 
 import ContactForm from '@/app/components/ContactForm/ContactForm';
 import Image from 'next/image';
+import Link from 'next/link';
 import React from 'react';
 import { FaFacebook, FaTwitter, FaLinkedin, FaMedium, FaEnvelope, FaPhone } from 'react-icons/fa';
 
@@ -15,26 +16,82 @@ const page = () => {
     return (
         <div className="">
             {/* Banner Section */}
-            <div className='bg-blue-50'>
-                <div className="flex flex-col lg:flex-row items-center lg:justify-between max-w-7xl mx-auto rounded-lg p-6 lg:p-12 ">
-                    <div className="text-center lg:text-left mb-6 lg:mb-0">
-                        <h2 className="text-3xl font-bold text-gray-800">Let’s Get In Touch</h2>
-                        <p className="mt-4 text-gray-700">Have any questions or want to connect? Feel free to reach out. I’m here to help!</p>
+            <div className='bg-gradient-to-r from-sky-800 via-sky-950 to-sky-700 py-16 shadow-md shad'>
+                <div className="max-w-7xl mx-auto rounded-lg p-6 lg:p-12 space-y-6 poppins-regular">
+                    {/* Breadcrumb Links */}
+                    <div className=" mb-4 flex justify-center space-x-4 text-white">
+                        {/* Add Next.js Links for Home and Contact */}
+                        <Link href="/" className="hover:underline">
+                            Home
+                        </Link>
+                        <span>||</span>
+                        <Link href="/contact" className="hover:underline">
+                            Contact
+                        </Link>
                     </div>
-                    <div>
-                        <Image
-                            src="https://i.ibb.co/grcpk5w/6501050.png"
-                            alt="Contact Us"
-                            width={500}
-                            height={500}
-                            className="w-64 h-64 lg:w-80 lg:h-80  object-cover "
-                        />
+
+                    {/* Title and Description */}
+                    <div className="text-center mb-6 lg:mb-0 text-white space-y-6">
+                        <h2 className="text-3xl lg:text-5xl font-bold ">
+                            Let’s Start a Conversation
+                        </h2>
+                        <p className="mt-4 text-lg lg:text-xl text-gray-100">
+                            Have any questions or want to connect? Feel free to reach out. I’m here to help!
+                        </p>
                     </div>
                 </div>
             </div>
 
+
             <section className="max-w-7xl mx-auto p-6 lg:p-12">
                 <ContactForm />
+
+
+                <div className="max-w-3xl mx-auto py-12 px-6">
+                    {/* Contact Us Title */}
+                   
+
+                    {/* Contact Cards Section */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Customer Care */}
+                        <div className="border-2 border-indigo-800 rounded-lg p-6 text-center justify-center hover:shadow-lg transition-all duration-300 border-t-8 shadow-md shadow-violet-900">
+                            <h2 className="text-xl font-semibold mb-2">Customer Care</h2>
+                            <p className="text-gray-700 mb-4">
+                                Our support team is spread all over the world to give you fast responses.
+                            </p>
+                            <div className="mt-0">
+                                <button className="bg-indigo-500 text-white py-2 px-6 rounded-full mb-2 hover:bg-indigo-600">
+                                    Submit a Request
+                                </button>
+                                <br />
+                                <Link href="/faq" className="text-indigo-600 hover:underline">
+                                    Frequently Asked Questions
+                                </Link>
+                            </div>
+                        </div>
+
+                        {/* Sales & Marketing */}
+                        <div className="border-2 border-green-400 rounded-lg p-6 text-center hover:shadow-lg transition-all duration-300 border-t-8 shadow-md shadow-green-500">
+                            <h2 className="text-xl font-semibold mb-2">Sales & Marketing</h2>
+                            <p className="text-gray-700 mb-4">
+                                Get in touch with our Sales & Marketing team to see how we can work together.
+                            </p>
+                            <div className="mb-4">
+                                <button className="bg-green-500 text-white py-2 px-6 rounded-full mb-2 hover:bg-green-600">
+                                    Contact Sales
+                                </button>
+                                <br />
+                                <Link href="/plans" className="text-green-600 hover:underline">
+                                    View Plans
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
 
                 {/* Contact Information Section */}
                 <div className="mt-12 space-y-8">
