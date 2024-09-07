@@ -77,6 +77,6 @@ const PortfolioTabs = () => {
             </div>
         </div>
     );
-};F
+}
 
 export default PortfolioTabs;
