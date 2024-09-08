@@ -5,6 +5,7 @@ import Link from 'next/link';
 import React from 'react';
 import { FaFacebook, FaTwitter, FaLinkedin, FaMedium, FaEnvelope, FaPhone } from 'react-icons/fa';
 
+
 export const metadata = {
     title: 'Contact | Ataullah Mesbah',
     description: "Connect with Ataullah Mesbah, an SEO expert and experienced traveler. Book a call to learn more about SEO and digital marketing strategies."
@@ -43,96 +44,58 @@ const page = () => {
             </div>
 
 
-            <section className="max-w-7xl mx-auto p-6 lg:p-12">
+
+            <div className=''>
                 <ContactForm />
 
 
-                <div className="max-w-3xl mx-auto py-12 px-6">
-                    {/* Contact Us Title */}
-                   
-
-                    {/* Contact Cards Section */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Customer Care */}
-                        <div className="border-2 border-indigo-800 rounded-lg p-6 text-center justify-center hover:shadow-lg transition-all duration-300 border-t-8 shadow-md shadow-violet-900">
-                            <h2 className="text-xl font-semibold mb-2">Customer Care</h2>
-                            <p className="text-gray-700 mb-4">
-                                Our support team is spread all over the world to give you fast responses.
-                            </p>
-                            <div className="mt-0">
-                                <button className="bg-indigo-500 text-white py-2 px-6 rounded-full mb-2 hover:bg-indigo-600">
-                                    Submit a Request
-                                </button>
-                                <br />
-                                <Link href="/faq" className="text-indigo-600 hover:underline">
-                                    Frequently Asked Questions
-                                </Link>
-                            </div>
-                        </div>
-
-                        {/* Sales & Marketing */}
-                        <div className="border-2 border-green-400 rounded-lg p-6 text-center hover:shadow-lg transition-all duration-300 border-t-8 shadow-md shadow-green-500">
-                            <h2 className="text-xl font-semibold mb-2">Sales & Marketing</h2>
-                            <p className="text-gray-700 mb-4">
-                                Get in touch with our Sales & Marketing team to see how we can work together.
-                            </p>
-                            <div className="mb-4">
-                                <button className="bg-green-500 text-white py-2 px-6 rounded-full mb-2 hover:bg-green-600">
-                                    Contact Sales
-                                </button>
-                                <br />
-                                <Link href="/plans" className="text-green-600 hover:underline">
-                                    View Plans
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            </div>
 
 
-
+            <section className="max-w-6xl mx-auto p-6 lg:p-12">
 
 
                 {/* Contact Information Section */}
                 <div className="mt-12 space-y-8">
                     <div className="text-center">
-                        <h3 className="text-2xl font-bold text-gray-800">Contact Information</h3>
-                        <p className="mt-2 text-gray-700">Feel free to reach out through any of the following channels:</p>
+                        <h3 className="text-2xl font-bold text-gray-800">Get in Touch</h3>
+                        <p className="mt-2 text-gray-700">Connect with me via email, phone, or follow me on social media.</p>
                     </div>
 
-                    <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start space-y-8 lg:space-y-0 lg:space-x-8">
+                    <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start space-y-8 lg:space-y-0 lg:space-x-12">
                         {/* Email */}
-                        <div className="flex flex-col items-center text-center p-4 bg-white rounded-lg shadow-md w-full lg:w-1/3">
-                            <FaEnvelope className="text-4xl text-blue-500" />
+                        <div className="flex flex-col items-center text-center p-4 bg-blue-100 rounded-lg shadow-md w-full lg:w-1/3 border-s-red-50">
+                            <FaEnvelope className="text-4xl text-blue-700" />
                             <h4 className="text-xl font-semibold mt-4">Email</h4>
                             <p className="mt-2 text-gray-700">info@ataullahmesbah.com</p>
                         </div>
                         {/* Phone */}
-                        <div className="flex flex-col items-center text-center p-4 bg-white rounded-lg shadow-md w-full lg:w-1/3">
-                            <FaPhone className="text-4xl text-blue-500" />
+                        <div className="flex flex-col items-center text-center p-4 bg-blue-100 rounded-lg shadow-md w-full lg:w-1/3">
+                            <FaPhone className="text-4xl text-blue-700" />
                             <h4 className="text-xl font-semibold mt-4">Phone</h4>
                             <p className="mt-2 text-gray-700">+1 (555) 123-4567</p>
                         </div>
                         {/* Social Media */}
-                        <div className="flex flex-col items-center text-center p-4 bg-white rounded-lg shadow-md w-full lg:w-1/3">
+                        <div className="flex flex-col items-center text-center p-4 bg-blue-100 rounded-lg shadow-md w-full lg:w-1/3">
                             <h4 className="text-xl font-semibold">Follow Me</h4>
                             <div className="flex space-x-6 mt-4">
                                 <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-                                    <FaFacebook className="text-3xl text-blue-700 hover:text-blue-500" />
+                                    <FaFacebook className="text-3xl text-blue-800 hover:text-blue-600" />
                                 </a>
                                 <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-                                    <FaTwitter className="text-3xl text-blue-400 hover:text-blue-300" />
+                                    <FaTwitter className="text-3xl text-blue-500 hover:text-blue-400" />
                                 </a>
                                 <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
                                     <FaLinkedin className="text-3xl text-blue-800 hover:text-blue-600" />
                                 </a>
                                 <a href="https://medium.com" target="_blank" rel="noopener noreferrer">
-                                    <FaMedium className="text-3xl text-gray-800 hover:text-gray-600" />
+                                    <FaMedium className="text-3xl text-gray-700 hover:text-gray-500" />
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
+
 
                 {/* Frequently Asked Questions Section */}
                 <div className="mt-16">
