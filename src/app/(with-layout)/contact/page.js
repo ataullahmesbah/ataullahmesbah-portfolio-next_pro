@@ -3,7 +3,7 @@ import ContactForm from '@/app/components/ContactForm/ContactForm';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
-import { FaFacebook, FaTwitter, FaLinkedin, FaMedium, FaEnvelope, FaPhone } from 'react-icons/fa';
+import { FaFacebook, FaTwitter, FaLinkedin, FaMedium, FaEnvelope, FaPhone, FaStopCircle } from 'react-icons/fa';
 
 
 export const metadata = {
@@ -58,38 +58,39 @@ const page = () => {
                 {/* Contact Information Section */}
                 <div className="mt-12 space-y-8">
                     <div className="text-center">
-                        <h3 className="text-2xl font-bold text-gray-800">Get in Touch</h3>
+                      
                         <p className="mt-2 text-gray-700">Connect with me via email, phone, or follow me on social media.</p>
                     </div>
 
                     <div className="flex flex-col lg:flex-row justify-between items-center lg:items-start space-y-8 lg:space-y-0 lg:space-x-12">
                         {/* Email */}
-                        <div className="flex flex-col items-center text-center p-4 bg-blue-100 rounded-lg shadow-md w-full lg:w-1/3 border-s-red-50">
+                        <div className="flex flex-col items-center text-center p-4 bg-gray-100 rounded-lg shadow-md border-t-8  w-full lg:w-1/3 border-2 border-t-indigo-800">
                             <FaEnvelope className="text-4xl text-blue-700" />
                             <h4 className="text-xl font-semibold mt-4">Email</h4>
                             <p className="mt-2 text-gray-700">info@ataullahmesbah.com</p>
                         </div>
                         {/* Phone */}
-                        <div className="flex flex-col items-center text-center p-4 bg-blue-100 rounded-lg shadow-md w-full lg:w-1/3">
+                        <div className="flex flex-col items-center text-center p-4 bg-gray-100 rounded-lg shadow-md border-t-8  w-full lg:w-1/3 border-2 border-t-indigo-800">
                             <FaPhone className="text-4xl text-blue-700" />
                             <h4 className="text-xl font-semibold mt-4">Phone</h4>
                             <p className="mt-2 text-gray-700">+1 (555) 123-4567</p>
                         </div>
                         {/* Social Media */}
-                        <div className="flex flex-col items-center text-center p-4 bg-blue-100 rounded-lg shadow-md w-full lg:w-1/3">
+                        <div className="flex flex-col items-center text-center p-4 bg-gray-100 rounded-lg shadow-md border-t-8  w-full lg:w-1/3 border-2 border-t-indigo-800">
+                        <FaStopCircle className="text-4xl text-blue-700" />
                             <h4 className="text-xl font-semibold">Follow Me</h4>
                             <div className="flex space-x-6 mt-4">
                                 <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-                                    <FaFacebook className="text-3xl text-blue-800 hover:text-blue-600" />
+                                    <FaFacebook className="text-3xl text-gray-600 hover:text-blue-600" />
                                 </a>
                                 <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-                                    <FaTwitter className="text-3xl text-blue-500 hover:text-blue-400" />
+                                    <FaTwitter className="text-3xl text-gray-600 hover:text-blue-400" />
                                 </a>
                                 <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
-                                    <FaLinkedin className="text-3xl text-blue-800 hover:text-blue-600" />
+                                    <FaLinkedin className="text-3xl text-gray-600 hover:text-blue-600" />
                                 </a>
                                 <a href="https://medium.com" target="_blank" rel="noopener noreferrer">
-                                    <FaMedium className="text-3xl text-gray-700 hover:text-gray-500" />
+                                    <FaMedium className="text-3xl text-gray-600 hover:text-gray-500" />
                                 </a>
                             </div>
                         </div>
@@ -97,24 +98,7 @@ const page = () => {
                 </div>
 
 
-                {/* Frequently Asked Questions Section */}
-                <div className="mt-16">
-                    <h3 className="text-2xl font-bold text-gray-800 text-center">Frequently Asked Questions</h3>
-                    <div className="mt-8 space-y-4">
-                        <div className="p-4 bg-white rounded-lg shadow-md">
-                            <h4 className="text-lg font-semibold text-gray-800">Q1: How can I contact you?</h4>
-                            <p className="mt-2 text-gray-700">You can contact me through email or phone, or by connecting on social media.</p>
-                        </div>
-                        <div className="p-4 bg-white rounded-lg shadow-md">
-                            <h4 className="text-lg font-semibold text-gray-800">Q2: What services do you offer?</h4>
-                            <p className="mt-2 text-gray-700">I offer SEO, web development, and travel consulting services. Feel free to reach out for more details.</p>
-                        </div>
-                        <div className="p-4 bg-white rounded-lg shadow-md">
-                            <h4 className="text-lg font-semibold text-gray-800">Q3: Where are you based?</h4>
-                            <p className="mt-2 text-gray-700">I am currently based in Canada, working with clients worldwide.</p>
-                        </div>
-                    </div>
-                </div>
+                
             </section>
         </div>
     );
