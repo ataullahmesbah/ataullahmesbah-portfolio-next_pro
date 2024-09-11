@@ -80,17 +80,17 @@ const page = () => {
                         <FaStopCircle className="text-4xl text-blue-700" />
                             <h4 className="text-xl font-semibold">Follow Me</h4>
                             <div className="flex space-x-6 mt-4">
-                                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-                                    <FaFacebook className="text-3xl text-gray-600 hover:text-blue-600" />
+                                <a href='https://www.facebook.com/ataullah.mesbah.7' target="_blank" rel="noopener noreferrer">
+                                    <FaFacebook className="text-3xl text-gray-500 hover:text-gray-700" />
                                 </a>
-                                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-                                    <FaTwitter className="text-3xl text-gray-600 hover:text-blue-400" />
+                                <a href='https://x.com/ataullah_mesbah' target="_blank" rel="noopener noreferrer">
+                                    <FaTwitter className="text-3xl text-gray-500 hover:text-gray-700" />
                                 </a>
-                                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
-                                    <FaLinkedin className="text-3xl text-gray-600 hover:text-blue-600" />
+                                <a href="https://www.linkedin.com/in/ataullah-mesbah/" target="_blank" rel="noopener noreferrer">
+                                    <FaLinkedin className="text-3xl text-gray-500 hover:text-gray-700" />
                                 </a>
-                                <a href="https://medium.com" target="_blank" rel="noopener noreferrer">
-                                    <FaMedium className="text-3xl text-gray-600 hover:text-gray-500" />
+                                <a href='https://medium.com/@ataullahmesbah' target="_blank" rel="noopener noreferrer">
+                                    <FaMedium className="text-3xl text-gray-500 hover:text-gray-700" />
                                 </a>
                             </div>
                         </div>
