@@ -18,8 +18,8 @@ const SEOTabs = () => {
         <main className="p-4 poppins-regular">
             {/* SEO Section Title and Description */}
             <div className="text-left mb-8">
-                <h3 className="text-3xl font-bold mb-2">Search Engine Optimization (SEO)</h3>
-                <p className="text-gray-600">Rank high in search engines and get more visitors with SEO.</p>
+                <h3 className="text-3xl font-bold mb-2 text-gray-200">Search Engine Optimization (SEO)</h3>
+                <p className="text-gray-300">Rank high in search engines and get more visitors with SEO.</p>
             </div>
 
             {/* SEO Services and Right Section Wrapper */}

@@ -33,6 +33,7 @@ const AboutUs = () => {
                         <p className="text-lg text-gray-300  mb-6 leading-relaxed">
                             My tech journey has been both challenging and rewarding, offering me opportunities to work across diverse industries. Whether it’s building a sleek custom website, optimizing for search engines, or working with Node.js, Next.js, Redux, and React Native, I’m committed to delivering high-quality results.
                         </p>
+
                         {/* Get Started button */}
                         <div className="py-5 ">
                             <div className="grid gap-8 justify-start items-start ">
@@ -41,7 +42,7 @@ const AboutUs = () => {
                                     <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
 
 
-                                    <button className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600">
+                                    <button className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 justify-center text-center">
 
                                         <a href='/contact' className="pl-6 text-indigo-400 group-hover:text-gray-100 transition duration-200">Get Started &rarr;</a>
                                     </button>

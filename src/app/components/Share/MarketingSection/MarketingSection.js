@@ -28,8 +28,8 @@ const MarketingSection = () => {
         // <div className="bg-white py-16 px-4 poppins-regular">
         <div className="text-white py-16 px-4 poppins-regular">
             <div className="max-w-7xl mx-auto text-center">
-                <h2 className="text-3xl font-extrabold text-gray-900">Showcasing My Digital Marketing Expertise</h2>
-                <p className="mt-4 text-lg text-gray-600">
+                <h2 className="text-3xl font-extrabold text-gray-200">Showcasing My Digital Marketing Expertise</h2>
+                <p className="mt-4 text-lg text-gray-300">
                     Leveraging years of experience to deliver comprehensive digital strategies that drive results and elevate brands.
                 </p>
             </div>
@@ -37,7 +37,7 @@ const MarketingSection = () => {
                 {services.map((service, index) => (
                     <div
                         key={index}
-                        className="bg-white shadow-md rounded-lg p-6 text-center transition-transform transform hover:scale-105"
+                        className="bg-gray-700 border shadow-md rounded-lg p-6 text-center transition-transform transform hover:scale-105"
                     >
                         <div className="flex justify-center mb-4">
                             {iconMap[service.icon]}

@@ -46,12 +46,13 @@ const ContactAssistance = () => {
     };
 
     return (
-        <div className="max-w-5xl mx-auto px-4 py-12">
+        <div className='bg-gray-900 border-t border-t-gray-800'>
+            <div className="max-w-5xl mx-auto px-4 py-12 ">
             <form onSubmit={handleSubmit} className="space-y-4">
 
-                <div className='text-3xl text-center font-bold'>Need assistance? We’re here for you!</div>
+                <div className='text-3xl text-center font-bold text-gray-200'>Need assistance? We’re here for you!</div>
 
-                <p className='text-center'>Should you require further information or need assistance with the services we offer, feel free to get in touch with us by filling out the form attached below!</p>
+                <p className='text-center text-gray-300'>Should you require further information or need assistance with the services we offer, feel free to get in touch with us by filling out the form attached below!</p>
 
                 <div className='flex flex-col gap-4 md:flex-row md:gap-6'>
                     <input
@@ -108,6 +109,7 @@ const ContactAssistance = () => {
 
             {/* ToastContainer to show the toast notifications */}
             <ToastContainer />
+        </div>
         </div>
     );
 };

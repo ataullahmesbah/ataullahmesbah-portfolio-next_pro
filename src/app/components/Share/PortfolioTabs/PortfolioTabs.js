@@ -37,14 +37,14 @@ const PortfolioTabs = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto py-10">
+        <div className="max-w-7xl mx-auto py-10 poppins-regular">
             {/* Tabs Navigation */}
             <div className="flex flex-wrap justify-center mb-4">
                 {['SEO', 'Web Development', 'Travel', 'Sports'].map((tab) => (
                     <button
                         key={tab}
                         onClick={() => handleTabChange(tab)}
-                        className={`px-6 py-2 mx-2 my-1 rounded-md transition-colors duration-300 ${activeTab === tab ? 'bg-sky-800 text-white' : 'bg-gray-200 text-gray-700'
+                        className={`px-6 py-2 mx-2 my-1 rounded-md transition-colors duration-300 ${activeTab === tab ? 'bg-black text-indigo-400 hover:text-gray-100 transition duration-200 border-b border-b-pink-400 shadow-md shadow-pink-400' : 'bg-gray-800 border-b border-gray-500  text-gray-200 shadow-md  shadow-purple-600'
                             }`}
                     >
                         {tab}
