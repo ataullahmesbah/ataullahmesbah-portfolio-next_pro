@@ -7,6 +7,7 @@ import PortfolioTabs from "../components/Share/PortfolioTabs/PortfolioTabs";
 import ContactAssistance from "../components/Share/ConatctAssistance/ContactAssistance";
 import Sponser from "../components/Sponser/Sponser";
 import MarketingSection from "../components/Share/MarketingSection/MarketingSection";
+import NewSection from "../components/Home/NewSection/NewSection";
 
 
 
@@ -36,6 +37,7 @@ const page = () => {
                 <MarketingSection />
                 <Testimonials />
                 <ContactAssistance />
+                <NewSection />
 
 
             </main>
