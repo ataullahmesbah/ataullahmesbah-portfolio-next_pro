@@ -22,8 +22,8 @@ const Navbar = () => {
     };
 
     return (
-        <div className="bg-blue-100 py-5">
-            <nav className="flex poppins-regular container mx-auto justify-between items-center px-4">
+        <div className="bg-gray-900 py-5  border-b border-b-gray-800">
+            <nav className="flex poppins-regular container mx-auto justify-between text-white items-center px-4">
                 {/* Logo */}
                 <Link href='/'>
                     <h3 className="text-2xl amsfonts">
@@ -39,7 +39,7 @@ const Navbar = () => {
                 </div>
 
                 {/* Links */}
-                <div className={`space-x-4 lg:flex items-center ${isMobileMenuOpen ? 'block' : 'hidden'} lg:block absolute lg:relative lg:w-auto w-full bg-blue-100 lg:bg-transparent left-0 top-16 lg:top-0 z-10 lg:z-auto lg:py-0 py-5 px-4`}>
+                <div className={`space-x-4 lg:flex items-center ${isMobileMenuOpen ? 'block' : 'hidden'} lg:block absolute lg:relative lg:w-auto w-full bg-blue-100 text-white lg:bg-transparent left-0 top-16 lg:top-0 z-10 lg:z-auto lg:py-0 py-5 px-4`}>
                     <Link href='/' onClick={() => setIsMobileMenuOpen(false)}>
                         Home
                     </Link>

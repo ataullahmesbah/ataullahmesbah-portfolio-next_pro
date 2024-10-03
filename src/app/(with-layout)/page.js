@@ -23,11 +23,11 @@ const page = () => {
             </Head>
 
             <main
-  className="min-h-screen"
-  style={{
-    background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
-  }}
->
+                className="min-h-screen"
+                style={{
+                    background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
+                }}
+            >
                 <Banner />
                 <Sponser />
                 <AboutUs />
