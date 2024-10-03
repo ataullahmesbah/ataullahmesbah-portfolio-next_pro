@@ -50,7 +50,8 @@ const Testimonials = () => {
     }
 
     return (
-        <main className="bg-gray-50 py-7 poppins-regular">
+        // <main className="bg-gray-50 py-7 poppins-regular">
+        <main className="text-white py-7 poppins-regular">
             <div className="max-w-7xl mx-auto py-8 px-4 lg:px-8 text-center">
                 <Swiper
                     modules={[Autoplay, Navigation, Pagination]}

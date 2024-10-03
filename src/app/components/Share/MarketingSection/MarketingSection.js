@@ -25,7 +25,8 @@ const MarketingSection = () => {
     }, []);
 
     return (
-        <div className="bg-white py-16 px-4 poppins-regular">
+        // <div className="bg-white py-16 px-4 poppins-regular">
+        <div className="text-white py-16 px-4 poppins-regular">
             <div className="max-w-7xl mx-auto text-center">
                 <h2 className="text-3xl font-extrabold text-gray-900">Showcasing My Digital Marketing Expertise</h2>
                 <p className="mt-4 text-lg text-gray-600">

@@ -22,7 +22,12 @@ const page = () => {
                 <meta name="keywords" content="Ataullah Mesbah, SEO Expert, World Explorer, Pouvoir en ligne, Web Development, Affiliate Marketing" />
             </Head>
 
-            <main className="">
+            <main
+  className="min-h-screen"
+  style={{
+    background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
+  }}
+>
                 <Banner />
                 <Sponser />
                 <AboutUs />

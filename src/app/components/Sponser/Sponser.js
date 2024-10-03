@@ -10,7 +10,8 @@ import sp5 from "/public/images/sponser/sp5.png";
 
 const Sponser = () => {
     return (
-        <main className='bg-blue-50 py-10'>
+        // <main className='bg-blue-50 py-10'>
+        <main className=' py-10'>
             <div className="max-w-6xl mx-auto overflow-hidden">
                 <div className="flex space-x-8 animate-marquee poppins-regular">
                     {/* First set of sponsor images */}

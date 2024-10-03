@@ -5,7 +5,8 @@ import mesbah from '/public/images/mesbah_pro.jpg'
 
 const AboutUs = () => {
     return (
-        <section id="about" className="py-20 bg-gray-100">
+        // <section id="about" className="py-20 bg-gray-100">
+        <section id="about" className="py-20  ">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-20">
                     {/* Left Side: Image with Gradient Overlay */}
@@ -22,7 +23,7 @@ const AboutUs = () => {
                     </div>
 
                     {/* Right Side: Content */}
-                    <div className="w-full lg:w-1/2 text-center lg:text-left">
+                    <div className="w-full lg:w-1/2 text-center lg:text-left text-white">
                         <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-6">
                             About Ataullah Mesbah
                         </h2>

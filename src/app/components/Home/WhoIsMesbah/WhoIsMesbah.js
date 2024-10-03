@@ -11,7 +11,8 @@ const WhoIsMesbah = () => {
                 <meta name="keywords" content="Ataullah Mesbah, SEO Expert, World Explorer, Pouvoir en ligne, Web Development, Affiliate Marketing" />
             </Head>
 
-            <section className='bg-blue-50 py-10 px-4 sm:px-6 lg:px-8'>
+            {/* <section className='bg-blue-50 py-10 px-4 sm:px-6 lg:px-8'> */}
+            <section className='text-white py-10 px-4 sm:px-6 lg:px-8'>
                 <div className='max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-10'>
 
                     {/* Left Side */}
