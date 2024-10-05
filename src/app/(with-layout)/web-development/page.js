@@ -15,20 +15,36 @@ export const metadata = {
 
 const page = () => {
     return (
-        <section>
-            <div className="bg-blue-50 ">
-                <div className="bg-sky-100 poppins-regular py-16 shadow-md shadow-gray-300">
+        <section className="min-h-screen border-b border-b-gray-800"
+            style={{
+                background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
+            }}>
+            <div className=" ">
+                <div className=" poppins-regular py-16 border-b border-b-gray-700">
                     {/* Main Container */}
                     <div className="space-y-6  max-w-4xl mx-auto text-center justify-center mb-10">
-                        <h1 className="lg:text-5xl text-3xl font-bold text-gray-800">Web Development Services</h1>
-                        <p className="text-gray-700 text-lg">
+                        <h1 className="lg:text-5xl text-3xl font-bold text-gray-100">Web Development Services</h1>
+                        <p className="text-gray-200 text-lg">
                             Your website’s infrastructure is crucial for its optimal performance. We offer comprehensive support, whether enhancing your in-house development team’s efforts or building a new web property from the ground up. Our focus includes increasing page speed, ensuring seamless user experiences, and providing ongoing maintenance to keep your site current and optimized.
                         </p>
-                        <Link href="/contact">
-                            <button className="mt-4 px-8 py-3 bg-sky-700 text-white rounded-full hover:bg-opacity-75 hover:bg-sky-800 transition duration-300 ease-in-out">
-                                Contact Ataullah Mesbah Today
-                            </button>
-                        </Link>
+
+                        {/* Contact Link */}
+                        <div className="py-5 ">
+                            <div className="grid gap-8 justify-center items-center ">
+                                <div className="relative group">
+
+                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+
+
+                                    <button className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 justify-center text-center">
+
+                                        <a href='/contact' className="pl-6 text-indigo-400 group-hover:text-gray-100 transition duration-200">Contact Ataullah Mesbah Today &rarr;</a>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
                 </div>
 
@@ -43,15 +59,15 @@ const page = () => {
                                 { title: 'Maintenance & Support', description: 'Continuous support to keep your site up-to-date.' },
                             ].map((service, index) => (
                                 <div key={index} className="flex items-center space-x-4">
-                                    <div className="bg-sky-100 p-4 rounded-full">
+                                    <div className="bg-blue-950 p-3 rounded-full drop-shadow-lg transition ease-in-out delay-150  hover:-translate-y-1 hover:scale-110 hover:bg-indigo-800 duration-1000">
                                         {/* Add an Icon Here */}
-                                        <svg className="w-6 h-6 text-sky-700" fill="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-6 h-6 text-sky-400" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M12 2a10 10 0 11-10 10A10 10 0 0112 2m0-2a12 12 0 1012 12A12 12 0 0012 0z" />
                                         </svg>
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-semibold text-gray-800">{service.title}</h3>
-                                        <p className="text-gray-600">{service.description}</p>
+                                        <h3 className="text-lg font-semibold text-gray-100">{service.title}</h3>
+                                        <p className="text-gray-300">{service.description}</p>
                                     </div>
                                 </div>
                             ))}
