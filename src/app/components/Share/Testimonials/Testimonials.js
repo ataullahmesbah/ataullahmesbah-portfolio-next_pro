@@ -84,7 +84,7 @@ const Testimonials = () => {
                 >
                     {reviews.map((review) => (
                         <SwiperSlide key={review._id}>
-                            <div className={`${review.category === 'Blue' ? 'bg-blue-500' : 'bg-gray-100 shadow-md'} text-black p-6 rounded-lg mb-6 max-w-sm mx-auto`}>
+                            <div className={`${review.category === 'Blue' ? 'bg-white' : 'bg-slate-700 border-e-8 border--4 border-l-violet-500 border-e-slate-900 shadow-sky-400 shadow-md '} text-gray-200 p-6 rounded-xl mb-6 max-w-sm mx-auto`}>
                                 <div className="flex justify-center items-center mb-4 relative">
                                     {/* Image */}
                                     <div className="relative">
@@ -96,7 +96,7 @@ const Testimonials = () => {
                                             className="rounded-full w-14 h-14 border border-gray-400"
                                         />
                                         {/* Google Icon Positioned Next to Image */}
-                                        <FaGoogle className="absolute bottom-0 right-0 text-sky-900 bg-white rounded-full p-1" />
+                                        <FaGoogle className="absolute bottom-0 right-0 text-white bg-gray-800 rounded-full p-1" />
                                     </div>
                                 </div>
 
@@ -105,8 +105,8 @@ const Testimonials = () => {
                                 <Rating
                                     initialRating={review.rating}
                                     readonly
-                                    emptySymbol={<FaRegStar className="text-yellow-400" />}
-                                    fullSymbol={<FaStar className="text-yellow-400" />}
+                                    emptySymbol={<FaRegStar className="text-yellow-500" />}
+                                    fullSymbol={<FaStar className="text-yellow-500" />}
                                     fractions={2} // Allows for half-star ratings
                                 />
                                 <p className="text-sm mt-4">{review.description}</p>

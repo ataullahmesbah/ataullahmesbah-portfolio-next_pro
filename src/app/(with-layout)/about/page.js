@@ -16,7 +16,17 @@ const page = () => {
 
 
     return (
-        <>
+
+        <main className="min-h-screen border-b border-b-gray-800"
+        style={{
+            background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
+        }}>
+
+      
+       
+
+
+                
             {/* Main Banner Section */}
             <div className="">
                 <AboutBanner />
@@ -30,7 +40,7 @@ const page = () => {
             </div>
 
             {/* Who is Ataullah Mesbah Section */}
-            <section className="bg-blue-50 py-10 px-4 sm:px-6 lg:px-8">
+            <section className=" py-10 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-10 poppins-regular">
                     {/* left Side */}
                     <div className='w-full lg:w-1/2 flex justify-center lg:justify-end'>
@@ -49,7 +59,7 @@ const page = () => {
                     </div>
 
                     {/* right Side */}
-                    <div className="lg:w-1/2 space-y-6">
+                    <div className="lg:w-1/2 space-y-6 text-white">
                         <header>
                             <div className="flex items-center gap-2 mb-4">
                                 <div className="border-l-4 border-sky-800 h-10"></div>
@@ -74,29 +84,29 @@ const page = () => {
             </section>
 
             {/* SEO Section */}
-            <section className="bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
+            <section className=" py-10 px-4 sm:px-6 lg:px-8 border-t border-t-gray-700">
                 <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-10 poppins-regular">
                     {/* Left Side */}
-                    <div className="space-y-4">
+                    <div className="space-y-4 text-white">
 
                         <div className="flex items-center gap-2 mb-4">
-                            <div className="border-l-4 border-sky-800 h-10"></div>
-                            <h4 className="text-3xl font-bold text-gray-800">
+                            <div className="border-l-4 border-sky-400 h-10"></div>
+                            <h4 className="text-3xl font-bold ">
                                 SEO Expert Ataullah Mesbah
                             </h4>
                         </div>
 
-                        <p className="text-base text-gray-700 leading-relaxed">
+                        <p className="text-base  leading-relaxed">
                             Ataullah Mesbah began his SEO journey in 2020, driven by a passion for digital marketing and a keen interest in search engine optimization. He started by mastering industry-leading tools such as Ahrefs, Moz, and SEMrush. His dedication to learning and adapting to the ever-evolving digital landscape has positioned him as a prominent figure in the SEO community.
                         </p>
-                        <p className="text-base text-gray-700 leading-relaxed">
+                        <p className="text-base  leading-relaxed">
                             Over the years, Ataullah has worked with various clients across multiple industries, helping them improve their online presence and achieve higher search engine rankings. His approach combines technical SEO expertise with creative strategies to drive organic traffic and enhance user engagement.
                         </p>
 
-                        <p className="text-base text-gray-700 leading-relaxed">
+                        <p className="text-base  leading-relaxed">
                             His commitment to excellence and his strategic approach have earned him recognition in the industry, making him a sought-after SEO consultant for businesses looking to enhance their digital footprint and achieve sustainable growth.
                         </p>
-                        <Link href='/seo' className="flex gap-3 items-center text-sky-800">
+                        <Link href='/seo' className="flex gap-3 items-center text-sky-400">
                             <p className=" hover:underline">Get to Know SEO </p>
 
                             <FaArrowAltCircleRight />
@@ -124,7 +134,7 @@ const page = () => {
 
 
             {/* Web Development */}
-            <section className="bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
+            <section className=" py-10 px-4 sm:px-6 lg:px-8 border-b border-b-gray-600">
                 <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:justify-between gap-10">
                     {/* Left Side */}
                     <div className='w-full lg:w-1/2 flex justify-center lg:justify-end'>
@@ -144,19 +154,19 @@ const page = () => {
 
                     {/* Right Side */}
                     <div className="lg:w-1/2 space-y-3 poppins-regular">
-                        <h4 className="text-2xl font-bold text-gray-800">
+                        <h4 className="text-2xl font-bold text-gray-100">
                             My Web Development Journey
                         </h4>
-                        <p className="text-base text-gray-700 leading-relaxed">
+                        <p className="text-base text-gray-200 leading-relaxed">
                             My web development journey began with a passion for technology and a drive to create impactful digital experiences. Since starting in the field, I have immersed myself in various technologies and frameworks, including Node.js, Express, and MongoDB. My expertise extends to building custom websites, e-commerce platforms, and portfolio sites, as well as working with modern tools such as Next.js, Redux, and React Native.
                         </p>
-                        <p className="text-base text-gray-700 leading-relaxed">
+                        <p className="text-base text-gray-200 leading-relaxed">
                             Over the years, I have tackled a range of projects from complex web applications to dynamic e-commerce solutions. My approach focuses on leveraging cutting-edge technologies to deliver robust, scalable, and user-friendly solutions tailored to client’s needs.
                         </p>
-                        <p className="text-base text-gray-700 leading-relaxed">
+                        <p className="text-base text-gray-200 leading-relaxed">
                             My dedication to continuous learning and staying updated with the latest industry trends has allowed me to refine my skills and deliver high-quality results. Whether developing from scratch or enhancing existing systems, I strive to provide innovative solutions that drive success and exceed expectations.
 
-                            <Link href='/web-development' className="flex gap-3 items-center text-sky-800">
+                            <Link href='/web-development' className="flex gap-3 items-center text-sky-400">
                                 <p className=" hover:underline">Get to Know Web Development </p>
 
                                 <FaArrowAltCircleRight />
@@ -174,20 +184,7 @@ const page = () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-        </>
+            </main>
     );
 };
 

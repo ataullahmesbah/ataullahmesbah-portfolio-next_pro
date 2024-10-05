@@ -32,7 +32,7 @@ const SEOTabs = () => {
                             className="flex flex-col space-y-4 bg-gray-200 hover:text-cyan-600 items-center justify-center shadow-md shadow-red-500 rounded-lg p-4 text-center hover:shadow-md  hover:border-cyan-800  hover:shadow-cyan-500 transition duration-300 ease-linear transform  hover:scale-105"
                         >
                             <Image
-                                className="w-12 h-12"
+                                className="w-12 h-12 "
                                 src={service.image}
                                 alt={service.title}
                                 width={50}

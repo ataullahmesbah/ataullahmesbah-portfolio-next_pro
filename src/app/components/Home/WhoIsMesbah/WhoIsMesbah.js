@@ -21,7 +21,7 @@ const WhoIsMesbah = () => {
                         <header>
                             <div className='flex items-center gap-2 mb-4'>
                                 {/* Vertical Border */}
-                                <div className=' border-l-4 border-sky-800 h-full min-h-10'></div>
+                                <div className=' border-l-4 border-sky-400 h-full min-h-10'></div>
                                 <h1 className='text-3xl font-bold'>Who is Ataullah Mesbah?</h1>
                             </div>
                             <h2 className='text-lg font-semibold'>

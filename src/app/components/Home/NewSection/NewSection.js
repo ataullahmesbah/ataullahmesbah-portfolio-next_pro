@@ -10,7 +10,7 @@ const NewSection = () => {
                     <h2 className="text-5xl font-bold">What We Are Building</h2>
                     <div className="flex space-x-12 mt-8">
                         <div>
-                            <h3 className="text-4xl font-bold">195+</h3>
+                            <h3 className="text-4xl font-bold">78+</h3>
                             <p className="text-lg text-gray-400">Countries</p>
                         </div>
                         <div>

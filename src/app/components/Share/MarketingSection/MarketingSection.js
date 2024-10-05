@@ -38,20 +38,34 @@ const MarketingSection = () => {
                 {services.map((service, index) => (
                     <div
                         key={index}
-                        className="bg-gray-700 border shadow-md rounded-lg p-6 text-center transition-transform transform hover:scale-105"
+                        className="bg-gray-800 border-e-purple-600 border-e-4 shadow-md shadow-blue-500 hover:shadow-2xl hover:shadow-blue-500 rounded-lg p-6 text-center transition-transform transform hover:scale-105 duration-1000"
                     >
                         <div className="flex justify-center mb-4">
                             {iconMap[service.icon]}
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900">{service.title}</h3>
-                        <p className="mt-4 text-gray-600">{service.description}</p>
+                        <h3 className="text-xl font-bold text-text">{service.title}</h3>
+                        <p className="mt-4 text-gray-200">{service.description}</p>
 
 
-                        <button className="mt-6 px-5 py-2 border-2 border-sky-800   text-black font-medium rounded-md hover:bg-sky-900  hover:text-white transition">
-                            <Link href={service.link} >
-                                Learn More
-                            </Link >
-                        </button>
+
+
+                        <div className="py-5">
+                            <div className="grid gap-8 justify-center items-center">
+                                <div className="relative group">
+
+                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+
+
+                                    <button
+                                        type="submit"
+                                        className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 justify-center text-center">
+
+                                        <a href={service.link} className=" text-indigo-400 group-hover:text-gray-100 transition duration-200">See More</a>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 ))}
             </div>
