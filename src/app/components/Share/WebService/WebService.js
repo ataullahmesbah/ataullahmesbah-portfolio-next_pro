@@ -38,7 +38,7 @@ const WebService = () => {
     return (
         <div>
             {serviceSections.length === 0 ? (
-                <p className="text-center text-gray-700">Loading...</p>
+                <p className="text-center text-gray-100">Loading...</p>
             ) : (
                 serviceSections.map((section) => (
                     <WebServiceDetails

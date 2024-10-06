@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import Rating from 'react-rating';
-import { FaStar, FaRegStar, FaGoogle } from 'react-icons/fa';
+import { FaStar, FaRegStar, FaGoogle, FaUser } from 'react-icons/fa';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/autoplay';
@@ -88,13 +88,17 @@ const Testimonials = () => {
                                 <div className="flex justify-center items-center mb-4 relative">
                                     {/* Image */}
                                     <div className="relative">
-                                        <Image
-                                            src={review.image}
-                                            alt={review.user_name}
-                                            width={50}
-                                            height={50}
-                                            className="rounded-full w-14 h-14 border border-gray-400"
-                                        />
+                                        {review.image ? (
+                                            <Image
+                                                src={review.image}
+                                                alt={review.user_name}
+                                                width={50}
+                                                height={50}
+                                                className="rounded-full w-14 h-14 border border-gray-400"
+                                            />
+                                        ) : (
+                                            <FaUser className="w-14 h-14 p-2 text-gray-400 rounded-full border border-gray-400" />
+                                        )}
                                         {/* Google Icon Positioned Next to Image */}
                                         <FaGoogle className="absolute bottom-0 right-0 text-white bg-gray-800 rounded-full p-1" />
                                     </div>
@@ -120,7 +124,7 @@ const Testimonials = () => {
                 </Swiper>
 
                 {/* Pagination Dots */}
-                
+
             </div>
 
             {/* Display average rating and total reviews */}

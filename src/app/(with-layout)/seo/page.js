@@ -15,11 +15,11 @@ const page = () => {
     return (
 
         <section className="min-h-screen border-b border-b-gray-800"
-        style={{
-            background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
-        }}>
+            style={{
+                background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
+            }}>
             <div className=" py-12 shadow-md border-b border-b-gray-700 poppins-regular">
-                <div className="max-w-3xl w-1/2 mx-auto py-8">
+                <div className="lg:max-w-3xl lg:w-1/2 mx-auto py-8">
                     {/* Left Text Side */}
                     <div className="  justify-center items-center space-y-6 text-center  px-4">
                         <h1 className="lg:text-4xl text-3xl font-bold text-gray-100 ">Search Engine Optimization (SEO) <br />Services</h1>
@@ -74,16 +74,16 @@ const page = () => {
             {/* SEO services */}
             <div className="max-w-7xl mx-auto items-center text-center poppins-regular py-8 px-4 lg:px-8 text-white text-xs md:text-base lg:text-base">
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 justify-center mx-auto">
-                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">E-commerce SEO</div>
-                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">Technical SEO</div>
-                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">Keyword Research</div>
-                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">International SEO</div>
-                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">Local SEO</div>
-                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">On-Page SEO</div>
-                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">Off-Page SEO</div>
-                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">Link Building</div>
-                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">SEO Consulting</div>
-                    <div className="bg-sky-700 hover:bg-sky-800 transition-colors p-3 rounded-md">SEO Audit</div>
+                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">E-commerce SEO</div>
+                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">Technical SEO</div>
+                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">Keyword Research</div>
+                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">International SEO</div>
+                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">Local SEO</div>
+                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">On-Page SEO</div>
+                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">Off-Page SEO</div>
+                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">Link Building</div>
+                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">SEO Consulting</div>
+                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">SEO Audit</div>
                 </div>
             </div>
 

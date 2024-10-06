@@ -28,8 +28,8 @@ const WebPackage = () => {
 
     return (
         <section className="py-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h1 className="text-4xl font-bold text-center text-gray-100 mb-12">
+            <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+                <h1 className="text-3xl font-bold text-center text-gray-100 mb-12">
                     Web Service Packages
                 </h1>
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -37,17 +37,17 @@ const WebPackage = () => {
                         <div
                             key={pkg._id}
                             className="
-                                relative bg-white shadow-2xl shadow-cyan-200 rounded-lg p-6 flex flex-col h-full 
-                                transform transition-transform duration-300 ease-out 
-                                hover:scale-105 hover:-rotate-1 border hover:border-sky-700 hover:shadow-lg hover:shadow-sky-700
+                                relative flex flex-col h-full 
+                                bg-gray-800 border-e-purple-600 border-e-4 shadow-md shadow-blue-500 hover:shadow-2xl hover:shadow-blue-500 rounded-lg p-6  transition-transform transform hover:scale-105 duration-1000 poppins-regular
                             "
+
                         >
-                            <h2 className="text-2xl font-bold text-gray-800">{pkg.name}</h2>
-                            <p className="mt-4 text-gray-600">{pkg.description}</p>
+                            <h2 className="text-2xl font-bold text-gray-100">{pkg.name}</h2>
+                            <p className="mt-4 text-gray-200">{pkg.description}</p>
                             <ul className="mt-4 space-y-2">
                                 {pkg.features.map((feature, index) => (
-                                    <li key={index} className="text-gray-600 flex items-center">
-                                        <FaCheckCircle className="text-sky-700 mr-2" /> {feature}
+                                    <li key={index} className="text-gray-300 flex items-center">
+                                        <FaCheckCircle className="text-white mr-2" /> {feature}
                                     </li>
                                 ))}
                             </ul>
@@ -56,21 +56,25 @@ const WebPackage = () => {
                             <div className="flex-grow"></div>
 
                             {/* Pricing section */}
-                            <div className="flex items-center gap-2 mt-4">
-                                <p className="text-xl font-bold text-sky-700">${pkg.discount.toLocaleString()}</p>
+                            <div className="flex items-center gap-5 mt-4">
+                                <p className="text-2xl font-semibold text-white">${pkg.discount.toLocaleString()}</p>
                                 {pkg.discount < pkg.price && (
-                                    <p className="text-red-500 line-through">${pkg.price.toLocaleString()}</p>
+                                    <p className="text-red-400 text-xl line-through">${pkg.price.toLocaleString()}</p>
                                 )}
                             </div>
 
                             {/* Contact button */}
-                            <div className="mt-4">
-                                <Link href="/contact">
-                                    <button className="w-full px-6 py-2 bg-sky-700 text-white rounded hover:bg-opacity-75 hover:bg-sky-800 transition duration-300 ease-in-out">
-                                        Contact
+                            <div className="py-2 mt-4 w-full">
+                                <div className="relative group w-full">
+                                    <div className="absolute inset-0 w-full bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+
+                                    <button className="relative w-full px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 justify-center text-center">
+                                        <a href='/contact' className="pl-6 text-indigo-400 group-hover:text-gray-100 transition duration-200 w-full text-center">Contact &rarr;</a>
                                     </button>
-                                </Link>
+                                </div>
                             </div>
+
+
                         </div>
                     ))}
                 </div>

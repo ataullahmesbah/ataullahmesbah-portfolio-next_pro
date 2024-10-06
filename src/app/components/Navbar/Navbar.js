@@ -52,14 +52,14 @@ const Navbar = () => {
                         </button>
 
                         {isDropdownOpen && (
-                            <div className="absolute left-0 mt-2 w-96 bg-white shadow-lg rounded-lg py-2 z-20" onMouseLeave={closeDropdown}>
-                                <Link href='/web-development' className="block px-4 py-2 text-gray-800 hover:bg-blue-200" onClick={() => setIsMobileMenuOpen(false)}>
+                            <div className="absolute left-0 mt-2 w-96 bg-gray-700 shadow-lg rounded-lg py-2 z-20" onMouseLeave={closeDropdown}>
+                                <Link href='/web-development' className="block px-4 py-2 text-gray-100 hover:bg-gray-800" onClick={() => setIsMobileMenuOpen(false)}>
                                     Web Development
                                 </Link>
-                                <Link href='/seo' className="block px-4 py-2 w-full text-gray-800 hover:bg-blue-200" onClick={() => setIsMobileMenuOpen(false)}>
+                                <Link href='/seo' className="block px-4 py-2 w-full text-gray-100 hover:bg-gray-800" onClick={() => setIsMobileMenuOpen(false)}>
                                     Search Engine Optimization
                                 </Link>
-                                <Link href='/affiliate-program' className="block px-4 py-2 text-gray-800 hover:bg-blue-200" onClick={() => setIsMobileMenuOpen(false)}>
+                                <Link href='/affiliate-program' className="block px-4 py-2 text-gray-100 hover:bg-gray-800" onClick={() => setIsMobileMenuOpen(false)}>
                                     Affiliate Program
                                 </Link>
                             </div>

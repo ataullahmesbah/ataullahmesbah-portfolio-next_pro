@@ -33,7 +33,7 @@ const SEOService = () => {
     return (
         <div className="max-w-7xl mx-auto px-4 lg:px-8 ">
             {serviceSections.length === 0 ? (
-                <p className="text-center text-gray-700 text-lg">Loading...</p>
+                <p className="text-center text-gray-100 text-lg">Loading...</p>
             ) : (
                 serviceSections.map((section) => (
                     <SEOServiceDetails

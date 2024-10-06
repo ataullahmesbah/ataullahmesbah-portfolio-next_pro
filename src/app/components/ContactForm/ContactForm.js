@@ -48,13 +48,13 @@ const ContactForm = () => {
     };
 
     return (
-        <main className="bg-sky-50 py-10">
+        <main className=" py-10">
             <ToastContainer /> {/* React Toastify container */}
 
             {/* Contact Information Section */}
             <div className="max-w-2xl mx-auto text-center mb-12">
-                <h2 className="text-3xl font-bold text-gray-800">Book A Meeting Today!</h2>
-                <p className="text-gray-600 mt-2">We’re here to help! Feel free to reach out to us anytime.</p>
+                <h2 className="text-3xl font-bold text-gray-100">Book A Meeting Today!</h2>
+                <p className="text-gray-200 mt-2">We’re here to help! Feel free to reach out to us anytime.</p>
                 <hr className=" my-6 border-gray-300 w-1/2 mx-auto" />
             </div>
 
@@ -74,7 +74,7 @@ const ContactForm = () => {
                                         onChange={handleChange}
                                         required
                                         placeholder='First Name*'
-                                        className={`mt-1 p-3 w-full border ${errors && !formData.firstName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
+                                        className={`mt-1 p-3 w-full bg-gray-200  border ${errors && !formData.firstName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200 `}
                                     />
                                 </div>
                                 <div>
@@ -87,7 +87,7 @@ const ContactForm = () => {
                                         onChange={handleChange}
                                         required
                                         placeholder='First Name*'
-                                        className={`mt-1 p-3 w-full border ${errors && !formData.lastName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
+                                        className={`mt-1 p-3 w-full bg-gray-200 border ${errors && !formData.lastName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
                                     />
                                 </div>
                             </div>
@@ -102,7 +102,7 @@ const ContactForm = () => {
                                         onChange={handleChange}
                                         required
                                         placeholder='Email*'
-                                        className={`mt-1 p-3 w-full border ${errors && !formData.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
+                                        className={`mt-1 p-3 w-full bg-gray-200 border ${errors && !formData.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
                                     />
                                 </div>
                                 <div>
@@ -115,7 +115,7 @@ const ContactForm = () => {
                                         onChange={handleChange}
                                         required
                                         placeholder='Phone No*'
-                                        className={`mt-1 p-3 w-full border ${errors && !formData.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
+                                        className={`mt-1 p-3 w-full bg-gray-200 border ${errors && !formData.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
                                     />
                                 </div>
                             </div>
@@ -129,29 +129,39 @@ const ContactForm = () => {
                                     onChange={handleChange}
                                     required
                                     placeholder='Message*'
-                                    className={`mt-1 p-3 w-full border ${errors && !formData.message ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
+                                    className={`mt-1 p-3 w-full bg-gray-200 border ${errors && !formData.message ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
                                 ></textarea>
                             </div>
-                            <div className="">
-                                <button
-                                    type="submit"
-                                    className="bg-sky-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-sky-900 transition duration-200"
-                                >
-                                    Submit
-                                </button>
+
+                            <div className="pt-2">
+                                <div className="grid gap-8 justify-start items-start ">
+                                    <div className="relative group">
+
+                                        <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+
+
+                                        <button
+                                            type="submit"
+                                            className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 justify-center text-center">
+
+                                            <p href='/contact' className=" text-indigo-400 group-hover:text-gray-100 transition duration-200">Submit</p>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
+
                         </form>
                     </div>
                 </div>
 
                 {/* Contact Image */}
-                <div className="w-full flex justify-center md:justify-end">
+                <div className="w-full flex justify-center md:justify-end ">
                     <Image
                         src={contact}
                         alt="ataullahmesbah contact page"
                         width={500}
                         height={500}
-                        className="rounded-lg object-contain"
+                        className="rounded-lg object-contain "
                     />
                 </div>
             </div>

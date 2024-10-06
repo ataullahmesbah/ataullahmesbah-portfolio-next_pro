@@ -22,7 +22,7 @@ const page = () => {
             <div className=" ">
                 <div className=" poppins-regular py-16 border-b border-b-gray-700">
                     {/* Main Container */}
-                    <div className="space-y-6  max-w-4xl mx-auto text-center justify-center mb-10">
+                    <div className="space-y-6 max-w-4xl mx-auto text-center justify-center mb-10 px-3">
                         <h1 className="lg:text-5xl text-3xl font-bold text-gray-100">Web Development Services</h1>
                         <p className="text-gray-200 text-lg">
                             Your website’s infrastructure is crucial for its optimal performance. We offer comprehensive support, whether enhancing your in-house development team’s efforts or building a new web property from the ground up. Our focus includes increasing page speed, ensuring seamless user experiences, and providing ongoing maintenance to keep your site current and optimized.
@@ -89,16 +89,14 @@ const page = () => {
                         {/* TO DO List */}
                         <WebPackage />
                     </div>
-                    <div>
+                    
+                </div>
+
+                <div>
                         {/* TO DO List */}
                         <ContactAssistance />
                     </div>
-
-
-
-
-
-                </div>
+                    
             </div>
         </section>
     );
