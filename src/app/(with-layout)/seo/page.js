@@ -14,20 +14,33 @@ const page = () => {
 
     return (
 
-        <section >
-            <div className="bg-blue-50 py-12 shadow-md shadow-gray-300 poppins-regular">
+        <section className="min-h-screen border-b border-b-gray-800"
+        style={{
+            background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
+        }}>
+            <div className=" py-12 shadow-md border-b border-b-gray-700 poppins-regular">
                 <div className="max-w-3xl w-1/2 mx-auto py-8">
                     {/* Left Text Side */}
                     <div className="  justify-center items-center space-y-6 text-center  px-4">
-                        <h1 className="lg:text-4xl text-3xl font-bold text-gray-800 ">Search Engine Optimization (SEO) <br />Services</h1>
-                        <p className="text-gray-700 text-lg">
+                        <h1 className="lg:text-4xl text-3xl font-bold text-gray-100 ">Search Engine Optimization (SEO) <br />Services</h1>
+                        <p className="text-gray-200 text-lg">
                             Boost your website’s visibility with our expert SEO services. We specialize in optimizing your site for search engines to ensure you rank higher and attract more visitors.
                         </p>
-                        <Link href='/contact'>
-                            <button className="mt-4 px-6 py-2 bg-sky-700 text-white rounded hover:bg-opacity-75 hover:bg-sky-800">
-                                Contact Ataullah Mesbah Today
-                            </button>
-                        </Link>
+                        {/* Contact Link */}
+                        <div className="py-5 ">
+                            <div className="grid gap-8 justify-center items-center ">
+                                <div className="relative group">
+
+                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+
+
+                                    <button className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 justify-center text-center">
+
+                                        <a href='/contact' className="pl-6 text-indigo-400 group-hover:text-gray-100 transition duration-200">Contact Ataullah Mesbah Today &rarr;</a>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
 

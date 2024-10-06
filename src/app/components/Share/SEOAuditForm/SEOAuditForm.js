@@ -62,13 +62,21 @@ const SEOAuditForm = () => {
                     className="mt-1 p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
                 />
             </div>
-            <div className='bg-sky-800 hover:bg-sky-700 w-1/2 rounded-md'>
-                <button
-                    type="submit"
-                    className=" text-white p-3 rounded-md   transition-colors"
-                >
-                    Get Audit
-                </button>
+            <div className="pt-2">
+                <div className="grid gap-8 justify-start items-start ">
+                    <div className="relative group">
+
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+
+
+                        <button
+                            type="submit"
+                            className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 justify-center text-center">
+
+                            <p href='/contact' className=" text-indigo-400 group-hover:text-gray-100 transition duration-200">Get Audit</p>
+                        </button>
+                    </div>
+                </div>
             </div>
         </form>
     );
