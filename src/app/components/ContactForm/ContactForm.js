@@ -16,6 +16,7 @@ const ContactForm = () => {
     });
 
     const [errors, setErrors] = useState(false);
+    const [loading, setLoading] = useState(false); // Loading state
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -28,19 +29,32 @@ const ContactForm = () => {
     const validateForm = () => {
         const { firstName, lastName, email, phone, message } = formData;
         if (!firstName || !lastName || !email || !phone || !message) {
-            return false; // Validation fails
+            return false;
         }
-        return true; // Validation passes
+        return true;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Form validation
         if (validateForm()) {
-            // Handle form submission logic here
-            toast.success('Meeting booked successfully!');
-            console.log(formData);
-            setErrors(false);
+            setLoading(true); // Start loading
+            toast.info('Submitting...');
+
+            // Simulate form submission (e.g., API call)
+            setTimeout(() => {
+                toast.success('Meeting booked successfully!');
+                setLoading(false); // Stop loading after success
+                setErrors(false);
+
+                // Clear form fields
+                setFormData({
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                    phone: '',
+                    message: ''
+                });
+            }, 2000); // Simulate delay for form submission
         } else {
             toast.error('Please fill all fields before submitting.');
             setErrors(true);
@@ -65,7 +79,6 @@ const ContactForm = () => {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-
                                     <input
                                         type="text"
                                         name="firstName"
@@ -73,12 +86,12 @@ const ContactForm = () => {
                                         value={formData.firstName}
                                         onChange={handleChange}
                                         required
-                                        placeholder='First Name*'
-                                        className={`mt-1 p-3 w-full bg-gray-200  border ${errors && !formData.firstName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200 `}
+                                        placeholder="First Name*"
+                                        className={`mt-1 p-3 w-full bg-gray-200 border ${errors && !formData.firstName ? 'border-red-500' : 'border-gray-300'
+                                            } rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
                                     />
                                 </div>
                                 <div>
-
                                     <input
                                         type="text"
                                         name="lastName"
@@ -86,14 +99,14 @@ const ContactForm = () => {
                                         value={formData.lastName}
                                         onChange={handleChange}
                                         required
-                                        placeholder='First Name*'
-                                        className={`mt-1 p-3 w-full bg-gray-200 border ${errors && !formData.lastName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
+                                        placeholder="Last Name*"
+                                        className={`mt-1 p-3 w-full bg-gray-200 border ${errors && !formData.lastName ? 'border-red-500' : 'border-gray-300'
+                                            } rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
                                     />
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-
                                     <input
                                         type="email"
                                         name="email"
@@ -101,12 +114,12 @@ const ContactForm = () => {
                                         value={formData.email}
                                         onChange={handleChange}
                                         required
-                                        placeholder='Email*'
-                                        className={`mt-1 p-3 w-full bg-gray-200 border ${errors && !formData.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
+                                        placeholder="Email*"
+                                        className={`mt-1 p-3 w-full bg-gray-200 border ${errors && !formData.email ? 'border-red-500' : 'border-gray-300'
+                                            } rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
                                     />
                                 </div>
                                 <div>
-
                                     <input
                                         type="tel"
                                         name="phone"
@@ -114,13 +127,13 @@ const ContactForm = () => {
                                         value={formData.phone}
                                         onChange={handleChange}
                                         required
-                                        placeholder='Phone No*'
-                                        className={`mt-1 p-3 w-full bg-gray-200 border ${errors && !formData.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
+                                        placeholder="Phone No*"
+                                        className={`mt-1 p-3 w-full bg-gray-200 border ${errors && !formData.phone ? 'border-red-500' : 'border-gray-300'
+                                            } rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
                                     />
                                 </div>
                             </div>
                             <div>
-
                                 <textarea
                                     name="message"
                                     id="message"
@@ -128,28 +141,29 @@ const ContactForm = () => {
                                     value={formData.message}
                                     onChange={handleChange}
                                     required
-                                    placeholder='Message*'
-                                    className={`mt-1 p-3 w-full bg-gray-200 border ${errors && !formData.message ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
+                                    placeholder="Message*"
+                                    className={`mt-1 p-3 w-full bg-gray-200 border ${errors && !formData.message ? 'border-red-500' : 'border-gray-300'
+                                        } rounded-lg focus:outline-none focus:ring focus:ring-blue-200`}
                                 ></textarea>
                             </div>
 
                             <div className="pt-2">
                                 <div className="grid gap-8 justify-start items-start ">
                                     <div className="relative group">
-
                                         <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
-
 
                                         <button
                                             type="submit"
-                                            className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 justify-center text-center">
-
-                                            <p href='/contact' className=" text-indigo-400 group-hover:text-gray-100 transition duration-200">Submit</p>
+                                            disabled={loading} // Disable button when loading
+                                            className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 justify-center text-center"
+                                        >
+                                            <p className="text-indigo-400 group-hover:text-gray-100 transition duration-200">
+                                                {loading ? 'Submitting...' : 'Submit'}
+                                            </p>
                                         </button>
                                     </div>
                                 </div>
                             </div>
-
                         </form>
                     </div>
                 </div>
@@ -165,10 +179,6 @@ const ContactForm = () => {
                     />
                 </div>
             </div>
-
-
-
-
         </main>
     );
 };
