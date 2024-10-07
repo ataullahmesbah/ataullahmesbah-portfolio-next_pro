@@ -23,20 +23,16 @@ const ContactAssistance = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Simple form validation
+        
         if (!formData.name || !formData.email || !formData.phone || !formData.comment) {
             toast.error("Please fill out all required fields.");
             return;
         }
-
-        // Show success toast notification
+        
         toast.success("Your message has been sent successfully!");
 
-        // Handle form submission logic here
         console.log('Form Data:', formData);
-        // You can send formData to your backend or API for further processing
-
-        // Optionally, reset form
+        
         setFormData({
             comment: '',
             name: '',
