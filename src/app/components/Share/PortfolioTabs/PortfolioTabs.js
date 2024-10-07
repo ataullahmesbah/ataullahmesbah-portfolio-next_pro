@@ -17,6 +17,8 @@ const PortfolioTabs = () => {
                 return <SEOTabs />;
             case 'Web Development':
                 return <WebTabs />;
+            case 'Content Creator':
+                return <WebTabs />;
             case 'Travel':
                 return <TravelTabs />;
             case 'Sports':
@@ -40,7 +42,7 @@ const PortfolioTabs = () => {
         <div className="max-w-7xl mx-auto py-10 poppins-regular">
             {/* Tabs Navigation */}
             <div className="flex flex-wrap justify-center mb-4">
-                {['SEO', 'Web Development', 'Travel', 'Sports'].map((tab) => (
+                {['SEO', 'Web Development', 'Content Creator', 'Travel', 'Sports'].map((tab) => (
                     <button
                         key={tab}
                         onClick={() => handleTabChange(tab)}
