@@ -36,8 +36,9 @@ const page = () => {
                 <WhoIsMesbah />
                 <MarketingSection />
                 <Testimonials />
-                <ContactAssistance />
                 <NewSection />
+                <ContactAssistance />
+
 
 
             </main>
