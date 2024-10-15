@@ -76,7 +76,7 @@ const Navbar = () => {
 
                         {/* Services Dropdown */}
                         <div className="inline-block relative">
-                            <button onClick={toggleDropdown} className="flex items-center focus:outline-none">
+                            <button onClick={toggleDropdown} className="flex items-center focus:outline-none px-4">
                                 Marketing Services
                                 {isDropdownOpen ? <FaCaretUp className="ml-1" /> : <FaCaretDown className="ml-1" />}
                             </button>
@@ -113,6 +113,9 @@ const Navbar = () => {
 
                         <Link href="/blog" className={`${isActiveLink('/blog')} px-4`} onClick={closeMobileMenu}>
                             Blog
+                        </Link>
+                        <Link href="/letter" className={`${isActiveLink('/blog')} px-4`} onClick={closeMobileMenu}>
+                            Letter
                         </Link>
                         <Link href="/about" className={`${isActiveLink('/about')} px-4`} onClick={closeMobileMenu}>
                             About
