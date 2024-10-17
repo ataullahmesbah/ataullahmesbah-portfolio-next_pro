@@ -49,6 +49,27 @@ const NewsLetter = () => {
 
                 </div>
             </div>
+
+
+            {/* section - 2 */}
+
+            <div className="max-w-7xl mx-auto flex flex-row justify-between items-center py-10">
+
+                {/* left side info */}
+                <div className="space-y-6 ">
+                    <h6 className="text-gray-400 text-center">The Magic of</h6>
+                    <p className=" text-5xl font-extrabold text-gray-500 text-center">History & Letters</p>
+                    <p className="font-thin">We bring back the charm of a physical letter, delivered to you via post every month.</p>
+                    <p className="font-thin">Each letter contains Irish history, designed and written for children. </p>
+
+
+
+
+                </div>
+
+                {/* right side images */}
+                <div className=""></div>
+            </div>
         </div>
     );
 };
