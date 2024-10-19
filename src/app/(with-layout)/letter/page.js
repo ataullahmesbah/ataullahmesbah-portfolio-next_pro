@@ -1,4 +1,7 @@
 import { FaClinicMedical, FaMailchimp } from "react-icons/fa";
+import letter1 from '/public/images/letter/letter1.png';
+import Image from "next/image";
+import DynamicButton from "@/app/components/Share/Button/DynamicButton/DynamicButton";
 
 {/* This is my newsletter platform */ }
 
@@ -53,14 +56,14 @@ const NewsLetter = () => {
 
             {/* section - 2 */}
 
-            <div className="max-w-7xl mx-auto flex flex-row justify-between items-center py-10">
+            <div className="max-w-5xl text-xl mx-auto flex flex-row justify-between items-center poppins-regular space-x-10 py-16">
 
                 {/* left side info */}
                 <div className="space-y-6 ">
-                    <h6 className="text-gray-400 text-center">The Magic of</h6>
-                    <p className=" text-5xl font-extrabold text-gray-500 text-center">History & Letters</p>
-                    <p className="font-thin">We bring back the charm of a physical letter, delivered to you via post every month.</p>
-                    <p className="font-thin">Each letter contains Irish history, designed and written for children. </p>
+                    <h6 className="text-gray-300  text-2xl  text-center amsfonts">The Magic of</h6>
+                    <p className=" text-5xl font-extrabold text-gray-400 text-center">History & Letters</p>
+                    <p className="font-thin text-xl text-gray-300">We bring back the charm of a physical letter, delivered to you via post every month.</p>
+                    <p className="font-thin text-xl text-gray-300">Each letter contains Irish history, designed and written for children. </p>
 
 
 
@@ -68,8 +71,47 @@ const NewsLetter = () => {
                 </div>
 
                 {/* right side images */}
-                <div className=""></div>
+                <div className="flex gap-4">
+                    <Image
+                        src={letter1}
+                        width={280}
+                        height={400}
+                        className=""
+                    />
+                    <Image
+                        src={letter1}
+                        width={280}
+                        height={400}
+                        className=""
+                    />
+
+
+                </div>
             </div>
+
+
+            {/* section - 3 */}
+            <div className="max-w-3xl mx-auto text-center justify-center py-12 space-y-10">
+                <p className="text-left text-gray-200 font-thin text-xl">
+                    Each month, open your mailbox to find an envelope filled with a vibrantly illustrated letter, addressed to your kid – with a history of a piece of Ireland.
+
+                </p>
+                <p className="text-left text-gray-200 font-thin text-xl">
+                    Each month, open your mailbox to find an envelope filled with a vibrantly illustrated letter, addressed to your kid – with a history of a piece of Ireland.
+
+                    Learn about Irish heritage, culture, different places & more….. all from the comfort of your home, using a letter.
+                </p>
+
+                <DynamicButton text="Join For Just $5" alignment="center" className="text-xl font-semibold" />
+
+
+            </div>
+
+
+
+
+
+
         </div>
     );
 };
