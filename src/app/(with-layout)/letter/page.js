@@ -2,8 +2,16 @@ import { FaClinicMedical, FaMailchimp } from "react-icons/fa";
 import letter1 from '/public/images/letter/letter1.png';
 import Image from "next/image";
 import DynamicButton from "@/app/components/Share/Button/DynamicButton/DynamicButton";
+import Head from "next/head";
 
 {/* This is my newsletter platform */ }
+
+<Head>
+    <title>Letter | Ataullah Mesbah</title>
+    <meta name="description" content="Learn about Ataullah Mesbah, an SEO expert and world traveler, who has worked with 100+ companies and clients, and is a proud member of a leading ad agency in Canada." />
+    <meta name="keywords" content="Ataullah Mesbah, SEO Expert, World Explorer, Pouvoir en ligne, Web Development, Affiliate Marketing" />
+</Head>
+
 
 const NewsLetter = () => {
     return (
@@ -91,20 +99,23 @@ const NewsLetter = () => {
 
 
             {/* section - 3 */}
-            <div className="max-w-3xl mx-auto text-center justify-center py-12 space-y-10">
-                <p className="text-left text-gray-200 font-thin text-xl">
-                    Each month, open your mailbox to find an envelope filled with a vibrantly illustrated letter, addressed to your kid – with a history of a piece of Ireland.
 
-                </p>
-                <p className="text-left text-gray-200 font-thin text-xl">
-                    Each month, open your mailbox to find an envelope filled with a vibrantly illustrated letter, addressed to your kid – with a history of a piece of Ireland.
+            <div className="bg-gray-800">
+                <div className="max-w-3xl mx-auto text-center justify-center py-12 space-y-10">
+                    <p className="text-left text-gray-200 font-thin text-xl">
+                        Each month, open your mailbox to find an envelope filled with a vibrantly illustrated letter, addressed to your kid – with a history of a piece of Ireland.
 
-                    Learn about Irish heritage, culture, different places & more….. all from the comfort of your home, using a letter.
-                </p>
+                    </p>
+                    <p className="text-left text-gray-200 font-thin text-xl">
+                        Each month, open your mailbox to find an envelope filled with a vibrantly illustrated letter, addressed to your kid – with a history of a piece of Ireland.
 
-                <DynamicButton text="Join For Just $5" alignment="center" className="text-xl font-semibold" />
+                        Learn about Irish heritage, culture, different places & more….. all from the comfort of your home, using a letter.
+                    </p>
+
+                    <DynamicButton text="Join For Just $5" alignment="center" className="text-xl font-semibold" />
 
 
+                </div>
             </div>
 
 

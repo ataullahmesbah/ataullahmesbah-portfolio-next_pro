@@ -69,7 +69,7 @@ const Navbar = () => {
                     className={`fixed top-0 right-0 h-full bg-gray-900 text-white w-64 z-50 transform ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
                         } transition-transform duration-300 ease-in-out lg:relative lg:transform-none lg:w-auto lg:flex lg:items-center lg:bg-transparent lg:translate-x-0 lg:h-auto`}
                 >
-                    <div className="flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-4 px-6 py-8 lg:py-0 lg:px-0">
+                    <div className="flex flex-col lg:flex-row space-y-6 lg:space-y-0 lg:space-x-2 px-6 py-8 lg:py-0 lg:px-0">
                         <Link href="/" className={`${isActiveLink('/')} px-4`} onClick={closeMobileMenu}>
                             Home
                         </Link>
