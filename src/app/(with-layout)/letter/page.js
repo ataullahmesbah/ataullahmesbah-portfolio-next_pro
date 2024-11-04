@@ -12,6 +12,11 @@ import Head from "next/head";
     <meta name="keywords" content="Ataullah Mesbah, SEO Expert, World Explorer, Pouvoir en ligne, Web Development, Affiliate Marketing" />
 </Head>
 
+export const metadata = {
+    title: "Letter | Ataullah Mesbah",
+    description: "Connect with Ataullah Mesbah, an SEO expert and experienced traveler. Book a call to learn more about SEO and digital marketing strategies.",
+};
+
 
 const NewsLetter = () => {
     return (

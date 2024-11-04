@@ -8,6 +8,7 @@ import ContactAssistance from "../components/Share/ConatctAssistance/ContactAssi
 import Sponser from "../components/Sponser/Sponser";
 import MarketingSection from "../components/Share/MarketingSection/MarketingSection";
 import NewSection from "../components/Home/NewSection/NewSection";
+import ProjectsTab from "../components/Share/ProjectsTab/ProjectsTab";
 
 
 
@@ -34,6 +35,7 @@ const page = () => {
                 <AboutUs />
                 <PortfolioTabs />
                 <WhoIsMesbah />
+                <ProjectsTab />
                 <MarketingSection />
                 <Testimonials />
                 <NewSection />
