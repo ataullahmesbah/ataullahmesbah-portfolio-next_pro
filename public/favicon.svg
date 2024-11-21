@@ -1,0 +1,23 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 136.86 128.15">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        stroke: #999;
+        stroke-miterlimit: 10;
+        stroke-width: 2px;
+      }
+      .cls-2 {
+        font-size: 86.39px;
+        font-family: BritannicBold, Britannic ;
+        font-weight: Regular;
+      }
+    </style>
+  </defs>
+  <!-- Rounded rectangle -->
+  <rect class="cls-1" x="9.78" y="1" width="180.31" height="95.75" rx="26.36" />
+  <!-- "am" Text -->
+  <text class="cls-2" transform="translate(23.43 71.16) scale(0.87 1)">am</text>
+  <!-- Polygon for footer -->
+  <polygon points="0 120.13 136.86 120.13 11.52 128.15 0 120.13" fill="#fff" />
+</svg>

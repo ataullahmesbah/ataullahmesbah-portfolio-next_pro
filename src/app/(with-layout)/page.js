@@ -19,7 +19,7 @@ const page = () => {
 
         <>
             <Head>
-                <title>SEO Expert | Ataullah Mesbah</title>
+                <title>Ataullah Mesbah</title>
                 <meta name="description" content="Learn about Ataullah Mesbah, an SEO expert and world traveler, who has worked with 100+ companies and clients, and is a proud member of a leading ad agency in Canada." />
                 <meta name="keywords" content="Ataullah Mesbah, SEO Expert, World Explorer, Pouvoir en ligne, Web Development, Affiliate Marketing" />
             </Head>
