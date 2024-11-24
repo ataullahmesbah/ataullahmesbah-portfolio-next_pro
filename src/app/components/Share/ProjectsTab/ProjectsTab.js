@@ -10,7 +10,8 @@ import { FaSearch, FaCode, FaPen, FaPlane, FaFutbol } from 'react-icons/fa';
 import WebTabs from '../../Home/WebTabs/WebTabs';
 import TravelTabs from '../../Home/TravelTabs/TravelTabs';
 import SportsTabs from '../../Home/SportsTabs/SportsTabs';
-import SEOPortfolio from '../SEOPortfolio/SEOPortfolio';
+import SEOPortfolio from '../PortfolioWorks/SEOPortfolio/SEOPortfolio';
+import WebDevelopmentPortfolio from '../PortfolioWorks/WebDevelopmentPortfolio/WebDevelopmentPortfolio';
 
 const ProjectsTab = () => {
     const [activeTab, setActiveTab] = useState('SEO');
@@ -30,7 +31,7 @@ const ProjectsTab = () => {
             case 'SEO':
                 return <SEOPortfolio />;
             case 'Web Development':
-                return <WebTabs />;
+                return <WebDevelopmentPortfolio />;
             case 'Content Creator':
                 return <WebTabs />;
             case 'Travel':
