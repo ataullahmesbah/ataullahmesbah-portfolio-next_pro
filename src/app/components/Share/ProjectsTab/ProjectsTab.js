@@ -8,10 +8,11 @@ import { FaSearch, FaCode, FaPen, FaPlane, FaFutbol } from 'react-icons/fa';
 
 
 import WebTabs from '../../Home/WebTabs/WebTabs';
-import TravelTabs from '../../Home/TravelTabs/TravelTabs';
+
 import SportsTabs from '../../Home/SportsTabs/SportsTabs';
 import SEOPortfolio from '../PortfolioWorks/SEOPortfolio/SEOPortfolio';
 import WebDevelopmentPortfolio from '../PortfolioWorks/WebDevelopmentPortfolio/WebDevelopmentPortfolio';
+import TravelPortfolio from '../PortfolioWorks/TravelPortfolio/TravelPortfolio';
 
 const ProjectsTab = () => {
     const [activeTab, setActiveTab] = useState('SEO');
@@ -35,7 +36,7 @@ const ProjectsTab = () => {
             case 'Content Creator':
                 return <WebTabs />;
             case 'Travel':
-                return <TravelTabs />;
+                return <TravelPortfolio />;
             case 'Sports':
                 return <SportsTabs />;
             default:
@@ -65,8 +66,8 @@ const ProjectsTab = () => {
                         key={tab.label}
                         onClick={() => handleTabChange(tab.label)}
                         className={`flex items-center px-5 py-2 mx-2 my-1 rounded-md transition-colors duration-300 ${activeTab === tab.label
-                            ? 'bg-pink-500 text-white border-b-2 border-b-pink-700 shadow-lg'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border'
+                            ? 'bg-indigo-950 text-white border-b-2 border-b-indigo-300 shadow-lg'
+                            : 'bg-gray-700 text-gray-200 hover:bg-gray-800 border-t-indigo-300 border-t-2 shadow-lg'
                             }`}
                     >
                         <span className="mr-2">{tab.icon}</span> {/* Tab icon */}
