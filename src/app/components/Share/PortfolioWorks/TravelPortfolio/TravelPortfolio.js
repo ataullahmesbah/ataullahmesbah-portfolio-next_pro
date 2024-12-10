@@ -20,13 +20,31 @@ const TravelPortfolio = () => {
                         Est ante in nibh mauris. Sagittis purus sit amet volutpat consequat mauris nunc
                         congue nisi.
                     </p>
-                    <div>
+                    {/* <div>
 
 
                         <button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-md mt-6 inline-flex items-center">
                             Read More <span className="ml-2">🌿</span>
                         </button>
+                    </div> */}
+
+                    {/* Get Started button */}
+                    <div className="py-5 ">
+                        <div className="grid gap-8 justify-start items-start ">
+                            <div className="relative group">
+
+                                <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+
+
+                                <button className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 justify-center text-center">
+
+                                    <a href='/contact' className="pl-6 text-indigo-400 group-hover:text-gray-100 transition duration-200">Read More <span className="ml-2">🌿</span></a>
+                                </button>
+                            </div>
+                        </div>
                     </div>
+
+
                 </div>
                 {/* Right Images */}
                 <div className="grid grid-cols-2 gap-4">

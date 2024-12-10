@@ -13,6 +13,7 @@ import SportsTabs from '../../Home/SportsTabs/SportsTabs';
 import SEOPortfolio from '../PortfolioWorks/SEOPortfolio/SEOPortfolio';
 import WebDevelopmentPortfolio from '../PortfolioWorks/WebDevelopmentPortfolio/WebDevelopmentPortfolio';
 import TravelPortfolio from '../PortfolioWorks/TravelPortfolio/TravelPortfolio';
+import ContentPortfolio from '../PortfolioWorks/ContentPortfolio/ContentPortfolio';
 
 const ProjectsTab = () => {
     const [activeTab, setActiveTab] = useState('SEO');
@@ -34,7 +35,7 @@ const ProjectsTab = () => {
             case 'Web Development':
                 return <WebDevelopmentPortfolio />;
             case 'Content Creator':
-                return <WebTabs />;
+                return <ContentPortfolio />;
             case 'Travel':
                 return <TravelPortfolio />;
             case 'Sports':
@@ -54,8 +55,8 @@ const ProjectsTab = () => {
 
     return (
         <div className="max-w-7xl mx-auto py-10">
-            <h2 className="text-3xl text-center font-semibold mb-6">Why Work with Me?</h2>
-            <p className="text-center mb-10 text-gray-500">
+            <h2 className="text-3xl text-center font-semibold mb-6 text-gray-300">Why Work with Me?</h2>
+            <p className="text-center mb-10 text-gray-200">
                 Explore my portfolio and see why top brands choose to work with me.
             </p>
 
