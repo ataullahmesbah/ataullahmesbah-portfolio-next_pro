@@ -7,9 +7,9 @@ import { LineWave } from 'react-loader-spinner';
 import { FaSearch, FaCode, FaPen, FaPlane, FaFutbol } from 'react-icons/fa';
 
 
-import WebTabs from '../../Home/WebTabs/WebTabs';
 
-import SportsTabs from '../../Home/SportsTabs/SportsTabs';
+
+
 import SEOPortfolio from '../PortfolioWorks/SEOPortfolio/SEOPortfolio';
 import WebDevelopmentPortfolio from '../PortfolioWorks/WebDevelopmentPortfolio/WebDevelopmentPortfolio';
 import TravelPortfolio from '../PortfolioWorks/TravelPortfolio/TravelPortfolio';
@@ -25,7 +25,7 @@ const ProjectsTab = () => {
         { label: 'Web Development', icon: <FaCode /> },
         { label: 'Content Creator', icon: <FaPen /> },
         { label: 'Travel', icon: <FaPlane /> },
-        { label: 'Sports', icon: <FaFutbol /> },
+    
     ];
 
     const renderContent = () => {
@@ -38,8 +38,6 @@ const ProjectsTab = () => {
                 return <ContentPortfolio />;
             case 'Travel':
                 return <TravelPortfolio />;
-            case 'Sports':
-                return <SportsTabs />;
             default:
                 return null;
         }
