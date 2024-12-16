@@ -3,9 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import SEOTabs from '../../Home/SEOTabs/SEOTabs';
 import WebTabs from '../../Home/WebTabs/WebTabs';
-import TravelTabs from '../../Home/TravelTabs/TravelTabs';
+
 import SportsTabs from '../../Home/SportsTabs/SportsTabs';
 import { LineWave } from 'react-loader-spinner'; // Import the loader
+import ContentPortfolio from '../PortfolioWorks/ContentPortfolio/ContentPortfolio';
+import TravelPortfolio from '../PortfolioWorks/TravelPortfolio/TravelPortfolio';
 
 const PortfolioTabs = () => {
     const [activeTab, setActiveTab] = useState('SEO');
@@ -18,9 +20,9 @@ const PortfolioTabs = () => {
             case 'Web Development':
                 return <WebTabs />;
             case 'Content Creator':
-                return <WebTabs />;
+                return <ContentPortfolio />;
             case 'Travel':
-                return <TravelTabs />;
+                return <TravelPortfolio />;
             case 'Sports':
                 return <SportsTabs />;
             default:

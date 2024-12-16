@@ -49,7 +49,7 @@ const ContentPortfolio = () => {
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
                         ></iframe>
-                        <p className="text-gray-700 font-semibold text-center mt-2">Video Title 1</p>
+                        <p className="text-gray-700 font-semibold text-center mt-2">Exploring Kashmir</p>
                     </div>
 
                     {/* Video 2 */}
