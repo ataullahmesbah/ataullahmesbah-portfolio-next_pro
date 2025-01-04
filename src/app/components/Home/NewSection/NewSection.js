@@ -12,8 +12,8 @@ const NewSection = () => {
                 <div className="text-left space-y-6 lg:w-1/2 px-4">
                     <h2 className="text-4xl font-bold">Our Achievements</h2>
                     <p className="text-lg text-gray-400 italic">
-                        "Empowering businesses to reach new heights with unparalleled dedication,
-                        innovative solutions, and a proven track record of success."
+                    Empowering businesses to reach new heights with unparalleled dedication,
+                        innovative solutions, and a proven track record of success.
                     </p>
                     <div className="grid grid-cols-2 gap-8 mt-8">
                         {/* First Column */}
