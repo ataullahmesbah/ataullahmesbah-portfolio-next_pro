@@ -34,7 +34,7 @@ const AboutBanner = () => {
 
 
                 {/* Social Media Icons */}
-                <p className="flex justify-center  gap-6 mb-6">
+                <div className="flex justify-center  gap-6 mb-6">
                     <a href="https://www.facebook.com/ataullah.mesbah.7" target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-500 transition duration-300">
                         <FaFacebook size={30} />
                     </a>
@@ -47,7 +47,7 @@ const AboutBanner = () => {
                     <a href="https://medium.com/@ataullahmesbah" target="_blank" rel="noopener noreferrer" className="text-white hover:text-blue-500 transition duration-300">
                         <FaMedium size={30} />
                     </a>
-                </p>
+                </div>
             </div>
         </div>
     );
