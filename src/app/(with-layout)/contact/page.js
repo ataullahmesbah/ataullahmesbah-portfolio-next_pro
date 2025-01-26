@@ -90,7 +90,7 @@ const page = () => {
                             <FaEdge className="text-4xl text-gray-300" />
                             <h4 className="text-xl font-semibold">Follow Me</h4>
                             <div className="flex space-x-6 mt-4">
-                                <a href='https://www.facebook.com/ataullah.mesbah.7' target="_blank" rel="noopener noreferrer">
+                                <a href='https://www.facebook.com/ataullahmesbah10' target="_blank" rel="noopener noreferrer">
                                     <FaFacebook className="text-3xl text-gray-500 hover:text-gray-400" />
                                 </a>
                                 <a href='https://x.com/ataullah_mesbah' target="_blank" rel="noopener noreferrer">

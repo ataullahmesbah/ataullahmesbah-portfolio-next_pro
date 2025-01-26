@@ -21,7 +21,7 @@ const RootNavbar = () => {
 
             {/* Social Icons */}
             <div className="flex justify-center sm:justify-end items-center space-x-4 text-lg">
-                <Link href='https://www.facebook.com/ataullah.mesbah.7' target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">
+                <Link href='https://www.facebook.com/ataullahmesbah10' target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">
                     <FaFacebookF />
                 </Link>
                 <Link href='https://medium.com/@ataullahmesbah' target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">
@@ -30,7 +30,7 @@ const RootNavbar = () => {
                 <Link href='https://x.com/ataullah_mesbah' target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">
                     <FaTwitter />
                 </Link>
-                <Link href='https://www.youtube.com/@mesbahoffwego' target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">
+                <Link href='https://www.youtube.com/@ataullah.mesbah' target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">
                     <FaYoutube />
                 </Link>
                 <Link href="https://www.linkedin.com/in/ataullah-mesbah/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">

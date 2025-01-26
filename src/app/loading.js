@@ -1,11 +1,20 @@
-"use client";
+'use client';
 
-import Loader from "./components/Share/Loader/Loader";
+import { LineWave } from 'react-loader-spinner';
 
 const Loading = () => {
     return (
-        <div>
-            <Loader color="#1a88be" text="am" speedMultiplier={1} />
+        <div className="flex justify-center items-center h-screen bg-gray-100">
+            <LineWave
+                visible={true}
+                height="100"
+                width="100"
+                color="#4fa94d"
+                ariaLabel="line-wave-loading"
+                firstLineColor="green"
+                middleLineColor="sky"
+                lastLineColor="red"
+            />
         </div>
     );
 };

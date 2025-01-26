@@ -88,7 +88,7 @@ const Footer = () => {
                     <div className="md:w-1/3">
                         <ul className="flex space-x-4 justify-center md:justify-start">
                             <li>
-                                <a href="https://www.facebook.com/ataullah.mesbah.7" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-500">
+                                <a href="https://www.facebook.com/ataullahmesbah10" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-500">
                                     <FaFacebookF />
                                 </a>
                             </li>

@@ -18,15 +18,15 @@ const page = () => {
     return (
 
         <main className="min-h-screen border-b border-b-gray-800"
-        style={{
-            background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
-        }}>
-
-      
-       
+            style={{
+                background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
+            }}>
 
 
-                
+
+
+
+
             {/* Main Banner Section */}
             <div className="">
                 <AboutBanner />
@@ -106,11 +106,13 @@ const page = () => {
                         <p className="text-base  leading-relaxed">
                             His commitment to excellence and his strategic approach have earned him recognition in the industry, making him a sought-after SEO consultant for businesses looking to enhance their digital footprint and achieve sustainable growth.
                         </p>
+
                         <Link href='/seo' className="flex gap-3 items-center text-sky-400">
                             <p className=" hover:underline">Get to Know SEO </p>
 
                             <FaArrowAltCircleRight />
                         </Link>
+
                     </div>
 
                     {/* Right Side */}
@@ -166,12 +168,13 @@ const page = () => {
                         <p className="text-base text-gray-200 leading-relaxed">
                             My dedication to continuous learning and staying updated with the latest industry trends has allowed me to refine my skills and deliver high-quality results. Whether developing from scratch or enhancing existing systems, I strive to provide innovative solutions that drive success and exceed expectations.
 
-                            <Link href='/web-development' className="flex gap-3 items-center text-sky-400">
-                                <p className=" hover:underline">Get to Know Web Development </p>
 
-                                <FaArrowAltCircleRight />
-                            </Link>
                         </p>
+                        <Link href='/web-development' className="flex gap-3 items-center text-sky-400">
+                            <p className=" hover:underline">Get to Know Web Development </p>
+
+                            <FaArrowAltCircleRight />
+                        </Link>
 
                     </div>
                 </div>
@@ -184,7 +187,7 @@ const page = () => {
 
 
 
-            </main>
+        </main>
     );
 };
 
