@@ -55,13 +55,17 @@ const WebPackage = () => {
                             {/* Spacer to push content to the bottom */}
                             <div className="flex-grow"></div>
 
+
+
+                            {/* Price OFF Totally */}
+
                             {/* Pricing section */}
-                            <div className="flex items-center gap-5 mt-4">
+                            {/* <div className="flex items-center gap-5 mt-4">
                                 <p className="text-2xl font-semibold text-white">${pkg.discount.toLocaleString()}</p>
                                 {pkg.discount < pkg.price && (
                                     <p className="text-red-400 text-xl line-through">${pkg.price.toLocaleString()}</p>
                                 )}
-                            </div>
+                            </div> */}
 
                             {/* Contact button */}
                             <div className="py-2 mt-4 w-full">

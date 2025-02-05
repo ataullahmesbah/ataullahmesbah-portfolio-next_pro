@@ -30,7 +30,7 @@ const SEOPackage = () => {
         <section className="py-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 poppins-regular">
                 <h1 className="text-3xl  text-center text-gray-100 mb-12">
-                    SEO Packages
+                    Search Engine Optimization (SEO) Packages
                 </h1>
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {packagesData.map((pkg) => (
@@ -54,13 +54,16 @@ const SEOPackage = () => {
                             {/* Spacer to push content to the bottom */}
                             <div className="flex-grow"></div>
 
+
+                            {/* price OFF */}
+
                             {/* Pricing section */}
-                            <div className="flex items-center gap-5 mt-4">
+                            {/* <div className="flex items-center gap-5 mt-4">
                                 <p className="text-2xl font-semibold text-white">${pkg.discount.toLocaleString()}</p>
                                 {pkg.discount < pkg.price && (
                                     <p className="text-red-400 text-xl line-through">${pkg.price.toLocaleString()}</p>
                                 )}
-                            </div>
+                            </div> */}
 
                             {/* Contact button */}
 

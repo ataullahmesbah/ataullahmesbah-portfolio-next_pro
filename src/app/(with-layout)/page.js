@@ -9,6 +9,7 @@ import Sponser from "../components/Sponser/Sponser";
 import MarketingSection from "../components/Share/MarketingSection/MarketingSection";
 import NewSection from "../components/Home/NewSection/NewSection";
 import ProjectsTab from "../components/Share/ProjectsTab/ProjectsTab";
+import LicenseCertification from "../components/Share/LicenseCertification/LicenseCertification";
 
 
 
@@ -39,6 +40,7 @@ const page = () => {
                 <MarketingSection />
                 <Testimonials />
                 <NewSection />
+                <LicenseCertification />
                 <ContactAssistance />
 
 
