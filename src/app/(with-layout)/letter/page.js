@@ -71,40 +71,40 @@ const NewsLetter = () => {
 
 
             {/* Section - 2 */}
-            <div className="max-w-5xl mx-auto flex flex-col lg:flex-row justify-between items-center poppins-regular px-4 md:px-8 lg:px-0 py-8 lg:py-16 space-y-8 lg:space-y-0 lg:space-x-10">
+<div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center poppins-regular px-4 md:px-8 lg:px-0 py-8 lg:py-16 gap-8 lg:gap-10">
 
-                {/* Left Side Info */}
-                <div className="space-y-4 md:space-y-6 text-center lg:text-left">
-                    <h6 className="text-gray-300 text-xl md:text-2xl amsfonts">The Power of</h6>
-                    <p className="text-3xl md:text-5xl font-extrabold text-gray-400">Insightful Newsletters</p>
-                    <p className="font-thin text-base md:text-xl text-gray-300">
-                        Unlock the secrets to SEO success, business growth, and digital mastery with newsletters that deliver actionable insights every month.
-                    </p>
-                    <p className="font-thin text-base md:text-xl text-gray-300">
-                        Stay ahead of the curve with expert tips, case studies, and innovative ideas tailored for entrepreneurs, marketers, and visionaries.
-                    </p>
-                </div>
+{/* Left Side Info */}
+<div className="space-y-4 md:space-y-6 text-center lg:text-left lg:flex-1 px-4">
+    <h6 className="text-gray-300 text-lg sm:text-xl md:text-2xl amsfonts">The Power of</h6>
+    <p className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-400">
+        Insightful Newsletters
+    </p>
+    <p className="font-thin text-sm sm:text-base md:text-xl text-gray-300">
+        Unlock the secrets to SEO success, business growth, and digital mastery with newsletters that deliver actionable insights every month.
+    </p>
+    <p className="font-thin text-sm sm:text-base md:text-xl text-gray-300">
+        Stay ahead of the curve with expert tips, case studies, and innovative ideas tailored for entrepreneurs, marketers, and visionaries.
+    </p>
+</div>
 
-                {/* Right Side Images */}
-                <div className="flex flex-col sm:flex-row gap-4  items-center">
-                    <Image
-                        src={letter1}
-                        width={280}
-                        height={400}
-                        alt="Newsletter example"
-                        className="rounded-md w-full sm:w-1/2 md:w-[280px]"
-                    />
-                    <Image
-                        src={letter2}
-                        width={280}
-                        height={400}
-                        alt="Business idea letter"
-                        className="rounded-md w-full sm:w-1/2 md:w-[280px]"
-                    />
-                </div>
-
-            </div>
-
+{/* Right Side Images */}
+<div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto lg:flex-1">
+    <Image
+        src={letter1}
+        width={280}
+        height={400}
+        alt="Newsletter example"
+        className="rounded-md w-full sm:w-[48%] lg:w-[45%] xl:w-[280px]"
+    />
+    <Image
+        src={letter2}
+        width={280}
+        height={400}
+        alt="Business idea letter"
+        className="rounded-md w-full sm:w-[48%] lg:w-[45%] xl:w-[280px]"
+    />
+</div>
+</div>
 
             {/* Section - 3 */}
             <div className="bg-gray-800">
@@ -167,9 +167,9 @@ const NewsLetter = () => {
 
 
             {/* NewsLetter Hacks */}
-            
+
             <Newsletters />
-           
+
 
 
 

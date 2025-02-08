@@ -21,14 +21,14 @@
     {
         "_id": "CC-24680",
         "niche": "Content Creation",
-        "img": "/certificates/cc2.jpg",
+        "img": "https://i.ibb.co.com/j979kQx5/Web-developer-for-Ataullah-Mesbah.jpg",
         "title": "Social Media Content",
         "issuer": "LinkedIn Learning"
     },
     {
         "_id": "MKT-11223",
         "niche": "Marketing",
-        "img": "/certificates/mkt1.jpg",
+        "img": "https://i.ibb.co.com/j979kQx5/Web-developer-for-Ataullah-Mesbah.jpg",
         "title": "Digital Marketing",
         "issuer": "Facebook Blueprint"
     }

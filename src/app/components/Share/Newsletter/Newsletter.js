@@ -20,32 +20,38 @@ const Newsletters = () => {
                 <h2 className="text-3xl font-bold text-white text-center mb-10">
                     Our <span className="text-blue-500">Newsletters</span>
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {newsletters.map((newsletter) => (
                         <div
                             key={newsletter.id}
-                            className="bg-white shadow-md rounded-lg overflow-hidden"
+                            className="bg-gray-900 shadow-lg shadow-purple-500/50 rounded-lg overflow-hidden hover:scale-105 hover:shadow-sky-800/50 transition-all duration-300"
                         >
-                            <Image
-                                width={600}
-                                height={200}
-                                src={newsletter.image}
-                                alt={newsletter.title}
-                                className="w-full h-52 object-cover"
-                               
-                            />
-                            <div className="p-6">
-                                <h3 className="text-xl font-bold mb-4 text-gray-800">
+                            {/* Image Section */}
+                            <div className="w-full h-40 overflow-hidden relative">
+                                <Image
+                                    width={400}
+                                    height={200}
+                                    src={newsletter.image}
+                                    alt={newsletter.title}
+                                    className="w-full h-full object-fill"
+                                />
+                                {/* Gradient Overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                            </div>
+
+                            {/* Content Section */}
+                            <div className="p-4">
+                                <h3 className="text-xl font-bold mb-2 text-white">
                                     {newsletter.title}
                                 </h3>
-                                <p className="text-gray-600">
+                                <p className="text-gray-300 text-sm">
                                     {newsletter.description.slice(0, 300)}...{" "}
-                                    <span className="text-blue-500 cursor-pointer">
+                                    <span className="text-blue-400 cursor-pointer hover:underline">
                                         Read More
                                     </span>
                                 </p>
-                                <div className="mt-4">
-                                    <span className="text-sm text-gray-500 uppercase">
+                                <div className="mt-3">
+                                    <span className="text-xs text-gray-400 uppercase">
                                         Category: {newsletter.category}
                                     </span>
                                 </div>
