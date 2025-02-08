@@ -4,7 +4,7 @@ import { useTypewriter, Cursor } from 'react-simple-typewriter';
 
 const LeftSideBanner = () => {
     const [text] = useTypewriter({
-        words: ['a Developer.', 'an SEO Expert.', 'a Traveler.', 'a Sports Lover.'],
+        words: ['a Developer.', 'an SEO Expert.', 'a Content Creator.', 'a Traveler.' ],
         loop: true,
         typeSpeed: 20,
         deleteSpeed: 10,

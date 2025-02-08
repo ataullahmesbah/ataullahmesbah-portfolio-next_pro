@@ -174,7 +174,7 @@ const Navbar = () => {
                         <Link href="/blog" className={`${isActiveLink('/blog')} px-4`} onClick={closeMobileMenu}>
                             Blog
                         </Link>
-                        <Link href="/letter" className={`${isActiveLink('/blog')} px-4`} onClick={closeMobileMenu}>
+                        <Link href="/letter" className={`${isActiveLink('/letter')} px-4`} onClick={closeMobileMenu}>
                             Letter
                         </Link>
                         <Link href="/about" className={`${isActiveLink('/about')} px-4`} onClick={closeMobileMenu}>

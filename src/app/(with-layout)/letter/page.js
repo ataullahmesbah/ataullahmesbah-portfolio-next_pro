@@ -1,5 +1,6 @@
 import { FaClinicMedical, FaMailchimp } from "react-icons/fa";
-import letter1 from '/public/images/letter/letter1.png';
+import letter1 from '/public/images/letter/nl1.jpg';
+import letter2 from '/public/images/letter/nl2.jpg';
 import Image from "next/image";
 import DynamicButton from "@/app/components/Share/Button/DynamicButton/DynamicButton";
 import Head from "next/head";
@@ -69,66 +70,61 @@ const NewsLetter = () => {
             </div>
 
 
-            {/* section - 2 */}
+            {/* Section - 2 */}
+            <div className="max-w-5xl mx-auto flex flex-col lg:flex-row justify-between items-center poppins-regular px-4 md:px-8 lg:px-0 py-8 lg:py-16 space-y-8 lg:space-y-0 lg:space-x-10">
 
-            <div className="max-w-5xl text-xl mx-auto flex flex-row justify-between items-center poppins-regular space-x-10 py-16">
-
-                {/* left side info */}
-                <div className="space-y-6 ">
-                    <h6 className="text-gray-300  text-2xl  text-center amsfonts">The Magic of</h6>
-                    <p className=" text-5xl font-extrabold text-gray-400 text-center">History & Letters</p>
-                    <p className="font-thin text-xl text-gray-300">We bring back the charm of a physical letter, delivered to you via post every month.</p>
-                    <p className="font-thin text-xl text-gray-300">Each letter contains Irish history, designed and written for children. </p>
-
-
-
-
+                {/* Left Side Info */}
+                <div className="space-y-4 md:space-y-6 text-center lg:text-left">
+                    <h6 className="text-gray-300 text-xl md:text-2xl amsfonts">The Power of</h6>
+                    <p className="text-3xl md:text-5xl font-extrabold text-gray-400">Insightful Newsletters</p>
+                    <p className="font-thin text-base md:text-xl text-gray-300">
+                        Unlock the secrets to SEO success, business growth, and digital mastery with newsletters that deliver actionable insights every month.
+                    </p>
+                    <p className="font-thin text-base md:text-xl text-gray-300">
+                        Stay ahead of the curve with expert tips, case studies, and innovative ideas tailored for entrepreneurs, marketers, and visionaries.
+                    </p>
                 </div>
 
-                {/* right side images */}
-                <div className="flex gap-4">
+                {/* Right Side Images */}
+                <div className="flex flex-col sm:flex-row gap-4  items-center">
                     <Image
                         src={letter1}
                         width={280}
                         height={400}
-                        className=""
-                        alt=""
+                        alt="Newsletter example"
+                        className="rounded-md w-full sm:w-1/2 md:w-[280px]"
                     />
                     <Image
-                        src={letter1}
+                        src={letter2}
                         width={280}
                         height={400}
-                        className=""
-                        alt=""
+                        alt="Business idea letter"
+                        className="rounded-md w-full sm:w-1/2 md:w-[280px]"
                     />
-
-
                 </div>
+
             </div>
 
 
-            {/* section - 3 */}
-
+            {/* Section - 3 */}
             <div className="bg-gray-800">
-                <div className="max-w-3xl mx-auto text-center justify-center py-12 space-y-10">
-                    <p className="text-left text-gray-200 font-thin text-xl">
-                        Each month, open your mailbox to find an envelope filled with a vibrantly illustrated letter, addressed to your kid – with a history of a piece of Ireland.
+                <div className="max-w-3xl mx-auto text-center justify-center py-12 space-y-10 px-2">
 
+                    <p className="text-left text-gray-200 font-thin text-xl italic">
+                        Experience the value of tailored, expert-driven content that empowers your journey. Each letter delivers impactful strategies for your business, SEO, and personal growth.
                     </p>
-                    <p className="text-left text-gray-200 font-thin text-xl">
-                        Each month, open your mailbox to find an envelope filled with a vibrantly illustrated letter, addressed to your kid – with a history of a piece of Ireland.
-
-                        Learn about Irish heritage, culture, different places & more….. all from the comfort of your home, using a letter.
+                    <p className="text-left text-gray-200 font-thin text-xl italic">
+                        From mastering search engine rankings to discovering innovative business hacks, our newsletters provide you with tools to thrive in a competitive landscape. Each letter is crafted with care to inspire and inform.
                     </p>
 
-                    <DynamicButton text="Join For Just $5" alignment="center" className="text-xl font-semibold" />
-
-
-
-
-
+                    <DynamicButton
+                        text="Join For Just $5"
+                        alignment="center"
+                        className="text-xl font-semibold"
+                    />
                 </div>
             </div>
+
 
             {/* section - 4 */}
 
