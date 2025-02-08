@@ -1,0 +1,37 @@
+[
+    {
+        "id": 1,
+        "title": "SEO Insider: Master Search Engine Dominance",
+        "description": "Stay ahead of the curve with our exclusive SEO strategies and expert insights. Learn the secrets to dominating search engine rankings, increasing organic traffic, and outperforming your competition. This newsletter is your ultimate guide to mastering on-page SEO, keyword research, and link-building techniques.",
+        "category": "SEO",
+        "image": "https://i.ibb.co.com/Z18jXZgP/image.png"
+    },
+    {
+        "id": 2,
+        "title": "Business Hack Weekly: Ideas That Make Millions",
+        "description": "Discover breakthrough business ideas, actionable strategies, and real-world success stories. Our newsletter delivers cutting-edge hacks for entrepreneurs and startups, helping you innovate, scale, and transform your vision into a profitable business. Get inspired with expert advice and unique solutions.",
+        "category": "Business Idea Hack",
+        "image": "/business-hack.jpg"
+    },
+    {
+        "id": 3,
+        "title": "Digital Marketing Playbook: From Zero to Hero",
+        "description": "Unlock the power of digital marketing with actionable tips and strategies. Learn how to create compelling campaigns, master social media, and optimize ads to achieve measurable success. This newsletter simplifies complex techniques into easy-to-apply methods for marketers at all levels.",
+        "category": "Digital Marketing",
+        "image": "/digital-marketing.jpg"
+    },
+    {
+        "id": 4,
+        "title": "The Startup Blueprint: Build, Launch, Succeed",
+        "description": "Turn your startup dreams into reality with proven frameworks and insights from industry leaders. This newsletter equips you with the knowledge to validate ideas, secure funding, and launch your business confidently. Explore growth strategies and lessons from successful entrepreneurs.",
+        "category": "Startup Ideas",
+        "image": "/startup-blueprint.jpg"
+    },
+    {
+        "id": 5,
+        "title": "Content Creation Secrets: Engage and Convert",
+        "description": "Learn how to craft compelling content that captivates audiences and drives conversions. From storytelling techniques to practical tips on writing, design, and distribution, this newsletter is your ultimate guide to creating content that stands out in the digital landscape.",
+        "category": "Content Creation",
+        "image": "/content-creation.jpg"
+    }
+]

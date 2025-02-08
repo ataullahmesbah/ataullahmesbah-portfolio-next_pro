@@ -4,6 +4,7 @@ import Image from "next/image";
 import DynamicButton from "@/app/components/Share/Button/DynamicButton/DynamicButton";
 import Head from "next/head";
 import LetterReview from "@/app/components/Share/LetterReview/LetterReview";
+import Newsletters from "@/app/components/Share/Newsletter/Newsletter";
 
 {/* This is my newsletter platform */ }
 
@@ -167,6 +168,10 @@ const NewsLetter = () => {
             {/* "Client Says" */}
 
             <LetterReview />
+
+
+            {/* NewsLetter Hacks */}
+            <Newsletters />
 
 
 
