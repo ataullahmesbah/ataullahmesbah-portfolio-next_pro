@@ -167,7 +167,9 @@ const NewsLetter = () => {
 
 
             {/* NewsLetter Hacks */}
+            
             <Newsletters />
+           
 
 
 

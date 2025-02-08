@@ -160,13 +160,13 @@ const Navbar = () => {
                                     >
                                         Search Engine Optimization
                                     </Link>
-                                    <Link
+                                    {/* <Link
                                         href="/affiliate-program"
                                         className="block px-4 py-2 text-gray-100 hover:bg-gray-800"
                                         onClick={closeMobileMenu}
                                     >
                                         Affiliate Program
-                                    </Link>
+                                    </Link> */}
                                 </div>
                             )}
                         </div>
