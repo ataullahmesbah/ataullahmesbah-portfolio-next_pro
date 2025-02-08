@@ -3,6 +3,7 @@ import letter1 from '/public/images/letter/letter1.png';
 import Image from "next/image";
 import DynamicButton from "@/app/components/Share/Button/DynamicButton/DynamicButton";
 import Head from "next/head";
+import LetterReview from "@/app/components/Share/LetterReview/LetterReview";
 
 {/* This is my newsletter platform */ }
 
@@ -90,12 +91,14 @@ const NewsLetter = () => {
                         width={280}
                         height={400}
                         className=""
+                        alt=""
                     />
                     <Image
                         src={letter1}
                         width={280}
                         height={400}
                         className=""
+                        alt=""
                     />
 
 
@@ -120,8 +123,50 @@ const NewsLetter = () => {
                     <DynamicButton text="Join For Just $5" alignment="center" className="text-xl font-semibold" />
 
 
+
+
+
                 </div>
             </div>
+
+            {/* section - 4 */}
+
+            <section className="bg-black text-white py-12">
+                <div className="max-w-7xl mx-auto px-6">
+                    <h2 className="text-center text-4xl font-bold mb-8">How Does It Work?</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="border border-white p-6 rounded-lg">
+                            <h3 className="text-xl font-bold mb-4">Step 1</h3>
+                            <p className="font-bold mb-2">Share Your Idea</p>
+                            <p>
+                                Submit your business idea or project for analysis. I ll review it
+                                to understand your goals and objectives.
+                            </p>
+                        </div>
+                        <div className="border border-white p-6 rounded-lg">
+                            <h3 className="text-xl font-bold mb-4">Step 2</h3>
+                            <p className="font-bold mb-2">Content Creation</p>
+                            <p>
+                                Based on your requirements, Ill create high-quality content and
+                                implement SEO strategies tailored to your business.
+                            </p>
+                        </div>
+                        <div className="border border-white p-6 rounded-lg">
+                            <h3 className="text-xl font-bold mb-4">Step 3</h3>
+                            <p className="font-bold mb-2">Results & Feedback</p>
+                            <p>
+                                Monitor the results, refine strategies, and continue optimizing
+                                to ensure your web presence grows effectively.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            {/* "Client Says" */}
+
+            <LetterReview />
 
 
 

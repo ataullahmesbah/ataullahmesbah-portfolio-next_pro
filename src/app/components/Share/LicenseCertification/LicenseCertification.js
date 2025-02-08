@@ -5,6 +5,7 @@ import Image from 'next/image'; // Import Next.js Image component
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import { Autoplay, Pagination } from 'swiper/modules';
+import { FaCertificate } from 'react-icons/fa';
 
 const LicenseCertification = () => {
   const [certifications, setCertifications] = useState([]);
@@ -23,12 +24,38 @@ const LicenseCertification = () => {
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-start px-6 lg:px-20 space-y-12 lg:space-y-0 p-4">
 
         {/* Left Side - Static Text */}
-        <div className="text-center md:text-left">
+        <section className="text-center md:text-left">
           <h3 className="text-2xl md:text-3xl font-bold text-gray-100">License & Certification</h3>
           <p className="mt-4 text-gray-200 text-sm md:text-base">
             Here are my professional certifications that validate my expertise in SEO, Development, Content Creation, and Marketing.
           </p>
-        </div>
+
+          <div className="text-white p-4">
+            <h4 className="text-xl font-semibold mb-2">Top Certificates:</h4>
+            <ul className="space-y-2">
+              <li className="flex items-center">
+                <FaCertificate className="text-yellow-400 mr-2" />
+                Programming Hero
+              </li>
+              <li className="flex items-center">
+                <FaCertificate className="text-yellow-400 mr-2" />
+                Google Skills Shop
+              </li>
+              <li className="flex items-center">
+                <FaCertificate className="text-yellow-400 mr-2" />
+                Hubspot Academy
+              </li>
+              <li className="flex items-center">
+                <FaCertificate className="text-yellow-400 mr-2" />
+                SEMrush
+              </li>
+              <li className="flex items-center">
+                <FaCertificate className="text-yellow-400 mr-2" />
+                LinkedIn Content and Creative Design Certification
+              </li>
+            </ul>
+          </div>
+        </section>
 
         {/* Right Side - Auto-Sliding Certifications */}
         <div className="bg-gray-900 p-4 md:p-6 rounded-lg shadow-lg w-full">
