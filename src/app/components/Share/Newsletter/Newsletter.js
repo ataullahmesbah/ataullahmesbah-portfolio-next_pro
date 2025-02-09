@@ -1,6 +1,7 @@
 'use client';
 
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState, useEffect } from "react";
 
 const Newsletters = () => {
@@ -46,9 +47,11 @@ const Newsletters = () => {
                                 </h3>
                                 <p className="text-gray-300 text-sm">
                                     {newsletter.description.slice(0, 300)}...{" "}
-                                    <span className="text-blue-400 cursor-pointer hover:underline">
-                                        Read More
-                                    </span>
+                                    <Link href={`/letter/${newsletter.id}`}>
+                                        <span className="text-blue-400 cursor-pointer hover:underline">
+                                            Read More
+                                        </span>
+                                    </Link>
                                 </p>
                                 <div className="mt-3">
                                     <span className="text-xs text-gray-400 uppercase">

@@ -3,9 +3,9 @@ export async function getAllPages() {
       { slug: '' }, // Home Page
       { slug: 'about' },
       { slug: 'contact' },
-      { slug: 'services' },
-      { slug: 'portfolio' },
-      { slug: 'blog' },
+      { slug: 'web-development' },
+      { slug: 'seo' },
+      { slug: 'letter' },
     ];
   }
   
