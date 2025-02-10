@@ -1,4 +1,4 @@
-const AdminDashboardHome = () => {
+const DashboardHome = () => {
     return (
         <div>
             <h2 className="text-3xl font-bold">Welcome to the Admin Dashboard</h2>
@@ -7,4 +7,4 @@ const AdminDashboardHome = () => {
     );
 };
 
-export default AdminDashboardHome;
+export default DashboardHome;
