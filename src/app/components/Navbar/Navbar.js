@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FaBars, FaTimes, FaCaretUp, FaCaretDown } from 'react-icons/fa';
+import Login from '@/app/(with-layout)/login/page';
 
 
 const Navbar = () => {
@@ -186,8 +187,9 @@ const Navbar = () => {
                                 Contact
                             </Link>
                             <Link href="/login" className={`${isActiveLink('/login')} px-4`} onClick={closeMobileMenu}>
-                                Login
+                                <Login />
                             </Link>
+
                         </div>
                     </div>
                 </nav>

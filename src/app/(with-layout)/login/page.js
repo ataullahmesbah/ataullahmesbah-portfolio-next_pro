@@ -1,19 +1,13 @@
-import Login from "@/app/components/Share/Login/Login";
+'use client';
 
-export const metadata = {
-    title: 'Login | Ataullah Mesbah',
-    description: "Welcome to Login page"
-}
+import { signIn } from 'next-auth/react'
 
-
-const page = () => {
+const Login = () => {
     return (
         <div>
-
-            <Login />
-
+            <button onClick={() => signIn()}>LogIn</button>
         </div>
     );
 };
 
-export default page;
+export default Login;
