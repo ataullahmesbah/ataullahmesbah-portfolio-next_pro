@@ -1,83 +1,83 @@
 [
     {
         "_id": "5vxfshk866lppag1",
-        "user_name": "John Doe",
-        "user_position": "Marketing Manager",
+        "user_name": "Alex Carter",
+        "user_position": "SEO Expert",
         "rating": 5,
-        "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever.",
-        "image": "https://i.ibb.co/gR2V4cn/image.jpg",
-        "categories": "Marketing"
-    },
-    {
-        "_id": "5vxfshk866lppag2",
-        "user_name": "Jane Smith",
-        "user_position": "Software Engineer",
-        "rating": 4.9,
-        "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever.",
-        "image": "https://i.ibb.co/gR2V4cn/image.jpg",
-        "categories": "Development"
-    },
-    {
-        "_id": "5vxfshk866lppag3",
-        "user_name": "Emily Johnson",
-        "user_position": "UI/UX Designer",
-        "rating": 5,
-        "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever.",
-        "image": "https://i.ibb.co/gR2V4cn/image.jpg",
-        "categories": "Design"
-    },
-    {
-        "_id": "5vxfshk866lppag4",
-        "user_name": "Michael Brown",
-        "user_position": "Product Manager",
-        "rating": 4.7,
-        "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever.",
-        "image": "https://i.ibb.co/gR2V4cn/image.jpg",
-        "categories": "Product Management"
-    },
-    {
-        "_id": "5vxfshk866lppag5",
-        "user_name": "Sarah Williams",
-        "user_position": "Content Strategist",
-        "rating": 5,
-        "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever.",
-        "image": "https://i.ibb.co/gR2V4cn/image.jpg",
-        "categories": "Content"
-    },
-    {
-        "_id": "5vxfshk866lppag6",
-        "user_name": "David Lee",
-        "user_position": "SEO Specialist",
-        "rating": 5,
-        "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever.",
+        "description": "With over 10 years of experience, Alex has helped businesses rank on the first page of Google with proven SEO strategies.",
         "image": "https://i.ibb.co/gR2V4cn/image.jpg",
         "categories": "SEO"
     },
     {
-        "_id": "5vxfshk866lppag7",
-        "user_name": "Jessica Taylor",
-        "user_position": "Data Analyst",
-        "rating": 4,
-        "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever.",
+        "_id": "5vxfshk866lppag2",
+        "user_name": "Sophia Miller",
+        "user_position": "Full Stack Developer",
+        "rating": 4.9,
+        "description": "Sophia is a MERN stack developer specializing in building scalable and efficient web applications.",
         "image": "https://i.ibb.co/gR2V4cn/image.jpg",
-        "categories": "Data Analysis"
+        "categories": "Developer"
+    },
+    {
+        "_id": "5vxfshk866lppag3",
+        "user_name": "Daniel Green",
+        "user_position": "Meta Ads Specialist",
+        "rating": 5,
+        "description": "Daniel is an expert in Meta Ads, optimizing campaigns to maximize ROI and customer engagement.",
+        "image": "https://i.ibb.co/gR2V4cn/image.jpg",
+        "categories": "Meta"
+    },
+    {
+        "_id": "5vxfshk866lppag4",
+        "user_name": "Emma Johnson",
+        "user_position": "Google Ads Expert",
+        "rating": 4.7,
+        "description": "Emma helps businesses scale with high-performing Google Ads strategies tailored to their niche.",
+        "image": "https://i.ibb.co/gR2V4cn/image.jpg",
+        "categories": "Google Ads"
+    },
+    {
+        "_id": "5vxfshk866lppag5",
+        "user_name": "Michael Thompson",
+        "user_position": "Digital Marketing Manager",
+        "rating": 5,
+        "description": "Michael has worked with Fortune 500 companies, managing digital marketing strategies that drive conversions.",
+        "image": "https://i.ibb.co/gR2V4cn/image.jpg",
+        "categories": "Digital Marketing"
+    },
+    {
+        "_id": "5vxfshk866lppag6",
+        "user_name": "Natalie Perez",
+        "user_position": "Content Creator",
+        "rating": 5,
+        "description": "Natalie is a skilled content strategist, producing engaging and high-quality content for diverse audiences.",
+        "image": "https://i.ibb.co/gR2V4cn/image.jpg",
+        "categories": "Content Creator"
+    },
+    {
+        "_id": "5vxfshk866lppag7",
+        "user_name": "William Harris",
+        "user_position": "Social Media Manager",
+        "rating": 4,
+        "description": "William creates and manages social media campaigns that boost engagement and brand visibility.",
+        "image": "https://i.ibb.co/gR2V4cn/image.jpg",
+        "categories": "Digital Marketing"
     },
     {
         "_id": "5vxfshk866lp5ag10",
-        "user_name": "Taylor",
-        "user_position": "Data Analyst",
+        "user_name": "Ava Martinez",
+        "user_position": "UI/UX Designer",
         "rating": 4.4,
-        "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever.",
+        "description": "Ava specializes in creating seamless user experiences with modern UI/UX design principles.",
         "image": "https://i.ibb.co/gR2V4cn/image.jpg",
-        "categories": "UI Analysis"
+        "categories": "Developer"
     },
     {
         "_id": "5vxfshk866lp5ag11",
-        "user_name": "Taylor Jon",
-        "user_position": "Data A",
+        "user_name": "Liam Walker",
+        "user_position": "Ecommerce Specialist",
         "rating": 4.9,
-        "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever.",
+        "description": "Liam helps businesses set up and optimize ecommerce stores for maximum sales and customer retention.",
         "image": "https://i.ibb.co/gR2V4cn/image.jpg",
-        "categories": "UI Analysis"
+        "categories": "Google Ads"
     }
 ]
