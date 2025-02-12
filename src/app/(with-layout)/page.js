@@ -10,6 +10,8 @@ import MarketingSection from "../components/Share/MarketingSection/MarketingSect
 import NewSection from "../components/Home/NewSection/NewSection";
 import ProjectsTab from "../components/Share/ProjectsTab/ProjectsTab";
 import LicenseCertification from "../components/Share/LicenseCertification/LicenseCertification";
+import TID from "../components/Share/TID";
+
 
 
 
@@ -39,6 +41,7 @@ const page = () => {
                 <ProjectsTab />
                 <MarketingSection />
                 <Testimonials />
+                <TID />
                 <NewSection />
                 <LicenseCertification />
                 <ContactAssistance />

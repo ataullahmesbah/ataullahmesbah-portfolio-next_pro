@@ -1,6 +1,5 @@
 [
     {
-        "_id": "5vxfshk866lppag1",
         "user_name": "Alex Carter",
         "user_position": "SEO Expert",
         "rating": 5,
@@ -9,7 +8,6 @@
         "categories": "SEO"
     },
     {
-        "_id": "5vxfshk866lppag2",
         "user_name": "Sophia Miller",
         "user_position": "Full Stack Developer",
         "rating": 4.9,
@@ -18,7 +16,6 @@
         "categories": "Developer"
     },
     {
-        "_id": "5vxfshk866lppag3",
         "user_name": "Daniel Green",
         "user_position": "Meta Ads Specialist",
         "rating": 5,
@@ -27,7 +24,6 @@
         "categories": "Meta"
     },
     {
-        "_id": "5vxfshk866lppag4",
         "user_name": "Emma Johnson",
         "user_position": "Google Ads Expert",
         "rating": 4.7,
@@ -36,7 +32,6 @@
         "categories": "Google Ads"
     },
     {
-        "_id": "5vxfshk866lppag5",
         "user_name": "Michael Thompson",
         "user_position": "Digital Marketing Manager",
         "rating": 5,
@@ -45,7 +40,6 @@
         "categories": "Digital Marketing"
     },
     {
-        "_id": "5vxfshk866lppag6",
         "user_name": "Natalie Perez",
         "user_position": "Content Creator",
         "rating": 5,
@@ -54,7 +48,6 @@
         "categories": "Content Creator"
     },
     {
-        "_id": "5vxfshk866lppag7",
         "user_name": "William Harris",
         "user_position": "Social Media Manager",
         "rating": 4,
@@ -63,7 +56,6 @@
         "categories": "Digital Marketing"
     },
     {
-        "_id": "5vxfshk866lp5ag10",
         "user_name": "Ava Martinez",
         "user_position": "UI/UX Designer",
         "rating": 4.4,
@@ -72,7 +64,6 @@
         "categories": "Developer"
     },
     {
-        "_id": "5vxfshk866lp5ag11",
         "user_name": "Liam Walker",
         "user_position": "Ecommerce Specialist",
         "rating": 4.9,
