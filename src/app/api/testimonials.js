@@ -1,16 +1,16 @@
-import dbConnect from "@/lib/dbConnect";
+import { dbConnect } from "@/lib/dbConnect";
 
 export default async function handler(req, res) {
+    if (req.method !== "GET") {
+        return res.status(405).json({ success: false, message: "Method Not Allowed" });
+    }
+
     try {
-        const db = await dbConnect("testimonials"); // Ensure dbConnect is awaited
-        const data = await db.find({}).toArray(); // Get all testimonials
+        const collection = await dbConnect("testimonials"); // Database Collection Name
+        const testimonials = await collection.find({}).toArray(); // Fetch Data
 
-        if (!data || data.length === 0) {
-            return res.status(404).json({ success: false, message: "No testimonials found" });
-        }
-
-        res.status(200).json({ success: true, data });
+        res.status(200).json({ success: true, data: testimonials });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Error loading testimonials", error: error.message });
+        res.status(500).json({ success: false, message: "Database Error", error: error.message });
     }
 }

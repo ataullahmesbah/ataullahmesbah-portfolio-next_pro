@@ -1,5 +1,4 @@
-'use client'
-
+"use client";
 import { useEffect, useState } from "react";
 
 export default function TID() {
@@ -15,7 +14,7 @@ export default function TID() {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
-                const result = await response.json(); // Handle JSON properly
+                const result = await response.json(); // Parse JSON
 
                 if (result.success) {
                     setTestimonials(result.data);
@@ -32,14 +31,21 @@ export default function TID() {
 
     return (
         <div className="p-4">
+            <h2 className="text-xl font-bold text-center mb-4 text-white">User Testimonials</h2>
+
             {error ? (
                 <p className="text-red-500">{error}</p>
             ) : (
-                testimonials.map((test) => (
-                    <div key={test._id} className="border text-white py-16 p-2 mb-2">
-                        <h3 className="text-lg font-bold">{test.user_name}</h3>
-                    </div>
-                ))
+                testimonials.length > 0 ? (
+                    testimonials.map((test) => (
+                        <div key={test._id} className="border bg-gray-900 text-white py-4 px-6 mb-4 rounded-md shadow-lg">
+                            <h3 className="text-lg font-semibold">{test.user_name}</h3>
+                            <p className="text-sm italic">{test.description}</p>
+                        </div>
+                    ))
+                ) : (
+                    <p className="text-gray-400">No testimonials available.</p>
+                )
             )}
         </div>
     );
