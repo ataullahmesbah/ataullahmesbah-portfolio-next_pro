@@ -1,12 +1,10 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 
 const uri = process.env.MONGODB_URI;
-const dbName = process.env.DB_NAME;
+const dbName = process.env.MONGODB_DB;
 
-console.log("🔹 MONGODB_URI:", uri ? "✅ Found" : "❌ Not Found");
-
-if (!uri) {
-    throw new Error("⚠️ MONGODB_URI is missing in .env.local");
+if (!uri || !dbName) {
+    throw new Error("Missing MONGODB_URI or MONGODB_DB in .env.local");
 }
 
 const client = new MongoClient(uri, {
@@ -14,16 +12,16 @@ const client = new MongoClient(uri, {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true,
-    }
+    },
 });
 
-export async function dbConnect(collectionName) {
+export async function connectDB() {
     try {
         await client.connect();
-        console.log("✅ MongoDB Connected Successfully!");
-        return client.db(dbName).collection(collectionName);
+        console.log("✅ Connected to MongoDB!");
+        return client.db(dbName);
     } catch (error) {
-        console.error("❌ MongoDB Connection Failed:", error);
-        throw error;
+        console.error("❌ MongoDB Connection Error:", error);
+        throw new Error("Database connection failed");
     }
 }
