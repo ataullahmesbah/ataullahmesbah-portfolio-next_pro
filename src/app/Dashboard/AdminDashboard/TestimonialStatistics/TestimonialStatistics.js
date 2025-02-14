@@ -1,38 +1,28 @@
-"use client";
-import { useEffect, useState } from "react";
-import { FaStar, FaUsers, FaList } from "react-icons/fa";
+'use client';
 
-const TestimonialStatistics = () => {
-    const [stats, setStats] = useState({
-        totalTestimonials: 0,
-        averageRating: 0,
-        categoryCount: {},
-    });
+import React, { useState, useEffect } from 'react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+const TestimonialChart = () => {
+    const [chartData, setChartData] = useState([]);
 
     useEffect(() => {
         const fetchTestimonials = async () => {
             try {
-                const response = await fetch("/api/testimonials");
+                const response = await fetch('/api/testimonials');
                 const data = await response.json();
 
-                if (response.ok) {
-                    const total = data.length;
-                    const avgRating = (data.reduce((acc, t) => acc + (t.rating || 0), 0) / total).toFixed(1);
+                // Transform MongoDB data to Recharts-friendly structure
+                const formattedData = data.map(item => ({
+                    name: item.user_name || 'Unknown',
+                    uv: item.positive_reviews || 0,
+                    pv: item.negative_reviews || 0
+                }));
 
-                    const categoryCount = data.reduce((acc, t) => {
-                        const category = t.categories || "Uncategorized";
-                        acc[category] = (acc[category] || 0) + 1;
-                        return acc;
-                    }, {});
-
-                    setStats({
-                        totalTestimonials: total,
-                        averageRating: avgRating,
-                        categoryCount,
-                    });
-                }
+                console.log('Formatted Chart Data:', formattedData);
+                setChartData(formattedData);
             } catch (error) {
-                console.error("Failed to fetch testimonial statistics:", error);
+                console.error('Failed to fetch data:', error);
             }
         };
 
@@ -40,44 +30,33 @@ const TestimonialStatistics = () => {
     }, []);
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-6 text-center">Testimonial Statistics</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Total Testimonials */}
-                <div className="flex items-center justify-center p-4 bg-blue-600 rounded-lg shadow">
-                    <FaUsers className="text-3xl mr-4" />
-                    <div>
-                        <h3 className="text-lg font-semibold">Total Testimonials</h3>
-                        <p className="text-xl font-bold">{stats.totalTestimonials}</p>
-                    </div>
-                </div>
-
-                {/* Average Rating */}
-                <div className="flex items-center justify-center p-4 bg-green-600 rounded-lg shadow">
-                    <FaStar className="text-3xl mr-4" />
-                    <div>
-                        <h3 className="text-lg font-semibold">Average Rating</h3>
-                        <p className="text-xl font-bold">{stats.averageRating}</p>
-                    </div>
-                </div>
-
-                {/* Categories Count */}
-                <div className="p-4 bg-purple-600 rounded-lg shadow">
-                    <div className="flex items-center mb-2">
-                        <FaList className="text-3xl mr-4" />
-                        <h3 className="text-lg font-semibold">Category Count</h3>
-                    </div>
-                    <ul>
-                        {Object.entries(stats.categoryCount).map(([category, count]) => (
-                            <li key={category} className="text-sm">
-                                <span className="font-bold">{category}:</span> {count}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+        <div className="min-h-screen bg-gray-900 p-6 text-white">
+            <h2 className="text-3xl font-bold mb-6 text-center">Testimonial Insights</h2>
+            <div className="bg-gray-800 p-4 rounded-xl shadow-lg">
+                <h3 className="mb-4 text-lg font-semibold">User Feedback Overview</h3>
+                <ResponsiveContainer width="100%" height={400}>
+                    <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                        <defs>
+                            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#00c6ff" stopOpacity={0.7} />
+                                <stop offset="95%" stopColor="#00c6ff" stopOpacity={0.2} />
+                            </linearGradient>
+                            <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#ff6b6b" stopOpacity={0.7} />
+                                <stop offset="95%" stopColor="#ff6b6b" stopOpacity={0.2} />
+                            </linearGradient>
+                        </defs>
+                        <XAxis dataKey="name" stroke="#e2e8f0" />
+                        <YAxis stroke="#e2e8f0" />
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <Tooltip />
+                        <Area type="monotone" dataKey="uv" stroke="#00c6ff" fill="url(#colorUv)" name="Positive Reviews" />
+                        <Area type="monotone" dataKey="pv" stroke="#ff6b6b" fill="url(#colorPv)" name="Negative Reviews" />
+                    </AreaChart>
+                </ResponsiveContainer>
             </div>
         </div>
     );
 };
 
-export default TestimonialStatistics;
+export default TestimonialChart;
