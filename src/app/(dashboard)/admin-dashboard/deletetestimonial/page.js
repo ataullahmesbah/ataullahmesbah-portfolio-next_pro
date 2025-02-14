@@ -1,4 +1,4 @@
-import DeleteTestimonial from "@/app/Dashboard/DeleteTestimonial/DeleteTestimonial";
+import DeleteTestimonial from "@/app/Dashboard/AdminDashboard/DeleteTestimonial/DeleteTestimonial";
 
 
 const page = () => {

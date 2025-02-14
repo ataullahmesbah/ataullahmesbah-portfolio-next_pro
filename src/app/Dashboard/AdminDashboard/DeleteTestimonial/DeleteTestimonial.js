@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FaTrash } from "react-icons/fa";
 
 const DeleteTestimonial = () => {
     const [testimonials, setTestimonials] = useState([]);
@@ -65,8 +66,8 @@ const DeleteTestimonial = () => {
                 <h1 className="text-3xl font-bold text-center text-white mb-6">Manage Testimonials</h1>
                 {testimonials.length > 0 ? (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border border-gray-700 text-white">
-                            <thead className="bg-blue-600">
+                        <table className="w-full text-left border-4  border-sky-500 shadow-md shadow-sky-400 text-white">
+                            <thead className="bg-gray-800 ">
                                 <tr>
                                     <th className="p-3 border">Name</th>
                                     <th className="p-3 border">Position</th>
@@ -79,7 +80,7 @@ const DeleteTestimonial = () => {
                             </thead>
                             <tbody>
                                 {testimonials.map((testimonial) => (
-                                    <tr key={testimonial._id} className="hover:bg-gray-800">
+                                    <tr key={testimonial._id} className="hover:bg-gray-700">
                                         <td className="p-3 border">{testimonial.user_name}</td>
                                         <td className="p-3 border">{testimonial.user_position}</td>
                                         <td className="p-3 border">{testimonial.rating}</td>
@@ -91,10 +92,10 @@ const DeleteTestimonial = () => {
                                         <td className="p-3 border text-center">
                                             <button
                                                 onClick={() => handleDelete(testimonial._id)}
-                                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow-md disabled:opacity-50"
+                                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
                                                 disabled={loading}
                                             >
-                                                {loading ? "Deleting..." : "Delete"}
+                                                <FaTrash /> {loading ? "Deleting..." : "Delete"}
                                             </button>
                                         </td>
                                     </tr>
