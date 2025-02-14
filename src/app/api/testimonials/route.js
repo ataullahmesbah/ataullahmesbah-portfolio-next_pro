@@ -1,6 +1,7 @@
 
-import { connectDB } from "@/lib/dbConnect";
 import { NextResponse } from "next/server";
+import { ObjectId } from "mongodb";
+import { connectDB } from "@/lib/dbConnect";
 
 // GET Testimonials
 export async function GET() {
@@ -19,7 +20,7 @@ export async function POST(req) {
     try {
         const db = await connectDB();
         const body = await req.json();
-        const { user_name, user_position, rating, description, image } = body;
+        const { user_name, user_position, rating, description, image, categories } = body;
 
         if (!user_name || !rating || !description) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -32,6 +33,7 @@ export async function POST(req) {
             description,
             image: image || null,
             createdAt: new Date(),
+            categories,
         };
 
         const result = await db.collection("testimonials").insertOne(newTestimonial);
@@ -39,5 +41,39 @@ export async function POST(req) {
     } catch (error) {
         console.error("Error adding testimonial:", error);
         return NextResponse.json({ error: "Failed to add testimonial" }, { status: 500 });
+    }
+}
+
+
+// DELETE Testimonial
+export async function DELETE(req) {
+    try {
+        const db = await connectDB();
+        const { id } = await req.json();
+
+        // Validate ID
+        if (!id) {
+            return NextResponse.json({ error: "Missing testimonial ID" }, { status: 400 });
+        }
+
+        // Convert ID to ObjectId
+        let objectId;
+        try {
+            objectId = new ObjectId(id);
+        } catch (error) {
+            return NextResponse.json({ error: "Invalid testimonial ID" }, { status: 400 });
+        }
+
+        // Delete document
+        const result = await db.collection("testimonials").deleteOne({ _id: objectId });
+
+        if (result.deletedCount === 1) {
+            return NextResponse.json({ message: "Testimonial deleted successfully" }, { status: 200 });
+        } else {
+            return NextResponse.json({ error: "Testimonial not found" }, { status: 404 });
+        }
+    } catch (error) {
+        console.error("Error deleting testimonial:", error);
+        return NextResponse.json({ error: "Failed to delete testimonial" }, { status: 500 });
     }
 }
