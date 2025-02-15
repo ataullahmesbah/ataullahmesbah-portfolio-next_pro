@@ -2,7 +2,6 @@
 
 
 'use client';
-
 import { useEffect, useState } from "react";
 import WebServiceDetails from "../WebServiceDetails/WebServiceDetails";
 
@@ -12,26 +11,23 @@ const WebService = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch('/webservice.json');
-                if (!res.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await res.json();
-                console.log('Fetched Data:', data); // Check fetched data
+                const res = await fetch('/api/webservices');  // Ensure this matches your API route
+                if (!res.ok) throw new Error('Network response was not ok');
 
-                // Group services by category
+                const data = await res.json();
+                console.log('Fetched Data:', data);  // Log to inspect the data structure
+
                 const groupedServices = data.map(section => ({
                     title: section.category,
                     services: section.services,
                 }));
-                console.log('Grouped Sections:', groupedServices); // Check grouped sections
+                console.log('Grouped Sections:', groupedServices);  // Log the grouped data
 
                 setServiceSections(groupedServices);
             } catch (error) {
                 console.error('Failed to fetch services data:', error);
             }
         };
-
         fetchData();
     }, []);
 
