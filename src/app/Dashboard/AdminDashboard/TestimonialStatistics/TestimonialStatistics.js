@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { FaStar, FaUsers, FaList } from "react-icons/fa";
 import { motion } from "framer-motion";
@@ -11,7 +12,6 @@ const TestimonialStatistics = () => {
             try {
                 const response = await fetch("/api/testimonials");
                 const data = await response.json();
-
                 if (response.ok) {
                     const total = data.length;
                     const avgRating = (data.reduce((acc, t) => acc + (t.rating || 0), 0) / total).toFixed(1);
@@ -20,7 +20,6 @@ const TestimonialStatistics = () => {
                         acc[category] = (acc[category] || 0) + 1;
                         return acc;
                     }, {});
-
                     setStats({ totalTestimonials: total, averageRating: avgRating, categoryCount });
                 }
             } catch (error) {
@@ -44,24 +43,26 @@ const TestimonialStatistics = () => {
                     title: "Average Rating", value: stats.averageRating, icon: <FaStar className="text-3xl text-yellow-500" />
                 }, {
                     title: "Category Count", value: (
-                        <ul>
-                            {Object.entries(stats.categoryCount).map(([category, count]) => (
-                                <li key={category} className="text-sm">
-                                    <span className="text-base  font-semibold">{category}:</span> {count}
-                                </li>
-                            ))}
-                        </ul>
-                    ), icon: <FaList className="text-3xl " />
+                        <div>
+                            <ul className="list-disc pl-5">
+                                {Object.entries(stats.categoryCount).map(([category, count]) => (
+                                    <li key={category} className="text-sm">
+                                        <span className="text-base font-semibold">{category}:</span> {count}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ), icon: <FaList className="text-3xl" />
                 }].map(({ title, value, icon }, index) => (
                     <motion.div
                         key={index}
                         variants={cardVariants}
                         whileHover="hover"
-                        className="flex flex-col items-center justify-center  p-4 bg-gray-700 border-4 shadow-fuchsia-500 border-gray-600 rounded-lg shadow-lg transition-transform"
+                        className="flex flex-col items-center justify-center p-4 bg-gray-700 border-4 border-gray-600 rounded-lg shadow-lg transition-transform"
                     >
                         <div className="mb-2">{icon}</div>
-                        <h3 className="text-lg">{title}</h3>
-                        <p className="text-xl">{value}</p>
+                        <h3 className="text-lg font-semibold">{title}</h3>
+                        <div className="text-xl">{value}</div>
                     </motion.div>
                 ))}
             </div>

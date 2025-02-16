@@ -1,8 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    images: {
-        domains: ['i.ibb.co', 'i.ibb.co.com'], // Add any other domains you need here
+    reactStrictMode: true,
+    experimental: {
+      appDir: true,
     },
-};
-
-export default nextConfig;
+    images: {
+      domains: ['i.ibb.co', 'i.ibb.co.com'], // Keep your existing image domains
+    },
+    async rewrites() {
+      return [
+        {
+          source: '/api/:path*',
+          destination: '/api/:path*',
+        },
+      ];
+    },
+  };
+  
+  export default nextConfig;
+  
