@@ -12,6 +12,7 @@ const AdminDashboardLayout = ({ children }) => {
                     <Link href="/admin-dashboard/allusers" className="block p-2 hover:bg-gray-700 rounded">👤 All Users</Link>
                     <Link href="/admin-dashboard/addtestimonial" className="block p-2 hover:bg-gray-700 rounded">👤 Add Testimonial</Link>
                     <Link href="/admin-dashboard/deletetestimonial" className="block p-2 hover:bg-gray-700 rounded">👤 Delete Testimonial</Link>
+                    <Link href="/admin-dashboard/addblogpost" className="block p-2 hover:bg-gray-700 rounded">🔧 Adding Blog Post</Link>
                     <Link href="/admin-dashboard/manageusers" className="block p-2 hover:bg-gray-700 rounded">🔧 Manage Users</Link>
                     <Link href="/admin-dashboard/allblogs" className="block p-2 hover:bg-gray-700 rounded">📝 All Blogs</Link>
                     <Link href="/admin-dashboard/blogspost" className="block p-2 hover:bg-gray-700 rounded">➕ Blog Post</Link>

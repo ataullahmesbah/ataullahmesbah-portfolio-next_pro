@@ -4,7 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FaBars, FaTimes, FaCaretUp, FaCaretDown } from 'react-icons/fa';
-import Login from '@/app/(with-layout)/login/page';
+import { useAuth } from '@/providers/AuthProvider';
+
+
 
 
 const Navbar = () => {
@@ -12,6 +14,7 @@ const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const pathname = usePathname();
     const menuRef = useRef(null);
+    const { user, logout } = useAuth();
 
     const toggleDropdown = () => {
         setIsDropdownOpen((prevState) => !prevState);
@@ -186,9 +189,31 @@ const Navbar = () => {
                             <Link href="/contact" className={`${isActiveLink('/contact')} px-4`} onClick={closeMobileMenu}>
                                 Contact
                             </Link>
+
                             <Link href="/login" className={`${isActiveLink('/login')} px-4`} onClick={closeMobileMenu}>
-                                <Login />
+                                Login
                             </Link>
+
+
+
+                            {/* conditional user */}
+
+                            {user ? (
+                                <>
+                                    {user.role === "admin" ? (
+                                        <Link href="/admin/dashboard">Admin Dashboard</Link>
+                                    ) : (
+                                        <Link href="/user/dashboard">User Dashboard</Link>
+                                    )}
+                                    <button onClick={logout}>Logout</button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link href="/login">Login</Link>
+                                    <Link href="/register">Register</Link>
+                                </>
+                            )}
+                            {/* conditional user end */}
 
                         </div>
                     </div>

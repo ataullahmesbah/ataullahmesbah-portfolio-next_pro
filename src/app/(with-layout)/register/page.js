@@ -1,10 +1,10 @@
-import Login from "@/app/components/Share/Login/Login";
+import Register from "@/app/components/Share/Register/Register";
 
 
 const page = () => {
     return (
         <div>
-            <Login />
+            <Register />
         </div>
     );
 };
