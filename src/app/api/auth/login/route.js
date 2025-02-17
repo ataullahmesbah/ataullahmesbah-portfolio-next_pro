@@ -5,7 +5,8 @@ import { getToken } from '@/lib/jwt';
 import { comparePassword } from '@/lib/auth';
 
 import User from '@/models/User';
-import { connectDB } from '@/lib/dbConnect';
+import { connectDB } from '@/lib/dbMongoose';
+
 
 
 export async function POST(req) {
