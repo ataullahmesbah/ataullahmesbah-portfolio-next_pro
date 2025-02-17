@@ -196,24 +196,31 @@ const Navbar = () => {
 
 
 
-                            {/* conditional user */}
-
                             {user ? (
                                 <>
                                     {user.role === "admin" ? (
-                                        <Link href="/admin/dashboard">Admin Dashboard</Link>
+                                        <Link href="/admin/dashboard" className="text-blue-600 hover:underline">
+                                            Admin Dashboard
+                                        </Link>
                                     ) : (
-                                        <Link href="/user/dashboard">User Dashboard</Link>
+                                        <Link href="/user/dashboard" className="text-blue-600 hover:underline">
+                                            User Dashboard
+                                        </Link>
                                     )}
-                                    <button onClick={logout}>Logout</button>
+                                    <button onClick={logout} className="text-red-600 hover:underline ml-4">
+                                        Logout
+                                    </button>
                                 </>
                             ) : (
                                 <>
-                                    <Link href="/login">Login</Link>
-                                    <Link href="/register">Register</Link>
+                                    <Link href="/login" className="text-blue-600 hover:underline">
+                                        Login
+                                    </Link>
+                                    <Link href="/register" className="text-blue-600 hover:underline ml-4">
+                                        Register
+                                    </Link>
                                 </>
                             )}
-                            {/* conditional user end */}
 
                         </div>
                     </div>

@@ -1,11 +1,10 @@
 // src/providers/AuthProvider.js
-
 "use client";
-
 import { createContext, useContext, useEffect, useState } from "react";
-
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { verifyToken } from "@/lib/jwt";
+
 
 const AuthContext = createContext();
 
@@ -36,8 +35,13 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
-            // Decode or fetch user info from token
-            setUser({ email: "demo@example.com", role: "user" });
+            try {
+                const decoded = verifyToken(token);
+                setUser({ email: decoded.email, role: decoded.role });
+            } catch (error) {
+                console.error("Token verification failed:", error);
+                logout();
+            }
         }
     }, []);
 
