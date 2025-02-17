@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useAuth } from "./AuthProvider";
 
 
+
 const ProtectedRoute = ({ children, adminOnly = false }) => {
     const { user } = useAuth();
     const router = useRouter();

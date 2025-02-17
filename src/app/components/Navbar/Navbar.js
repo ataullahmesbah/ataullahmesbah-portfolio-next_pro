@@ -199,7 +199,7 @@ const Navbar = () => {
                             {user ? (
                                 <>
                                     {user.role === "admin" ? (
-                                        <Link href="/admin/dashboard" className="text-blue-600 hover:underline">
+                                        <Link href="/admin-dashboard" className="text-blue-600 hover:underline">
                                             Admin Dashboard
                                         </Link>
                                     ) : (

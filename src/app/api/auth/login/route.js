@@ -1,56 +1,39 @@
 // src/app/api/auth/login/route.js
 
+import { connectDB } from "@/lib/dbMongoose";
+import User from "@/models/User";
 
-import { getToken } from '@/lib/jwt';
-import { comparePassword } from '@/lib/auth';
-
-import User from '@/models/User';
-import { connectDB } from '@/lib/dbMongoose';
-
-
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export async function POST(req) {
   try {
     await connectDB();
-
     const { email, password } = await req.json();
 
-    console.log("Login request received for email:", email); // Log the email
+    if (!email || !password) {
+      return new Response(JSON.stringify({ error: "Email and password are required" }), { status: 400 });
+    }
 
-    // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
-      console.log("User not found for email:", email); // Log if user not found
-      return new Response(JSON.stringify({ error: "Invalid credentials" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(JSON.stringify({ error: "Invalid credentials" }), { status: 401 });
     }
 
-    // Compare password
-    const isPasswordValid = await comparePassword(password, user.password);
-    if (!isPasswordValid) {
-      console.log("Invalid password for email:", email); // Log if password is invalid
-      return new Response(JSON.stringify({ error: "Invalid credentials" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return new Response(JSON.stringify({ error: "Invalid credentials" }), { status: 401 });
     }
 
-    // Generate token
-    const token = getToken({ userId: user._id, role: user.role });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
 
-    console.log("Login successful for email:", email); // Log successful login
-
-    return new Response(JSON.stringify({ token, user: { email: user.email, role: user.role } }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(JSON.stringify({ message: "Login successful", token }), { status: 200 });
   } catch (error) {
-    console.error("Login error:", error); // Log the error
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error("Login Error:", error);
+    return new Response(JSON.stringify({ error: "Login failed" }), { status: 500 });
   }
 }

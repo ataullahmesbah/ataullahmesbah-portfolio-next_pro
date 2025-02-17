@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import { verifyToken } from "@/lib/jwt";
 
 
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -19,7 +20,7 @@ export const AuthProvider = ({ children }) => {
 
         // Redirect based on role
         if (userData.role === "admin") {
-            router.push("/admin/dashboard");
+            router.push("/admin-dashboard");
         } else {
             router.push("/user/dashboard");
         }
