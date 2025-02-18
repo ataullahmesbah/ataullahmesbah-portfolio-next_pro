@@ -4,7 +4,10 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FaBars, FaTimes, FaCaretUp, FaCaretDown } from 'react-icons/fa';
-import { useAuth } from '@/providers/AuthProvider';
+const { user, logout } = useAuth();
+
+
+
 
 
 
@@ -14,7 +17,9 @@ const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const pathname = usePathname();
     const menuRef = useRef(null);
-    const { user, logout } = useAuth();
+
+
+
 
     const toggleDropdown = () => {
         setIsDropdownOpen((prevState) => !prevState);
@@ -195,32 +200,14 @@ const Navbar = () => {
                             </Link>
 
 
-
                             {user ? (
-                                <>
-                                    {user.role === "admin" ? (
-                                        <Link href="/admin-dashboard" className="text-blue-600 hover:underline">
-                                            Admin Dashboard
-                                        </Link>
-                                    ) : (
-                                        <Link href="/user/dashboard" className="text-blue-600 hover:underline">
-                                            User Dashboard
-                                        </Link>
-                                    )}
-                                    <button onClick={logout} className="text-red-600 hover:underline ml-4">
-                                        Logout
-                                    </button>
-                                </>
+                                <button onClick={logout}>Logout</button>
                             ) : (
-                                <>
-                                    <Link href="/login" className="text-blue-600 hover:underline">
-                                        Login
-                                    </Link>
-                                    <Link href="/register" className="text-blue-600 hover:underline ml-4">
-                                        Register
-                                    </Link>
-                                </>
+                                <Link href="/auth/login">Login</Link>
                             )}
+
+
+
 
                         </div>
                     </div>

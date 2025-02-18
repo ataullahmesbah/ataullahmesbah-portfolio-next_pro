@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { useAuth } from "@/providers/AuthProvider";
 
-export default function Register() {
+const RegisterForm = () => {
     const [form, setForm] = useState({
         firstName: "",
         lastName: "",
@@ -52,7 +53,7 @@ export default function Register() {
                 confirmPassword: "",
             });
 
-            router.push("/login");
+            router.push("/auth/login");
         } catch (error) {
             toast.error("Something went wrong.");
         } finally {
@@ -121,4 +122,6 @@ export default function Register() {
             </div>
         </div>
     );
-}
+};
+
+export default RegisterForm;

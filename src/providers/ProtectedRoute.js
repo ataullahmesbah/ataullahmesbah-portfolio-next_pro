@@ -1,22 +1,20 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useAuth } from "./AuthProvider";
+import { useRouter } from 'next/router';
+import { useAuth } from './AuthProvider';
 
 
-
-const ProtectedRoute = ({ children, adminOnly = false }) => {
+const ProtectedRoute = ({ children, role }) => {
     const { user } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
         if (!user) {
-            router.push("/login");
-        } else if (adminOnly && user.role !== "admin") {
-            router.push("/unauthorized");
+            router.push('/login'); // Redirect to login if not authenticated
+        } else if (role && user.role !== role) {
+            router.push('/unauthorized'); // Redirect if role doesn't match
         }
-    }, [user, adminOnly, router]);
+    }, [user, role]);
 
     return user ? children : null;
 };

@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { useAuth } from "@/providers/AuthProvider";
 
-
-const Login = () => {
+const LoginForm = () => {
     const { login } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -74,4 +73,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default LoginForm;

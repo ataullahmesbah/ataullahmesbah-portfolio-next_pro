@@ -1,56 +1,40 @@
-// src/providers/AuthProvider.js
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
+
+import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
-import { verifyToken } from "@/lib/jwt";
-
-
+import jwt from "jsonwebtoken";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const router = useRouter();
+  const [user, setUser] = useState(null);
+  const router = useRouter();
 
-    const login = (token, userData) => {
-        localStorage.setItem("token", token);
-        setUser(userData);
-        toast.success("Logged in successfully!");
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decoded = jwt.decode(token);
+      setUser(decoded);
+    }
+  }, []);
 
-        // Redirect based on role
-        if (userData.role === "admin") {
-            router.push("/admin-dashboard");
-        } else {
-            router.push("/user/dashboard");
-        }
-    };
+  const login = (token, userData) => {
+    localStorage.setItem("token", token);
+    setUser(userData);
+    router.push(userData.role === "admin" ? "/dashboard/admindashboard" : "/dashboard/userdashboard");
+  };
 
-    const logout = () => {
-        localStorage.removeItem("token");
-        setUser(null);
-        toast.success("Logged out!");
-        router.push("/login");
-    };
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+    router.push("/auth/login");
+  };
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            try {
-                const decoded = verifyToken(token);
-                setUser({ email: decoded.email, role: decoded.role });
-            } catch (error) {
-                console.error("Token verification failed:", error);
-                logout();
-            }
-        }
-    }, []);
-
-    return (
-        <AuthContext.Provider value={{ user, login, logout }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => useContext(AuthContext);

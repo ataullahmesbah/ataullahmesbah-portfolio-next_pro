@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/providers/AuthProvider";
 
 
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -21,12 +22,15 @@ export default function RootLayout({ children }) {
         <meta name="description" content={metadata.description} />
         <title>{metadata.title}</title>
       </head>
-      <AuthProvider>
-        <body
-          className={inter.className}>
+
+      <body
+        className={inter.className}>
+        <AuthProvider>
           {children}
-        </body>
-      </AuthProvider>
+        </AuthProvider>
+
+      </body>
+
     </html>
   );
 }
