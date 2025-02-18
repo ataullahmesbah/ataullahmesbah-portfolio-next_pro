@@ -1,22 +1,24 @@
-"use client";
+// components/ProtectedRoute.js
 
-import { useRouter } from 'next/router';
-import { useAuth } from './AuthProvider';
+'use client';
+
+import { useRouter } from "next/router";
+import { useAuth } from "./AuthProvider";
 
 
-const ProtectedRoute = ({ children, role }) => {
+export default function ProtectedRoute({ roles, children }) {
     const { user } = useAuth();
     const router = useRouter();
 
-    useEffect(() => {
-        if (!user) {
-            router.push('/login'); // Redirect to login if not authenticated
-        } else if (role && user.role !== role) {
-            router.push('/unauthorized'); // Redirect if role doesn't match
-        }
-    }, [user, role]);
+    if (!user) {
+        router.push("/auth/login");
+        return null;
+    }
 
-    return user ? children : null;
-};
+    if (!roles.includes(user.role)) {
+        router.push("/dashboard");
+        return null;
+    }
 
-export default ProtectedRoute;
+    return children;
+}

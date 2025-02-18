@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FaBars, FaTimes, FaCaretUp, FaCaretDown } from 'react-icons/fa';
-const { user, logout } = useAuth();
+
 
 
 
@@ -200,12 +200,7 @@ const Navbar = () => {
                             </Link>
 
 
-                            {user ? (
-                                <button onClick={logout}>Logout</button>
-                            ) : (
-                                <Link href="/auth/login">Login</Link>
-                            )}
-
+                            
 
 
 

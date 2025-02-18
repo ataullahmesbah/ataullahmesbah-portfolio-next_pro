@@ -1,21 +1,24 @@
-"use client";
 
-import { useAuth } from '@/providers/AuthProvider';
-import { useRouter } from 'next/navigation';
 
-export default function DashboardLayout({ children }) {
-  const { user } = useAuth();
-  const router = useRouter();
 
-  if (!user) {
-    router.push('/auth/login');
-    return null;
-  }
 
-  if (user.role !== 'admin') { // ইউজার রোল চেক করুন
-    router.push('/dashboard/userdashboard');
-    return null;
-  }
+const UserDashboardLayout = ({ children }) => {
+  return (
 
-  return <>{children}</>;
-}
+    <div className="grid grid-cols-12 min-h-screen">
+      {/* Sidebar */}
+      <div className="col-span-3 bg-gray-900 text-white p-6">
+        <h2 className="text-2xl font-bold mb-4">User Panel</h2>
+
+      </div>
+
+      {/* Main Content */}
+      <div className="col-span-9 p-6">
+        {children} {/* Dynamic content will load here */}
+      </div>
+    </div>
+
+  );
+};
+
+export default UserDashboardLayout;

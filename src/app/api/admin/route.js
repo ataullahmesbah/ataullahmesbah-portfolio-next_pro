@@ -1,4 +1,5 @@
-import { verifyToken } from "@/middleware/authMiddleware";
+import { verifyToken } from "@/middleware/auth";
+
 
 export async function GET(req) {
     try {

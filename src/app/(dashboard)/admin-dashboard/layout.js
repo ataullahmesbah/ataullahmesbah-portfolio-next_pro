@@ -1,9 +1,11 @@
+
 import ProtectedRoute from "@/providers/ProtectedRoute";
+import Link from "next/link";
 
 
 const AdminDashboardLayout = ({ children }) => {
     return (
-        <ProtectedRoute role="admin">
+        <ProtectedRoute roles={["admin"]}>
             <div className="grid grid-cols-12 min-h-screen">
                 {/* Sidebar */}
                 <div className="col-span-3 bg-gray-900 text-white p-6">
@@ -42,6 +44,7 @@ const AdminDashboardLayout = ({ children }) => {
                 </div>
             </div>
         </ProtectedRoute>
+
     );
 };
 

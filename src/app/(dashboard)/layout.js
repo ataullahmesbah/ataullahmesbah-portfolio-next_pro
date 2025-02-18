@@ -1,28 +1,29 @@
-'use client';
-import { usePathname } from 'next/navigation';
+// src/app/dashboard/layout.js
+import { useAuth } from "@/providers/AuthProvider";
+import AdminDashboardLayout from "./admin-dashboard/layout";
+import ModeratorDashboardLayout from "./moderator-dashboard/layout";
+import UserDashboardLayout from "./user-dashboard/layout";
 
 export default function DashboardLayout({ children }) {
-    const pathname = usePathname();
+    const { user } = useAuth();
 
-    // Check if the current path starts with '/admin-dashboard' or '/moderator-dashboard'
-    const isNestedDashboard =
-        pathname.startsWith('/admin-dashboard') || pathname.startsWith('/moderator-dashboard');
+    if (!user) {
+        return <div>Loading...</div>;
+    }
 
-    return (
-        <div className="flex">
-            {/* Render this sidebar only if not in nested dashboards */}
-            {!isNestedDashboard && (
-                <aside className="w-1/4 bg-gray-800 text-white">
-                    <nav>
-                        <ul className="space-y-2">
-                            <li>Home</li>
-                            <li>Admin Panel</li>
-                            <li>User Panel</li>
-                        </ul>
-                    </nav>
-                </aside>
-            )}
-            <main className="flex-1">{children}</main>
-        </div>
-    );
+
+    
+    if (user.role === "admin") {
+        return <AdminDashboardLayout>
+            {children}
+        </AdminDashboardLayout>;
+    } else if (user.role === "moderator") {
+        return <ModeratorDashboardLayout>
+            {children}
+        </ModeratorDashboardLayout>
+    } else {
+        return <UserDashboardLayout>
+            {children}
+        </UserDashboardLayout>
+    }
 }

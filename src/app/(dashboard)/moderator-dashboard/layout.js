@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { FaUsers, FaEnvelope, FaBlog } from 'react-icons/fa';
 
-export default function ModeratorLayout({ children }) {
+export default function ModeratorDashboardLayout({ children }) {
     const links = [
         { label: "All Users", href: "/moderator-dashboard/alluser", icon: <FaUsers /> },
         { label: "Letters", href: "/moderator-dashboard/letter", icon: <FaEnvelope /> },

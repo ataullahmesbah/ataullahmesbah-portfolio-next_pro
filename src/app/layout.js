@@ -4,6 +4,7 @@ import { AuthProvider } from "@/providers/AuthProvider";
 
 
 
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -27,7 +28,9 @@ export default function RootLayout({ children }) {
         className={inter.className}>
         <AuthProvider>
           {children}
+
         </AuthProvider>
+
 
       </body>
 

@@ -17,6 +17,8 @@ const LoginForm = () => {
         setIsLoading(true);
 
         try {
+            console.log("Sending login request with:", { email, password }); // Debugging
+
             const response = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -24,15 +26,17 @@ const LoginForm = () => {
             });
 
             const data = await response.json();
+            console.log("Login response:", data); // Debugging
 
             if (response.ok) {
-                login(data.token, data.user); // Pass token and user data to AuthProvider
+                login(data.token, data.user);
                 toast.success("Login successful!");
-                router.push("/dashboard"); // Redirect to dashboard
+                router.push("/dashboard");
             } else {
                 toast.error(data.error || "Login failed. Please check your credentials.");
             }
         } catch (error) {
+            console.error("Error during login:", error); // Debugging
             toast.error("Something went wrong. Please try again.");
         } finally {
             setIsLoading(false);
