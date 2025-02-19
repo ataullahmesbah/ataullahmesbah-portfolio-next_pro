@@ -1,41 +1,31 @@
-// src/app/api/register/route.js
+import { NextResponse } from 'next/server';
 
+import bcrypt from 'bcryptjs';
+import { connectDB } from '@/lib/dbMongoose';
+import User from '@/models/User';
 
-
-import { connectDB } from "@/lib/dbMongoose";
-import User from "@/models/User";
-import { generateToken } from "@/utils/jwt";
-import bcrypt from "bcryptjs";
-
+connectDB();
 
 export async function POST(req) {
+    const { name, username, email, password } = await req.json();
+
     try {
-        await connectDB();
-        const { name, email, password, role } = await req.json();
-
-        if (!name || !email || !password) {
-            return new Response(JSON.stringify({ error: "All fields required" }), { status: 400 });
-        }
-
+        // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return new Response(JSON.stringify({ error: "User already exists" }), { status: 400 });
+            return NextResponse.json({ message: 'User already exists' }, { status: 400 });
         }
 
+        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = await User.create({
-            name,
-            email,
-            password: hashedPassword,
-            role: role || "user",
-        });
+        // Create a new user
+        const user = new User({ name, username, email, password: hashedPassword });
+        await user.save();
 
-        const token = generateToken(newUser._id);
-
-        return new Response(JSON.stringify({ message: "User registered successfully", token }), { status: 201 });
+        return NextResponse.json({ message: 'User registered successfully' }, { status: 201 });
     } catch (error) {
-        console.error("Register API Error:", error);
-        return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
+        console.error('Registration error:', error);
+        return NextResponse.json({ message: 'Error registering user' }, { status: 500 });
     }
 }

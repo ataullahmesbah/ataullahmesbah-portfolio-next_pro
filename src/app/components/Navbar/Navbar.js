@@ -3,8 +3,10 @@
 import { useState, useEffect, useRef, useContext } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FaBars, FaTimes, FaCaretUp, FaCaretDown } from 'react-icons/fa';
-import { AuthContext } from '@/providers/AuthProvider';
+import { FaBars, FaTimes, FaCaretUp, FaCaretDown, FaAlignLeft } from 'react-icons/fa';
+import jwt from 'jsonwebtoken';
+
+
 
 
 
@@ -14,13 +16,27 @@ const Navbar = () => {
     const pathname = usePathname();
     const menuRef = useRef(null);
 
-    const { user } = useContext(AuthContext);
+    const [userRole, setUserRole] = useState(null);
 
-    // ✅ Debugging: Check if user state is updated
     useEffect(() => {
-        console.log("Navbar User State Updated:", user);
-    }, [user]);
+        // Fetch the token from localStorage
+        const token = localStorage.getItem('token');
 
+        if (token) {
+            try {
+                // Decode the token to get user role
+                const decoded = jwt.decode(token);
+                setUserRole(decoded.role);
+            } catch (error) {
+                console.error('Error decoding token:', error);
+            }
+        }
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token'); // Clear the token
+        window.location.href = '/'; // Redirect to home page
+    };
 
 
 
@@ -204,21 +220,49 @@ const Navbar = () => {
 
 
 
-                            <div className="flex items-center space-x-4">
-                                {user ? (
-                                    <>
-                                        <FaAlignLeft className="text-xl cursor-pointer" />
-                                        <Link href={user.role === "admin" ? "/admin-panel" : "/user-panel"}>
-                                            <span className="bg-blue-500 px-3 py-1 rounded">
-                                                {user.role === "admin" ? "Admin Panel" : "User Panel"}
-                                            </span>
-                                        </Link>
-                                    </>
-                                ) : (
-                                    <Link href="/login">
-                                        <span className="bg-green-500 px-3 py-1 rounded">Login</span>
-                                    </Link>
-                                )}
+                            <div className="bg-blue-500 p-4 text-white">
+
+
+                                <ul className="flex space-x-4 items-center">
+                                    
+
+                                    {/* Role-Based Dashboard Dropdown */}
+                                    {userRole && (
+                                        <li className="relative group">
+                                            <button className="flex items-center">
+                                                <FaAlignLeft className="mr-2" />
+                                                Dashboard
+                                            </button>
+                                            <ul className="absolute hidden bg-white text-black mt-2 space-y-2 p-2 rounded shadow-lg group-hover:block">
+                                                {userRole === 'admin' && (
+                                                    <li>
+                                                        <Link href="/dashboard/admin-dashboard">Admin Dashboard</Link>
+                                                    </li>
+                                                )}
+                                                {userRole === 'moderator' && (
+                                                    <li>
+                                                        <Link href="/dashboard/moderator-dashboard">Moderator Dashboard</Link>
+                                                    </li>
+                                                )}
+                                                {userRole === 'user' && (
+                                                    <li>
+                                                        <Link href="/dashboard/user-dashboard">User Dashboard</Link>
+                                                    </li>
+                                                )}
+                                            </ul>
+                                        </li>
+                                    )}
+
+                                    {/* Conditional Login/Logout Button */}
+                                    <li>
+                                        {userRole ? (
+                                            <button onClick={handleLogout}>Logout</button>
+                                        ) : (
+                                            <Link href="/login">Login</Link>
+                                        )}
+                                    </li>
+                                </ul>
+
                             </div>
 
 

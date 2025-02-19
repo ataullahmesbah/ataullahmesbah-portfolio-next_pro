@@ -1,4 +1,5 @@
-import AuthProvider from "@/providers/AuthProvider";
+
+import { AuthProvider } from "@/providers/AuthProvider";
 import Navbar from "../components/Navbar/Navbar";
 import RootNavbar from "../components/RootNavbar/RootNavbar";
 import Footer from "../components/Share/Footer/Footer";
@@ -10,12 +11,14 @@ const RootLayout = ({ children }) => {
 
             <RootNavbar />
 
-            <AuthProvider>
 
+
+            <AuthProvider>
 
                 <Navbar />
                 {children}
             </AuthProvider>
+
 
             <Footer />
 

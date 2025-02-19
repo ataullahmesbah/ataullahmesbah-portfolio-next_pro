@@ -1,44 +1,31 @@
 // providers/AuthProvider.js
-"use client";
-import { createContext, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+"use client"; // ✅ Ensure this is a client component
 
-export const AuthContext = createContext();
+import { createContext, useContext, useState, useEffect } from "react";
 
-const AuthProvider = ({ children }) => {
+// Create AuthContext
+export const AuthContext = createContext(null);
+
+// AuthProvider Component
+export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const router = useRouter();
 
     useEffect(() => {
+        // Fetch user data (example)
         const storedUser = JSON.parse(localStorage.getItem("user"));
         if (storedUser) {
-            console.log("Stored User Found:", storedUser); // ✅ Debugging
             setUser(storedUser);
         }
     }, []);
 
-    const login = (userData) => {
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
-        console.log("User Logged In:", userData); // ✅ Debugging
-
-        setTimeout(() => {
-            router.push("/dashboard"); // Ensure navigation works
-        }, 1000);
-    };
-
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem("user");
-        console.log("User Logged Out"); // ✅ Debugging
-        router.push("/login");
-    };
-
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, setUser }}>
             {children}
         </AuthContext.Provider>
     );
 };
 
-export default AuthProvider;
+// Custom Hook to Use AuthContext
+export const useAuth = () => {
+    return useContext(AuthContext);
+};

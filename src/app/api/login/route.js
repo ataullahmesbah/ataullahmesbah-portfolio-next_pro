@@ -1,34 +1,47 @@
-// src/app/api/login/route.js
+
+import { NextResponse } from 'next/server';
+
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+import User from '@/models/User';
+import { connectDB } from '@/lib/dbMongoose';
 
 
-import bcrypt from "bcryptjs";
-import { generateToken } from "@/utils/jwt";
-import { connectDB } from "@/lib/dbMongoose";
-import User from "@/models/User";
+
+connectDB();
 
 export async function POST(req) {
+    const { email, password } = await req.json();
+
     try {
-        await connectDB();
-
-        const { email, password } = await req.json();
-        if (!email || !password) {
-            return new Response(JSON.stringify({ error: "All fields are required" }), { status: 400 });
-        }
-
         const user = await User.findOne({ email });
         if (!user) {
-            return new Response(JSON.stringify({ error: "Invalid credentials" }), { status: 401 });
+            return NextResponse.json({ message: 'User not found' }, { status: 404 });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return new Response(JSON.stringify({ error: "Invalid credentials" }), { status: 401 });
+            return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
         }
 
-        const token = generateToken(user);
+        // Generate JWT
+        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, {
+            expiresIn: '1d',
+        });
 
-        return new Response(JSON.stringify({ message: "Login successful", token }), { status: 200 });
+        // Redirect based on role
+        let redirectUrl = '/';
+        if (user.role === 'admin') {
+            redirectUrl = '/dashboard/admin-dashboard';
+        } else if (user.role === 'moderator') {
+            redirectUrl = '/dashboard/moderator-dashboard';
+        } else if (user.role === 'user') {
+            redirectUrl = '/dashboard/user-dashboard';
+        }
+
+        return NextResponse.json({ token, redirectUrl });
     } catch (error) {
-        return new Response(JSON.stringify({ error: "Server Error" }), { status: 500 });
+        return NextResponse.json({ message: 'Error logging in' }, { status: 500 });
     }
 }
