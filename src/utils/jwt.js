@@ -1,14 +1,15 @@
+import jwt from "jsonwebtoken";
 
-const jwt = require('jsonwebtoken');
+const SECRET = process.env.JWT_SECRET;
 
-const generateToken = (user) => {
-    return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-        expiresIn: '1h'
-    });
+export const generateToken = (user) => {
+    return jwt.sign({ id: user._id, role: user.role }, SECRET, { expiresIn: "1h" });
 };
 
-const verifyToken = (token) => {
-    return jwt.verify(token, process.env.JWT_SECRET);
+export const verifyToken = (token) => {
+    try {
+        return jwt.verify(token, SECRET);
+    } catch (error) {
+        return null;
+    }
 };
-
-module.exports = { generateToken, verifyToken };

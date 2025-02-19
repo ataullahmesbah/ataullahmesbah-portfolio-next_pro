@@ -1,21 +1,37 @@
 // providers/AuthProvider.js
-'use client';
-// src/providers/AuthProvider.js
-import { createContext, useContext, useState } from "react";
+"use client";
+import { createContext, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const router = useRouter();
 
-    const login = (token, userData) => {
-        localStorage.setItem("token", token);
+    useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        if (storedUser) {
+            console.log("Stored User Found:", storedUser); // ✅ Debugging
+            setUser(storedUser);
+        }
+    }, []);
+
+    const login = (userData) => {
         setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+        console.log("User Logged In:", userData); // ✅ Debugging
+
+        setTimeout(() => {
+            router.push("/dashboard"); // Ensure navigation works
+        }, 1000);
     };
 
     const logout = () => {
-        localStorage.removeItem("token");
         setUser(null);
+        localStorage.removeItem("user");
+        console.log("User Logged Out"); // ✅ Debugging
+        router.push("/login");
     };
 
     return (
@@ -25,10 +41,4 @@ export const AuthProvider = ({ children }) => {
     );
 };
 
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error("useAuth must be used within an AuthProvider");
-    }
-    return context;
-};
+export default AuthProvider;

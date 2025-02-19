@@ -1,6 +1,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/providers/AuthProvider";
+import AuthProvider from "@/providers/AuthProvider";
+
 
 
 
@@ -27,9 +28,12 @@ export default function RootLayout({ children }) {
       <body
         className={inter.className}>
         <AuthProvider>
+
           {children}
 
         </AuthProvider>
+
+
 
 
       </body>

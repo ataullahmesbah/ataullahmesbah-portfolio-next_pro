@@ -1,14 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FaBars, FaTimes, FaCaretUp, FaCaretDown } from 'react-icons/fa';
-
-
-
-
-
+import { AuthContext } from '@/providers/AuthProvider';
 
 
 
@@ -17,6 +13,13 @@ const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const pathname = usePathname();
     const menuRef = useRef(null);
+
+    const { user } = useContext(AuthContext);
+
+    // ✅ Debugging: Check if user state is updated
+    useEffect(() => {
+        console.log("Navbar User State Updated:", user);
+    }, [user]);
 
 
 
@@ -200,7 +203,23 @@ const Navbar = () => {
                             </Link>
 
 
-                            
+
+                            <div className="flex items-center space-x-4">
+                                {user ? (
+                                    <>
+                                        <FaAlignLeft className="text-xl cursor-pointer" />
+                                        <Link href={user.role === "admin" ? "/admin-panel" : "/user-panel"}>
+                                            <span className="bg-blue-500 px-3 py-1 rounded">
+                                                {user.role === "admin" ? "Admin Panel" : "User Panel"}
+                                            </span>
+                                        </Link>
+                                    </>
+                                ) : (
+                                    <Link href="/login">
+                                        <span className="bg-green-500 px-3 py-1 rounded">Login</span>
+                                    </Link>
+                                )}
+                            </div>
 
 
 

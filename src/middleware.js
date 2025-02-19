@@ -1,51 +1,25 @@
 // src/middleware.js
-// src/middleware.js
+
 import { NextResponse } from "next/server";
+import { verifyToken } from "./utils/jwt";
 
-export function middleware(request) {
-    const { pathname } = request.nextUrl;
 
-    // Public routes that don't require authentication
-    const publicRoutes = ["/", "/auth/login", "/auth/register"];
+export function middleware(req) {
+    const token = req.cookies.get("token")?.value || req.headers.get("Authorization")?.split(" ")[1];
 
-    // Allow access to public routes
-    if (publicRoutes.includes(pathname)) {
-        return NextResponse.next();
-    }
-
-    // Get the token and user from cookies
-    const token = request.cookies.get("token")?.value;
-    const userCookie = request.cookies.get("user")?.value;
-
-    // If no token, redirect to login
     if (!token) {
-        return NextResponse.redirect(new URL("/auth/login", request.url));
+        return NextResponse.redirect(new URL("/login", req.url));
     }
 
-    // Parse the user cookie (if it exists)
-    let user = null;
-    if (userCookie) {
-        try {
-            user = JSON.parse(userCookie);
-        } catch (error) {
-            console.error("Error parsing user cookie:", error);
-            return NextResponse.redirect(new URL("/auth/login", request.url));
-        }
+    const user = verifyToken(token);
+    if (!user) {
+        return NextResponse.redirect(new URL("/login", req.url));
     }
 
-    // Role-based access control
-    if (pathname.startsWith("/dashboard/admin") && user?.role !== "admin") {
-        return NextResponse.redirect(new URL("/dashboard/user", request.url));
-    }
-
-    if (pathname.startsWith("/dashboard/moderator") && user?.role !== "moderator") {
-        return NextResponse.redirect(new URL("/dashboard/user", request.url));
-    }
-
+    req.user = user;
     return NextResponse.next();
 }
 
-// Apply middleware only to specific routes
 export const config = {
-    matcher: ["/dashboard/:path*"], // Only apply to dashboard routes
+    matcher: ["/dashboard/:path*"],
 };
