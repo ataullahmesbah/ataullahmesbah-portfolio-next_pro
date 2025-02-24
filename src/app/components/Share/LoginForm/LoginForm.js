@@ -2,6 +2,7 @@
 
 'use client';
 
+import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -13,33 +14,25 @@ export default function LoginPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(''); // Clear previous errors
+        setError('');
 
-        try {
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            });
+        const result = await signIn('credentials', {
+            redirect: false,
+            email,
+            password,
+        });
 
-            const data = await res.json();
-
-            if (res.ok) {
-                localStorage.setItem('token', data.token); // Store token
-                router.push(data.redirectUrl); // Redirect to role-specific dashboard
-            } else {
-                setError(data.message || 'Login failed'); // Display error message
-            }
-        } catch (error) {
-            setError('An error occurred. Please try again.'); // Handle network errors
-            console.error('Login error:', error);
+        if (result.error) {
+            setError(result.error);
+        } else {
+            router.push('/dashboard');
         }
     };
 
     return (
         <div>
             <h1>Login</h1>
-            {error && <p className="text-red-500">{error}</p>} {/* Display error message */}
+            {error && <p className="text-red-500">{error}</p>}
             <form onSubmit={handleSubmit}>
                 <input
                     type="email"

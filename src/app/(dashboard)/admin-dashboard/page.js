@@ -1,6 +1,19 @@
-import TestimonialStatistics from "@/app/Dashboard/AdminDashboard/TestimonialStatistics/TestimonialStatistics";
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import TestimonialStatistics from '@/app/Dashboard/AdminDashboard/TestimonialStatistics/TestimonialStatistics';
 
-export default function AdminDashboard() {
+export default async function AdminDashboardPage() {
+    const session = await getServerSession(authOptions);
+
+    // Redirect or deny access if the user is not an admin
+    if (session?.user.role !== 'admin') {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-red-500 text-2xl">Access Denied</p>
+            </div>
+        );
+    }
+
     return (
         <main
             className="min-h-screen"

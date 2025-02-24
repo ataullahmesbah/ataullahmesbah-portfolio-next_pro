@@ -4,11 +4,8 @@ import { useState, useEffect, useRef, useContext } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FaBars, FaTimes, FaCaretUp, FaCaretDown, FaAlignLeft } from 'react-icons/fa';
-import jwt from 'jsonwebtoken';
 
-
-
-
+import { useSession, signOut } from 'next-auth/react';
 
 const Navbar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -16,28 +13,7 @@ const Navbar = () => {
     const pathname = usePathname();
     const menuRef = useRef(null);
 
-    const [userRole, setUserRole] = useState(null);
-
-    useEffect(() => {
-        // Fetch the token from localStorage
-        const token = localStorage.getItem('token');
-
-        if (token) {
-            try {
-                // Decode the token to get user role
-                const decoded = jwt.decode(token);
-                setUserRole(decoded.role);
-            } catch (error) {
-                console.error('Error decoding token:', error);
-            }
-        }
-    }, []);
-
-    const handleLogout = () => {
-        localStorage.removeItem('token'); // Clear the token
-        window.location.href = '/'; // Redirect to home page
-    };
-
+    const { data: session } = useSession();
 
 
     const toggleDropdown = () => {
@@ -223,44 +199,31 @@ const Navbar = () => {
                             <div className="bg-blue-500 p-4 text-white">
 
 
-                                <ul className="flex space-x-4 items-center">
-                                    
-
-                                    {/* Role-Based Dashboard Dropdown */}
-                                    {userRole && (
-                                        <li className="relative group">
-                                            <button className="flex items-center">
-                                                <FaAlignLeft className="mr-2" />
-                                                Dashboard
-                                            </button>
-                                            <ul className="absolute hidden bg-white text-black mt-2 space-y-2 p-2 rounded shadow-lg group-hover:block">
-                                                {userRole === 'admin' && (
-                                                    <li>
-                                                        <Link href="/dashboard/admin-dashboard">Admin Dashboard</Link>
-                                                    </li>
-                                                )}
-                                                {userRole === 'moderator' && (
-                                                    <li>
-                                                        <Link href="/dashboard/moderator-dashboard">Moderator Dashboard</Link>
-                                                    </li>
-                                                )}
-                                                {userRole === 'user' && (
-                                                    <li>
-                                                        <Link href="/dashboard/user-dashboard">User Dashboard</Link>
-                                                    </li>
-                                                )}
-                                            </ul>
+                                <ul className="flex space-x-4">
+                                    {session?.user.role === 'admin' && (
+                                        <li>
+                                            <Link href="/dashboard/admin">Admin Dashboard</Link>
                                         </li>
                                     )}
-
-                                    {/* Conditional Login/Logout Button */}
-                                    <li>
-                                        {userRole ? (
-                                            <button onClick={handleLogout}>Logout</button>
-                                        ) : (
+                                    {session?.user.role === 'moderator' && (
+                                        <li>
+                                            <Link href="/dashboard/moderator">Moderator Dashboard</Link>
+                                        </li>
+                                    )}
+                                    {session?.user.role === 'user' && (
+                                        <li>
+                                            <Link href="/dashboard/user">User Dashboard</Link>
+                                        </li>
+                                    )}
+                                    {session ? (
+                                        <li>
+                                            <button onClick={() => signOut()}>Logout</button>
+                                        </li>
+                                    ) : (
+                                        <li>
                                             <Link href="/login">Login</Link>
-                                        )}
-                                    </li>
+                                        </li>
+                                    )}
                                 </ul>
 
                             </div>
