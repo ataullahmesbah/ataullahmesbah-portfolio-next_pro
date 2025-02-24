@@ -1,61 +1,45 @@
 import NextAuth from 'next-auth';
-
 import CredentialsProvider from 'next-auth/providers/credentials';
-
 import bcrypt from 'bcryptjs';
-import { connectDB } from '@/lib/dbMongoose';
+
 import User from '@/models/User';
+import dbConnect from '@/lib/dbMongoose';
+
 
 export const authOptions = {
     providers: [
         CredentialsProvider({
             name: 'Credentials',
             credentials: {
-                email: { label: 'Email', type: 'email' },
+                email: { label: 'Email', type: 'text' },
                 password: { label: 'Password', type: 'password' },
             },
             async authorize(credentials) {
-                await connectDB();
-
-                // Find the user by email
+                await dbConnect(); // Connect to MongoDB using Mongoose
                 const user = await User.findOne({ email: credentials.email });
-                if (!user) {
-                    throw new Error('User not found');
-                }
 
-                // Compare the password
-                const isMatch = await bcrypt.compare(credentials.password, user.password);
-                if (!isMatch) {
-                    throw new Error('Invalid credentials');
+                if (user && bcrypt.compareSync(credentials.password, user.password)) {
+                    return { id: user._id, name: user.username, email: user.email, role: user.role };
                 }
-
-                // Return user object with role
-                return {
-                    id: user._id,
-                    name: user.username,
-                    email: user.email,
-                    role: user.role,
-                };
+                return null;
             },
         }),
     ],
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                token.role = user.role; // Add role to the token
+                token.role = user.role;
             }
             return token;
         },
         async session({ session, token }) {
-            if (token) {
-                session.user.role = token.role; // Add role to the session
-            }
+            session.user.role = token.role;
             return session;
         },
     },
     secret: process.env.NEXTAUTH_SECRET,
-    pages: {
-        signIn: '/login', // Custom login page
+    session: {
+        strategy: 'jwt',
     },
 };
 

@@ -1,25 +1,46 @@
-// src/lib/mongodb.js
 import mongoose from 'mongoose';
 
-const uri = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_DB = process.env.MONGODB_DB;
 
-if (!uri) {
-  throw new Error("MONGODB_URI is missing from .env file");
+if (!MONGODB_URI || !MONGODB_DB) {
+  throw new Error('Please define the MONGODB_URI and MONGODB_DB environment variables inside .env.local');
 }
 
-export async function connectDB() {
-  try {
-    if (mongoose.connection.readyState >= 1) {
-      return;
-    }
-    await mongoose.connect(uri, {
-      dbName: process.env.MONGODB_DB || "defaultDB",
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log("✅ Database connected");
-  } catch (error) {
-    console.error("❌ Database connection failed:", error);
-    throw new Error("Failed to connect to database");
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+async function dbConnect() {
+  if (cached.conn) {
+    console.log('✅ Using cached MongoDB connection');
+    return cached.conn;
   }
+
+  if (!cached.promise) {
+    const opts = {
+      dbName: MONGODB_DB, // Specify the database name
+      bufferCommands: false, // Disable Mongoose buffering
+    };
+
+    console.log('Connecting to MongoDB...');
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      console.log('✅ Connected to MongoDB!');
+      return mongoose;
+    });
+  }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    console.error('❌ MongoDB Connection Error:', e);
+    throw e;
+  }
+
+  return cached.conn;
 }
+
+export default dbConnect;

@@ -1,11 +1,15 @@
+'use client';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
+export default function UserPage() {
+    const { data: session } = useSession();
+    const router = useRouter();
 
-const page = () => {
-    return (
-        <div>
-            Welcome to User Dashboard
-        </div>
-    );
-};
+    if (!session || session.user.role !== 'user') {
+        router.push('/login');
+        return null;
+    }
 
-export default page;
+    return <div>User Dashboard</div>;
+}

@@ -1,21 +1,24 @@
-// src/app/login/page.js
-
 'use client';
-
-import { signIn } from 'next-auth/react';
-import { useState } from 'react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function LoginPage() {
+    const { data: session, status } = useSession();
+    const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const router = useRouter();
+
+    // Redirect if user is already logged in
+    useEffect(() => {
+        if (status === 'authenticated') {
+            router.push('/'); // Redirect to homepage or dashboard
+        }
+    }, [status, router]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-
         const result = await signIn('credentials', {
             redirect: false,
             email,
@@ -25,31 +28,32 @@ export default function LoginPage() {
         if (result.error) {
             setError(result.error);
         } else {
-            router.push('/dashboard');
+            router.push('/dashboard'); // Redirect to dashboard after login
         }
     };
 
+    if (status === 'loading') {
+        return <div>Loading...</div>; // Show loading state while checking session
+    }
+
     return (
-        <div>
-            <h1>Login</h1>
-            {error && <p className="text-red-500">{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-                <button type="submit">Login</button>
-            </form>
-        </div>
+        <form onSubmit={handleSubmit}>
+            <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+            />
+            <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+            />
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <button type="submit">Login</button>
+        </form>
     );
 }

@@ -1,18 +1,15 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+'use client'; // Ensure this is a client-side component
+import { useSession } from 'next-auth/react';
+
 import TestimonialStatistics from '@/app/Dashboard/AdminDashboard/TestimonialStatistics/TestimonialStatistics';
 
-export default async function AdminDashboardPage() {
-    const session = await getServerSession(authOptions);
+export default function AdminDashboardPage() {
+    const { data: session } = useSession();
 
-    // Redirect or deny access if the user is not an admin
-    if (session?.user.role !== 'admin') {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <p className="text-red-500 text-2xl">Access Denied</p>
-            </div>
-        );
-    }
+  if (session?.user.role !== "admin") {
+    return <div>You are not authorized to view this page.</div>;
+  }
+
 
     return (
         <main

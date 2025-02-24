@@ -13,7 +13,7 @@ const Navbar = () => {
     const pathname = usePathname();
     const menuRef = useRef(null);
 
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
 
 
     const toggleDropdown = () => {
@@ -195,37 +195,26 @@ const Navbar = () => {
                             </Link>
 
 
-
-                            <div className="bg-blue-500 p-4 text-white">
-
-
-                                <ul className="flex space-x-4">
-                                    {session?.user.role === 'admin' && (
-                                        <li>
-                                            <Link href="/dashboard/admin">Admin Dashboard</Link>
-                                        </li>
-                                    )}
-                                    {session?.user.role === 'moderator' && (
-                                        <li>
-                                            <Link href="/dashboard/moderator">Moderator Dashboard</Link>
-                                        </li>
-                                    )}
-                                    {session?.user.role === 'user' && (
-                                        <li>
-                                            <Link href="/dashboard/user">User Dashboard</Link>
-                                        </li>
-                                    )}
-                                    {session ? (
-                                        <li>
-                                            <button onClick={() => signOut()}>Logout</button>
-                                        </li>
-                                    ) : (
-                                        <li>
-                                            <Link href="/login">Login</Link>
-                                        </li>
-                                    )}
-                                </ul>
-
+                            <div className="flex space-x-4">
+                                {session ? (
+                                    <>
+                                        <button
+                                            onClick={() => signOut({ callbackUrl: '/' })}
+                                            className="text-white hover:text-gray-300"
+                                        >
+                                            Sign Out
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Link href="/login" className="text-white hover:text-gray-300">
+                                            Login
+                                        </Link>
+                                        <Link href="/register" className="text-white hover:text-gray-300">
+                                            Register
+                                        </Link>
+                                    </>
+                                )}
                             </div>
 
 
