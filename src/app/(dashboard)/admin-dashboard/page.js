@@ -1,14 +1,23 @@
-'use client'; // Ensure this is a client-side component
+'use client';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 import TestimonialStatistics from '@/app/Dashboard/AdminDashboard/TestimonialStatistics/TestimonialStatistics';
 
 export default function AdminDashboardPage() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
+    const router = useRouter();
 
-  if (session?.user.role !== "admin") {
-    return <div>You are not authorized to view this page.</div>;
-  }
+    // Redirect if user is not authenticated or not an admin
+    if (status === 'unauthenticated' || session?.user?.role !== 'admin') {
+        router.push('/');
+        return null;
+    }
+
+    // Show loading state while checking session
+    if (status === 'loading') {
+        return <div>Loading...</div>;
+    }
 
 
     return (
@@ -21,6 +30,7 @@ export default function AdminDashboardPage() {
             <div className="space-y-6 py-10">
                 <h2 className="text-3xl text-center text-white font-bold">Welcome to the Admin Dashboard</h2>
                 <div className="mt-10">
+                    <p>Hello, {session.user.name}!</p>
                     <TestimonialStatistics />
                 </div>
             </div>

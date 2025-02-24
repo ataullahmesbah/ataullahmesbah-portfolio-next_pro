@@ -1,32 +1,38 @@
 'use client';
-
-import { useState, useEffect, useRef, useContext } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FaBars, FaTimes, FaCaretUp, FaCaretDown, FaAlignLeft } from 'react-icons/fa';
-
+import { FaBars, FaTimes, FaCaretUp, FaCaretDown, FaUserGraduate } from 'react-icons/fa';
 import { useSession, signOut } from 'next-auth/react';
+import Image from 'next/image';
 
 const Navbar = () => {
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
+    const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const pathname = usePathname();
     const menuRef = useRef(null);
 
     const { data: session, status } = useSession();
 
-
-    const toggleDropdown = () => {
-        setIsDropdownOpen((prevState) => !prevState);
+    const toggleServicesDropdown = () => {
+        setIsServicesDropdownOpen((prevState) => !prevState);
+        setIsUserDropdownOpen(false); // Close user dropdown when services dropdown is opened
     };
 
-    const closeDropdown = () => {
-        setIsDropdownOpen(false);
+    const toggleUserDropdown = () => {
+        setIsUserDropdownOpen((prevState) => !prevState);
+        setIsServicesDropdownOpen(false); // Close services dropdown when user dropdown is opened
+    };
+
+    const closeAllDropdowns = () => {
+        setIsServicesDropdownOpen(false);
+        setIsUserDropdownOpen(false);
     };
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen((prevState) => !prevState);
-        if (isDropdownOpen) closeDropdown(); // Ensure the dropdown closes when the mobile menu closes
+        closeAllDropdowns(); // Close all dropdowns when mobile menu is toggled
     };
 
     const closeMobileMenu = () => {
@@ -54,13 +60,11 @@ const Navbar = () => {
     };
 
     if (!pathname.includes('dashboard')) {
-
         return (
             <div className="bg-gray-900 py-5 border-b border-b-gray-800">
                 <nav className="flex poppins-regular container mx-auto justify-between text-white items-center px-4">
                     {/* Logo */}
                     <Link href="/">
-
                         <h1 className="flex justify-center items-center">
                             <svg
                                 id="Layer_1"
@@ -72,21 +76,21 @@ const Navbar = () => {
                                 <defs>
                                     <style>
                                         {`.cls-1, .cls-3, .cls-4 {
-                                fill: #fff;
-                            }
-                            .cls-1 {
-                                stroke: #e6e6e6;
-                                stroke-miterlimit: 10;
-                                stroke-width: 2px;
-                            }
-                            .cls-2 {
-                                font-size: 31px;
-                                font-family: BritannicBold, Britannic ;
-                            }
-                            .cls-3 {
-                                font-size: 38px;
-                                font-family: BritannicBold, Britannic Regular;
-                            }`}
+                      fill: #fff;
+                    }
+                    .cls-1 {
+                      stroke: #e6e6e6;
+                      stroke-miterlimit: 10;
+                      stroke-width: 2px;
+                    }
+                    .cls-2 {
+                      font-size: 31px;
+                      font-family: BritannicBold, Britannic ;
+                    }
+                    .cls-3 {
+                      font-size: 38px;
+                      font-family: BritannicBold, Britannic Regular;
+                    }`}
                                     </style>
                                 </defs>
                                 <rect
@@ -118,8 +122,6 @@ const Navbar = () => {
                                 />
                             </svg>
                         </h1>
-
-
                     </Link>
 
                     {/* Mobile Menu Icon */}
@@ -142,15 +144,15 @@ const Navbar = () => {
 
                             {/* Services Dropdown */}
                             <div className="inline-block relative">
-                                <button onClick={toggleDropdown} className="flex items-center focus:outline-none px-4">
+                                <button onClick={toggleServicesDropdown} className="flex items-center focus:outline-none px-4">
                                     Marketing Services
-                                    {isDropdownOpen ? <FaCaretUp className="ml-1" /> : <FaCaretDown className="ml-1" />}
+                                    {isServicesDropdownOpen ? <FaCaretUp className="ml-1" /> : <FaCaretDown className="ml-1" />}
                                 </button>
 
-                                {isDropdownOpen && (
+                                {isServicesDropdownOpen && (
                                     <div
                                         className="absolute left-0 mt-2 w-96 bg-gray-700 shadow-lg rounded-lg py-2 z-20"
-                                        onMouseLeave={closeDropdown}
+                                        onMouseLeave={closeAllDropdowns}
                                     >
                                         <Link
                                             href="/web-development"
@@ -166,13 +168,6 @@ const Navbar = () => {
                                         >
                                             Search Engine Optimization
                                         </Link>
-                                        {/* <Link
-                                                href="/affiliate-program"
-                                                className="block px-4 py-2 text-gray-100 hover:bg-gray-800"
-                                                onClick={closeMobileMenu}
-                                            >
-                                                Affiliate Program
-                                            </Link> */}
                                     </div>
                                 )}
                             </div>
@@ -190,35 +185,71 @@ const Navbar = () => {
                                 Contact
                             </Link>
 
-                            <Link href="/login" className={`${isActiveLink('/login')} px-4`} onClick={closeMobileMenu}>
-                                Login
-                            </Link>
+                            {/* User Profile Dropdown */}
+                            {session ? (
+                                <div className="relative">
+                                    <button onClick={toggleUserDropdown} className="flex items-center focus:outline-none px-4">
+                                        {session.user.image ? (
+                                            <Image
+                                                src={session.user.image}
+                                                alt="User Profile"
+                                                width={40}
+                                                height={40}
+                                                className="rounded-full"
+                                            />
+                                        ) : (
+                                            <FaUserGraduate className="text-2xl" />
+                                        )}
+                                    </button>
+                                    {isUserDropdownOpen && (
+                                        <div className="absolute right-0 mt-2 w-48 bg-gray-700 shadow-lg rounded-lg py-2 z-20">
+                                            <div className="px-4 py-2 text-white">{session.user.name}</div>
+                                            <div className="px-4 py-2 text-white">Mr. {session.user.role}</div>
+                                            {/* Role-Based Links */}
+                                            {session.user.role === 'admin' && (
+                                                <Link
+                                                    href="/admin-dashboard"
+                                                    className="block px-4 py-2 text-white hover:bg-gray-800"
+                                                    onClick={closeMobileMenu}
+                                                >
+                                                    Admin Dashboard
+                                                </Link>
+                                            )}
+                                            {session.user.role === 'moderator' && (
+                                                <Link
+                                                    href="/moderator-dashboard"
+                                                    className="block px-4 py-2 text-white hover:bg-gray-800"
+                                                    onClick={closeMobileMenu}
+                                                >
+                                                    Moderator Dashboard
+                                                </Link>
+                                            )}
+                                            {session.user.role === 'user' && (
+                                                <Link
+                                                    href="/user-dashboard"
+                                                    className="block px-4 py-2 text-white hover:bg-gray-800"
+                                                    onClick={closeMobileMenu}
+                                                >
+                                                    User Dashboard
+                                                </Link>
+                                            )}
+                                            <button
+                                                onClick={() => signOut({ callbackUrl: '/' })}
+                                                className="block w-full px-4 py-2 text-left text-white hover:bg-gray-800"
+                                            >
+                                                Sign Out
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div  className="flex space-x-4">
+                                    <Link href="/login"  className={`${isActiveLink('/login')} px-4`}>
+                                        Login
+                                    </Link>
 
-
-                            <div className="flex space-x-4">
-                                {session ? (
-                                    <>
-                                        <button
-                                            onClick={() => signOut({ callbackUrl: '/' })}
-                                            className="text-white hover:text-gray-300"
-                                        >
-                                            Sign Out
-                                        </button>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Link href="/login" className="text-white hover:text-gray-300">
-                                            Login
-                                        </Link>
-                                        <Link href="/register" className="text-white hover:text-gray-300">
-                                            Register
-                                        </Link>
-                                    </>
-                                )}
-                            </div>
-
-
-
+                                </div>
+                            )}
                         </div>
                     </div>
                 </nav>
@@ -226,8 +257,7 @@ const Navbar = () => {
         );
     }
 
-    else {
-        return <></>
-    }
+    return <></>;
 };
+
 export default Navbar;
