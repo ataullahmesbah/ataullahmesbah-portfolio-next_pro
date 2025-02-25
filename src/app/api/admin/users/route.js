@@ -19,35 +19,39 @@ export async function GET() {
 export async function PUT(req) {
     try {
         await dbConnect();
-        const { userId, role } = await req.json();
+        const { userId, role, status } = await req.json();
 
-        // Update the user's role
+        // Find the user
         const user = await User.findById(userId);
         if (!user) {
             return NextResponse.json({ message: 'User not found' }, { status: 404 });
         }
 
-        user.role = role;
+        // Update role if provided
+        if (role) {
+            user.role = role;
+        }
+
+        // Update status if provided
+        if (status) {
+            user.status = status;
+        }
+
         await user.save();
 
-        // Invalidate the user's session
-        const session = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-        console.log('Session:', session); // Debugging
-        console.log('User ID:', userId); // Debugging
-
-        if (session && session.sub === userId) {
-            console.log('Invalidating session for user:', userId); // Debugging
-            const sessionInvalidationResponse = await fetch(`${process.env.NEXTAUTH_URL}/api/auth/session`, {
+        // Invalidate the user's session if their role or status was changed
+        const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+        if (token && token.sub === userId) {
+            await fetch('/api/auth/session', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
             });
-            console.log('Session invalidation response:', sessionInvalidationResponse); // Debugging
         }
 
-        return NextResponse.json({ message: 'Role updated successfully' });
+        return NextResponse.json({ message: 'User updated successfully' });
     } catch (error) {
-        console.error('Error updating role:', error);
-        return NextResponse.json({ message: 'Failed to update role' }, { status: 500 });
+        console.error('Error updating user:', error);
+        return NextResponse.json({ message: 'Failed to update user' }, { status: 500 });
     }
 }
 

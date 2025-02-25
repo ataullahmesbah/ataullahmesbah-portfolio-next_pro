@@ -20,69 +20,42 @@ const Login = () => {
 
             </div>
             {/* img optimize */}
-            <section className="flex justify-center mx-auto items-center bg-gray-800 p-4">
-                <div className="justify-center text-center items-center">
-                    <svg
-                        id="Layer_1"
-                        data-name="Layer 1"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 700.15 57.69"
-                        className="w-full h-auto"
-                    >
-                        <defs>
-                            <style>
-                                {`.cls-1, .cls-3, .cls-4 {
-                        fill: #fff;
-                    }
-                    .cls-1 {
-                        stroke: #e6e6e6;
-                        stroke-miterlimit: 10;
-                        stroke-width: 2px;
-                    }
-                    .cls-2 {
-                        font-size: 31px;
-                        font-family: BritannicBold, Britannic ;
-                    }
-                    .cls-3 {
-                        font-size: 38px;
-                        font-family: BritannicBold, Britannic Regular;
-                    }`}
-                            </style>
-                        </defs>
-                        <rect
-                            className="cls-1"
-                            x="150.01"
-                            y="4.95"
-                            width="49"
-                            height="36.35"
-                            rx="8.75"
-                        />
-                        <text
-                            className="cls-2"
-                            transform="translate(155.72 31.58) scale(0.96 1)"
+            <div className="flex justify-center items-center bg-gray-900 py-10 rounded-md">
+                <div className="flex flex-col items-center bg-gray-800 rounded-lg shadow-lg px-8 py-6 w-full max-w-lg">
+                   
+
+                    <div className="flex items-center justify-center gap-5">
+                    <p className="text-white text-base font-semibold">Log into</p>
+                        <svg
+                            id="Layer_1"
+                            data-name="Layer 1"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 700.15 57.69"
+                            className="w-48 sm:w-56 md:w-64 lg:w-72 h-auto"
                         >
-                            am
-                        </text>
-                        <text
-                            className="cls-3"
-                            transform="translate(0 33.34) scale(1.03 1)"
-                        >
-                            ataullah
-                        </text>
-                        <text className="cls-3" transform="translate(205 33.34)">
-                            mesbah
-                        </text>
-                        <polygon
-                            className="cls-4"
-                            points="47.06 49.22 284.59 49.22 57.65 57.69 47.06 49.22"
-                        />
-                    </svg>
+                            <defs>
+                                <style>
+                                    {`.cls-1, .cls-3, .cls-4 { fill: #fff; }
+              .cls-1 { stroke: #e6e6e6; stroke-miterlimit: 10; stroke-width: 2px; }
+              .cls-2 { font-size: 31px; font-family: BritannicBold, Britannic; }
+              .cls-3 { font-size: 38px; font-family: BritannicBold, Britannic Regular; }`}
+                                </style>
+                            </defs>
+                            <rect className="cls-1" x="150.01" y="4.95" width="49" height="36.35" rx="8.75" />
+                            <text className="cls-2" transform="translate(155.72 31.58) scale(0.96 1)">am</text>
+                            <text className="cls-3" transform="translate(0 33.34) scale(1.03 1)">ataullah</text>
+                            <text className="cls-3" transform="translate(205 33.34)">mesbah</text>
+                            <polygon className="cls-4" points="47.06 49.22 284.59 49.22 57.65 57.69 47.06 49.22" />
+                        </svg>
+                        
+                    </div>
                 </div>
-            </section>
+            </div>
+
             {/* img optimize */}
 
 
-            <h2 className="text-xl font-semibold text-center">Log into Ataullah Mesbah</h2>
+
 
 
             {/* Log section */}

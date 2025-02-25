@@ -1,9 +1,6 @@
-
-
 import { NextResponse } from 'next/server';
 import User from '@/models/User';
 import dbConnect from '@/lib/dbMongoose';
-
 
 export async function POST(req) {
     try {
@@ -22,9 +19,9 @@ export async function POST(req) {
         }
 
         // Activate the user
+        user.status = 'active';
         user.otp = null;
         user.otpExpiresAt = null;
-        user.status = 'active'; // Activate the user
         await user.save();
 
         return NextResponse.json({ message: 'OTP verified successfully' }, { status: 200 });

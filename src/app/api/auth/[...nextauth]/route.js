@@ -1,10 +1,8 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-
 import User from '@/models/User';
 import dbConnect from '@/lib/dbMongoose';
-
 
 export const authOptions = {
     providers: [
@@ -15,13 +13,18 @@ export const authOptions = {
                 password: { label: 'Password', type: 'password' },
             },
             async authorize(credentials) {
-                await dbConnect(); // Connect to MongoDB using Mongoose
+                await dbConnect(); // Connect to MongoDB
                 const user = await User.findOne({ email: credentials.email });
 
+                // Check if user exists, password matches, and user is active
                 if (user && bcrypt.compareSync(credentials.password, user.password)) {
-                    return { id: user._id, name: user.username, email: user.email, role: user.role };
+                    if (user.status === 'active') {
+                        return { id: user._id, name: user.username, email: user.email, role: user.role };
+                    } else {
+                        throw new Error('Your account is inactive. Please contact the admin.');
+                    }
                 }
-                return null;
+                throw new Error('Invalid email or password');
             },
         }),
     ],
@@ -44,5 +47,4 @@ export const authOptions = {
 };
 
 const handler = NextAuth(authOptions);
-
 export { handler as GET, handler as POST };

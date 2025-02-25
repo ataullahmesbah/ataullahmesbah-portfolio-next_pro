@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import icons
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -12,12 +13,21 @@ export default function RegisterPage() {
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState('register'); // 'register' or 'verify'
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // For password visibility
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // For confirm password visibility
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
+      return;
+    }
+
+    // Password validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError('Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.');
       return;
     }
 
@@ -55,9 +65,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-6">Register</h1>
+    <div className="flex flex-col items-center justify-center  ">
+      <div className="bg-white p-8 rounded-lg shadow-sm w-full max-w-sm">
+
         {step === 'register' ? (
           <form onSubmit={handleRegister}>
             <input
@@ -65,7 +75,7 @@ export default function RegisterPage() {
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full px-4 py-2 mb-4 border rounded-md"
+              className="w-full px-4 py-2 mb-4 border border-gray-400 rounded-md"
               required
             />
             <input
@@ -73,43 +83,73 @@ export default function RegisterPage() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 mb-4 border rounded-md"
+              className="w-full px-4 py-2 mb-4 border border-gray-400 rounded-md"
               required
             />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 mb-4 border rounded-md"
-              required
-            />
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-2 mb-4 border rounded-md"
-              required
-            />
+            <div className="relative mb-4">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-400 rounded-md"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            <div className="relative mb-4">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-400 rounded-md"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              >
+                {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             <button
               type="submit"
-              className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+              className="w-full bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-800"
             >
               Register
             </button>
           </form>
         ) : (
           <form onSubmit={handleVerifyOTP}>
-            <input
-              type="text"
-              placeholder="Enter OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              className="w-full px-4 py-2 mb-4 border rounded-md"
-              required
-            />
+            <div className="flex justify-center space-x-2 mb-4">
+              {[...Array(6)].map((_, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  maxLength={1}
+                  value={otp[index] || ''}
+                  onChange={(e) => {
+                    const newOtp = otp.split('');
+                    newOtp[index] = e.target.value;
+                    setOtp(newOtp.join(''));
+                    if (e.target.value && index < 5) {
+                      document.getElementById(`otp-${index + 1}`).focus();
+                    }
+                  }}
+                  id={`otp-${index}`}
+                  className="w-12 h-12 text-center border text-black border-gray-500 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              ))}
+            </div>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             <button
               type="submit"

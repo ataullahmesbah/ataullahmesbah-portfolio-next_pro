@@ -28,7 +28,7 @@ export default function AdminUsersPage() {
         const res = await fetch('/api/admin/users', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, role }),
+            body: JSON.stringify({ userId, role }), // Ensure this matches the backend
         });
 
         if (res.ok) {
@@ -39,7 +39,6 @@ export default function AdminUsersPage() {
             toast.error(data.message || 'Failed to update role.');
         }
     };
-
 
     // Delete a user
     const deleteUser = async (userId) => {
@@ -61,23 +60,22 @@ export default function AdminUsersPage() {
         }
     };
 
-    // Toggle user status (enable/disable)
+    // Toggle user status (active/inactive)
     const toggleUserStatus = async (userId, status) => {
-        const newStatus = status === 'active' ? 'inactive' : 'active';
         const confirmStatus = window.confirm(
-            `Are you sure you want to ${newStatus === 'active' ? 'enable' : 'disable'} this user?`
+            `Are you sure you want to set this user's status to ${status}?`
         );
         if (!confirmStatus) return;
 
         const res = await fetch('/api/admin/users', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, status: newStatus }),
+            body: JSON.stringify({ userId, status }),
         });
 
         if (res.ok) {
             fetchUsers(); // Refresh the user list
-            toast.success(`User ${newStatus === 'active' ? 'enabled' : 'disabled'} successfully!`);
+            toast.success(`User status updated to ${status} successfully!`);
         } else {
             const data = await res.json();
             toast.error(data.message || 'Failed to update user status.');
@@ -145,15 +143,14 @@ export default function AdminUsersPage() {
                                     </select>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <button
-                                        onClick={() => toggleUserStatus(user._id, user.status)}
-                                        className={`px-4 py-2 rounded-md text-sm font-medium ${user.status === 'active'
-                                            ? 'bg-red-500 text-white hover:bg-red-600'
-                                            : 'bg-green-500 text-white hover:bg-green-600'
-                                            }`}
+                                    <select
+                                        value={user.status}
+                                        onChange={(e) => toggleUserStatus(user._id, e.target.value)}
+                                        className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     >
-                                        {user.status === 'active' ? 'Disable' : 'Enable'}
-                                    </button>
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <button

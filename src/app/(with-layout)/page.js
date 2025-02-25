@@ -1,3 +1,5 @@
+'use client';
+import { useSession } from 'next-auth/react';
 import Head from "next/head";
 import Banner from "../components/Home/Banner/Banner";
 import WhoIsMesbah from "../components/Home/WhoIsMesbah/WhoIsMesbah";
@@ -11,15 +13,12 @@ import NewSection from "../components/Home/NewSection/NewSection";
 import ProjectsTab from "../components/Share/ProjectsTab/ProjectsTab";
 import LicenseCertification from "../components/Share/LicenseCertification/LicenseCertification";
 
+const HomePage = () => {
+    const { data: session, status } = useSession();
 
+    console.log('Session:', session?.user?.name); // Debugging with optional chaining
 
-
-
-
-const page = () => {
     return (
-
-
         <>
             <Head>
                 <title>Ataullah Mesbah</title>
@@ -41,17 +40,12 @@ const page = () => {
                 <ProjectsTab />
                 <MarketingSection />
                 <Testimonials />
-               
                 <NewSection />
                 <LicenseCertification />
                 <ContactAssistance />
-
-
-
             </main>
         </>
-
     );
 };
 
-export default page;
+export default HomePage;

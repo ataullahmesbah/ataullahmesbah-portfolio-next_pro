@@ -1,24 +1,17 @@
-
-
+import Providers from "@/providers/Providers";
 import Navbar from "../components/Navbar/Navbar";
 import RootNavbar from "../components/RootNavbar/RootNavbar";
 import Footer from "../components/Share/Footer/Footer";
 
-
-const RootLayout = ({ children }) => {
+export default function RootLayout({ children }) {
     return (
-        <div>
-
-            <RootNavbar />
-
+        <Providers>
+            <div>
+                <RootNavbar />
                 <Navbar />
                 {children}
-           
-
-            <Footer />
-
-        </div>
+                <Footer />
+            </div>
+        </Providers>
     );
-};
-
-export default RootLayout;
+}
