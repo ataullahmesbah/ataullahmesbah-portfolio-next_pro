@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { FaTrash } from 'react-icons/fa';
 
 export default function AdminUsersPage() {
     const { data: session, status } = useSession();
@@ -38,6 +39,7 @@ export default function AdminUsersPage() {
             toast.error(data.message || 'Failed to update role.');
         }
     };
+
 
     // Delete a user
     const deleteUser = async (userId) => {
@@ -156,9 +158,9 @@ export default function AdminUsersPage() {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     <button
                                         onClick={() => deleteUser(user._id)}
-                                        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                                        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 flex items-center"
                                     >
-                                        Delete
+                                        <FaTrash className="mr-2" /> Delete
                                     </button>
                                 </td>
                             </tr>

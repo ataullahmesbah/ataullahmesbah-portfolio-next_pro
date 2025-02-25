@@ -1,37 +1,44 @@
 import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-
+import { generateOTP, sendOTP } from '@/lib/otpUtils';
 import User from '@/models/User';
+
+import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/dbMongoose';
 
 export async function POST(req) {
   try {
-    await dbConnect(); // Connect to MongoDB using Mongoose
+    await dbConnect();
     const { username, email, password } = await req.json();
-
-    console.log('Registration data:', { username, email, password });
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.log('User already exists');
       return NextResponse.json({ message: 'User already exists' }, { status: 400 });
     }
 
-    // Hash the password
-    const hashedPassword = bcrypt.hashSync(password, 10);
+    // Generate OTP and set expiry
+    const otp = generateOTP();
+    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
-    // Create a new user
-    const newUser = new User({
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Save OTP and user data temporarily
+    const tempUser = new User({
       username,
       email,
-      password: hashedPassword,
+      password: hashedPassword, // Store the hashed password
+      otp,
+      otpExpiresAt,
+      status: 'inactive', // User is inactive until OTP is verified
     });
 
-    await newUser.save();
-    console.log('User saved to database:', newUser);
+    await tempUser.save();
 
-    return NextResponse.json({ message: 'User registered successfully' }, { status: 201 });
+    // Send OTP to the user's email (DO NOT send the password)
+    await sendOTP(email, otp);
+
+    return NextResponse.json({ message: 'OTP sent successfully' }, { status: 201 });
   } catch (error) {
     console.error('Registration error:', error);
     return NextResponse.json({ message: 'Registration failed' }, { status: 500 });
