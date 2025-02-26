@@ -38,7 +38,7 @@ export const sendOTP = async (email, otp) => {
                 </div>
             <div style="text-align: center;">
                     <h2 style="color: #4CAF50;">Your One-Time Password</h2>
-                    <p>Here is your One-Time Password to securely log in to your Ataullah Mesbah account:</p>
+                    <p>Here is your One-Time Password to securely log in to your Team Ataullah Mesbah account:</p>
                     <h3 style="color: #4CAF50; font-size: 24px; margin: 20px 0;">${otp}</h3>
                     <p><strong>Note:</strong> This OTP is valid for 5 minutes.</p>
                 </div>
