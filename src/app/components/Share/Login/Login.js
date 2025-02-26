@@ -22,10 +22,10 @@ const Login = () => {
             {/* img optimize */}
             <div className="flex justify-center items-center bg-gray-900 py-10 rounded-md">
                 <div className="flex flex-col items-center bg-gray-800 rounded-lg shadow-lg px-8 py-6 w-full max-w-lg">
-                   
+
 
                     <div className="flex items-center justify-center gap-5">
-                    <p className="text-white text-base font-semibold">Log into</p>
+                        <p className="text-white text-base font-semibold">Log into</p>
                         <svg
                             id="Layer_1"
                             data-name="Layer 1"
@@ -47,7 +47,7 @@ const Login = () => {
                             <text className="cls-3" transform="translate(205 33.34)">mesbah</text>
                             <polygon className="cls-4" points="47.06 49.22 284.59 49.22 57.65 57.69 47.06 49.22" />
                         </svg>
-                        
+
                     </div>
                 </div>
             </div>
