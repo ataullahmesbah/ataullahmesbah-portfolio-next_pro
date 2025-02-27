@@ -8,9 +8,15 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**', // Allows images from all domains
+        hostname: '**', // Allows all HTTPS domains
+      },
+      {
+        protocol: 'http',
+        hostname: '**', // Allows all HTTP domains (Optional)
       },
     ],
+    domains: ['*'], // Full domain wildcard
+    unoptimized: true, // Optional if optimization is not needed
   },
   async rewrites() {
     return [
