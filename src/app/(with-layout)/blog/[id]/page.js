@@ -3,89 +3,86 @@ import { notFound } from 'next/navigation';
 import Head from 'next/head';
 
 export async function generateStaticParams() {
-    try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blogs`, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Failed to fetch blogs');
-        const blogs = await res.json();
-        return blogs.map(blog => ({ id: blog._id.toString() }));
-    } catch {
-        return [];
-    }
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blogs`, { cache: 'no-store' });
+    const blogs = await res.json();
+    return blogs.map(blog => ({ id: blog._id.toString() }));
 }
 
 export async function generateMetadata({ params }) {
-    try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blogs/${params.id}`, { cache: 'no-store' });
-        if (!res.ok) return { title: 'Blog Not Found' };
-        const blog = await res.json();
-        return {
-            title: `${blog.title} | My Blog`,
-            description: blog.metaDescription,
-            keywords: blog.tags?.join(', ') || 'blog, article, news',
-            openGraph: {
-                title: blog.title,
-                description: blog.metaDescription,
-                images: blog.content.filter(item => item.type === 'image').map(img => ({ url: img.src })),
-            },
-            twitter: {
-                card: 'summary_large_image',
-                title: blog.title,
-                description: blog.metaDescription,
-                images: blog.content.filter(item => item.type === 'image').map(img => img.src)[0] || '',
-            },
-        };
-    } catch {
-        return { title: 'Blog Not Found' };
-    }
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blogs/${params.id}`, { cache: 'no-store' });
+    if (!res.ok) return { title: 'Blog Not Found' };
+    const blog = await res.json();
+    return {
+        title: `${blog.title} | My Blog`,
+        description: blog.metaDescription,
+    };
 }
 
 export default async function BlogDetails({ params }) {
-    try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blogs/${params.id}`, { cache: 'no-store' });
-        if (!res.ok) notFound();
-        const blog = await res.json();
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blogs/${params.id}`, { cache: 'no-store' });
+    if (!res.ok) notFound();
+    const blog = await res.json();
 
-        return (
-            <main className="p-6 space-y-4">
-                <Head>
-                    <title>{blog.title} | My Blog</title>
-                    <meta name="description" content={blog.metaDescription} />
-                    <meta property="og:title" content={blog.title} />
-                    <meta property="og:description" content={blog.metaDescription} />
-                    {blog.content.filter(item => item.type === 'image').map((img, index) => (
-                        <meta key={index} property="og:image" content={img.src} />
-                    ))}
-                    <meta name="twitter:card" content="summary_large_image" />
-                    <meta name="twitter:title" content={blog.title} />
-                    <meta name="twitter:description" content={blog.metaDescription} />
-                    <meta name="twitter:image" content={blog.content.filter(item => item.type === 'image').map(img => img.src)[0] || ''} />
-                </Head>
-                <h1 className="text-3xl font-bold">{blog.title}</h1>
-                <div className="space-y-4">
-                    {blog.content.map((item, index) => (
-                        item.type === 'image' ? (
-                            <Image
-                                key={index}
-                                src={item.src}
-                                alt={item.alt}
-                                width={1200}
-                                height={630}
-                                className="w-full h-64 object-cover rounded-lg"
-                                priority
-                            />
-                        ) : (
-                            <div key={index} dangerouslySetInnerHTML={{ __html: item.value }} />
-                        )
-                    ))}
+    // Fetch latest 3 blogs
+    const latestRes = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blogs`, { cache: 'no-store' });
+    const latestBlogs = (await latestRes.json()).slice(0, 3);
+
+    // Get unique categories
+    const categories = [...new Set(latestBlogs.map(blog => blog.category))];
+
+    return (
+        <div className="container mx-auto p-4">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                {/* Left Side - Blog Details */}
+                <div className="lg:col-span-3">
+                    <h1 className="text-3xl font-bold mb-6">{blog.title}</h1>
+                    {blog.image && (
+                        <div className="space-y-4">
+                            {blog.image.map((img, index) => (
+                                <Image
+                                    key={index}
+                                    src={img}
+                                    alt={`${blog.title} - Image ${index + 1}`}
+                                    width={1200}
+                                    height={630}
+                                    className="w-full h-64 object-cover rounded-lg"
+                                    priority
+                                />
+                            ))}
+                        </div>
+                    )}
+                    <article className="prose lg:prose-xl max-w-none mt-6">
+                        <div dangerouslySetInnerHTML={{ __html: blog.content }} />
+                    </article>
                 </div>
-                <footer className="text-gray-500 text-sm">
-                    Published on: {new Date(blog.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric', month: 'long', day: 'numeric'
-                    })}
-                </footer>
-            </main>
-        );
-    } catch {
-        notFound();
-    }
+
+                {/* Right Side - Latest Blogs + Categories */}
+                <div className="lg:col-span-1">
+                    {/* Latest 3 Blogs */}
+                    <div className="mb-8">
+                        <h2 className="text-xl font-bold mb-4">Latest Blogs</h2>
+                        {latestBlogs.map((blog) => (
+                            <div key={blog._id} className="mb-4">
+                                <Link href={`/blog/${blog._id}`} legacyBehavior>
+                                    <a className="text-blue-500 underline">{blog.title}</a>
+                                </Link>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Categories */}
+                    <div>
+                        <h2 className="text-xl font-bold mb-4">Categories</h2>
+                        {categories.map((category) => (
+                            <div key={category} className="mb-2">
+                                <Link href={`/blog/category/${category.toLowerCase()}`} legacyBehavior>
+                                    <a className="text-blue-500 underline">{category}</a>
+                                </Link>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 }
