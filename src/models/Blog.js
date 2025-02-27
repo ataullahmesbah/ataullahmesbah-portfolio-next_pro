@@ -1,25 +1,39 @@
-// src>models>Blog.js
+// models/Blog.js
+const mongoose = require('mongoose');
 
-import mongoose from "mongoose";
-
+const commentSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the user
+    comment: { type: String, required: true },
+    date: { type: Date, default: Date.now }
+});
 
 const blogSchema = new mongoose.Schema({
     title: { type: String, required: true },
-    subtitle: { type: String },
-    description: { type: String },
-    content: { type: String, required: true },
+    slug: { type: String, required: true, unique: true },
+    shortContent: { type: String, required: true },
+    image: { type: String, required: true },
+    content: [
+        {
+            type: { type: String, enum: ['text', 'image'], required: true },
+            data: { type: String, required: true },
+            alt: { type: String } // For images
+        }
+    ],
     author: { type: String, required: true },
-    categories: { type: [String], required: true },
-    tags: { type: [String] },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
-    image: { type: String },
-    views: { type: Number, default: 0 },
-    slug: { type: String, unique: true, required: true },
-    metadata: {
-        title: String,
-        description: String,
-    }
-}, { timestamps: true });
+    publishDate: { type: Date, default: Date.now },
+    category: { type: String, required: true },
+    keyPoints: [{ type: String }],
+    highlightPoints: [{ type: String }],
+    metaTitle: { type: String, required: true },
+    metaDescription: { type: String, required: true },
+    tags: [{ type: String }],
+    images: [
+        {
+            url: { type: String, required: true },
+            alt: { type: String, required: true }
+        }
+    ],
+    comments: [commentSchema] // Embedded comments
+});
 
-export default mongoose.models.Blog || mongoose.model('Blog', blogSchema);
+module.exports = mongoose.model('Blog', blogSchema);

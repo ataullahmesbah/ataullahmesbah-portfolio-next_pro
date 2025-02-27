@@ -1,0 +1,48 @@
+[
+{
+    "title": "2025 Development Hacks",
+    "slug": "2025-development-hacks",
+    "shortContent": "Top development hacks for 2025.",
+    "image": "https://example.com/image1.jpg",
+    "content": [
+      {
+        "type": "text",
+        "data": "In 2025, developers will need to focus on..."
+      },
+      {
+        "type": "image",
+        "data": "https://example.com/image1.jpg",
+        "alt": "Development Hack 1"
+      },
+      {
+        "type": "text",
+        "data": "Another important trend is..."
+      }
+    ],
+    "author": "John Doe",
+    "publishDate": "2023-10-01",
+    "category": "Technology",
+    "keyPoints": [
+      "Plan your content",
+      "Research keywords",
+      "Optimize for SEO"
+    ],
+    "highlightPoints": [
+      "SEO is crucial for visibility",
+      "Engage your audience"
+    ],
+    "metaTitle": "2025 Development Hacks - Complete Guide",
+    "metaDescription": "Learn the top development hacks for 2025.", 
+    "tags": ["development", "2025", "hacks"], 
+    "images": [
+      {
+        "url": "https://example.com/image1.jpg",
+        "alt": "Development Hack 1"
+      },
+      {
+        "url": "https://example.com/image2.jpg",
+        "alt": "Development Hack 2"
+      }
+    ]
+  }
+]
