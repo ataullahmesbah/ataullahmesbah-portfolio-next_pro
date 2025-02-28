@@ -1,26 +1,32 @@
-import { getAllPages } from '@/lib/getAllPages';
+import { getAllPages } from "@/models/getAllPages";
 
-export async function GET() {
-    const pages = await getAllPages(); // Fetch Dynamic Pages
+export default async function sitemap() {
+  const siteUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'; // Use environment variable
+  const pages = await getAllPages(); // Fetch Dynamic Pages
 
-    const siteUrl = 'https://ataullahmesbah.com';
-    const urls = pages.map((page) => `
-    <url>
-      <loc>${siteUrl}/${page.slug}</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.8</priority>
-    </url>
-  `).join('');
+  // Generate URLs for all pages
+  const urls = pages.map((page) => ({
+    url: `${siteUrl}/${page.slug}`,
+    lastModified: new Date().toISOString(),
+    changeFrequency: 'weekly',
+    priority: 0.8,
+  }));
 
-    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-      ${urls}
-    </urlset>`;
+  // Add static pages (if any)
+  const staticPages = [
+    {
+      url: `${siteUrl}/`,
+      lastModified: new Date().toISOString(),
+      changeFrequency: 'daily',
+      priority: 1.0,
+    },
+    {
+      url: `${siteUrl}/about`,
+      lastModified: new Date().toISOString(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+  ];
 
-    return new Response(sitemap, {
-        headers: {
-            'Content-Type': 'application/xml',
-        },
-    });
+  return [...staticPages, ...urls];
 }

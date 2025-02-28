@@ -1,75 +1,138 @@
-// src/app/(with-layout)/blog/[slug]/page.js
-
-import React from 'react';
 import Image from 'next/image';
-import CommentForm from '@/app/components/Share/CommentForm/CommentForm';
+import Script from 'next/script';
+
+async function getBlogBySlug(slug) {
+    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/blog/${slug}`, {
+        cache: 'no-store',
+        headers: {
+            'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+        },
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to fetch blog');
+    }
+
+    const blog = await res.json();
+    console.log('Fetched Blog:', blog); // Debugging: Log the fetched blog data
+    return blog;
+}
 
 export async function generateMetadata({ params }) {
-    const blog = await getBlog(params.slug);
+    const blog = await getBlogBySlug(params.slug);
+
     return {
-        title: blog.metaTitle,
-        description: blog.metaDescription,
+        title: blog.metaTitle || blog.title,
+        description: blog.metaDescription || blog.shortDescription,
+        keywords: blog.tags.join(', '),
+        openGraph: {
+            title: blog.metaTitle || blog.title,
+            description: blog.metaDescription || blog.shortDescription,
+            images: [blog.mainImage],
+        },
     };
 }
 
+export default async function BlogDetail({ params }) {
+    const blog = await getBlogBySlug(params.slug);
 
-async function getBlog(slug) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blog/${slug}`, { cache: 'no-store' }); // Fetch blog by slug
-    if (!res.ok) throw new Error('Failed to fetch blog');
-    return res.json();
-}
+    if (!blog) {
+        return <div>Blog not found</div>;
+    }
 
-export default async function BlogDetailsPage({ params }) {
-    const { slug } = params;
-    const blog = await getBlog(slug);
+    const siteUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+
+    const schemaMarkup = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": blog.title,
+        "description": blog.shortDescription,
+        "image": blog.mainImage,
+        "author": {
+            "@type": "Person",
+            "name": blog.writer || 'Unknown Author',
+        },
+        "datePublished": blog.publishDate,
+        "dateModified": blog.publishDate, // Update this if you have a modified date
+        "url": `${siteUrl}/blog/${blog.slug}`, // Dynamic URL
+    };
+
+    // Add fallbacks for missing fields
+    const categories = blog.categories || [];
+    const author = blog.writer || 'Unknown Author';
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto px-4 py-8">
+            {/* Add Schema Markup */}
+            <Script
+                id="schema-markup"
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
+            />
+
             <h1 className="text-3xl font-bold mb-4">{blog.title}</h1>
-            <div className="relative h-96 mb-8">
-                <Image
-                    src={blog.image}
-                    alt={blog.title}
-                    fill
-                    className="object-cover rounded-lg"
-                />
+            <Image
+                src={blog.mainImage}
+                alt={blog.title}
+                width={800}
+                height={400}
+                className="w-full h-64 md:h-96 object-cover rounded-lg"
+                priority
+            />
+            <p className="mt-4 text-gray-700">{blog.shortDescription}</p>
+
+            {/* Author and Categories */}
+            <div className="mt-4">
+                <p className="text-gray-600">Author: {author}</p>
+                <div className="mt-2">
+                    <span className="text-sm font-semibold">Categories:</span>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                        {categories.map((category, index) => (
+                            <span key={index} className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
+                                {category}
+                            </span>
+                        ))}
+                    </div>
+                </div>
             </div>
-            <p className="text-gray-600 mb-4">By {blog.author} | Published on {new Date(blog.publishDate).toLocaleDateString()}</p>
-            <div className="prose max-w-none">
-                {blog.content.map((section, index) => (
+
+            {/* Render Content */}
+            <div className="mt-6 space-y-4">
+                {blog.content.map((item, index) => (
                     <div key={index}>
-                        {section.type === 'text' && <p>{section.data}</p>}
-                        {section.type === 'image' && (
+                        {item.type === 'text' && (
+                            <div className="text-gray-800">
+                                {item.data.split(/<br\s*\/?>/).map((text, index) => (
+                                    <div key={index} className="mt-3">
+                                        {text}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        {item.type === 'image' && (
                             <Image
-                                src={section.data}
-                                alt={section.alt}
-                                width={800}
+                                src={item.data}
+                                alt={item.alt || blog.title}
+                                width={600}
                                 height={400}
-                                className="my-4 rounded-lg"
+                                className="w-full h-64 object-cover rounded-lg"
+                                loading="lazy" // Lazy loading for images
                             />
                         )}
                     </div>
                 ))}
             </div>
 
-            <h2 className="text-2xl font-bold mt-8 mb-4">Key Points</h2>
-            <ul className="list-disc pl-6 mb-8">
+            {/* Key Points */}
+            <h2 className="text-2xl font-bold mt-8">Key Points</h2>
+            <ul className="list-disc list-inside mt-2">
                 {blog.keyPoints.map((point, index) => (
-                    <li key={index} className="mb-2">{point}</li>
+                    <li key={index} className="text-gray-700">{point}</li>
                 ))}
             </ul>
 
-            <h2 className="text-2xl font-bold mt-8 mb-4">Comments</h2>
-            <div className="space-y-4">
-                {blog.comments.map((comment, index) => (
-                    <div key={index} className="border p-4 rounded-lg">
-                        <p className="font-semibold">{comment.user}</p>
-                        <p className="text-gray-600">{comment.comment}</p>
-                    </div>
-                ))}
-            </div>
-
-            <CommentForm blogSlug={slug} />
+            {/* Publish Date */}
+            <p className="mt-8 text-gray-600">Published on: {new Date(blog.publishDate).toLocaleDateString()}</p>
         </div>
     );
 }

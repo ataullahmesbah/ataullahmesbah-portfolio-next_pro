@@ -1,39 +1,26 @@
 // models/Blog.js
-const mongoose = require('mongoose');
-
-const commentSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the user
-    comment: { type: String, required: true },
-    date: { type: Date, default: Date.now }
-});
+import mongoose from 'mongoose';
 
 const blogSchema = new mongoose.Schema({
     title: { type: String, required: true },
     slug: { type: String, required: true, unique: true },
-    shortContent: { type: String, required: true },
-    image: { type: String, required: true },
+    mainImage: { type: String, required: true },
+    shortDescription: { type: String, required: true },
+    author: { type: String, required: true },
     content: [
         {
-            type: { type: String, enum: ['text', 'image'], required: true },
+            type: { type: String, required: true },
             data: { type: String, required: true },
-            alt: { type: String } // For images
-        }
+            alt: { type: String, required: false },
+        },
     ],
-    author: { type: String, required: true },
-    publishDate: { type: Date, default: Date.now },
-    category: { type: String, required: true },
     keyPoints: [{ type: String }],
-    highlightPoints: [{ type: String }],
+    publishDate: { type: Date, required: true },
     metaTitle: { type: String, required: true },
     metaDescription: { type: String, required: true },
     tags: [{ type: String }],
-    images: [
-        {
-            url: { type: String, required: true },
-            alt: { type: String, required: true }
-        }
-    ],
-    comments: [commentSchema] // Embedded comments
+    categories: [{ type: String }], // Ensure this field is included
+    auth: { type: String, required: true },
 });
 
-module.exports = mongoose.model('Blog', blogSchema);
+export default mongoose.models.Blog || mongoose.model('Blog', blogSchema);

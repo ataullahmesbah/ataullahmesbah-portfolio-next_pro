@@ -10,12 +10,6 @@ export async function middleware(req) {
         return NextResponse.redirect(new URL('/', req.url));
     }
 
-    // Protect API routes
-    // if (pathname.startsWith('/api') && !token) {
-    //     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-    // }
-
-    // '/api/:path*'
 
     return NextResponse.next();
 }

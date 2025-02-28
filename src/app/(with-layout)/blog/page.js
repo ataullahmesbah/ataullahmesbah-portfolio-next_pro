@@ -1,56 +1,65 @@
-// src/app/(with-layout)/blog/page.js
-import React from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
-
-export const metadata = {
-  title: 'Blogs - Ataullah Mesbah',
-  description: 'Explore all blogs on My Website.',
-};
+import Link from 'next/link';
 
 async function getBlogs() {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/blog`, { cache: 'no-store' });
-    if (!res.ok) throw new Error('Failed to fetch blogs');
-    const data = await res.json();
-    console.log('Fetched blogs:', data); // Log the fetched data
-    return data;
-  } catch (error) {
-    console.error('Fetch error:', error);
-    return [];
+  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/blog`, {
+    cache: 'no-store',
+    headers: {
+      'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch blogs');
   }
+
+  const blogs = await res.json();
+  console.log('Fetched Blogs:', blogs); // Debugging: Log fetched data
+  return blogs;
 }
 
-export default async function BlogPage() {
+export const metadata = {
+  title: 'Blog Posts - My Website',
+  description: 'Explore the latest blog posts on AI, quantum computing, and more.',
+};
+
+export default async function BlogList() {
   const blogs = await getBlogs();
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-8">All Blogs</h1>
-      {blogs.length === 0 ? (
-        <p className="text-center text-gray-600">No blogs found.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogs.map((blog) => (
-            <div key={blog.slug} className="border rounded-lg overflow-hidden shadow-lg">
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">Blog Posts</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {blogs.map((blog) => (
+          <article key={blog.slug} className="border rounded-lg overflow-hidden shadow-lg">
+            <Image
+              src={blog.mainImage}
+              alt={blog.title}
+              width={400}
+              height={300}
+              className="w-full h-48 object-cover"
+              priority
+            />
+            <div className="p-4">
               <Link href={`/blog/${blog.slug}`}>
-                <div className="relative h-48">
-                  <Image
-                    src={blog.image}
-                    alt={blog.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-4">
-                  <h2 className="text-xl font-semibold mb-2">{blog.title}</h2>
-                  <p className="text-gray-600">{blog.shortContent}</p>
-                </div>
+                <h2 className="text-xl font-semibold hover:text-blue-600">{blog.title}</h2>
               </Link>
+              <p className="mt-2 text-gray-600">{blog.shortDescription}</p>
+              <p className="mt-2 text-sm text-gray-500">Author: {blog.writer || 'Unknown Author'}</p>
+              <div className="mt-2">
+                <span className="text-sm font-semibold">Categories:</span>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {blog.categories.map((category, index) => (
+                    <span key={index} className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
+                      {category}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-      )}
+          </article>
+        ))}
+      </div>
     </div>
   );
 }
