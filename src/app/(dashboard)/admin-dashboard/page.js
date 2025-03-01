@@ -30,7 +30,7 @@ export default function AdminDashboardPage() {
             <div className="space-y-6 py-10">
                 <h2 className="text-3xl text-center text-white font-bold">Welcome to the Admin Dashboard</h2>
                 <div className="mt-10">
-                    <p>Hello, {session.user.name}!</p>
+                    
                     <TestimonialStatistics />
                 </div>
             </div>

@@ -48,6 +48,9 @@ const AdminDashboardLayout = ({ children }) => {
                     <Link href="/admin-dashboard/allblogs" className="block p-2 hover:bg-gray-700 rounded">
                         📚 All Blogs
                     </Link>
+                    <Link href="/admin-dashboard/logs" className="block p-2 hover:bg-gray-700 rounded">
+                        📚 LOGS
+                    </Link>
                     <Link href="/admin-dashboard/blogspost" className="block p-2 hover:bg-gray-700 rounded">
                         ➕ Create Blog Post
                     </Link>
