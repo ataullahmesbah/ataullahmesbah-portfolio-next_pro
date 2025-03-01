@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Script from 'next/script';
+import { FaUser } from 'react-icons/fa';
 
 async function getBlogBySlug(slug) {
     const res = await fetch(`${process.env.NEXTAUTH_URL}/api/blog/${slug}`, {
@@ -70,6 +71,16 @@ export default async function BlogDetail({ params }) {
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
             />
 
+            <div className='flex gap-3 items-center py-3'>
+                <div className='flex gap-2 items-center'>
+                    <FaUser />
+                    <p className="text-gray-600">{author}</p>
+                </div>
+                
+                {/* Publish Date */}
+                <p className=" text-gray-600">Published on: {new Date(blog.publishDate).toLocaleDateString()}</p>
+            </div>
+
             <h1 className="text-3xl font-bold mb-4">{blog.title}</h1>
             <Image
                 src={blog.mainImage}
@@ -83,7 +94,7 @@ export default async function BlogDetail({ params }) {
 
             {/* Author and Categories */}
             <div className="mt-4">
-                <p className="text-gray-600">Author: {author}</p>
+
                 <div className="mt-2">
                     <span className="text-sm font-semibold">Categories:</span>
                     <div className="flex flex-wrap gap-2 mt-1">
@@ -131,8 +142,7 @@ export default async function BlogDetail({ params }) {
                 ))}
             </ul>
 
-            {/* Publish Date */}
-            <p className="mt-8 text-gray-600">Published on: {new Date(blog.publishDate).toLocaleDateString()}</p>
+
         </div>
     );
 }
