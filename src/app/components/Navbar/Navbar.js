@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { FaBars, FaTimes, FaCaretUp, FaCaretDown, FaUserGraduate } from 'react-icons/fa';
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
+import ProfileUpdate from '../profileUpdate/profileUpdate';
 
 const Navbar = () => {
     const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
@@ -185,6 +186,8 @@ const Navbar = () => {
                                 Contact
                             </Link>
 
+                            <ProfileUpdate />
+
                             {/* User Profile Dropdown */}
                             {session ? (
                                 <div className="relative">
@@ -243,8 +246,8 @@ const Navbar = () => {
                                     )}
                                 </div>
                             ) : (
-                                <div  className="flex space-x-4">
-                                    <Link href="/login"  className={`${isActiveLink('/login')} px-4`}>
+                                <div className="flex space-x-4">
+                                    <Link href="/login" className={`${isActiveLink('/login')} px-4`}>
                                         Login
                                     </Link>
 
