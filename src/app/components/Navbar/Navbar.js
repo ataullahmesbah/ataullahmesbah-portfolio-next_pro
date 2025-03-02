@@ -208,6 +208,7 @@ const Navbar = () => {
                                         <div className="absolute right-0 mt-2 w-48 bg-gray-700 shadow-lg rounded-lg py-2 z-20">
                                             <div className="px-4 py-2 text-white">{session.user.name}</div>
                                             <div className="px-4 py-2 text-white">Mr. {session.user.role}</div>
+
                                             {/* Role-Based Links */}
                                             {session.user.role === 'admin' && (
                                                 <Link
@@ -236,6 +237,7 @@ const Navbar = () => {
                                                     User Dashboard
                                                 </Link>
                                             )}
+
                                             <button
                                                 onClick={() => signOut({ callbackUrl: '/' })}
                                                 className="block w-full px-4 py-2 text-left text-white hover:bg-gray-800"
@@ -250,7 +252,6 @@ const Navbar = () => {
                                     <Link href="/login" className={`${isActiveLink('/login')} px-4`}>
                                         Login
                                     </Link>
-
                                 </div>
                             )}
                         </div>

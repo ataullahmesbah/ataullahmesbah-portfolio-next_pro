@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     role: { type: String, enum: ['user', 'moderator', 'admin'], default: 'user' }, // Add 'moderator'
     status: { type: String, enum: ['active', 'inactive'], default: 'inactive' },
     createdAt: { type: Date, default: Date.now },
-    image: String,
+    image: { type: String },
 });
 
 export default mongoose.models.User || mongoose.model('User', userSchema);

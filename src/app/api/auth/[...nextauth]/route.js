@@ -28,15 +28,18 @@ export const authOptions = {
             },
         }),
     ],
+
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
                 token.role = user.role;
+                token.image = user.image; // Add the image field
             }
             return token;
         },
         async session({ session, token }) {
             session.user.role = token.role;
+            session.user.image = token.image; // Add the image field to the session
             return session;
         },
     },

@@ -1,20 +1,19 @@
 'use client';
-
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { FaUserGraduate } from 'react-icons/fa';
 
-export default function ProfileUpdate({ session }) {
+const ProfileUpdate = () => {
+    const { data: session, update } = useSession();
     const [preview, setPreview] = useState(session?.user.image || '');
 
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
-        console.log('Selected file:', file);
-
         const formData = new FormData();
         formData.append('file', file);
 
         try {
+            // Upload image to Cloudinary
             const response = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData,
@@ -38,6 +37,9 @@ export default function ProfileUpdate({ session }) {
                     },
                     body: JSON.stringify({ email: session.user.email, image: data.url }),
                 });
+
+                // Update the session
+                await update({ image: data.url });
             }
         } catch (error) {
             console.error('Error uploading image:', error);
@@ -45,36 +47,11 @@ export default function ProfileUpdate({ session }) {
     };
 
     return (
-        <div className="relative">
-            <button className="flex items-center">
-                {preview ? (
-                    <Image
-                        src={preview}
-                        alt="User"
-                        width={40}
-                        height={40}
-                        className="rounded-full"
-                        priority
-                    />
-                ) : (
-                    <FaUserGraduate className="text-2xl" />
-                )}
-            </button>
-
-            <div className="absolute right-0 bg-gray-800 shadow-lg rounded-lg py-2 w-48 mt-2">
-                <label className="block px-4 py-2 text-white hover:bg-gray-700 cursor-pointer">
-                    Update Profile
-                    <input
-                        type="file"
-                        className="hidden"
-                        onChange={handleImageUpload}
-                        accept="image/*"
-                    />
-                </label>
-                <button className="block w-full px-4 py-2 text-white hover:bg-gray-700 text-left">
-                    Sign Out
-                </button>
-            </div>
+        <div>
+            <input type="file" onChange={handleImageUpload} accept="image/*" />
+            {preview && <Image src={preview} alt="Preview" width={100} height={100} />}
         </div>
     );
-}
+};
+
+export default ProfileUpdate;
