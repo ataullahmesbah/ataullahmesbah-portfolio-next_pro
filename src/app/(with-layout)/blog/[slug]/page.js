@@ -63,86 +63,99 @@ export default async function BlogDetail({ params }) {
     const author = blog.writer || 'Unknown Author';
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            {/* Add Schema Markup */}
-            <Script
-                id="schema-markup"
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
-            />
+        <div className="container max-w-6xl mx-auto px-4 py-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Add Schema Markup */}
+                <Script
+                    id="schema-markup"
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
+                />
+                {/* Left Side */}
 
-            <div className='flex gap-3 items-center py-3'>
-                <div className='flex gap-2 items-center'>
-                    <FaUser />
-                    <p className="text-gray-600">{author}</p>
-                </div>
-                
-                {/* Publish Date */}
-                <p className=" text-gray-600">Published on: {new Date(blog.publishDate).toLocaleDateString()}</p>
-            </div>
+                <div className="md:col-span-2 bg-white shadow-lg rounded-lg p-6">
+                    <div className='flex gap-3 items-center py-3'>
+                        <div className='flex gap-2 items-center'>
+                            <FaUser />
+                            <p className="text-gray-600">{author}</p>
+                        </div>
 
-            <h1 className="text-3xl font-bold mb-4">{blog.title}</h1>
-            <Image
-                src={blog.mainImage}
-                alt={blog.title}
-                width={800}
-                height={400}
-                className="w-full h-64 md:h-96 object-cover rounded-lg"
-                priority
-            />
-            <p className="mt-4 text-gray-700">{blog.shortDescription}</p>
+                        {/* Publish Date */}
+                        <p className=" text-gray-600">Published on: {new Date(blog.publishDate).toLocaleDateString()}</p>
+                    </div>
 
-            {/* Author and Categories */}
-            <div className="mt-4">
+                    <h1 className="text-3xl font-bold mb-4">{blog.title}</h1>
+                    <Image
+                        src={blog.mainImage}
+                        alt={blog.title}
+                        width={800}
+                        height={400}
+                        className="w-full h-64 md:h-96 object-cover rounded-lg"
+                        priority
+                    />
+                    <p className="mt-4 text-gray-700">{blog.shortDescription}</p>
 
-                <div className="mt-2">
-                    <span className="text-sm font-semibold">Categories:</span>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                        {categories.map((category, index) => (
-                            <span key={index} className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
-                                {category}
-                            </span>
+
+
+                    {/* Render Content */}
+                    <div className="mt-6 space-y-4">
+                        {blog.content.map((item, index) => (
+                            <div key={index}>
+                                {item.type === 'text' && (
+                                    <div className="text-gray-800">
+                                        {item.data.split(/<br\s*\/?>/).map((text, index) => (
+                                            <div key={index} className="mt-3">
+                                                {text}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                {item.type === 'image' && (
+                                    <Image
+                                        src={item.data}
+                                        alt={item.alt || blog.title}
+                                        width={600}
+                                        height={400}
+                                        className="w-full h-64 object-cover rounded-lg"
+                                        loading="lazy" // Lazy loading for images
+                                    />
+                                )}
+                            </div>
                         ))}
                     </div>
-                </div>
-            </div>
 
-            {/* Render Content */}
-            <div className="mt-6 space-y-4">
-                {blog.content.map((item, index) => (
-                    <div key={index}>
-                        {item.type === 'text' && (
-                            <div className="text-gray-800">
-                                {item.data.split(/<br\s*\/?>/).map((text, index) => (
-                                    <div key={index} className="mt-3">
-                                        {text}
-                                    </div>
+                    {/* Key Points */}
+                    <h2 className="text-2xl font-bold mt-8">Key Points</h2>
+                    <ul className="list-disc list-inside mt-2">
+                        {blog.keyPoints.map((point, index) => (
+                            <li key={index} className="text-gray-700">{point}</li>
+                        ))}
+                    </ul>
+
+                    {/* Author and Categories */}
+                    <div className="mt-4">
+
+                        <div className="mt-2">
+                            <span className="text-sm font-semibold">Categories:</span>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                                {categories.map((category, index) => (
+                                    <span key={index} className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
+                                        {category}
+                                    </span>
                                 ))}
                             </div>
-                        )}
-                        {item.type === 'image' && (
-                            <Image
-                                src={item.data}
-                                alt={item.alt || blog.title}
-                                width={600}
-                                height={400}
-                                className="w-full h-64 object-cover rounded-lg"
-                                loading="lazy" // Lazy loading for images
-                            />
-                        )}
+                        </div>
                     </div>
-                ))}
+                </div>
+
+                {/* Right Side */}
+
+                <div className="bg-white shadow-lg rounded-lg p-6">
+                    <h2 className="text-2xl font-semibold mb-4">Categories</h2>
+                </div>
+
             </div>
-
-            {/* Key Points */}
-            <h2 className="text-2xl font-bold mt-8">Key Points</h2>
-            <ul className="list-disc list-inside mt-2">
-                {blog.keyPoints.map((point, index) => (
-                    <li key={index} className="text-gray-700">{point}</li>
-                ))}
-            </ul>
-
-
         </div>
     );
+
 }
