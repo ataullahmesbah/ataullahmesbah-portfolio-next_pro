@@ -34,12 +34,14 @@ export const authOptions = {
             if (user) {
                 token.role = user.role;
                 token.image = user.image; // Add the image field
+                token.id = user.id; //user id pass
             }
             return token;
         },
         async session({ session, token }) {
             session.user.role = token.role;
             session.user.image = token.image; // Add the image field to the session
+            session.user.id = token.id;
             return session;
         },
     },

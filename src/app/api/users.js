@@ -25,6 +25,27 @@ export default async function handler(req, res) {
         }
     }
 
+    else if (req.method === "PUT") {
+        try {
+            const { email, image } = req.body;
+
+            // Find the user by email and update the image field
+            const user = await User.findOneAndUpdate(
+                { email },
+                { image },
+                { new: true } // Return the updated document
+            );
+
+            if (!user) {
+                return res.status(404).json({ error: "User not found" });
+            }
+
+            return res.status(200).json(user);
+        } catch (error) {
+            return res.status(500).json({ error: "Failed to update user profile" });
+        }
+    }
+
     else {
         res.status(405).json({ error: "Method Not Allowed" });
     }

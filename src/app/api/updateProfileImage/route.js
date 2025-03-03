@@ -1,27 +1,26 @@
+
 import dbConnect from '@/lib/dbMongoose';
-import User from '@/models/User';
+import UserProfile from '@/models/UserProfile';
 import { NextResponse } from 'next/server';
-
-
 
 export async function POST(req) {
     await dbConnect();
 
     try {
-        const { email, image } = await req.json();
-        console.log('Updating profile image for:', email, 'with URL:', image);
+        const { userId, image, intro, bio, description } = await req.json();
 
-        // Find the user by email and update the image field
-        const user = await User.findOneAndUpdate(
-            { email },
-            { image },
-            { new: true } // Return the updated document
+        console.log('Updating profile for:', userId);
+
+        const profile = await UserProfile.findOneAndUpdate(
+            { userId },
+            { image, intro, bio, description },
+            { new: true, upsert: true } // upsert true dile jodi data na thake taile create korbe
         );
 
-        console.log('Updated user:', user);
-        return NextResponse.json(user, { status: 200 });
+        console.log('Updated Profile:', profile);
+        return NextResponse.json(profile, { status: 200 });
     } catch (err) {
-        console.error('Error updating profile image:', err);
-        return NextResponse.json({ message: 'Failed to update profile image' }, { status: 500 });
+        console.error('Error updating profile:', err);
+        return NextResponse.json({ message: 'Failed to update profile' }, { status: 500 });
     }
 }

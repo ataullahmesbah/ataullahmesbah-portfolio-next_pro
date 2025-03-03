@@ -187,9 +187,9 @@ const Navbar = () => {
                                 Contact
                             </Link>
 
-                            <TestProfile />
+                           
 
-                            <ProfileUpdate />
+                            
 
                             {/* User Profile Dropdown */}
                             {session ? (
@@ -211,6 +211,8 @@ const Navbar = () => {
                                         <div className="absolute right-0 mt-2 w-48 bg-gray-700 shadow-lg rounded-lg py-2 z-20">
                                             <div className="px-4 py-2 text-white">{session.user.name}</div>
                                             <div className="px-4 py-2 text-white">Mr. {session.user.role}</div>
+
+
 
                                             {/* Role-Based Links */}
                                             {session.user.role === 'admin' && (
@@ -240,6 +242,16 @@ const Navbar = () => {
                                                     User Dashboard
                                                 </Link>
                                             )}
+
+
+
+                                            <Link
+                                                href="/profile"
+                                                className="block px-4 py-2 text-white hover:bg-gray-800"
+                                                onClick={closeMobileMenu}
+                                            >
+                                                Profile
+                                            </Link>
 
                                             <button
                                                 onClick={() => signOut({ callbackUrl: '/' })}
