@@ -6,6 +6,7 @@ import { FaBars, FaTimes, FaCaretUp, FaCaretDown, FaUserGraduate } from 'react-i
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
 import ProfileUpdate from '../profileUpdate/profileUpdate';
+import TestProfile from '../TestProfile/TestProfile';
 
 const Navbar = () => {
     const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
@@ -185,6 +186,8 @@ const Navbar = () => {
                             <Link href="/contact" className={`${isActiveLink('/contact')} px-4`} onClick={closeMobileMenu}>
                                 Contact
                             </Link>
+
+                            <TestProfile />
 
                             <ProfileUpdate />
 

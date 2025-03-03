@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
@@ -13,43 +14,35 @@ const ProfileUpdate = () => {
         formData.append('file', file);
 
         try {
-            // Upload image to Cloudinary
-            const response = await fetch('/api/upload', {
+            const uploadRes = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData,
             });
 
-            if (!response.ok) {
-                throw new Error('Upload failed');
-            }
+            const uploadData = await uploadRes.json();
+            if (uploadData.url) {
+                setPreview(uploadData.url);
 
-            const data = await response.json();
-            console.log('Upload response:', data);
-
-            if (data.url) {
-                setPreview(data.url);
-
-                // Update the user's profile image in the database
-                await fetch('/api/updateProfileImage', {
+                const updateRes = await fetch('/api/user/updateProfileImage', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email: session.user.email, image: data.url }),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: session.user.email, image: uploadData.url }),
                 });
 
-                // Update the session
-                await update({ image: data.url });
+                const updatedUser = await updateRes.json();
+                console.log('Updated User:', updatedUser);
+
+                await update({ image: uploadData.url });
             }
         } catch (error) {
-            console.error('Error uploading image:', error);
+            console.error('Upload Error:', error);
         }
     };
 
     return (
         <div>
-            <input type="file" onChange={handleImageUpload} accept="image/*" />
-            {preview && <Image src={preview} alt="Preview" width={100} height={100} />}
+            <input type="file" onChange={handleImageUpload} />
+            {preview && <Image src={preview} width={100} height={100} />}
         </div>
     );
 };
