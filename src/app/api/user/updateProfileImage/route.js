@@ -1,26 +1,31 @@
-import { NextResponse } from 'next/server';
-import  { connectDB } from '@/lib/dbConnect';
+import dbConnect from '@/lib/dbMongoose';
 import User from '@/models/User';
+import { NextResponse } from 'next/server';
 
 
 export async function POST(req) {
-  await connectDB();
-  try {
-    const { email, image } = await req.json();
+    await dbConnect();
 
-    const user = await User.findOneAndUpdate(
-      { email },
-      { image },
-      { new: true }
-    );
+    try {
+        const { email, image } = await req.json();
+        console.log('Updating profile image for:', email, 'with URL:', image);
 
-    if (!user) {
-      return NextResponse.json({ message: 'User not found' }, { status: 404 });
+        // Find the user by email and update the image field
+        const user = await User.findOneAndUpdate(
+            { email },
+            { image },
+            { new: true } // Return the updated document
+        );
+
+        if (!user) {
+            console.error('User not found');
+            return NextResponse.json({ message: 'User not found' }, { status: 404 });
+        }
+
+        console.log('Updated user:', user);
+        return NextResponse.json(user, { status: 200 });
+    } catch (err) {
+        console.error('Error updating profile image:', err);
+        return NextResponse.json({ message: 'Failed to update profile image' }, { status: 500 });
     }
-
-    return NextResponse.json(user, { status: 200 });
-  } catch (error) {
-    console.error('Profile update error:', error);
-    return NextResponse.json({ message: 'Update failed' }, { status: 500 });
-  }
 }
