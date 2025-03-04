@@ -43,7 +43,13 @@ const ProfileInfo = () => {
         }
     }, [status, session]);
 
-    if (!profile) return <div className="bg-gray-800 min-h-screen text-white">No Profile Available</div>;
+    if (!profile) return <div className="bg-gray-800 min-h-screen ">
+        <div className='justify-center text-center items-center mx-auto text-white'>
+        <p>No Profile Available</p>
+    
+    <p>Update your profile <Link href='/profileupdate' className='text-blue-400'>Get Here</Link></p>
+        </div>
+    </div>;
 
     return (
         <div className="bg-gray-900 min-h-screen py-10 border-b border-b-gray-700">
@@ -56,8 +62,9 @@ const ProfileInfo = () => {
                             <Image
                                 src={profile.image || '/default-profile.png'}
                                 alt="Profile"
-                                width={96}
-                                height={96}
+                                width={64}
+                                height={64}
+                               
                                 className="w-24 h-24 rounded-full"
                             />
                             <div className="text-center md:text-left">
@@ -89,7 +96,10 @@ const ProfileInfo = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className="text-white">No Profile Available</div>
+                    <div className="text-white">
+                        No Profile Available...
+                        
+                        </div>
                 )}
             </div>
             <div className="text-center mt-8">
