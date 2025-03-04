@@ -5,8 +5,8 @@ import { usePathname } from 'next/navigation';
 import { FaBars, FaTimes, FaCaretUp, FaCaretDown, FaUserGraduate } from 'react-icons/fa';
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
-import ProfileUpdate from '../profileUpdate/profileUpdate';
-import TestProfile from '../TestProfile/TestProfile';
+
+
 
 const Navbar = () => {
     const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
