@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 const ProfileInfo = () => {
     const { data: session, status } = useSession();
     const [profile, setProfile] = useState(null);
+    const [verificationImage, setVerificationImage] = useState(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -24,7 +25,7 @@ const ProfileInfo = () => {
         const fetchProfile = async () => {
             if (status === 'authenticated' && session?.user?.id) {
                 try {
-                    const response = await fetch(`/api/profile/${session.user.id}`);
+                    const response = await fetch(`/api/verification/${session.user.id}`);
                     const data = await response.json();
                     if (data.profile) {
                         setProfile(data.profile);
@@ -42,6 +43,37 @@ const ProfileInfo = () => {
         }
     }, [status, session]);
 
+    const handleVerificationSubmit = async () => {
+        if (!verificationImage) {
+            toast.error('Please upload an image');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', verificationImage);
+        console.log('FormData:', formData); // Debug FormData
+
+        try {
+            const response = await fetch('/api/verification/verify', {
+                method: 'POST',
+                body: formData,
+            });
+            console.log('Response:', response); // Debug response
+
+            const data = await response.json();
+            console.log('Data:', data); // Debug data
+
+            if (data.profile) {
+                setProfile(data.profile);
+                toast.success('Verification submitted successfully');
+            } else {
+                toast.error('Something went wrong');
+            }
+        } catch (error) {
+            console.error('Error:', error); // Debug error
+            toast.error('Something went wrong');
+        }
+    };
     if (!profile) return <div className="bg-gray-800 min-h-screen ">
         <div className='justify-center text-center items-center mx-auto text-white'>
             <p>No Profile Available</p>
@@ -67,16 +99,13 @@ const ProfileInfo = () => {
                                 <div className="text-center md:text-left">
                                     <div className="flex gap-2 items-center justify-center md:justify-start">
                                         <p className="font-bold">@{session?.user?.name}</p>
-                                        {profile.verified === 'verified' && (
+                                        {profile.verification === 'accepted' && (
                                             <div className="relative group">
                                                 <RiVerifiedBadgeFill className="text-blue-500 text-2xl" />
                                                 <div className="absolute top-1/2 left-full transform -translate-y-1/2 ml-2 bg-black text-white text-sm px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
                                                     Verified
                                                 </div>
                                             </div>
-                                        )}
-                                        {profile.verified === 'pending' && (
-                                            <Link href="/verification" className="text-blue-400">Get Verification</Link>
                                         )}
                                     </div>
                                     <p className="text-gray-300">{session?.user?.email}</p>
@@ -94,6 +123,36 @@ const ProfileInfo = () => {
                                 <h2 className="text-xl font-semibold">About</h2>
                                 <p className="text-gray-300">{profile.description}</p>
                             </div>
+                            {profile.verification === 'pending' && (
+                                <div className="mt-4">
+                                    <h2 className="text-xl font-semibold">Verification Status: Pending</h2>
+                                </div>
+                            )}
+                            {profile.verification === 'rejected' && (
+                                <div className="mt-4">
+                                    <h2 className="text-xl font-semibold">Verification Status: Rejected</h2>
+                                    <button
+                                        onClick={() => setVerificationImage(null)}
+                                        className="bg-purple-600 p-3 rounded-md text-white hover:bg-purple-700 transition-colors duration-300"
+                                    >
+                                        Reapply for Verification
+                                    </button>
+                                </div>
+                            )}
+                            {profile.verification === 'pending' || profile.verification === 'rejected' ? (
+                                <div className="mt-4">
+                                    <input
+                                        type="file"
+                                        onChange={(e) => setVerificationImage(e.target.files[0])}
+                                    />
+                                    <button
+                                        onClick={handleVerificationSubmit}
+                                        className="bg-purple-600 p-3 rounded-md text-white hover:bg-purple-700 transition-colors duration-300"
+                                    >
+                                        Submit Verification
+                                    </button>
+                                </div>
+                            ) : null}
                         </div>
                     ) : (
                         <div className="text-white">

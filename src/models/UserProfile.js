@@ -8,8 +8,7 @@ const userProfileSchema = new mongoose.Schema(
         intro: { type: String, maxlength: 20 },
         bio: { type: String, maxlength: 150 },
         description: { type: String },
-        verification: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' }, // pending, accepted, rejected
-        role: { type: String, enum: ['user', 'moderator', 'admin'], default: 'user' },
+        verification: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' }, // Verification status
     },
     { timestamps: true }
 );
