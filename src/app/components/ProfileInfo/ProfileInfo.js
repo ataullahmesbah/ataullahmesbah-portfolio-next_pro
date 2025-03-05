@@ -12,6 +12,7 @@ const ProfileInfo = () => {
     const { data: session, status } = useSession();
     const [profile, setProfile] = useState(null);
     const [verificationImage, setVerificationImage] = useState(null);
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -51,35 +52,36 @@ const ProfileInfo = () => {
 
         const formData = new FormData();
         formData.append('file', verificationImage);
-        console.log('FormData:', formData); // Debug FormData
 
         try {
             const response = await fetch('/api/verification/verify', {
                 method: 'POST',
                 body: formData,
             });
-            console.log('Response:', response); // Debug response
 
             const data = await response.json();
-            console.log('Data:', data); // Debug data
 
             if (data.profile) {
                 setProfile(data.profile);
                 toast.success('Verification submitted successfully');
+                setIsPopupOpen(false); // Close the popup after successful submission
             } else {
                 toast.error('Something went wrong');
             }
         } catch (error) {
-            console.error('Error:', error); // Debug error
+            console.error('Error:', error);
             toast.error('Something went wrong');
         }
     };
-    if (!profile) return <div className="bg-gray-800 min-h-screen ">
-        <div className='justify-center text-center items-center mx-auto text-white'>
-            <p>No Profile Available</p>
-            <p>Update your profile <Link href='/profileupdate' className='text-blue-400'>Get Here</Link></p>
+
+    if (!profile) return (
+        <div className="bg-gray-800 min-h-screen flex justify-center items-center">
+            <div className="text-center text-xl text-white">
+                <p>No Profile Available</p>
+                <p>Update your profile <Link href='/profileupdate' className='text-blue-400'>Get Here</Link></p>
+            </div>
         </div>
-    </div>;
+    );
 
     return (
         <div className="bg-gray-900 min-h-screen py-10 border-b border-b-gray-700">
@@ -98,10 +100,46 @@ const ProfileInfo = () => {
                                 />
                                 <div className="text-center md:text-left">
                                     <div className="flex gap-2 items-center justify-center md:justify-start">
-                                        <p className="font-bold">@{session?.user?.name}</p>
+                                        <p className="">@{session?.user?.name}</p>
+
+                                        {/* Initial State: Not Applied */}
+                                        {profile.verification === 'pending' && (
+                                            <button
+                                                onClick={() => setIsPopupOpen(true)}
+                                                className="text-blue-500 p-3 rounded-md flex items-center gap-2 hover:text-blue-600 transition-colors duration-300"
+                                            >
+                                                <RiVerifiedBadgeFill />
+                                                <p>Get Verification</p>
+                                            </button>
+                                        )}
+
+                                        {/* Pending State */}
+                                        {profile.verification === 'pending' && (
+                                            <div className="">
+                                                <h2 className="text-base">Status: Pending</h2>
+                                            </div>
+                                        )}
+
+                                        {/* Rejected State */}
+                                        {profile.verification === 'rejected' && (
+                                            <button
+                                                onClick={() => setIsPopupOpen(true)}
+                                                className="text-blue-500 p-3 rounded-md flex items-center gap-2 hover:text-blue-600 transition-colors duration-300"
+                                            >
+                                                <RiVerifiedBadgeFill />
+                                                <p>Reapply for Verification</p>
+                                            </button>
+                                        )}
+
+                                        {/* Accepted State */}
                                         {profile.verification === 'accepted' && (
                                             <div className="relative group">
-                                                <RiVerifiedBadgeFill className="text-blue-500 text-2xl" />
+                                                <RiVerifiedBadgeFill
+                                                    className={`text-2xl ${session?.user?.role === 'admin' ? 'text-orange-500' :
+                                                        session?.user?.role === 'moderator' ? 'text-blue-500' :
+                                                            'text-black dark:text-white'
+                                                        }`}
+                                                />
                                                 <div className="absolute top-1/2 left-full transform -translate-y-1/2 ml-2 bg-black text-white text-sm px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
                                                     Verified
                                                 </div>
@@ -115,6 +153,7 @@ const ProfileInfo = () => {
                                 <h2 className="text-xl font-semibold">Intro</h2>
                                 <p className="text-gray-300">{profile.intro}</p>
                             </div>
+                            <p className="text-gray-300">Role: {session?.user?.role}</p>
                             <div className="mt-4">
                                 <h2 className="text-xl font-semibold">Bio</h2>
                                 <p className="text-gray-300">{profile.bio}</p>
@@ -123,36 +162,6 @@ const ProfileInfo = () => {
                                 <h2 className="text-xl font-semibold">About</h2>
                                 <p className="text-gray-300">{profile.description}</p>
                             </div>
-                            {profile.verification === 'pending' && (
-                                <div className="mt-4">
-                                    <h2 className="text-xl font-semibold">Verification Status: Pending</h2>
-                                </div>
-                            )}
-                            {profile.verification === 'rejected' && (
-                                <div className="mt-4">
-                                    <h2 className="text-xl font-semibold">Verification Status: Rejected</h2>
-                                    <button
-                                        onClick={() => setVerificationImage(null)}
-                                        className="bg-purple-600 p-3 rounded-md text-white hover:bg-purple-700 transition-colors duration-300"
-                                    >
-                                        Reapply for Verification
-                                    </button>
-                                </div>
-                            )}
-                            {profile.verification === 'pending' || profile.verification === 'rejected' ? (
-                                <div className="mt-4">
-                                    <input
-                                        type="file"
-                                        onChange={(e) => setVerificationImage(e.target.files[0])}
-                                    />
-                                    <button
-                                        onClick={handleVerificationSubmit}
-                                        className="bg-purple-600 p-3 rounded-md text-white hover:bg-purple-700 transition-colors duration-300"
-                                    >
-                                        Submit Verification
-                                    </button>
-                                </div>
-                            ) : null}
                         </div>
                     ) : (
                         <div className="text-white">
@@ -166,6 +175,34 @@ const ProfileInfo = () => {
                     </Link>
                 </div>
             </div>
+
+            {/* Popup for Document Upload */}
+            {isPopupOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md">
+                        <h2 className="text-xl font-semibold mb-4">Upload Document for Verification</h2>
+                        <input
+                            type="file"
+                            onChange={(e) => setVerificationImage(e.target.files[0])}
+                            className="mb-4"
+                        />
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={() => setIsPopupOpen(false)}
+                                className="bg-gray-600 p-2 rounded-md text-white hover:bg-gray-700 transition-colors duration-300"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleVerificationSubmit}
+                                className="bg-purple-600 p-2 rounded-md text-white hover:bg-purple-700 transition-colors duration-300"
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

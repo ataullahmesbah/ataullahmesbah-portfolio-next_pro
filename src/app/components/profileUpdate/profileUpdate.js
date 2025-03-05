@@ -4,26 +4,25 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';  // Fix: use `useRouter` from next/navigation
+import { useRouter } from 'next/navigation';
 
 export default function ProfileUpdate() {
-    const { data: session, status } = useSession(); // Get session data and status
+    const { data: session, status } = useSession();
     const [image, setImage] = useState('');
     const [intro, setIntro] = useState('');
     const [bio, setBio] = useState('');
     const [description, setDescription] = useState('');
-    const [isClient, setIsClient] = useState(false); // State to track if it's client-side
-
+    const [isClient, setIsClient] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        setIsClient(true);  // Ensure we only use the router on the client side
+        setIsClient(true); // Ensure we only use the router on the client side
     }, []);
 
     // Redirect unauthenticated users to the login page
     useEffect(() => {
         if (status === 'unauthenticated') {
-            router.push('/login'); // Redirect if not logged in
+            router.push('/login');
             toast.error('Please log in to access this page.');
         }
     }, [status, router]);
@@ -50,7 +49,7 @@ export default function ProfileUpdate() {
 
             if (res.ok) {
                 toast.success(data.message);
-                // Optionally, you can call session update here if needed
+                router.push('/profile'); // Redirect to /profile after successful update
             } else {
                 toast.error(data.message);
             }

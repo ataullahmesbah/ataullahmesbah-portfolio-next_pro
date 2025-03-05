@@ -1,3 +1,6 @@
+// api/profile/update/route.js 
+
+
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import dbConnect from '@/lib/dbMongoose';
@@ -38,6 +41,7 @@ export async function POST(req) {
             });
             imageUrl = uploadResponse.secure_url;
         }
+
 
         const profile = await UserProfile.findOneAndUpdate(
             { userId: userId },

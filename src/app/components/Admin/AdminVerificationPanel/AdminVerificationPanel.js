@@ -55,8 +55,11 @@ const AdminVerificationPanel = () => {
             <div className="space-y-4">
                 {requests.map(request => (
                     <div key={request.userId} className="border p-4 rounded-md">
+
                         <p><strong>User:</strong> {request.userId}</p>
+
                         <p><strong>Document:</strong> <a href={request.document} target="_blank" rel="noopener noreferrer">View Document</a></p>
+<p>{session?.user?.name}</p>
                         <div className="flex gap-2 mt-2">
                             <button onClick={() => handleVerification(request.userId, 'verified')} className="bg-green-600 text-white py-1 px-3 rounded">
                                 Accept

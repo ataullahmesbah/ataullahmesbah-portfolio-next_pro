@@ -71,6 +71,9 @@ const AdminVerificationPanel = () => {
                                     <div>
                                         <p className="text-white">{profile.userId.name}</p>
                                         <p className="text-gray-300">{profile.userId.email}</p>
+                                        <p className="text-gray-300">{profile.userId.name}</p>
+                                        <p>{session?.user?.name}</p>
+                                       
                                     </div>
                                     <div>
                                         <button
