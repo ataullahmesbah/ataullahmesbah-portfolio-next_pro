@@ -12,6 +12,7 @@ import MarketingSection from "../components/Share/MarketingSection/MarketingSect
 import NewSection from "../components/Home/NewSection/NewSection";
 import ProjectsTab from "../components/Share/ProjectsTab/ProjectsTab";
 import LicenseCertification from "../components/Share/LicenseCertification/LicenseCertification";
+import SideIcons from '../components/SideIcons/SideIcons';
 
 const HomePage = () => {
     const { data: session, status } = useSession();
@@ -43,6 +44,7 @@ const HomePage = () => {
                 <NewSection />
                 <LicenseCertification />
                 <ContactAssistance />
+                <SideIcons />
             </main>
         </>
     );
