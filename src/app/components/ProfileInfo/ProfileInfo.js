@@ -1,5 +1,6 @@
 'use client';
 
+
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-toastify';
@@ -22,26 +23,24 @@ const ProfileInfo = () => {
         }
     }, [status, router]);
 
-    useEffect(() => {
-        const fetchProfile = async () => {
-            if (status === 'authenticated' && session?.user?.id) {
-                try {
-                    const response = await fetch(`/api/verification/${session.user.id}`);
-                    const data = await response.json();
-                    if (data.profile) {
-                        setProfile(data.profile);
-                    } else {
-                        toast.error('Profile not found');
-                    }
-                } catch (error) {
-                    toast.error('Something went wrong');
+    const fetchProfile = async () => {
+        if (status === 'authenticated' && session?.user?.id) {
+            try {
+                const response = await fetch(`/api/verification/${session.user.id}`);
+                const data = await response.json();
+                if (data.profile) {
+                    setProfile(data.profile);
+                } else {
+                    toast.error('Profile not found');
                 }
+            } catch (error) {
+                toast.error('Something went wrong');
             }
-        };
-
-        if (status === 'authenticated') {
-            fetchProfile();
         }
+    };
+
+    useEffect(() => {
+        fetchProfile();
     }, [status, session]);
 
     const handleVerificationSubmit = async () => {
@@ -49,20 +48,21 @@ const ProfileInfo = () => {
             toast.error('Please upload an image');
             return;
         }
-
+    
         const formData = new FormData();
         formData.append('file', verificationImage);
-
+    
         try {
             const response = await fetch('/api/verification/verify', {
                 method: 'POST',
                 body: formData,
             });
-
+    
             const data = await response.json();
-
+            console.log('Backend Response:', data); // Debugging
+    
             if (data.profile) {
-                setProfile(data.profile);
+                setProfile(data.profile); // Update the profile state
                 toast.success('Verification submitted successfully');
                 setIsPopupOpen(false); // Close the popup after successful submission
             } else {
@@ -102,8 +102,8 @@ const ProfileInfo = () => {
                                     <div className="flex gap-2 items-center justify-center md:justify-start">
                                         <p className="">@{session?.user?.name}</p>
 
-                                        {/* Initial State: Not Applied */}
-                                        {profile.verification === 'pending' && (
+                                        {/* Verification Status */}
+                                        {profile.verification === 'not_applied' && (
                                             <button
                                                 onClick={() => setIsPopupOpen(true)}
                                                 className="text-blue-500 p-3 rounded-md flex items-center gap-2 hover:text-blue-600 transition-colors duration-300"
@@ -113,14 +113,12 @@ const ProfileInfo = () => {
                                             </button>
                                         )}
 
-                                        {/* Pending State */}
                                         {profile.verification === 'pending' && (
                                             <div className="">
                                                 <h2 className="text-base">Status: Pending</h2>
                                             </div>
                                         )}
 
-                                        {/* Rejected State */}
                                         {profile.verification === 'rejected' && (
                                             <button
                                                 onClick={() => setIsPopupOpen(true)}
@@ -131,15 +129,9 @@ const ProfileInfo = () => {
                                             </button>
                                         )}
 
-                                        {/* Accepted State */}
                                         {profile.verification === 'accepted' && (
                                             <div className="relative group">
-                                                <RiVerifiedBadgeFill
-                                                    className={`text-2xl ${session?.user?.role === 'admin' ? 'text-orange-500' :
-                                                        session?.user?.role === 'moderator' ? 'text-blue-500' :
-                                                            'text-black dark:text-white'
-                                                        }`}
-                                                />
+                                                <RiVerifiedBadgeFill className="text-2xl text-green-500" />
                                                 <div className="absolute top-1/2 left-full transform -translate-y-1/2 ml-2 bg-black text-white text-sm px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
                                                     Verified
                                                 </div>

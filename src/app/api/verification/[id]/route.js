@@ -1,3 +1,5 @@
+// api/verification/[id]/route.js 
+
 import dbConnect from '@/lib/dbMongoose';
 import UserProfile from '@/models/UserProfile';
 import { getServerSession } from 'next-auth/next';

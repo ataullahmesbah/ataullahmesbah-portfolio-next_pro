@@ -1,10 +1,11 @@
 // api/verification/verify/route.js 
 
-import dbConnect from '@/lib/dbMongoose';
-import UserProfile from '@/models/UserProfile';
-import cloudinary from '@/utils/cloudinary';
+
 import { getServerSession } from 'next-auth/next';
+import cloudinary from '@/utils/cloudinary';
+import dbConnect from '@/lib/dbMongoose';
 import { authOptions } from '../../auth/[...nextauth]/route';
+import UserProfile from '@/models/UserProfile';
 
 
 
@@ -49,13 +50,14 @@ export async function POST(request) {
             { userId: session.user.id },
             {
                 $set: {
-                    verificationImage: result.secure_url,
-                    verification: 'pending'
+                    verificationImage: result.secure_url, // Save Cloudinary URL
+                    verification: 'pending' // Set status to 'pending'
                 }
             },
             { new: true, upsert: true }
         ).populate('userId');
 
+        console.log('Updated Profile:', profile); // Debugging
 
         return new Response(JSON.stringify({ profile }), { status: 200 });
     } catch (error) {
