@@ -27,38 +27,54 @@ export default async function BlogList() {
   const blogs = await getBlogs();
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Blog Posts</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {blogs.map((blog) => (
-          <article key={blog.slug} className="border rounded-lg overflow-hidden shadow-lg">
-            <Image
-              src={blog.mainImage}
-              alt={blog.title}
-              width={400}
-              height={300}
-              className="w-full h-48 object-cover"
-              priority
-            />
-            <div className="p-4">
-              <Link href={`/blog/${blog.slug}`}>
-                <h2 className="text-xl font-semibold hover:text-blue-600">{blog.title}</h2>
-              </Link>
-              <p className="mt-2 text-gray-600">{blog.shortDescription}</p>
-              <p className="mt-2 text-sm text-gray-500">Author: {blog.writer || 'Unknown Author'}</p>
-              <div className="mt-2">
-                <span className="text-sm font-semibold">Categories:</span>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {blog.categories.map((category, index) => (
-                    <span key={index} className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
-                      {category}
-                    </span>
-                  ))}
+    <div
+      className="min-h-screen border-b border-gray-700"
+      style={{
+        background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
+      }}
+    >
+
+
+      <div className="container mx-auto px-4 py-8">
+       <div className="text-center py-5 text-xl amsfonts text-white space-y-2">
+
+        <p className='text-sky-300'>Blog</p>
+        <p className='text-2xl'>The <span className='text-sky-300'>Latest</span> About Team Ataullah Mesbah</p>
+
+       </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-5xl mx-auto py-10">
+          {blogs.map((blog) => (
+            <article key={blog.slug} className="border rounded-lg overflow-hidden shadow-lg">
+
+           
+              <Image
+                src={blog.mainImage}
+                alt={blog.title}
+                width={500}
+                height={500}
+                className="w-full h-48 object-cover"
+                priority
+              />
+              <div className="p-4">
+                <Link href={`/blog/${blog.slug}`}>
+                  <h2 className="text-xl font-semibold hover:text-blue-600">{blog.title}</h2>
+                </Link>
+                <p className="mt-2 text-gray-600">{blog.shortDescription}</p>
+                <p className="mt-2 text-sm text-gray-500">Author: {blog.writer || 'Unknown Author'}</p>
+                <div className="mt-2">
+                  <span className="text-sm font-semibold">Categories:</span>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {blog.categories.map((category, index) => (
+                      <span key={index} className="bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded">
+                        {category}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          ))}
+        </div>
       </div>
     </div>
   );
