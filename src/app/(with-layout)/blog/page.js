@@ -30,34 +30,41 @@ export default async function BlogList() {
     <div
       className="min-h-screen border-b border-gray-700"
       style={{
-        background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
+        background: 'linear-gradient(to right, #e5e7eb, #e5e7eb 20%, #d1d5db 70%, #9ca3af 100%)',
       }}
     >
 
-
       <div className="container mx-auto px-4 py-8">
-       <div className="text-center py-5 text-xl amsfonts text-white space-y-2">
+        <div className="text-center py-5 text-xl amsfonts text-white space-y-2">
 
-        <p className='text-sky-300'>Blog</p>
-        <p className='text-2xl'>The <span className='text-sky-300'>Latest</span> About Team Ataullah Mesbah</p>
+          <p className='text-sky-300'>Blog</p>
+          <p className='text-2xl'>The <span className='text-sky-300'>Latest</span> About Team Ataullah Mesbah</p>
 
-       </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-5xl mx-auto py-10">
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto py-10">
           {blogs.map((blog) => (
-            <article key={blog.slug} className="border rounded-lg overflow-hidden shadow-lg">
+            <article key={blog.slug} className=" rounded-lg overflow-hidden ">
 
-           
+
               <Image
                 src={blog.mainImage}
                 alt={blog.title}
                 width={500}
                 height={500}
-                className="w-full h-48 object-cover"
+                className="w-full rounded-md h-48 object-cover"
                 priority
               />
-              <div className="p-4">
+
+              <div className='flex  gap-2 items-center py-3 font-semibold'>
+                <p className=" text-gray-600">{new Date(blog.publishDate).toLocaleDateString()}</p>
+                |
+                <p>News</p>
+                |
+                <p>3min</p>
+              </div>
+              <div className="mt-2">
                 <Link href={`/blog/${blog.slug}`}>
-                  <h2 className="text-xl font-semibold hover:text-blue-600">{blog.title}</h2>
+                  <h2 className="text-xl font-semibold text-blue-900 hover:text-purple-600">{blog.title}</h2>
                 </Link>
                 <p className="mt-2 text-gray-600">{blog.shortDescription}</p>
                 <p className="mt-2 text-sm text-gray-500">Author: {blog.writer || 'Unknown Author'}</p>
