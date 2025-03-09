@@ -41,7 +41,7 @@ export default async function BlogList() {
           <p className='text-2xl'>The <span className='text-sky-300'>Latest</span> About Team Ataullah Mesbah</p>
 
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto py-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto py-10">
           {blogs.map((blog) => (
             <article key={blog.slug} className=" rounded-lg overflow-hidden ">
 
@@ -49,8 +49,8 @@ export default async function BlogList() {
               <Image
                 src={blog.mainImage}
                 alt={blog.title}
-                width={500}
-                height={500}
+                width={450}
+                height={250}
                 className="w-full rounded-md h-48 object-cover"
                 priority
               />
@@ -64,11 +64,11 @@ export default async function BlogList() {
               </div>
               <div className="mt-2">
                 <Link href={`/blog/${blog.slug}`}>
-                  <h2 className="text-xl font-semibold text-blue-900 hover:text-purple-600">{blog.title}</h2>
+                  <h2 className="text-xl font-semibold text-blue-950">{blog.title}</h2>
                 </Link>
-                <p className="mt-2 text-gray-600">{blog.shortDescription}</p>
-                <p className="mt-2 text-sm text-gray-500">Author: {blog.writer || 'Unknown Author'}</p>
-                <div className="mt-2">
+                <p className="mt-2 text-gray-500">{blog.shortDescription}</p>
+      
+                {/* <div className="mt-2">
                   <span className="text-sm font-semibold">Categories:</span>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {blog.categories.map((category, index) => (
@@ -77,7 +77,7 @@ export default async function BlogList() {
                       </span>
                     ))}
                   </div>
-                </div>
+                </div> */}
               </div>
             </article>
           ))}
