@@ -61,11 +61,11 @@ export default async function CategoryPage({ params, searchParams }) {
                         }).format(new Date(blog.publishDate));
 
                         return (
-                            <article key={blog.slug} className="rounded-lg overflow-hidden shadow-sm bg-gray-50 px-4 py-6 flex justify-between items-center border-b border-b-gray-300">
+                            <article key={blog.slug} className="rounded-lg overflow-hidden shadow-sm bg-gray-50 px-4 py-6 flex justify-between items-center border-b border-b-gray-300 poppins-regular">
 
                                 <div className="mt-2">
                                     <Link href={`/blog/${blog.slug}`}>
-                                        <h2 className="text-xl font-semibold text-blue-950 hover:text-blue-700">{blog.title}</h2>
+                                        <h2 className="text-xl font-semibold text-black ">{blog.title}</h2>
                                     </Link>
                                     <p className="mt-2 text-gray-500">{blog.shortDescription}</p>
                                 </div>

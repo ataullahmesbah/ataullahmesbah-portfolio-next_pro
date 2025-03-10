@@ -49,7 +49,7 @@ async function getCategories() {
 }
 
 export const metadata = {
-  title: 'Blog Posts - My Website',
+  title: 'Blog Posts - Ataullah Mesbah',
   description: 'Explore the latest blog posts on AI, quantum computing, and more.',
 };
 
@@ -58,12 +58,18 @@ export default async function BlogList() {
   const categories = await getCategories(); // Fetch categories dynamically
 
   return (
-    <div className='bg-sky-50 min-h-screen'>
-      <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
+    <div className='bg-gray-50 max-w-7xl mx-auto'>
+      <p className='text-4xl font-bold mt-8'>Blog</p>
+      
+      <div className="container mx-auto px-2 py-8 flex flex-col md:flex-row gap-8 ">
+
+      
+
+        
         {/* Fixed Sidebar */}
         <div className="w-full md:w-1/4 lg:w-1/5 sticky top-0 h-screen overflow-y-auto">
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold text-blue-700 mb-4">Categories</h2>
+          <div className=" p-4 rounded-lg poppins-regular">
+            <h2 className="text-base font-semibold  mb-4">Categories</h2>
             <ul className="space-y-2">
               {categories.map((category, index) => (
                 <li key={index} className="text-gray-800 hover:text-blue-700">
@@ -79,16 +85,13 @@ export default async function BlogList() {
 
         {/* Main Content */}
         <div className="w-full md:w-3/4 lg:w-4/5">
-          <div className=''>
+          
+
+        <div className=''>
             <FreaturedStory />
           </div>
 
-          <div className="py-5 text-xl amsfonts text-gray-800 space-y-2">
-            <p className='text-blue-700'>Blog</p>
-            <p className='text-2xl'>The <span className='text-blue-700'>Latest</span> About Team Ataullah Mesbah</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {blogs.map((blog) => {
               // Clean up the publishDate value or use a fallback if it's missing
               const cleanPublishDate = blog.publishDate ? blog.publishDate.replace(/\.\d+$/, '') : new Date().toISOString();
@@ -99,13 +102,13 @@ export default async function BlogList() {
               }).format(new Date(cleanPublishDate));
 
               return (
-                <article key={blog.slug} className="rounded-lg overflow-hidden shadow-sm bg-gray-50 px-2">
+                <article key={blog.slug} className="rounded-lg overflow-hidden shadow-sm  px-2">
                   <Image
                     src={blog.mainImage}
                     alt={blog.title}
                     width={450}
                     height={250}
-                    className="w-full rounded-md h-48 object-cover"
+                    className="w-full rounded-md h-80 object-cover"
                     priority
                   />
 
@@ -119,11 +122,11 @@ export default async function BlogList() {
                       <GoDotFill />
                       <p>3min</p>
                     </div>
-                    <div className="mt-2">
+                    <div className="mt-2 poppins-regular ">
                       <Link href={`/blog/${blog.slug}`}>
-                        <h2 className="text-xl font-semibold text-blue-950">{blog.title}</h2>
+                        <h2 className="text-xl font-semibold text-black">{blog.title}</h2>
                       </Link>
-                      <p className="mt-2 text-gray-500">{blog.shortDescription}</p>
+                      <p className="mt-2 text-gray-700">{blog.shortDescription}</p>
                     </div>
                   </div>
                 </article>
