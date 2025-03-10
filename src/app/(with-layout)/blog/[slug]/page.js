@@ -81,7 +81,15 @@ export default async function BlogDetail({ params }) {
                         </div>
 
                         {/* Publish Date */}
-                        <p className=" text-gray-600">Published on: {new Date(blog.publishDate).toLocaleDateString()}</p>
+                        <p className="text-gray-800">
+                            {new Intl.DateTimeFormat('en-US', {
+                                weekday: 'long', // "Thursday"
+                                month: 'long',   // "March"
+                                day: '2-digit',  // "06"
+                                year: 'numeric'  // "2025"
+                            }).format(new Date(blog.publishDate))}
+                        </p>
+
                     </div>
 
                     <h1 className="text-3xl font-bold mb-4">{blog.title}</h1>
