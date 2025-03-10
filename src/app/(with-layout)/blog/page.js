@@ -47,7 +47,7 @@ export default async function BlogList() {
 
 
 
-        <div className=" py-5 text-xl amsfonts text-gray-800 space-y-2 max-w-6xl mx-auto">
+        <div className=" py-5 text-xl amsfonts text-gray-800 space-y-2 max-w-6xl mx-auto px-4">
 
           <p className='text-blue-700'>Blog</p>
           <p className='text-2xl'>The <span className='text-blue-700'>Latest</span> About Team Ataullah Mesbah</p>
@@ -55,7 +55,7 @@ export default async function BlogList() {
         </div>
 
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto py-10 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto py-3 ">
           {blogs.map((blog) => (
             <article key={blog.slug} className=" rounded-lg overflow-hidden shadow-sm bg-gray-50 px-2">
 
