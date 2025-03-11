@@ -1,3 +1,5 @@
+// src/app/api/blog/categories/[category]/route.js
+
 import dbConnect from "@/lib/dbMongoose";
 import Blog from "@/models/Blog";
 
@@ -9,13 +11,16 @@ export async function GET(request, { params }) {
     const limit = parseInt(searchParams.get('limit')) || 10;
 
     try {
+        // Decode the category name (replace hyphens with spaces)
+        const categoryName = params.category.replace(/-/g, ' ');
+
         // Fetch blogs filtered by category (case-insensitive)
-        const blogs = await Blog.find({ categories: { $regex: new RegExp(params.category, 'i') } })
+        const blogs = await Blog.find({ categories: { $in: [new RegExp(categoryName, 'i')] } })
             .skip((page - 1) * limit) // Pagination: Skip previous pages
             .limit(limit); // Limit the number of blogs per page
 
         // Get the total number of blogs for pagination
-        const total = await Blog.countDocuments({ categories: { $regex: new RegExp(params.category, 'i') } });
+        const total = await Blog.countDocuments({ categories: { $in: [new RegExp(categoryName, 'i')] } });
 
         return new Response(JSON.stringify({ blogs, total }), {
             headers: { 'Content-Type': 'application/json' },

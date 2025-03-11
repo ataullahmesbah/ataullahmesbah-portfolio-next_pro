@@ -1,4 +1,4 @@
-// src/app/api/blog/categories/route.justify-normal
+// src/app/api/blog/categories/route.js
 
 import dbConnect from "@/lib/dbMongoose";
 import Blog from "@/models/Blog";

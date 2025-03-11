@@ -60,12 +60,12 @@ export default async function BlogList() {
   return (
     <div className='bg-gray-50 max-w-7xl mx-auto'>
       <p className='text-4xl font-bold mt-8'>Blog</p>
-      
+
       <div className="container mx-auto px-2 py-8 flex flex-col md:flex-row gap-8 ">
 
-      
 
-        
+
+
         {/* Fixed Sidebar */}
         <div className="w-full md:w-1/4 lg:w-1/5 sticky top-0 h-screen overflow-y-auto">
           <div className=" p-4 rounded-lg poppins-regular">
@@ -85,9 +85,9 @@ export default async function BlogList() {
 
         {/* Main Content */}
         <div className="w-full md:w-3/4 lg:w-4/5">
-          
 
-        <div className=''>
+
+          <div className=''>
             <FreaturedStory />
           </div>
 
