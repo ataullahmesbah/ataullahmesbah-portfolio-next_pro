@@ -1,6 +1,5 @@
 'use client';
 
-
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-toastify';
@@ -26,7 +25,7 @@ const ProfileInfo = () => {
     const fetchProfile = async () => {
         if (status === 'authenticated' && session?.user?.id) {
             try {
-                const response = await fetch(`/api/verification/${session.user.id}`);
+                const response = await fetch(`/api/profile/${session.user.id}`);
                 const data = await response.json();
                 if (data.profile) {
                     setProfile(data.profile);
@@ -45,34 +44,37 @@ const ProfileInfo = () => {
 
     const handleVerificationSubmit = async () => {
         if (!verificationImage) {
-            toast.error('Please upload an image');
-            return;
+          toast.error('Please upload an image');
+          return;
         }
-    
+      
         const formData = new FormData();
-        formData.append('file', verificationImage);
-    
+        formData.append('image', verificationImage);
+        formData.append('userId', session.user.id);
+      
         try {
-            const response = await fetch('/api/verification/verify', {
-                method: 'POST',
-                body: formData,
-            });
-    
-            const data = await response.json();
-            console.log('Backend Response:', data); // Debugging
-    
-            if (data.profile) {
-                setProfile(data.profile); // Update the profile state
-                toast.success('Verification submitted successfully');
-                setIsPopupOpen(false); // Close the popup after successful submission
-            } else {
-                toast.error('Something went wrong');
-            }
-        } catch (error) {
-            console.error('Error:', error);
+          const response = await fetch('/api/profile/upload', {
+            method: 'POST',
+            body: formData,
+          });
+      
+          if (!response.ok) {
+            throw new Error('Something went wrong');
+          }
+      
+          const data = await response.json();
+          if (data.profile) {
+            setProfile(data.profile); // Update the profile state
+            toast.success('Verification submitted successfully');
+            setIsPopupOpen(false); // Close the popup after successful submission
+          } else {
             toast.error('Something went wrong');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          toast.error('Something went wrong');
         }
-    };
+      };
 
     if (!profile) return (
         <div className="bg-gray-800 min-h-screen flex justify-center items-center">

@@ -74,7 +74,7 @@ export default async function BlogList() {
           </div>
 
           {/* Blog Posts Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
             {blogs.map((blog) => {
               const cleanPublishDate = blog.publishDate ? blog.publishDate.replace(/\.\d+$/, '') : new Date().toISOString();
               const formattedDate = new Intl.DateTimeFormat('en-US', {
@@ -84,7 +84,7 @@ export default async function BlogList() {
               }).format(new Date(cleanPublishDate));
 
               return (
-                <article key={blog.slug} className="rounded-lg overflow-hidden shadow-sm p-4 bg-white">
+                <article key={blog.slug} className="rounded-lg overflow-hidden shadow-sm p-2 bg-white">
                   <Image
                     src={blog.mainImage}
                     alt={blog.title}

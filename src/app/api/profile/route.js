@@ -1,3 +1,5 @@
+// src>app>profile>route.js
+
 import dbConnect from '@/lib/dbMongoose';
 import UserProfile from '@/models/UserProfile';
 import cloudinary from '@/utils/cloudinary';
