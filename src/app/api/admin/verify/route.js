@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/route';
 
 
+
 export async function GET() {
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== 'admin') {
@@ -47,6 +48,31 @@ export async function PUT(request) {
         }
 
         return new Response(JSON.stringify({ profile }), { status: 200 });
+    } catch (error) {
+        console.error('Error:', error);
+        return new Response(JSON.stringify({ message: 'Something went wrong' }), { status: 500 });
+    }
+}
+
+// DELETE route for removing a user completely
+export async function DELETE(request) {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== 'admin') {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401 });
+    }
+
+    await dbConnect();
+
+    try {
+        const { id } = await request.json();
+
+        const deletedProfile = await UserProfile.findByIdAndDelete(id);
+
+        if (!deletedProfile) {
+            return new Response(JSON.stringify({ message: 'Profile not found' }), { status: 404 });
+        }
+
+        return new Response(JSON.stringify({ message: 'User profile deleted successfully' }), { status: 200 });
     } catch (error) {
         console.error('Error:', error);
         return new Response(JSON.stringify({ message: 'Something went wrong' }), { status: 500 });

@@ -14,6 +14,7 @@ const ProfileInfo = () => {
     const [verificationImage, setVerificationImage] = useState(null);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -44,37 +45,38 @@ const ProfileInfo = () => {
 
     const handleVerificationSubmit = async () => {
         if (!verificationImage) {
-          toast.error('Please upload an image');
-          return;
+            toast.error('Please upload an image');
+            return;
         }
-      
+
+        setLoading(true);
         const formData = new FormData();
         formData.append('image', verificationImage);
         formData.append('userId', session.user.id);
-      
+
         try {
-          const response = await fetch('/api/profile/upload', {
-            method: 'POST',
-            body: formData,
-          });
-      
-          if (!response.ok) {
-            throw new Error('Something went wrong');
-          }
-      
-          const data = await response.json();
-          if (data.profile) {
-            setProfile(data.profile); // Update the profile state
-            toast.success('Verification submitted successfully');
-            setIsPopupOpen(false); // Close the popup after successful submission
-          } else {
-            toast.error('Something went wrong');
-          }
+            const response = await fetch('/api/profile/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+            setLoading(false);
+
+            if (data.profile) {
+                setProfile(data.profile);
+                setVerificationImage(null); // Reset the image state
+                toast.success('Verification submitted successfully');
+                setIsPopupOpen(false);
+            } else {
+                toast.error('Something went wrong');
+            }
         } catch (error) {
-          console.error('Error:', error);
-          toast.error('Something went wrong');
+            setLoading(false);
+            console.error('Error:', error);
+            toast.error('Something went wrong');
         }
-      };
+    };
 
     if (!profile) return (
         <div className="bg-gray-800 min-h-screen flex justify-center items-center">
@@ -116,29 +118,34 @@ const ProfileInfo = () => {
                                         )}
 
                                         {profile.verification === 'pending' && (
-                                            <div className="">
-                                                <h2 className="text-base">Status: Pending</h2>
-                                            </div>
+                                            <p className="text-yellow-500">Verification Pending...</p>
                                         )}
 
+                                        {profile.verification === 'accepted' && (
+                                            <p className="text-green-500 flex items-center justify-center">
+                                                <RiVerifiedBadgeFill className="text-blue-500" size={20} /> Verified
+                                            </p>
+                                        )}
+
+                                        {profile.verification === 'rejected' && (
+                                            <p className="text-red-500">Verification Rejected. Please try again.</p>
+                                        )}
+
+
+                                        {/* Verification Status */}
                                         {profile.verification === 'rejected' && (
                                             <button
                                                 onClick={() => setIsPopupOpen(true)}
                                                 className="text-blue-500 p-3 rounded-md flex items-center gap-2 hover:text-blue-600 transition-colors duration-300"
                                             >
                                                 <RiVerifiedBadgeFill />
-                                                <p>Reapply for Verification</p>
+                                                <p>Reapply Verification</p>
                                             </button>
                                         )}
 
-                                        {profile.verification === 'accepted' && (
-                                            <div className="relative group">
-                                                <RiVerifiedBadgeFill className="text-2xl text-green-500" />
-                                                <div className="absolute top-1/2 left-full transform -translate-y-1/2 ml-2 bg-black text-white text-sm px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-                                                    Verified
-                                                </div>
-                                            </div>
-                                        )}
+
+
+
                                     </div>
                                     <p className="text-gray-300">{session?.user?.email}</p>
                                 </div>
@@ -172,26 +179,20 @@ const ProfileInfo = () => {
 
             {/* Popup for Document Upload */}
             {isPopupOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md">
-                        <h2 className="text-xl font-semibold mb-4">Upload Document for Verification</h2>
-                        <input
-                            type="file"
-                            onChange={(e) => setVerificationImage(e.target.files[0])}
-                            className="mb-4"
-                        />
-                        <div className="flex justify-end gap-4">
-                            <button
-                                onClick={() => setIsPopupOpen(false)}
-                                className="bg-gray-600 p-2 rounded-md text-white hover:bg-gray-700 transition-colors duration-300"
-                            >
-                                Cancel
-                            </button>
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg">
+                        <h3 className="text-xl font-bold mb-3">Upload Verification Document</h3>
+                        <input type="file" onChange={(e) => setVerificationImage(e.target.files[0])} />
+                        <div className="mt-3">
                             <button
                                 onClick={handleVerificationSubmit}
-                                className="bg-purple-600 p-2 rounded-md text-white hover:bg-purple-700 transition-colors duration-300"
+                                className="bg-blue-500 text-white px-4 py-2 rounded"
+                                disabled={loading}
                             >
-                                Submit
+                                {loading ? 'Submitting...' : 'Submit'}
+                            </button>
+                            <button onClick={() => setIsPopupOpen(false)} className="ml-3 text-red-500">
+                                Cancel
                             </button>
                         </div>
                     </div>

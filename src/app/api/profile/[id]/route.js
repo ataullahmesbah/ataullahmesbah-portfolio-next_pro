@@ -3,6 +3,7 @@ import { authOptions } from '../../auth/[...nextauth]/route';
 import UserProfile from '@/models/UserProfile';
 import dbConnect from '@/lib/dbMongoose';
 
+
 export async function GET(req, { params }) {
     await dbConnect();
     const session = await getServerSession(authOptions);
@@ -13,7 +14,6 @@ export async function GET(req, { params }) {
 
     const userId = session.user.id;
 
-    // Check if the profile belongs to the logged-in user
     const profile = await UserProfile.findOne({ userId });
 
     if (!profile) {
