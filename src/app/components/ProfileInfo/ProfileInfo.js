@@ -110,8 +110,7 @@ const ProfileInfo = () => {
                                         {profile.verification === 'not_applied' && (
                                             <button
                                                 onClick={() => setIsPopupOpen(true)}
-                                                className="text-blue-500 p-3 rounded-md flex items-center gap-2 hover:text-blue-600 transition-colors duration-300"
-                                            >
+                                                className="text-blue-500 p-3 rounded-md flex items-center gap-2 hover:text-blue-600 transition-colors duration-300">
                                                 <RiVerifiedBadgeFill />
                                                 <p>Get Verification</p>
                                             </button>
@@ -132,19 +131,16 @@ const ProfileInfo = () => {
                                         )}
 
 
+
                                         {/* Verification Status */}
                                         {profile.verification === 'rejected' && (
                                             <button
                                                 onClick={() => setIsPopupOpen(true)}
-                                                className="text-blue-500 p-3 rounded-md flex items-center gap-2 hover:text-blue-600 transition-colors duration-300"
-                                            >
+                                                className="text-blue-500 p-3 rounded-md flex items-center gap-2 hover:text-blue-600 transition-colors duration-300">
                                                 <RiVerifiedBadgeFill />
-                                                <p>Reapply Verification</p>
+                                                <p>Get Verification</p>
                                             </button>
                                         )}
-
-
-
 
                                     </div>
                                     <p className="text-gray-300">{session?.user?.email}</p>
