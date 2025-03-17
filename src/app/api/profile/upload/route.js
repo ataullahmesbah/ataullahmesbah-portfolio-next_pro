@@ -29,15 +29,24 @@ export async function POST(req) {
     const buffer = await file.arrayBuffer();
     const fileBuffer = Buffer.from(buffer);
 
-    // Upload the file to Cloudinary
+
+    // Upload the file to Cloudinary with WEBP conversion
     const result = await new Promise((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream({ resource_type: 'auto' }, (error, result) => {
+      cloudinary.uploader.upload_stream(
+        {
+          resource_type: 'image',
+          format: 'webp',           // Convert to WEBP format
+          quality: 'auto:good',     // Optimize quality while reducing size
+          folder: 'profile_verifications', // Save in a specific folder
+          overwrite: true
+        },
+        (error, result) => {
           if (error) reject(error);
           else resolve(result);
-        })
-        .end(fileBuffer);
+        }
+      ).end(fileBuffer);
     });
+
 
     // Update the user profile in MongoDB
     let userProfile = await UserProfile.findOne({ userId });

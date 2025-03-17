@@ -38,6 +38,14 @@ export async function POST(req) {
                 folder: 'profile_images',
                 public_id: `profile_${userId}`,
                 overwrite: true,
+                format: 'webp',                // Convert to WEBP format
+                quality: '100',                // Ensure 100% quality
+                fetch_format: 'auto',          // Auto optimize format
+                transformation: [
+                    { quality: "auto:good" },  // Balance quality and size
+                    { dpr: "auto" },           // Adjust for device pixel ratio
+                    { width: 800, crop: "limit" } // Limit width for smaller sizes
+                ]
             });
             imageUrl = uploadResponse.secure_url;
         }

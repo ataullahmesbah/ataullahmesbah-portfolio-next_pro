@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Script from 'next/script';
-import { FaUser } from 'react-icons/fa';
+
 
 async function getBlogBySlug(slug) {
     const res = await fetch(`${process.env.NEXTAUTH_URL}/api/blog/${slug}`, {

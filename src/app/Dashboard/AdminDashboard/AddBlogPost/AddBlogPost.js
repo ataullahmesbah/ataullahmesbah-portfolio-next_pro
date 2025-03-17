@@ -1,161 +1,322 @@
-"use client";
+// app/admin/addBlog/page.js
+// app/admin/create-blog/page.js
+'use client';
+import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { toast } from 'react-toastify';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+export default function CreateBlog() {
+  const { data: session } = useSession();
+  const [title, setTitle] = useState('');
+  const [slug, setSlug] = useState('');
+  const [mainImage, setMainImage] = useState(null);
+  const [shortDescription, setShortDescription] = useState('');
+  const [content, setContent] = useState([
+    { type: 'text', data: '', alt: '' }, // Default content block
+  ]);
+  const [keyPoints, setKeyPoints] = useState(['']); // Default key point
+  const [tags, setTags] = useState(['']); // Default tag
+  const [categories, setCategories] = useState(['']); // Default category
+  const [loading, setLoading] = useState(false);
 
-export default function AddBlogPost() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    content: "",
-    metaTitle: "",
-    metaDescription: "",
-    tags: "",
-    images: [],
-  });
-  const [imagePreviews, setImagePreviews] = useState([]);
-
-  // Handle Input Changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  // Add a new content block (text or image)
+  const addContentBlock = (type) => {
+    setContent([...content, { type, data: '', alt: '' }]);
   };
 
-  // Handle Multiple Image Upload
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    setFormData({ ...formData, images: files });
-
-    // Show Previews
-    const previews = files.map((file) => URL.createObjectURL(file));
-    setImagePreviews(previews);
+  // Update content block data
+  const updateContentBlock = (index, field, value) => {
+    const updatedContent = [...content];
+    updatedContent[index][field] = value;
+    setContent(updatedContent);
   };
 
-  // Handle Form Submit
+  // Add a new key point
+  const addKeyPoint = () => {
+    setKeyPoints([...keyPoints, '']);
+  };
+
+  // Update a key point
+  const updateKeyPoint = (index, value) => {
+    const updatedKeyPoints = [...keyPoints];
+    updatedKeyPoints[index] = value;
+    setKeyPoints(updatedKeyPoints);
+  };
+
+  // Add a new tag
+  const addTag = () => {
+    setTags([...tags, '']);
+  };
+
+  // Update a tag
+  const updateTag = (index, value) => {
+    const updatedTags = [...tags];
+    updatedTags[index] = value;
+    setTags(updatedTags);
+  };
+
+  // Add a new category
+  const addCategory = () => {
+    setCategories([...categories, '']);
+  };
+
+  // Update a category
+  const updateCategory = (index, value) => {
+    const updatedCategories = [...categories];
+    updatedCategories[index] = value;
+    setCategories(updatedCategories);
+  };
+
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    const blogData = new FormData();
-    for (const key in formData) {
-      if (key === "images") {
-        formData.images.forEach((file) => blogData.append("images", file));
+    // Prepare the form data
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('slug', slug);
+    formData.append('mainImage', mainImage);
+    formData.append('shortDescription', shortDescription);
+    formData.append('author', session.user.name); // Default to logged-in user's name
+
+    // Ensure content is properly formatted
+    const formattedContent = content.map((block, index) => {
+      if (block.type === 'image' && block.data instanceof File) {
+        // Append each image file to FormData with a unique field name
+        formData.append(`contentImages_${index}`, block.data); // Unique field name for each image
+        return {
+          type: block.type,
+          data: block.data.name, // Use the file name as a placeholder
+          alt: block.alt || '', // Alt text for image
+        };
       } else {
-        blogData.append(key, formData[key]);
+        return {
+          type: block.type,
+          data: block.data, // String for text
+          alt: block.alt || '', // Alt text for image (if applicable)
+        };
       }
-    }
-
-    const res = await fetch("/api/blogs/add", {
-      method: "POST",
-      body: blogData,
     });
 
-    const result = await res.json();
-    if (res.ok) {
-      alert("Blog post added successfully!");
-      router.push("/with-layout/blog");
-    } else {
-      alert(`Error: ${result.error}`);
+    formData.append('content', JSON.stringify(formattedContent)); // Ensure this is an array of objects
+    formData.append('keyPoints', JSON.stringify(keyPoints)); // Ensure this is an array of strings
+    formData.append('publishDate', new Date().toISOString());
+    formData.append('metaTitle', title); // Meta title same as title
+    formData.append('metaDescription', shortDescription); // Meta description same as short description
+    formData.append('tags', JSON.stringify(tags)); // Ensure this is an array of strings
+    formData.append('categories', JSON.stringify(categories)); // Ensure this is an array of strings
+    formData.append('auth', session.user.id); // User ID or auth token
+
+    try {
+      const response = await fetch('/api/blog', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        toast.success('Blog post created successfully');
+        // Reset form fields after successful submission
+        setTitle('');
+        setSlug('');
+        setMainImage(null);
+        setShortDescription('');
+        setContent([{ type: 'text', data: '', alt: '' }]);
+        setKeyPoints(['']);
+        setTags(['']);
+        setCategories(['']);
+      } else {
+        toast.error(data.error || 'Failed to create blog post');
+      }
+    } catch (error) {
+      toast.error('Something went wrong');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <main className="max-w-3xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-4">Add a New Blog Post</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-2xl font-bold mb-6">Create Blog Post</h1>
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Title */}
-        <input
-          type="text"
-          name="title"
-          placeholder="Blog Title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded"
-        />
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
+        </div>
 
-        {/* Meta Title */}
-        <input
-          type="text"
-          name="metaTitle"
-          placeholder="SEO Meta Title"
-          value={formData.metaTitle}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
+        {/* Slug */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Slug</label>
+          <input
+            type="text"
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
+        </div>
 
-        {/* Meta Description */}
-        <textarea
-          name="metaDescription"
-          placeholder="SEO Meta Description"
-          value={formData.metaDescription}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
+        {/* Main Image */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Main Image</label>
+          <input
+            type="file"
+            onChange={(e) => setMainImage(e.target.files[0])}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
+        </div>
 
-        {/* Tags */}
-        <input
-          type="text"
-          name="tags"
-          placeholder="Tags (comma separated)"
-          value={formData.tags}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
+        {/* Short Description */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Short Description</label>
+          <textarea
+            value={shortDescription}
+            onChange={(e) => setShortDescription(e.target.value)}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
+        </div>
 
-        {/* Description */}
-        <textarea
-          name="description"
-          placeholder="Short Description"
-          value={formData.description}
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-          required
-        />
-
-        {/* Content */}
-        <textarea
-          name="content"
-          placeholder="Full Blog Content"
-          value={formData.content}
-          onChange={handleChange}
-          rows={6}
-          className="w-full p-2 border rounded"
-          required
-        />
-
-        {/* Image Upload */}
-        <input
-          type="file"
-          name="images"
-          multiple
-          accept="image/*"
-          onChange={handleImageChange}
-          className="w-full"
-        />
-
-        {/* Image Previews */}
-        <div className="grid grid-cols-3 gap-2">
-          {imagePreviews.map((src, index) => (
-            <Image
-              key={index}
-              src={src}
-              alt={`Preview ${index + 1}`}
-              className="w-full h-24 object-cover rounded"
-              width={full}
-              height={96}
-            />
+        {/* Content Blocks */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Content</label>
+          {content.map((block, index) => (
+            <div key={index} className="mt-4">
+              {block.type === 'text' ? (
+                <textarea
+                  value={block.data}
+                  onChange={(e) => updateContentBlock(index, 'data', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  placeholder="Enter text content"
+                  required
+                />
+              ) : (
+                <div>
+                  <input
+                    type="file"
+                    onChange={(e) => updateContentBlock(index, 'data', e.target.files[0])}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    required
+                  />
+                  <input
+                    type="text"
+                    value={block.alt}
+                    onChange={(e) => updateContentBlock(index, 'alt', e.target.value)}
+                    className="mt-2 w-full p-2 border border-gray-300 rounded-md"
+                    placeholder="Alt text for image"
+                  />
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => addContentBlock('text')}
+                className="mt-2 text-sm text-blue-500"
+              >
+                Add Text Block
+              </button>
+              <button
+                type="button"
+                onClick={() => addContentBlock('image')}
+                className="mt-2 ml-2 text-sm text-blue-500"
+              >
+                Add Image Block
+              </button>
+            </div>
           ))}
         </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
-        >
-          Publish Blog
-        </button>
+        {/* Key Points */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Key Points</label>
+          {keyPoints.map((point, index) => (
+            <div key={index} className="mt-2">
+              <input
+                type="text"
+                value={point}
+                onChange={(e) => updateKeyPoint(index, e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                placeholder="Enter key point"
+                required
+              />
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addKeyPoint}
+            className="mt-2 text-sm text-blue-500"
+          >
+            Add Key Point
+          </button>
+        </div>
+
+        {/* Tags */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Tags</label>
+          {tags.map((tag, index) => (
+            <div key={index} className="mt-2">
+              <input
+                type="text"
+                value={tag}
+                onChange={(e) => updateTag(index, e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                placeholder="Enter tag"
+                required
+              />
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addTag}
+            className="mt-2 text-sm text-blue-500"
+          >
+            Add Tag
+          </button>
+        </div>
+
+        {/* Categories */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Categories</label>
+          {categories.map((category, index) => (
+            <div key={index} className="mt-2">
+              <input
+                type="text"
+                value={category}
+                onChange={(e) => updateCategory(index, e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                placeholder="Enter category"
+                required
+              />
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addCategory}
+            className="mt-2 text-sm text-blue-500"
+          >
+            Add Category
+          </button>
+        </div>
+
+        {/* Submit Button */}
+        <div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+          >
+            {loading ? 'Creating...' : 'Create Blog Post'}
+          </button>
+        </div>
       </form>
-    </main>
+    </div>
   );
 }
