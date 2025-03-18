@@ -1,5 +1,5 @@
 // app/admin/addBlog/page.js
-// app/admin/create-blog/page.js
+
 'use client';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
@@ -18,6 +18,7 @@ export default function CreateBlog() {
   const [tags, setTags] = useState(['']); // Default tag
   const [categories, setCategories] = useState(['']); // Default category
   const [loading, setLoading] = useState(false);
+  const [metaDescription, setMetaDescription] = useState('');
 
   // Add a new content block (text or image)
   const addContentBlock = (type) => {
@@ -78,6 +79,7 @@ export default function CreateBlog() {
     formData.append('slug', slug);
     formData.append('mainImage', mainImage);
     formData.append('shortDescription', shortDescription);
+    formData.append('metaDescription', metaDescription); // Use the new metaDescription field
     formData.append('author', session.user.name); // Default to logged-in user's name
 
     // Ensure content is properly formatted
@@ -103,7 +105,6 @@ export default function CreateBlog() {
     formData.append('keyPoints', JSON.stringify(keyPoints)); // Ensure this is an array of strings
     formData.append('publishDate', new Date().toISOString());
     formData.append('metaTitle', title); // Meta title same as title
-    formData.append('metaDescription', shortDescription); // Meta description same as short description
     formData.append('tags', JSON.stringify(tags)); // Ensure this is an array of strings
     formData.append('categories', JSON.stringify(categories)); // Ensure this is an array of strings
     formData.append('auth', session.user.id); // User ID or auth token
@@ -122,6 +123,7 @@ export default function CreateBlog() {
         setSlug('');
         setMainImage(null);
         setShortDescription('');
+        setMetaDescription(''); // Reset metaDescription
         setContent([{ type: 'text', data: '', alt: '' }]);
         setKeyPoints(['']);
         setTags(['']);
@@ -136,29 +138,40 @@ export default function CreateBlog() {
     }
   };
 
+  const formatSlug = (text) => {
+    return text
+      .toLowerCase() // Convert to lowercase
+      .replace(/\s+/g, '-') // Replace spaces with '-'
+      .slice(0, 60); // Limit to 60 characters
+  };
+
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold mb-6">Create Blog Post</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Title */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Title</label>
+          <label className="block text-sm font-medium text-gray-700">Title: (50-60)* characters</label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            maxLength={60} // Enforce 60-character limit
             required
           />
         </div>
 
+
         {/* Slug */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Slug</label>
+          <label className="block text-sm font-medium text-gray-700">Slug: (50-60)* characters</label>
+
           <input
             type="text"
             value={slug}
-            onChange={(e) => setSlug(e.target.value)}
+            onChange={(e) => setSlug(formatSlug(e.target.value))}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             required
           />
@@ -184,6 +197,19 @@ export default function CreateBlog() {
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             required
           />
+        </div>
+
+        {/* Meta Description */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Meta Description (SEO) (Max 160)* characters</label>
+          <textarea
+            value={metaDescription}
+            onChange={(e) => setMetaDescription(e.target.value.slice(0, 160))} // Limit to 160 characters
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            maxLength={160} // Enforce 160-character limit
+            required
+          />
+          <p className="text-sm text-gray-500">{metaDescription.length}/160</p> {/* Character counter */}
         </div>
 
         {/* Content Blocks */}

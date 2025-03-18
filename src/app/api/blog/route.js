@@ -32,10 +32,10 @@ export async function POST(req) {
         const slug = formData.get('slug');
         const mainImageFile = formData.get('mainImage');
         const shortDescription = formData.get('shortDescription');
+        const metaDescription = formData.get('metaDescription'); // New field
         const author = formData.get('author');
         const publishDate = formData.get('publishDate');
         const metaTitle = formData.get('metaTitle');
-        const metaDescription = formData.get('metaDescription');
         const auth = formData.get('auth');
 
         // Safely parse JSON fields
@@ -99,12 +99,12 @@ export async function POST(req) {
             slug,
             mainImage: mainImageUrl,
             shortDescription,
+            metaDescription, // Save the new metaDescription field
             author,
             content: updatedContent, // Use the updated content with image URLs
             keyPoints,
             publishDate: new Date(publishDate),
             metaTitle,
-            metaDescription,
             tags,
             categories,
             auth,
