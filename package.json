@@ -16,6 +16,7 @@
     "@mui/icons-material": "^5.16.7",
     "@mui/lab": "^5.0.0-alpha.173",
     "@mui/material": "^5.16.7",
+    "@tinymce/tinymce-react": "^6.0.0",
     "aos": "^2.3.4",
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
