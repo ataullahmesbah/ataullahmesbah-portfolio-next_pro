@@ -100,7 +100,7 @@ const ProfileInfo = () => {
                                     alt="Profile"
                                     width={64}
                                     height={64}
-                                    className="w-24 h-24 rounded-full"
+                                    className="w-24 h-24 rounded-full object-cover"
                                 />
                                 <div className="text-center md:text-left">
                                     <div className="flex gap-2 items-center justify-center md:justify-start">
@@ -120,11 +120,28 @@ const ProfileInfo = () => {
                                             <p className="text-yellow-500">Verification Pending...</p>
                                         )}
 
+
+
                                         {profile.verification === 'accepted' && (
-                                            <p className="text-green-500 flex items-center justify-center">
-                                                <RiVerifiedBadgeFill className="text-blue-500" size={20} /> Verified
-                                            </p>
+                                            <div className="relative group flex items-center justify-center">
+                                                <RiVerifiedBadgeFill
+                                                    size={18}
+
+                                                    className={`
+                ${session?.user?.role === 'admin' ? 'text-orange-500' :
+                                                            session?.user?.role === 'moderator' ? 'text-blue-500' :
+                                                                session?.user?.role === 'user' ? 'text-gray-500' : 'text-gray-500'}
+                transition duration-300 cursor-pointer
+            `}
+                                                />
+                                                {/* Tooltip on Hover */}
+                                                <span className="absolute bottom-full mb-1 hidden group-hover:flex text-xs bg-black text-white px-2 py-1 rounded-md">
+                                                    Verified
+                                                </span>
+                                                                                     </div>
                                         )}
+
+
 
                                         {profile.verification === 'rejected' && (
                                             <p className="text-red-500">Verification Rejected. Please try again.</p>

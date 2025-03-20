@@ -142,7 +142,7 @@ export default function CreateBlog() {
     return text
       .toLowerCase() // Convert to lowercase
       .replace(/\s+/g, '-') // Replace spaces with '-'
-      .slice(0, 60); // Limit to 60 characters
+      .slice(0, 75); // Limit to 60 characters
   };
 
 
@@ -158,7 +158,7 @@ export default function CreateBlog() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-            maxLength={60} // Enforce 60-character limit
+            maxLength={75} // Enforce 60-character limit
             required
           />
         </div>

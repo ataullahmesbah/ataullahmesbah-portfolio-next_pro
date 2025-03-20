@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import User from '@/models/User';
 import dbConnect from '@/lib/dbMongoose';
+import UserProfile from '@/models/UserProfile';
 
 export const authOptions = {
     providers: [
@@ -29,6 +30,8 @@ export const authOptions = {
         }),
     ],
 
+
+
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
@@ -38,8 +41,17 @@ export const authOptions = {
             return token;
         },
         async session({ session, token }) {
+            await dbConnect();
+
+            // Fetch user image & intro from userProfiles collection
+
+            const userProfile = await UserProfile.findOne({ userId: token.id });
+
             session.user.role = token.role; // Add role to the session
             session.user.id = token.id; // Add user ID to the session
+            session.user.image = userProfile?.image || null; // Add image
+            session.user.intro = userProfile?.intro || null; // Add intro
+
             return session;
         },
     },

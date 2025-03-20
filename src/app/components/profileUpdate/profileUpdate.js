@@ -70,10 +70,17 @@ export default function ProfileUpdate() {
             <h2 className="text-2xl font-bold mb-5 text-center">Update Profile</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 {session?.user?.image ? (
-                    <Image src={session.user.image} alt="Profile" className="w-20 h-20 rounded-full mx-auto" />
+                    <Image
+                        src={session.user.image}
+                        alt="Profile"
+                        width={80}  // Change width
+                        height={80} // Change height
+                        className="w-20 h-20 rounded-full mx-auto object-cover" // Ensure correct aspect ratio
+                    />
                 ) : (
                     <div className="w-20 h-20 bg-gray-300 rounded-full mx-auto" />
                 )}
+
 
                 <input type="file" onChange={handleImageChange} className="border p-2 w-full" />
                 <input type="text" maxLength="30" placeholder="Intro (Max 30 Chars)" className="border p-2 w-full"

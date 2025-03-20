@@ -9,7 +9,9 @@ import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
 export default function AllBlogs() {
     const [blogs, setBlogs] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const blogsPerPage = 8; // Show 8 blogs per page
+    const blogsPerPage = 10; // Show 10 blogs per page
+    const [deleteSlug, setDeleteSlug] = useState(null); // Track which blog is being deleted
+    const [showDeleteModal, setShowDeleteModal] = useState(false); // Modal visibility
 
     // Fetch blogs on component mount
     useEffect(() => {
@@ -29,11 +31,14 @@ export default function AllBlogs() {
     }, []);
 
     // Delete blog function
-    const deleteBlog = async (slug) => {
-        const res = await fetch(`/api/blog?slug=${slug}`, { method: 'DELETE' });
+    const deleteBlog = async () => {
+        if (!deleteSlug) return;
+
+        const res = await fetch(`/api/blog?slug=${deleteSlug}`, { method: 'DELETE' });
 
         if (res.ok) {
-            setBlogs(blogs.filter(blog => blog.slug !== slug));
+            setBlogs(blogs.filter(blog => blog.slug !== deleteSlug));
+            setShowDeleteModal(false);
             toast.success('Blog deleted successfully!'); // Show success toast
         } else {
             console.error('Failed to delete blog');
@@ -57,45 +62,49 @@ export default function AllBlogs() {
                 </div>
 
                 {/* Blog List */}
-                <div className="bg-white shadow-md rounded-lg p-6 overflow-x-auto">
+                <div className="bg-white shadow-lg rounded-lg p-6 overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="bg-gray-100 text-gray-800 text-left">
-                                <th className="p-3">#</th>
-                                <th className="p-3">Title</th>
-                                <th className="p-3">Author</th>
-                                <th className="p-3 text-center">Actions</th>
-                                <th className="p-3 text-center">DELETE</th>
+                                <th className="p-3 border-b border-gray-200">#</th>
+                                <th className="p-3 border-b border-gray-200">Title</th>
+                                <th className="p-3 border-b border-gray-200">Author</th>
+                                <th className="p-3 border-b border-gray-200 text-center">VIEW</th>
+                                <th className="p-3 border-b border-gray-200 text-center">DELETE</th>
                             </tr>
                         </thead>
                         <tbody>
                             {currentBlogs.map((blog, index) => (
-                                <tr key={blog.slug} className="border-t hover:bg-gray-50">
-                                    <td className="p-3">{indexOfFirstBlog + index + 1}</td>
-                                    <td className="p-3">{blog.title}</td>
-                                    <td className="p-3">{blog.writer}</td>
-                                    <td className="p-3 text-center">
+                                <tr key={blog.slug} className="border-b border-gray-200 hover:bg-gray-50">
+                                    <td className="p-3 align-top">{indexOfFirstBlog + index + 1}</td>
+                                    <td className="p-3 align-top">
+                                        <p className="font-semibold text-gray-800">{blog.title}</p>
+                                        <p className="mt-2 text-gray-600 text-sm">
+                                            {blog.metaDescription?.slice(0, 70)}...
+                                        </p>
+                                    </td>
+                                    <td className="p-3 align-top">{blog.writer}</td>
+                                    <td className="p-3 text-center align-top">
                                         <Link
                                             href={`/blog/${blog.slug}`}
-                                            className="text-blue-500 hover:text-blue-700 mr-4 flex items-center justify-center"
+                                            className="text-blue-500 hover:text-blue-700 mr-4 flex items-center justify-center bg-blue-50 px-4 py-2 rounded-lg shadow-sm"
                                         >
                                             <FaEye size={18} className="mr-1" />
                                             <span>View</span>
                                         </Link>
-
                                     </td>
-
-                                    <td className="p-3  text-center">
+                                    <td className="p-3 text-center align-top">
                                         <button
-                                            onClick={() => deleteBlog(blog.slug)}
-                                            className="text-red-500 hover:text-red-700 flex items-center justify-center"
+                                            onClick={() => {
+                                                setDeleteSlug(blog.slug);
+                                                setShowDeleteModal(true);
+                                            }}
+                                            className="text-red-500 hover:text-red-700 flex items-center justify-center bg-red-50 px-4 py-2 rounded-lg shadow-sm"
                                         >
                                             <FaTrashAlt size={18} className="mr-1" />
                                             <span>Delete</span>
                                         </button>
                                     </td>
-
-
                                 </tr>
                             ))}
                         </tbody>
@@ -115,8 +124,9 @@ export default function AllBlogs() {
                                 <button
                                     key={i + 1}
                                     onClick={() => setCurrentPage(i + 1)}
-                                    className={`px-4 py-2 rounded ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
-                                        }`}
+                                    className={`px-4 py-2 rounded ${
+                                        currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
+                                    }`}
                                 >
                                     {i + 1}
                                 </button>
@@ -131,6 +141,30 @@ export default function AllBlogs() {
                         </div>
                     )}
                 </div>
+
+                {/* Delete Confirmation Modal */}
+                {showDeleteModal && (
+                    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+                        <div className="bg-gray-900 opacity-95 p-6 rounded-lg shadow-lg text-center">
+                            <h2 className="text-white mb-4">Are you sure you want to delete?</h2>
+                            <div className="flex justify-center space-x-4">
+                                <button
+                                    onClick={() => setShowDeleteModal(false)}
+                                    className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={deleteBlog}
+                                    className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 flex items-center"
+                                >
+                                    <FaTrashAlt size={18} className="mr-1" />
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

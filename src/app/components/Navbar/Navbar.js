@@ -2,11 +2,9 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FaBars, FaTimes, FaCaretUp, FaCaretDown, FaUserGraduate } from 'react-icons/fa';
+import { FaBars, FaTimes, FaCaretUp, FaCaretDown, FaUserGraduate, FaUserCircle } from 'react-icons/fa';
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
-
-
 
 const Navbar = () => {
     const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
@@ -16,6 +14,8 @@ const Navbar = () => {
     const menuRef = useRef(null);
 
     const { data: session, status } = useSession();
+
+
 
     const toggleServicesDropdown = () => {
         setIsServicesDropdownOpen((prevState) => !prevState);
@@ -40,6 +40,12 @@ const Navbar = () => {
     const closeMobileMenu = () => {
         setIsMobileMenuOpen(false);
     };
+
+    const closeUserDropdown = () => {
+        setIsUserDropdownOpen(false);
+    };
+
+
 
     // Close mobile menu when clicking outside of it
     useEffect(() => {
@@ -187,88 +193,107 @@ const Navbar = () => {
                                 Contact
                             </Link>
 
-                           
 
-                            
 
-                            {/* User Profile Dropdown */}
-                            {session ? (
-                                <div className="relative">
-                                    <button onClick={toggleUserDropdown} className="flex items-center focus:outline-none px-4">
-                                        {session.user.image ? (
-                                            <Image
-                                                src={session.user.image}
-                                                alt="User Profile"
-                                                width={40}
-                                                height={40}
-                                                className="rounded-full"
-                                            />
-                                        ) : (
-                                            <FaUserGraduate className="text-2xl" />
+
+
+                            <div className="">
+                                {/* User Profile Dropdown */}
+                                {session ? (
+                                    <div className="relative">
+                                        {/* Icon Button to Open Dropdown */}
+                                        <button onClick={toggleUserDropdown} className="flex items-center focus:outline-none px-4">
+                                            <div className="flex flex-col items-center">
+                                                {session?.user?.image ? (
+                                                    <Image
+                                                        src={session.user.image}
+                                                        alt="User Profile"
+                                                        width={20}
+                                                        height={20}
+                                                        className="rounded-full items-center w-8 h-8 border-2 border-gray-400 object-cover"
+                                                    />
+                                                ) : (
+                                                    <FaUserGraduate className="text-2xl text-gray-300" />
+                                                )}
+
+                                            </div>
+                                        </button>
+
+                                        {/* Dropdown Content */}
+                                        {isUserDropdownOpen && (
+                                            <div className="absolute right-0 mt-2 w-48 bg-gray-700 shadow-lg rounded-lg py-2 z-20">
+                                                {/* Show Image Inside Dropdown */}
+                                                <div className="flex flex-col items-center p-4">
+                                                    {session?.user?.image ? (
+                                                        <Image
+                                                            src={session.user.image}
+                                                            alt="User Profile"
+                                                            width={50}
+                                                            height={50}
+                                                            className="rounded-full w-12 h-12 border-2 border-gray-400 object-cover"
+                                                        />
+                                                    ) : (
+                                                        <FaUserGraduate className="text-2xl text-gray-300" />
+                                                    )}
+                                                    <div className="text-white mt-2">{session.user.name}</div>
+                                                    <div className="text-sm text-gray-400">Mr. {session.user.role}</div>
+                                                </div>
+
+                                                {/* Role-Based Links */}
+                                                {session.user.role === "admin" && (
+                                                    <Link
+                                                        href="/admin-dashboard"
+                                                        className="block px-4 py-2 text-white hover:bg-gray-800"
+                                                        onClick={closeUserDropdown}
+                                                    >
+                                                        Admin Dashboard
+                                                    </Link>
+                                                )}
+                                                {session.user.role === "moderator" && (
+                                                    <Link
+                                                        href="/moderator-dashboard"
+                                                        className="block px-4 py-2 text-white hover:bg-gray-800"
+                                                        onClick={closeUserDropdown}
+                                                    >
+                                                        Moderator Dashboard
+                                                    </Link>
+                                                )}
+                                                {session.user.role === "user" && (
+                                                    <Link
+                                                        href="/user-dashboard"
+                                                        className="block px-4 py-2 text-white hover:bg-gray-800"
+                                                        onClick={closeUserDropdown}
+                                                    >
+                                                        User Dashboard
+                                                    </Link>
+                                                )}
+
+                                                {/* Profile & Logout */}
+                                                <Link
+                                                    href="/profile"
+                                                    className="block px-4 py-2 text-white hover:bg-gray-800"
+                                                    onClick={closeUserDropdown}
+                                                >
+                                                    Profile
+                                                </Link>
+
+                                                <button
+                                                    onClick={() => signOut({ callbackUrl: "/" })}
+                                                    className="block w-full px-4 py-2 text-left text-white hover:bg-gray-800"
+                                                >
+                                                    Sign Out
+                                                </button>
+                                            </div>
                                         )}
-                                    </button>
-                                    {isUserDropdownOpen && (
-                                        <div className="absolute right-0 mt-2 w-48 bg-gray-700 shadow-lg rounded-lg py-2 z-20">
-                                            <div className="px-4 py-2 text-white">{session.user.name}</div>
-                                            <div className="px-4 py-2 text-white">Mr. {session.user.role}</div>
-
-
-
-                                            {/* Role-Based Links */}
-                                            {session.user.role === 'admin' && (
-                                                <Link
-                                                    href="/admin-dashboard"
-                                                    className="block px-4 py-2 text-white hover:bg-gray-800"
-                                                    onClick={closeMobileMenu}
-                                                >
-                                                    Admin Dashboard
-                                                </Link>
-                                            )}
-                                            {session.user.role === 'moderator' && (
-                                                <Link
-                                                    href="/moderator-dashboard"
-                                                    className="block px-4 py-2 text-white hover:bg-gray-800"
-                                                    onClick={closeMobileMenu}
-                                                >
-                                                    Moderator Dashboard
-                                                </Link>
-                                            )}
-                                            {session.user.role === 'user' && (
-                                                <Link
-                                                    href="/user-dashboard"
-                                                    className="block px-4 py-2 text-white hover:bg-gray-800"
-                                                    onClick={closeMobileMenu}
-                                                >
-                                                    User Dashboard
-                                                </Link>
-                                            )}
-
-
-
-                                            <Link
-                                                href="/profile"
-                                                className="block px-4 py-2 text-white hover:bg-gray-800"
-                                                onClick={closeMobileMenu}
-                                            >
-                                                Profile
-                                            </Link>
-
-                                            <button
-                                                onClick={() => signOut({ callbackUrl: '/' })}
-                                                className="block w-full px-4 py-2 text-left text-white hover:bg-gray-800"
-                                            >
-                                                Sign Out
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="flex space-x-4">
-                                    <Link href="/login" className={`${isActiveLink('/login')} px-4`}>
-                                        Login
-                                    </Link>
-                                </div>
-                            )}
+                                    </div>
+                                ) : (
+                                    <div className="flex space-x-4">
+                                        <Link href="/login" className="px-4 text-white">
+                                            Login
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </nav>
