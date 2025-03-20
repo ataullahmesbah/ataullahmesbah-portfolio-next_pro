@@ -121,3 +121,36 @@ export async function POST(req) {
         return NextResponse.json({ error: 'Failed to create blog post' }, { status: 500 });
     }
 }
+
+
+
+// DELETE BLOG LIST
+
+export async function DELETE(request) {
+    await dbConnect();
+
+    const { searchParams } = new URL(request.url);
+    const slug = searchParams.get('slug');
+
+    try {
+        // Delete the blog by slug
+        const result = await Blog.deleteOne({ slug });
+
+        if (result.deletedCount === 0) {
+            return new Response(JSON.stringify({ error: 'Blog not found' }), {
+                status: 404,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        return new Response(JSON.stringify({ success: true }), {
+            headers: { 'Content-Type': 'application/json' },
+        });
+    } catch (error) {
+        console.error("Error deleting blog:", error);
+        return new Response(JSON.stringify({ error: 'Failed to delete blog' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+}
