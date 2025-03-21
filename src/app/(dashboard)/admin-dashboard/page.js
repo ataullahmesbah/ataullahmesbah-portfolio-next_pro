@@ -3,6 +3,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import TestimonialStatistics from '@/app/Dashboard/AdminDashboard/TestimonialStatistics/TestimonialStatistics';
 import { FaBell } from 'react-icons/fa';
+import UserAnalytics from '@/app/Dashboard/AdminDashboard/usersAnalytics/usersAnalytics';
 
 export default function AdminDashboardPage() {
     const { data: session, status } = useSession();
@@ -30,6 +31,7 @@ export default function AdminDashboardPage() {
                     </div>
                 </div>
                 <div className="mt-10">
+                    <UserAnalytics />
                     <TestimonialStatistics />
                 </div>
             </div>
