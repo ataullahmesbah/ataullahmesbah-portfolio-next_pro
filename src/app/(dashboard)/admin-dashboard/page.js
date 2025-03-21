@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import TestimonialStatistics from '@/app/Dashboard/AdminDashboard/TestimonialStatistics/TestimonialStatistics';
 import { FaBell } from 'react-icons/fa';
 import UserAnalytics from '@/app/Dashboard/AdminDashboard/usersAnalytics/usersAnalytics';
+import Loading from '@/app/loading';
 
 export default function AdminDashboardPage() {
     const { data: session, status } = useSession();
@@ -16,9 +17,9 @@ export default function AdminDashboardPage() {
     }
 
     // Show loading state while checking session
-    if (status === 'loading') {
-        return <div>Loading...</div>;
-    }
+        if (status === 'loading') {
+            return <Loading />; // Use your custom loading component
+        }
 
     return (
         <main className="min-h-screen bg-gray-800">
@@ -30,8 +31,9 @@ export default function AdminDashboardPage() {
                         <p>Hello, our wonderful friend! May your day be filled with laughter, love, and all things amazing!</p>
                     </div>
                 </div>
-                <div className="mt-10">
+                <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <UserAnalytics />
+                    <TestimonialStatistics />
                     <TestimonialStatistics />
                 </div>
             </div>

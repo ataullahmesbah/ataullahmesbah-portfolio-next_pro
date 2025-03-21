@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { FaStar, FaUsers, FaList } from "react-icons/fa";
-import { motion } from "framer-motion";
+import { useEffect, useState } from 'react';
+import { FaStar, FaUsers, FaList } from 'react-icons/fa';
+import ReactApexChart from 'react-apexcharts';
 
 const TestimonialStatistics = () => {
     const [stats, setStats] = useState({ totalTestimonials: 0, averageRating: 0, categoryCount: {} });
@@ -10,63 +10,102 @@ const TestimonialStatistics = () => {
     useEffect(() => {
         const fetchTestimonials = async () => {
             try {
-                const response = await fetch("/api/testimonials");
+                const response = await fetch('/api/testimonials');
                 const data = await response.json();
                 if (response.ok) {
                     const total = data.length;
                     const avgRating = (data.reduce((acc, t) => acc + (t.rating || 0), 0) / total).toFixed(1);
                     const categoryCount = data.reduce((acc, t) => {
-                        const category = t.categories || "Uncategorized";
+                        const category = t.categories || 'Uncategorized';
                         acc[category] = (acc[category] || 0) + 1;
                         return acc;
                     }, {});
                     setStats({ totalTestimonials: total, averageRating: avgRating, categoryCount });
                 }
             } catch (error) {
-                console.error("Failed to fetch testimonial statistics:", error);
+                console.error('Failed to fetch testimonial statistics:', error);
             }
         };
         fetchTestimonials();
     }, []);
 
-    const cardVariants = {
-        hover: { scale: 1.05, rotate: 360, transition: { duration: 0.5 } }
+    // Pie Chart Data
+    const pieChartData = {
+        series: Object.values(stats.categoryCount),
+        options: {
+            chart: {
+                type: 'pie',
+                height: 250, // Smaller chart
+            },
+            labels: Object.keys(stats.categoryCount),
+            colors: ['#1ab7ea', '#0084ff', '#39539E', '#0077B5', '#FF4500', '#32CD32'], // Different colors for each category
+            legend: {
+                position: 'bottom',
+                horizontalAlign: 'center',
+                labels: {
+                    colors: '#ffffff',
+                },
+            },
+            responsive: [
+                {
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            height: 200, // Smaller for mobile
+                        },
+                        legend: {
+                            position: 'bottom',
+                        },
+                    },
+                },
+            ],
+        },
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-gray-800 text-white rounded-lg shadow-lg border-l-4 border-b-4 border-b-sky-500 border-l-purple-500">
-            <h2 className="text-2xl font-bold mb-6 text-center">Testimonial Statistics</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[{
-                    title: "Total Testimonials", value: stats.totalTestimonials, icon: <FaUsers className="text-3xl" />
-                }, {
-                    title: "Average Rating", value: stats.averageRating, icon: <FaStar className="text-3xl text-yellow-500" />
-                }, {
-                    title: "Category Count", value: (
-                        <div>
-                            <ul className="list-disc pl-5">
-                                {Object.entries(stats.categoryCount).map(([category, count]) => (
-                                    <li key={category} className="text-sm">
-                                        <span className="text-base font-semibold">{category}:</span> {count}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ), icon: <FaList className="text-3xl" />
-                }].map(({ title, value, icon }, index) => (
-                    <motion.div
+
+        <div className="bg-gray-900 rounded-lg p-4">
+            
+            <div className="max-w-4xl mx-auto p-4  text-white rounded-lg">
+            <h2 className="text-lg font-bold mb-4 text-center">Testimonial Statistics</h2>
+
+            {/* Pie Chart */}
+            <div className="p-4 rounded-lg mb-4">
+                <ReactApexChart options={pieChartData.options} series={pieChartData.series} type="pie" height={250} />
+            </div>
+
+            {/* Summary Boxes */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3 ">
+                {[
+                    {
+                        title: 'Total Testimonials',
+                        value: stats.totalTestimonials,
+                        icon: <FaUsers className=" text-gray-400" />,
+                    },
+                    {
+                        title: 'Average Rating',
+                        value: stats.averageRating,
+                        icon: <FaStar className=" text-gray-400" />,
+                    },
+                    {
+                        title: 'Categories',
+                        value: Object.keys(stats.categoryCount).length,
+                        icon: <FaList className=" text-gray-400" />,
+                    },
+                ].map(({ title, value, icon }, index) => (
+                    <div
                         key={index}
-                        variants={cardVariants}
-                        whileHover="hover"
-                        className="flex flex-col items-center justify-center p-4 bg-gray-700 border-4 border-gray-600 rounded-lg shadow-lg transition-transform"
+                        className="flex flex-col items-center justify-center p-2 bg-gray-800 rounded-lg"
                     >
-                        <div className="mb-2">{icon}</div>
-                        <h3 className="text-lg font-semibold">{title}</h3>
-                        <div className="text-xl">{value}</div>
-                    </motion.div>
+                        <div className="mb-1">{icon}</div>
+                        <h3 className="text-base ">{title}</h3>
+                        <p className="">{value}</p>
+                    </div>
                 ))}
             </div>
         </div>
+        </div>
+        
     );
 };
 

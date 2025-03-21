@@ -101,6 +101,11 @@ export default function AdminUsersPage() {
     return (
         <div className="p-6 bg-gray-100 min-h-screen">
             <h1 className="text-2xl font-bold mb-6">Manage Users</h1>
+            <p className="text-red-600 font-semibold bg-blue-100 p-2 rounded mt-2 text-center animate-pulse mb-5">
+                ⚠️ Carefully manage user roles and account statuses. Changing roles affects user permissions. Activate or deactivate users responsibly.
+            </p>
+
+
             <div className="overflow-x-auto bg-white rounded-lg shadow">
                 <table className="min-w-full">
                     <thead className="bg-gray-200">

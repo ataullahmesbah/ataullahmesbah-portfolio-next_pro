@@ -1,11 +1,13 @@
 'use client';
+
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaUserTie, FaBars, FaTimes } from 'react-icons/fa';
-import Link from "next/link";
-import { useState } from 'react'; // Add useState for drawer toggle
+import Link from 'next/link';
+import { Suspense, useState } from 'react'; // Add useState for drawer toggle
 import DynamicDropDown from '@/app/components/Share/DynamicDropDown/DynamicDropDown';
 import Image from 'next/image';
+import Loading from '@/app/loading'; // Import your custom loading component
 
 const AdminDashboardLayout = ({ children }) => {
     const { data: session, status } = useSession();
@@ -55,14 +57,11 @@ const AdminDashboardLayout = ({ children }) => {
 
     // Show loading state while checking session
     if (status === 'loading') {
-        return <div>Loading...</div>;
+        return <Loading />; // Use your custom loading component
     }
-
-
 
     return (
         <div className="admin-dashboard-layout min-h-screen flex">
-
             {/* Drawer Toggle Button (Mobile) */}
             <button
                 onClick={() => setIsDrawerOpen(!isDrawerOpen)}
@@ -86,12 +85,11 @@ const AdminDashboardLayout = ({ children }) => {
                                 height={64} // h-16 = 64px
                                 className="w-20 h-20 rounded-full mx-auto border-2 border-sky-900 object-cover"
                             />
-                        ) : session.user.gender === "female" ? (
+                        ) : session.user.gender === 'female' ? (
                             <FaUserTie className="w-16 h-16 mx-auto text-gray-500" />
                         ) : (
                             <FaUser className="w-16 h-16 mx-auto text-gray-500" />
                         )}
-
 
                         {/* User Name */}
                         <h2 className="text-xl font-bold mt-4">Admin Panel</h2>
@@ -107,9 +105,7 @@ const AdminDashboardLayout = ({ children }) => {
                 </div>
 
                 <nav className="space-y-3">
-                    <Link href="/admin-dashboard/allusers" className="block p-2 hover:bg-gray-700 rounded">
-                        👤 All Users
-                    </Link>
+
 
                     <div className="Flex">
                         <DynamicDropDown data={FolderData} />
@@ -127,9 +123,11 @@ const AdminDashboardLayout = ({ children }) => {
                 </nav>
             </div>
 
-            {/* Main Content */}
-            <div className="flex-1 p-6 bg-gray-800 overflow-y-auto">
-                {children} {/* Dynamic content will load here */}
+            {/* Main Content with Suspense for Loading */}
+            <div className="flex-1 p-3 bg-gray-800 overflow-y-auto">
+                <Suspense fallback={<Loading />}>
+                    {children} {/* Dynamic content will load here */}
+                </Suspense>
             </div>
         </div>
     );

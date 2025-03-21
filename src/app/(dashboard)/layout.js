@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Loading from '../loading';
 
 export default function DashboardLayout({ children }) {
     const { data: session, status } = useSession();
@@ -15,12 +16,12 @@ export default function DashboardLayout({ children }) {
 
     // Show loading state while checking session
     if (status === 'loading') {
-        return <div>Loading...</div>;
+        return <Loading />; // Use your custom loading component
     }
 
     return (
         <div>
-           
+
             {children}
         </div>
     );
