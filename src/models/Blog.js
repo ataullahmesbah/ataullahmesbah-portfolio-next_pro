@@ -20,6 +20,7 @@ const blogSchema = new mongoose.Schema({
   tags: [{ type: String }],
   categories: [{ type: String }],
   auth: { type: String, required: true },
+  views: { type: Number, default: 0 },
 });
 
 export default mongoose.models.Blog || mongoose.model('Blog', blogSchema);

@@ -5,6 +5,7 @@ import TestimonialStatistics from '@/app/Dashboard/AdminDashboard/TestimonialSta
 import { FaBell } from 'react-icons/fa';
 import UserAnalytics from '@/app/Dashboard/AdminDashboard/usersAnalytics/usersAnalytics';
 import Loading from '@/app/loading';
+import BlogStatistics from '@/app/Dashboard/AdminDashboard/BlogStatistics/BlogStatistics';
 
 export default function AdminDashboardPage() {
     const { data: session, status } = useSession();
@@ -17,9 +18,9 @@ export default function AdminDashboardPage() {
     }
 
     // Show loading state while checking session
-        if (status === 'loading') {
-            return <Loading />; // Use your custom loading component
-        }
+    if (status === 'loading') {
+        return <Loading />; // Use your custom loading component
+    }
 
     return (
         <main className="min-h-screen bg-gray-800">
@@ -36,6 +37,7 @@ export default function AdminDashboardPage() {
                     <TestimonialStatistics />
                     <TestimonialStatistics />
                 </div>
+                <BlogStatistics />
             </div>
         </main>
     );
