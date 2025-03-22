@@ -77,21 +77,17 @@ const BlogStatisticsDashboard = () => {
     ];
 
     return (
-        <div className="p-6  text-white">
+        <div className="p-6 text-white">
 
-
-
-            <div className="bg-gray-700 p-4 rounded-lg shadow-md mb-6">
-                <h2 className="text-base mb-2">Total Blog Posts</h2>
-                <p className="text-3xl">{statistics.totalBlogs}</p>
-            </div>
-
+          
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-
                 <div className=" p-4 rounded-lg ">
-                    <h2 className=" mb-4">Blogs by Category</h2>
+           
+                    <p className="mb-4">Total Blogs: {statistics.totalBlogs},</p>
+                   
+          
                     <Chart
                         width={'100%'}
                         height={'300px'}
@@ -106,7 +102,7 @@ const BlogStatisticsDashboard = () => {
                             backgroundColor: '#111827', // bg-gray-700
                             chartArea: { backgroundColor: '#111827' }, // bg-gray-700
                             titleTextStyle: { color: '#FFF' },
-                           
+
                         }}
                     />
                 </div>

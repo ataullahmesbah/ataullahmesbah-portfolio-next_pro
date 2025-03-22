@@ -6,6 +6,7 @@ import { FaBell } from 'react-icons/fa';
 import UserAnalytics from '@/app/Dashboard/AdminDashboard/usersAnalytics/usersAnalytics';
 import Loading from '@/app/loading';
 import BlogStatistics from '@/app/Dashboard/AdminDashboard/BlogStatistics/BlogStatistics';
+import UserProfileStatisticsChart from '@/app/Dashboard/AdminDashboard/UserProfileStats/UserProfileStats';
 
 export default function AdminDashboardPage() {
     const { data: session, status } = useSession();
@@ -24,7 +25,7 @@ export default function AdminDashboardPage() {
 
     return (
         <main className="min-h-screen bg-gray-800">
-            <div className="space-y-6 py-10">
+            <div className="space-y-3 py-10">
                 <div className="text-white px-5 space-y-3">
                     <h2 className="text-3xl font-bold">Welcome back!</h2>
                     <div className="flex gap-4 items-center">
@@ -38,6 +39,13 @@ export default function AdminDashboardPage() {
                     <TestimonialStatistics />
                 </div>
                 <BlogStatistics />
+
+                
+                    <div style={{ width: '100%', height: '400px' }}>
+                        <UserProfileStatisticsChart />
+                    
+                </div>
+
             </div>
         </main>
     );
