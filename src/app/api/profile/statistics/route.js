@@ -1,5 +1,6 @@
 // api/profile/statistics/Route.js 
 
+
 import UserProfile from '@/models/UserProfile';
 import dbConnect from '@/lib/dbMongoose';
 import { authOptions } from '../../auth/[...nextauth]/route';
@@ -10,22 +11,35 @@ export async function GET(req) {
     const session = await getServerSession(authOptions);
 
     if (!session) {
-        return Response.json({ message: 'Unauthorized' }, { status: 401 });
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
 
     try {
-        const profiles = await UserProfile.find({});
+        const profiles = await UserProfile.find({}).lean();
 
         const stats = {
             accepted: profiles.filter(profile => profile.verification === 'accepted').length,
             rejected: profiles.filter(profile => profile.verification === 'rejected').length,
             pending: profiles.filter(profile => profile.verification === 'pending').length,
             not_applied: profiles.filter(profile => profile.verification === 'not_applied').length,
+            total: profiles.length,
         };
 
-        return Response.json({ stats });
+        return new Response(JSON.stringify({ stats, success: true }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
     } catch (error) {
         console.error("Error fetching user profile statistics:", error);
-        return Response.json({ error: 'Failed to fetch statistics' }, { status: 500 });
+        return new Response(JSON.stringify({
+            error: 'Failed to fetch statistics',
+            message: error.message
+        }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
 }

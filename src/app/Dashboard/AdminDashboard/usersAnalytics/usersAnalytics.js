@@ -4,139 +4,189 @@ import React, { useState, useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
 
 const ApexChart = () => {
-    const [state, setState] = useState({
-        series: [44, 55, 67, 83, 23, 11], // Example data
-        options: {
-            chart: {
-                height: 300, // ⬅️ Made chart smaller
-                type: 'radialBar',
-            },
-            plotOptions: {
-                radialBar: {
-                    offsetY: 0,
-                    startAngle: 0,
-                    endAngle: 270,
-                    hollow: {
-                        margin: 5,
-                        size: '25%', // ⬅️ Reduced size for a compact look
-                        background: 'transparent',
-                    },
-                    dataLabels: {
-                        name: {
-                            show: true,
-                            fontSize: '12px', // ⬅️ Smaller font
-                            fontWeight: '500',
-                            color: '#ffffff',
-                        },
-                        value: {
-                            show: true,
-                            fontSize: '12px', // ⬅️ Smaller font
-                            fontWeight: '600',
-                            color: '#ffffff',
-                        },
-                    },
-                },
-            },
-            colors: ['#1ab7ea', '#0084ff', '#39539E', '#0077B5', '#FF4500', '#32CD32'],
-            labels: ['Total Users', 'Admins', 'Moderators', 'Normal Users', 'Active Users', 'Inactive Users'],
-            legend: {
-                show: true,
-                fontSize: '12px', // ⬅️ Smaller font
-                fontWeight: '500',
-                position: 'bottom',
-                horizontalAlign: 'center',
-                labels: {
-                    colors: '#ffffff',
-                },
-            },
-            tooltip: {
-                enabled: true,
-                style: {
-                    fontSize: '12px', // ⬅️ Smaller font
-                    fontWeight: '500',
-                },
-            },
-            responsive: [
-                {
-                    breakpoint: 480,
-                    options: {
-                        chart: {
-                            height: 250, // ⬅️ Smaller for mobile
-                        },
-                        legend: {
-                            show: true,
-                            position: 'bottom',
-                        },
-                    },
-                },
-            ],
+  const [state, setState] = useState({
+    series: [0, 0, 0, 0, 0, 0],
+    options: {
+      chart: {
+        height: 350,
+        type: 'radialBar',
+        animations: {
+          enabled: true,
+          easing: 'easeinout',
+          speed: 800,
         },
-    });
+      },
+      plotOptions: {
+        radialBar: {
+          offsetY: -10,
+          startAngle: -135,
+          endAngle: 135,
+          hollow: {
+            margin: 10,
+            size: '35%',
+            background: '#1F2937',
+            dropShadow: {
+              enabled: true,
+              top: 3,
+              left: 0,
+              blur: 4,
+              opacity: 0.24,
+            },
+          },
+          track: {
+            background: '#374151',
+            strokeWidth: '67%',
+            opacity: 0.3,
+          },
+          dataLabels: {
+            name: {
+              show: true,
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#9CA3AF',
+              offsetY: -10,
+            },
+            value: {
+              show: true,
+              fontSize: '18px',
+              fontWeight: '700',
+              color: '#fff',
+              offsetY: 5,
+              formatter: (val) => `${val}`,
+            },
+          },
+        },
+      },
+      colors: ['#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#3b82f6', '#64748b'],
+      labels: ['Total Users', 'Admins', 'Moderators', 'Normal Users', 'Active', 'Inactive'],
+      stroke: {
+        lineCap: 'round',
+      },
+      legend: {
+        show: true,
+        position: 'bottom',
+        fontSize: '14px',
+        fontWeight: '500',
+        labels: {
+          colors: '#9CA3AF',
+        },
+        markers: {
+          width: 10,
+          height: 10,
+          radius: 12,
+        },
+        itemMargin: {
+          horizontal: 10,
+          vertical: 5,
+        },
+      },
+      tooltip: {
+        y: {
+          formatter: (val) => `${val} users`,
+        },
+        style: {
+          fontSize: '12px',
+        },
+      },
+      responsive: [
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 280,
+            },
+            legend: {
+              position: 'bottom',
+            },
+          },
+        },
+      ],
+    },
+  });
 
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const response = await fetch('/api/admin/users');
-                const data = await response.json();
-                setUsers(data);
-                setLoading(false);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/admin/users');
+        if (!response.ok) throw new Error('Failed to fetch user data');
+        
+        const data = await response.json();
+        setUsers(data);
 
-                // Calculate user roles and statuses
-                const totalUsers = data.length;
-                const admins = data.filter((user) => user.role === 'admin').length;
-                const moderators = data.filter((user) => user.role === 'moderator').length;
-                const normalUsers = data.filter((user) => user.role === 'user').length;
-                const activeUsers = data.filter((user) => user.status === 'active').length;
-                const inactiveUsers = data.filter((user) => user.status === 'inactive').length;
+        const totalUsers = data.length;
+        const admins = data.filter((user) => user.role === 'admin').length;
+        const moderators = data.filter((user) => user.role === 'moderator').length;
+        const normalUsers = data.filter((user) => user.role === 'user').length;
+        const activeUsers = data.filter((user) => user.status === 'active').length;
+        const inactiveUsers = data.filter((user) => user.status === 'inactive').length;
 
-                // Update Chart Data
-                setState((prev) => ({
-                    ...prev,
-                    series: [totalUsers, admins, moderators, normalUsers, activeUsers, inactiveUsers],
-                }));
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-                setLoading(false);
-            }
-        };
+        setState((prev) => ({
+          ...prev,
+          series: [totalUsers, admins, moderators, normalUsers, activeUsers, inactiveUsers],
+        }));
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        fetchUserData();
-    }, []);
+    fetchUserData();
+  }, []);
 
-    if (loading) {
-        return <div className="text-center text-white">Loading...</div>;
-    }
-
+  if (loading) {
     return (
-        <div className="p-4 flex flex-col items-center text-white bg-gray-900 rounded-lg shadow-md w-full ">
-            <h3 className="text-lg font-semibold mb-4">User Statistics</h3>
-
-            {/* Radial Bar Chart */}
-            <div className="w-full flex justify-center">
-                <ReactApexChart options={state.options} series={state.series} type="radialBar" height={300} />
-            </div>
-
-            {/* User Summary Boxes */}
-            <div className="grid grid-cols-2 gap-2 mt-4 w-full">
-                {[
-                    { title: 'Total Users', value: users.length },
-                    { title: 'Admins', value: users.filter((user) => user.role === 'admin').length },
-                    { title: 'Moderators', value: users.filter((user) => user.role === 'moderator').length },
-                    { title: 'Normal Users', value: users.filter((user) => user.role === 'user').length },
-                    { title: 'Active Users', value: users.filter((user) => user.status === 'active').length },
-                    { title: 'Inactive Users', value: users.filter((user) => user.status === 'inactive').length },
-                ].map((item, index) => (
-                    <div key={index} className="bg-gray-800 p-3 rounded-lg shadow-md text-center text-sm">
-                        <h3 className="font-semibold">{item.title}</h3>
-                        <p className="text-2xl font-bold">{item.value}</p>
-                    </div>
-                ))}
-            </div>
-        </div>
+      <div className="flex items-center justify-center h-[400px] bg-gray-900 rounded-xl">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
     );
+  }
+
+  return (
+    <div className="bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-800 w-full">
+      <h3 className="text-xl font-semibold text-white mb-6">User Statistics Overview</h3>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Radial Bar Chart */}
+        <div className="lg:col-span-2 bg-gray-800 rounded-lg p-4">
+          <ReactApexChart
+            options={state.options}
+            series={state.series}
+            type="radialBar"
+            height={350}
+          />
+        </div>
+
+        {/* User Summary Boxes */}
+        <div className="flex flex-col space-y-4">
+          {[
+            { title: 'Total Users', value: users.length, color: 'bg-green-500/10 border-green-500/20', iconColor: 'text-green-500' },
+            { title: 'Admins', value: users.filter((user) => user.role === 'admin').length, color: 'bg-orange-500/10 border-orange-500/20', iconColor: 'text-orange-500' },
+            { title: 'Moderators', value: users.filter((user) => user.role === 'moderator').length, color: 'bg-red-500/10 border-red-500/20', iconColor: 'text-red-500' },
+            { title: 'Normal Users', value: users.filter((user) => user.role === 'user').length, color: 'bg-purple-500/10 border-purple-500/20', iconColor: 'text-purple-500' },
+            { title: 'Active Users', value: users.filter((user) => user.status === 'active').length, color: 'bg-blue-500/10 border-blue-500/20', iconColor: 'text-blue-500' },
+            { title: 'Inactive Users', value: users.filter((user) => user.status === 'inactive').length, color: 'bg-gray-500/10 border-gray-500/20', iconColor: 'text-gray-500' },
+          ].map((item, index) => (
+            <div key={index} className={`flex items-center p-3 rounded-lg border ${item.color}`}>
+              <div className={`mr-3 ${item.iconColor}`}>
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" fillRule="evenodd" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="text-xs text-gray-300">{item.title}</h4>
+                <p className="text-lg font-bold text-white">{item.value.toLocaleString()}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default ApexChart;
