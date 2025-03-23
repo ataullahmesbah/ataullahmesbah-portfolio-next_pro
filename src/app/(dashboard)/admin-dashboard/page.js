@@ -36,13 +36,13 @@ export default function AdminDashboardPage() {
                 <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <UserAnalytics />
                     <TestimonialStatistics />
-                    <TestimonialStatistics />
+                    <UserProfileStatisticsChart />
                 </div>
                 <BlogStatistics />
 
                 
-                    <div style={{ width: '100%', height: '400px' }}>
-                        <UserProfileStatisticsChart />
+                    <div>
+                        
                     
                 </div>
 
