@@ -47,6 +47,13 @@ const AdminDashboardLayout = ({ children }) => {
                 { label: 'PROFILE CONTROL', link: '/admin-dashboard/userprofilecontrol' },
             ],
         },
+        {
+            label: 'PROJECTS',
+            children: [
+                { label: 'Add Projects', link: '/admin-dashboard/projects/add' },
+                { label: 'Projects Info', link: '/admin-dashboard/projects' },
+            ],
+        },
     ];
 
     // Redirect if user is not authenticated or not an admin
