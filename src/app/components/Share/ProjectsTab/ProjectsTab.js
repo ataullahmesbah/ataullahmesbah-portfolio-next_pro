@@ -14,6 +14,7 @@ import SEOPortfolio from '../PortfolioWorks/SEOPortfolio/SEOPortfolio';
 import WebDevelopmentPortfolio from '../PortfolioWorks/WebDevelopmentPortfolio/WebDevelopmentPortfolio';
 import TravelPortfolio from '../PortfolioWorks/TravelPortfolio/TravelPortfolio';
 import ContentPortfolio from '../PortfolioWorks/ContentPortfolio/ContentPortfolio';
+import ProjectsPage from '../../Projects/Projects';
 
 const ProjectsTab = () => {
     const [activeTab, setActiveTab] = useState('SEO');
@@ -25,7 +26,7 @@ const ProjectsTab = () => {
         { label: 'Web Development', icon: <FaCode /> },
         { label: 'Content Creator', icon: <FaPen /> },
         { label: 'Travel', icon: <FaPlane /> },
-    
+
     ];
 
     const renderContent = () => {
@@ -33,7 +34,7 @@ const ProjectsTab = () => {
             case 'SEO':
                 return <SEOPortfolio />;
             case 'Web Development':
-                return <WebDevelopmentPortfolio />;
+                return <ProjectsPage />;
             case 'Content Creator':
                 return <ContentPortfolio />;
             case 'Travel':

@@ -39,50 +39,63 @@ const ProjectsPage = () => {
 
     if (error) {
         return (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-300 p-4 rounded-lg text-center">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-300 p-4 rounded-lg text-center max-w-md mx-auto mt-10">
                 Error: {error}
             </div>
         );
     }
 
     return (
-        <div className="bg-gray-900 min-h-screen p-6">
+        <div className="bg-gray-900 min-h-screen px-4 sm:px-6 lg:px-8 py-12">
             <Head>
                 <title>Projects | Ataullah Mesbah</title>
                 <meta name="description" content="Explore our portfolio of projects including marketing, ecommerce, travel, blog, and personal portfolio websites." />
                 <meta name="keywords" content="projects, portfolio, marketing, ecommerce, travel, blog, personal portfolio" />
                 <meta name="robots" content="index, follow" />
             </Head>
-            <h1 className="text-3xl font-bold text-white mb-8 text-center">Our Projects</h1>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-12 text-center tracking-tight">
+                Our Projects
+            </h1>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
                 {projects.map((project) => (
-                    <div key={project._id} className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                    <div
+                        key={project._id}
+                        className="relative group bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+                    >
                         {/* Project Image */}
-                        <div className="relative h-48">
+                        <div className="relative h-56 sm:h-64 w-full">
                             <Image
                                 src={project.mainImage}
                                 alt={project.imageAlt}
                                 layout="fill"
                                 objectFit="cover"
-                                className="w-full h-full"
+                                className="w-full h-full transition-opacity duration-300 group-hover:opacity-80"
                             />
+                            {/* Overlay on Hover */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                                <Link href={`/projects/${project.slug}`}>
+                                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">
+                                        View Project
+                                    </button>
+                                </Link>
+                            </div>
                         </div>
-                        {/* Project Title */}
-                        <div className="p-4">
-                            <h2 className="text-xl font-semibold text-white">{project.title}</h2>
-                            {/* Short Description */}
-                            <p className="text-gray-400 mt-2">
-                                {project.description.slice(0, 80)}...
-                                <Link href={`/projects/${project.slug}`} className="text-blue-500 hover:underline ml-1">
+                        {/* Project Details */}
+                        <div className="p-5">
+                            <h2 className="text-xl sm:text-2xl font-semibold text-white mb-2 line-clamp-1">
+                                {project.title}
+                            </h2>
+                            <p className="text-gray-400 text-sm sm:text-base line-clamp-2 mb-3">
+                                {project.description}
+                            </p>
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-500 text-xs sm:text-sm">
+                                    Category: {project.category}
+                                </span>
+                                <Link href={`/projects/${project.slug}`} className="text-blue-400 text-sm hover:underline">
                                     See More
                                 </Link>
-                            </p>
-                            {/* View Project Button */}
-                            <Link href={`/projects/${project.slug}`}>
-                                <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
-                                    View Project
-                                </button>
-                            </Link>
+                            </div>
                         </div>
                     </div>
                 ))}
