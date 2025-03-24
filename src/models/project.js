@@ -14,6 +14,11 @@ const projectSchema = new mongoose.Schema({
     slug: { type: String, unique: true },
     subtitle: { type: String, required: true },
     description: { type: String, required: true },
+    contentShort: {
+        type: String,
+        required: true,
+        maxlength: [250, 'Short description cannot exceed 250 characters']
+    },
     content: [
         {
             content: { type: String, required: true },

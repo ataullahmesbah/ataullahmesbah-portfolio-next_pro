@@ -12,7 +12,8 @@ const AddProjectPage = () => {
         title: '',
         subtitle: '',
         description: '',
-        contentSections: [{ content: '', tag: 'p', bulletPoints: [] }], // bulletPoints as an array
+        contentShort: '',
+        contentSections: [{ content: '', tag: 'p', bulletPoints: [] }],
         category: 'Marketing',
         newCategory: '',
         keyPoints: [],
@@ -25,11 +26,15 @@ const AddProjectPage = () => {
         galleryNames: [],
         galleryAlts: [],
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         if (name === 'metaDescription' && value.length > 160) {
-            return; // Limit metaDescription to 160 characters
+            return;
+        }
+        if (name === 'contentShort' && value.length > 250) {
+            return;
         }
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
@@ -50,15 +55,14 @@ const AddProjectPage = () => {
     };
 
     const handleArrayInputChange = (e, field) => {
-        const values = e.target.value.split(',').map(item => item.trim());
+        const values = e.target.value.split(',').map(item => item.trim()).filter(item => item);
         setFormData((prev) => ({ ...prev, [field]: values }));
     };
 
     const handleContentSectionChange = (index, field, value) => {
         const updatedSections = [...formData.contentSections];
         if (field === 'bulletPoints') {
-            // Split the string into an array of bullet points
-            updatedSections[index][field] = value.split(',').map(item => item.trim());
+            updatedSections[index][field] = value ? value.split(',').map(item => item.trim()).filter(item => item) : [];
         } else {
             updatedSections[index][field] = value;
         }
@@ -68,7 +72,7 @@ const AddProjectPage = () => {
     const addContentSection = () => {
         setFormData((prev) => ({
             ...prev,
-            contentSections: [...prev.contentSections, { content: '', tag: 'p', bulletPoints: '' }],
+            contentSections: [...prev.contentSections, { content: '', tag: 'p', bulletPoints: [] }],
         }));
     };
 
@@ -92,16 +96,18 @@ const AddProjectPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
+
         const data = new FormData();
         data.append('title', formData.title);
         data.append('subtitle', formData.subtitle);
         data.append('description', formData.description);
+        data.append('contentShort', formData.contentShort);
 
-        // Append content sections, tags, and bullet points
-        formData.contentSections.forEach((section, index) => {
+        formData.contentSections.forEach((section) => {
             data.append('contentSections', section.content);
             data.append('tags', section.tag);
-            data.append('bulletPoints', section.bulletPoints.join(', ')); // Convert array to comma-separated string
+            data.append('bulletPoints', section.bulletPoints.length > 0 ? section.bulletPoints.join(', ') : '');
         });
 
         data.append('category', formData.newCategory || formData.category);
@@ -112,7 +118,6 @@ const AddProjectPage = () => {
         data.append('imageAlt', formData.imageAlt);
         if (formData.mainImage) data.append('mainImage', formData.mainImage);
 
-        // Append gallery files, names, and alt texts
         formData.gallery.forEach((file, index) => {
             data.append('gallery', file);
             data.append('galleryNames', formData.galleryNames[index] || `Gallery Image ${index + 1}`);
@@ -150,6 +155,8 @@ const AddProjectPage = () => {
                 pauseOnHover: true,
                 draggable: true,
             });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -157,8 +164,8 @@ const AddProjectPage = () => {
 
     return (
         <div className="bg-gray-900 min-h-screen p-6">
-            <h1 className="text-3xl font-bold text-white mb-8 text-center">Add New Project</h1>
-            <div className="max-w-2xl mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h1 className="text-2xl font-bold text-white mb-8 text-center">Add New Project</h1>
+            <div className="max-w-4xl mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-gray-300">Title</label>
@@ -179,8 +186,21 @@ const AddProjectPage = () => {
                             value={formData.subtitle}
                             onChange={handleInputChange}
                             className="w-full p-2 rounded-lg bg-gray-700 text-white"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-gray-300">Short Description (max 250 characters)</label>
+                        <textarea
+                            name="contentShort"
+                            value={formData.contentShort}
+                            onChange={handleInputChange}
+                            className="w-full p-2 rounded-lg bg-gray-700 text-white"
+                            rows="2"
                             required
                         />
+                        <p className="text-gray-400 text-sm">
+                            {formData.contentShort.length}/250 characters
+                        </p>
                     </div>
                     <div>
                         <label className="block text-gray-300">Description</label>
@@ -189,10 +209,10 @@ const AddProjectPage = () => {
                             value={formData.description}
                             onChange={handleInputChange}
                             className="w-full p-2 rounded-lg bg-gray-700 text-white"
+                            rows="4"
                             required
                         />
                     </div>
-                    {/* Content Sections */}
                     <div>
                         <label className="block text-gray-300">Additional Content</label>
                         {formData.contentSections.map((section, index) => (
@@ -220,14 +240,15 @@ const AddProjectPage = () => {
                                         onChange={(e) => handleContentSectionChange(index, 'content', e.target.value)}
                                         className="w-full p-2 rounded-lg bg-gray-600 text-white"
                                         placeholder={`Add content for ${section.tag.toUpperCase()} tag...`}
+                                        rows="3"
                                         required
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-400">Bullet Points (comma-separated)</label>
+                                    <label className="block text-gray-400">Bullet Points (comma-separated, optional)</label>
                                     <input
                                         type="text"
-                                        value={section.bulletPoints}
+                                        value={section.bulletPoints.join(', ')}
                                         onChange={(e) => handleContentSectionChange(index, 'bulletPoints', e.target.value)}
                                         className="w-full p-2 rounded-lg bg-gray-600 text-white"
                                         placeholder="e.g. Point 1, Point 2"
@@ -238,12 +259,11 @@ const AddProjectPage = () => {
                         <button
                             type="button"
                             onClick={addContentSection}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                            className="px-4 py-2 bg-blue-600/50 rounded-lg border border-gray-700 text-white transition hover:bg-blue-700/50"
                         >
                             Add More Content
                         </button>
                     </div>
-                    {/* Category */}
                     <div>
                         <label className="block text-gray-300">Category</label>
                         <select
@@ -275,6 +295,7 @@ const AddProjectPage = () => {
                             value={formData.metaDescription}
                             onChange={handleInputChange}
                             className="w-full p-2 rounded-lg bg-gray-700 text-white"
+                            rows="2"
                             required
                         />
                         <p className="text-gray-400 text-sm">
@@ -304,7 +325,7 @@ const AddProjectPage = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-gray-300">Key Points (comma-separated)</label>
+                        <label className="block text-gray-300">Key Points (comma-separated, optional)</label>
                         <input
                             type="text"
                             value={formData.keyPoints.join(', ')}
@@ -314,7 +335,7 @@ const AddProjectPage = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-gray-300">Website Features (comma-separated)</label>
+                        <label className="block text-gray-300">Website Features (comma-separated, optional)</label>
                         <input
                             type="text"
                             value={formData.websiteFeatures.join(', ')}
@@ -324,7 +345,7 @@ const AddProjectPage = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-gray-300">Support System</label>
+                        <label className="block text-gray-300">Support System (optional)</label>
                         <input
                             type="text"
                             name="supportSystem"
@@ -334,7 +355,7 @@ const AddProjectPage = () => {
                         />
                     </div>
                     <div>
-                        <label className="block text-gray-300">Gallery Images</label>
+                        <label className="block text-gray-300">Gallery Images (optional)</label>
                         <input
                             type="file"
                             name="gallery"
@@ -346,12 +367,11 @@ const AddProjectPage = () => {
                         <button
                             type="button"
                             onClick={addMoreImages}
-                            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                            className="mt-2 px-4 py-2 bg-blue-600/50 rounded-lg border border-gray-700 text-white transition hover:bg-blue-700/50"
                         >
                             Add More Images
                         </button>
                     </div>
-                    {/* Gallery Names and Alts */}
                     {formData.gallery.length > 0 && (
                         <div className="space-y-2">
                             <h3 className="text-gray-300">Gallery Image Details</h3>
@@ -379,9 +399,37 @@ const AddProjectPage = () => {
                     )}
                     <button
                         type="submit"
-                        className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                        disabled={isSubmitting}
+                        className={`w-full p-4 rounded-lg border border-gray-700 text-white transition flex items-center justify-center ${isSubmitting ? 'bg-gray-600 cursor-not-allowed' : 'bg-sky-950/50 hover:bg-sky-950/70'
+                            }`}
                     >
-                        Add Project
+                        {isSubmitting ? (
+                            <>
+                                <svg
+                                    className="animate-spin h-5 w-5 mr-2 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle
+                                        className="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    ></path>
+                                </svg>
+                                Adding Project...
+                            </>
+                        ) : (
+                            'Add Project'
+                        )}
                     </button>
                 </form>
             </div>

@@ -52,6 +52,7 @@ const AdminDashboardLayout = ({ children }) => {
             children: [
                 { label: 'Add Projects', link: '/admin-dashboard/projects/add' },
                 { label: 'Projects Info', link: '/admin-dashboard/projects' },
+                { label: 'Projects Statistics', link: '/admin-dashboard/projects/statistics' },
             ],
         },
     ];

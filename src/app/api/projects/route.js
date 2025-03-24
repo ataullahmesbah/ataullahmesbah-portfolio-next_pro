@@ -35,11 +35,12 @@ export async function POST(request) {
 
     try {
         const formData = await request.formData();
-        console.log("Form Data Received:", Object.fromEntries(formData)); // ডিবাগিং: ফর্ম ডেটা লগ করুন
+        console.log("Form Data Received:", Object.fromEntries(formData));
 
         const title = formData.get('title');
         const subtitle = formData.get('subtitle');
         const description = formData.get('description');
+        const contentShort = formData.get('contentShort');
         const contentSections = formData.getAll('contentSections');
         const tags = formData.getAll('tags');
         const bulletPoints = formData.getAll('bulletPoints');
@@ -55,8 +56,8 @@ export async function POST(request) {
         const galleryAlts = formData.getAll('galleryAlts');
 
         // Validate required fields
-        if (!title || !subtitle || !description || !category || !metaDescription || !imageAlt || !mainImageFile) {
-            console.error("Missing required fields:", { title, subtitle, description, category, metaDescription, imageAlt, mainImageFile });
+        if (!title || !subtitle || !description || !contentShort || !category || !metaDescription || !imageAlt || !mainImageFile) {
+            console.error("Missing required fields:", { title, subtitle, description, contentShort, category, metaDescription, imageAlt, mainImageFile });
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
@@ -86,7 +87,6 @@ export async function POST(request) {
         }
 
         // Upload gallery images to Cloudinary
-        // Upload gallery images to Cloudinary
         const gallery = [];
         for (let i = 0; i < galleryFiles.length; i++) {
             const file = galleryFiles[i];
@@ -114,7 +114,6 @@ export async function POST(request) {
         }
 
         // Structure content sections with tags and bullet points
-        // Structure content sections with tags and bullet points
         const contentData = contentSections.map((content, index) => ({
             content,
             tag: tags[index] || 'p',
@@ -129,11 +128,12 @@ export async function POST(request) {
             title,
             subtitle,
             description,
+            contentShort,
             content: contentData,
             category,
             mainImage: mainImageUrl,
             imageAlt,
-            gallery, // Ensure gallery is an array of objects
+            gallery,
             keyPoints,
             websiteFeatures,
             supportSystem,
@@ -141,11 +141,11 @@ export async function POST(request) {
             views: 0,
         };
 
-        console.log("Project data before saving:", projectData); // ডিবাগিং: প্রজেক্ট ডেটা লগ করুন
+        console.log("Project data before saving (including contentShort):", projectData); // Added debug log
 
         const project = new Project(projectData);
 
-        console.log("Project instance before saving:", project); // ডিবাগিং: প্রজেক্ট ইনস্ট্যান্স লগ করুন
+        console.log("Project instance before saving:", project); // Debug log
 
         await project.save();
         console.log("Project saved successfully:", project);

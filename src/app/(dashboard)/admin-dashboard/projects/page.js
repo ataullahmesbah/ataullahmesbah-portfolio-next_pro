@@ -13,11 +13,13 @@ const ManageProjectsPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [editingProject, setEditingProject] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state for form submission
     const [formData, setFormData] = useState({
         title: '',
         subtitle: '',
         description: '',
-        contentSections: [{ content: '', tag: 'p', bulletPoints: '' }],
+        shortDescription: '', // Added shortDescription
+        contentSections: [{ content: '', tag: 'p', bulletPoints: [] }], // bulletPoints as an array
         category: 'Marketing',
         newCategory: '',
         keyPoints: [],
@@ -54,6 +56,9 @@ const ManageProjectsPage = () => {
         if (name === 'metaDescription' && value.length > 160) {
             return;
         }
+        if (name === 'shortDescription' && value.length > 250) {
+            return;
+        }
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -73,20 +78,24 @@ const ManageProjectsPage = () => {
     };
 
     const handleArrayInputChange = (e, field) => {
-        const values = e.target.value.split(',').map(item => item.trim());
+        const values = e.target.value.split(',').map(item => item.trim()).filter(item => item);
         setFormData((prev) => ({ ...prev, [field]: values }));
     };
 
     const handleContentSectionChange = (index, field, value) => {
         const updatedSections = [...formData.contentSections];
-        updatedSections[index][field] = value;
+        if (field === 'bulletPoints') {
+            updatedSections[index][field] = value ? value.split(',').map(item => item.trim()).filter(item => item) : [];
+        } else {
+            updatedSections[index][field] = value;
+        }
         setFormData((prev) => ({ ...prev, contentSections: updatedSections }));
     };
 
     const addContentSection = () => {
         setFormData((prev) => ({
             ...prev,
-            contentSections: [...prev.contentSections, { content: '', tag: 'p', bulletPoints: '' }],
+            contentSections: [...prev.contentSections, { content: '', tag: 'p', bulletPoints: [] }],
         }));
     };
 
@@ -115,13 +124,14 @@ const ManageProjectsPage = () => {
             title: project.title,
             subtitle: project.subtitle,
             description: project.description,
+            shortDescription: project.shortDescription || '', // Added shortDescription
             contentSections: project.content && project.content.length > 0
                 ? project.content.map(section => ({
                     content: section.content,
                     tag: section.tag,
-                    bulletPoints: section.bulletPoints ? section.bulletPoints.join(', ') : '',
+                    bulletPoints: section.bulletPoints || [], // Ensure bulletPoints is an array
                 }))
-                : [{ content: '', tag: 'p', bulletPoints: '' }],
+                : [{ content: '', tag: 'p', bulletPoints: [] }],
             category: project.category,
             newCategory: '',
             keyPoints: project.keyPoints || [],
@@ -138,15 +148,20 @@ const ManageProjectsPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true); // Set loading state
+
         const data = new FormData();
         data.append('title', formData.title);
         data.append('subtitle', formData.subtitle);
         data.append('description', formData.description);
+        data.append('shortDescription', formData.shortDescription); // Added shortDescription
+
         formData.contentSections.forEach((section) => {
             data.append('contentSections', section.content);
             data.append('tags', section.tag);
-            data.append('bulletPoints', section.bulletPoints);
+            data.append('bulletPoints', section.bulletPoints.length > 0 ? section.bulletPoints.join(', ') : '');
         });
+
         data.append('category', formData.newCategory || formData.category);
         formData.keyPoints.forEach((point) => data.append('keyPoints', point));
         formData.websiteFeatures.forEach((feature) => data.append('websiteFeatures', feature));
@@ -154,9 +169,12 @@ const ManageProjectsPage = () => {
         data.append('metaDescription', formData.metaDescription);
         data.append('imageAlt', formData.imageAlt);
         if (formData.mainImage) data.append('mainImage', formData.mainImage);
-        formData.gallery.forEach((file) => data.append('gallery', file));
-        formData.galleryNames.forEach((name) => data.append('galleryNames', name));
-        formData.galleryAlts.forEach((alt) => data.append('galleryAlts', alt));
+
+        formData.gallery.forEach((file, index) => {
+            data.append('gallery', file);
+            data.append('galleryNames', formData.galleryNames[index] || `Gallery Image ${index + 1}`);
+            data.append('galleryAlts', formData.galleryAlts[index] || `Gallery image ${index + 1} for ${formData.title}`);
+        });
 
         try {
             const response = await fetch(`/api/projects/${editingProject._id}`, {
@@ -188,7 +206,8 @@ const ManageProjectsPage = () => {
                 title: '',
                 subtitle: '',
                 description: '',
-                contentSections: [{ content: '', tag: 'p', bulletPoints: '' }],
+                shortDescription: '',
+                contentSections: [{ content: '', tag: 'p', bulletPoints: [] }],
                 category: 'Marketing',
                 newCategory: '',
                 keyPoints: [],
@@ -212,6 +231,8 @@ const ManageProjectsPage = () => {
                 pauseOnHover: true,
                 draggable: true,
             });
+        } finally {
+            setIsSubmitting(false); // Reset loading state
         }
     };
 
@@ -267,7 +288,7 @@ const ManageProjectsPage = () => {
                 Manage Projects
             </h1>
             <div className="text-center mb-12">
-                <Link href="/admin-dashboard/projects/add">
+                <Link href="/admin/projects/add">
                     <button className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition shadow-md">
                         Add New Project
                     </button>
@@ -298,8 +319,21 @@ const ManageProjectsPage = () => {
                                 value={formData.subtitle}
                                 onChange={handleInputChange}
                                 className="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-gray-300 font-medium mb-1">Short Description (max 250 characters)</label>
+                            <textarea
+                                name="shortDescription"
+                                value={formData.shortDescription}
+                                onChange={handleInputChange}
+                                className="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                rows="2"
                                 required
                             />
+                            <p className="text-gray-400 text-sm mt-1">
+                                {formData.shortDescription.length}/250 characters
+                            </p>
                         </div>
                         <div>
                             <label className="block text-gray-300 font-medium mb-1">Description</label>
@@ -345,10 +379,10 @@ const ManageProjectsPage = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-gray-400 text-sm mb-1">Bullet Points (comma-separated)</label>
+                                        <label className="block text-gray-400 text-sm mb-1">Bullet Points (comma-separated, optional)</label>
                                         <input
                                             type="text"
-                                            value={section.bulletPoints}
+                                            value={section.bulletPoints.join(', ')}
                                             onChange={(e) => handleContentSectionChange(index, 'bulletPoints', e.target.value)}
                                             className="w-full p-2 rounded-lg bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             placeholder="e.g. Point 1, Point 2"
@@ -415,7 +449,7 @@ const ManageProjectsPage = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-gray-300 font-medium mb-1">Key Points (comma-separated)</label>
+                            <label className="block text-gray-300 font-medium mb-1">Key Points (comma-separated, optional)</label>
                             <input
                                 type="text"
                                 value={formData.keyPoints.join(', ')}
@@ -425,7 +459,7 @@ const ManageProjectsPage = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-gray-300 font-medium mb-1">Website Features (comma-separated)</label>
+                            <label className="block text-gray-300 font-medium mb-1">Website Features (comma-separated, optional)</label>
                             <input
                                 type="text"
                                 value={formData.websiteFeatures.join(', ')}
@@ -435,7 +469,7 @@ const ManageProjectsPage = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-gray-300 font-medium mb-1">Support System</label>
+                            <label className="block text-gray-300 font-medium mb-1">Support System (optional)</label>
                             <input
                                 type="text"
                                 name="supportSystem"
@@ -501,9 +535,38 @@ const ManageProjectsPage = () => {
                         <div className="flex space-x-4">
                             <button
                                 type="submit"
-                                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-md"
+                                disabled={isSubmitting}
+                                className={`w-full px-4 py-3 rounded-lg font-medium text-white transition flex items-center justify-center ${
+                                    isSubmitting ? 'bg-gray-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                                }`}
                             >
-                                Update Project
+                                {isSubmitting ? (
+                                    <>
+                                        <svg
+                                            className="animate-spin h-5 w-5 mr-2 text-white"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <circle
+                                                className="opacity-25"
+                                                cx="12"
+                                                cy="12"
+                                                r="10"
+                                                stroke="currentColor"
+                                                strokeWidth="4"
+                                            ></circle>
+                                            <path
+                                                className="opacity-75"
+                                                fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                            ></path>
+                                        </svg>
+                                        Updating Project...
+                                    </>
+                                ) : (
+                                    'Update Project'
+                                )}
                             </button>
                             <button
                                 type="button"
@@ -513,7 +576,8 @@ const ManageProjectsPage = () => {
                                         title: '',
                                         subtitle: '',
                                         description: '',
-                                        contentSections: [{ content: '', tag: 'p', bulletPoints: '' }],
+                                        shortDescription: '',
+                                        contentSections: [{ content: '', tag: 'p', bulletPoints: [] }],
                                         category: 'Marketing',
                                         newCategory: '',
                                         keyPoints: [],
