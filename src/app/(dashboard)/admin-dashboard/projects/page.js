@@ -288,7 +288,7 @@ const ManageProjectsPage = () => {
                 Manage Projects
             </h1>
             <div className="text-center mb-12">
-                <Link href="/admin/projects/add">
+                <Link href="/admin-dashboard/projects/add">
                     <button className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition shadow-md">
                         Add New Project
                     </button>

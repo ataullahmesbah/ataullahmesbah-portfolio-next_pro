@@ -8,7 +8,8 @@ import { FaSearch, FaCode, FaPen, FaPlane } from 'react-icons/fa';
 import SEOPortfolio from '../PortfolioWorks/SEOPortfolio/SEOPortfolio';
 import TravelPortfolio from '../PortfolioWorks/TravelPortfolio/TravelPortfolio';
 import ContentPortfolio from '../PortfolioWorks/ContentPortfolio/ContentPortfolio';
-import ProjectsPage from '../../Projects/Projects';
+
+import ProjectsTabs from '../ProjectsTabs/ProjectsTabs';
 
 
 const ProjectsTab = () => {
@@ -51,7 +52,7 @@ const ProjectsTab = () => {
                 return <SEOPortfolio />;
             case 'Web Development':
                 // Pass only the first 3 projects to ProjectsPage
-                return <ProjectsPage projects={projects.slice(0, 3)} />;
+                return <ProjectsTabs />;
             case 'Content Creator':
                 return <ContentPortfolio />;
             case 'Travel':
@@ -91,8 +92,8 @@ const ProjectsTab = () => {
                         key={tab.label}
                         onClick={() => handleTabChange(tab.label)}
                         className={`flex items-center px-5 py-2 mx-2 my-1 rounded-md transition-colors duration-300 ${activeTab === tab.label
-                                ? 'bg-indigo-950 text-white border-b-2 border-b-indigo-300 shadow-lg'
-                                : 'bg-gray-700 text-gray-200 hover:bg-gray-800 border-t-indigo-300 border-t-2 shadow-lg'
+                            ? 'bg-indigo-950 text-white border-b-2 border-b-indigo-300 shadow-lg'
+                            : 'bg-gray-700 text-gray-200 hover:bg-gray-800 border-t-indigo-300 border-t-2 shadow-lg'
                             }`}
                     >
                         <span className="mr-2">{tab.icon}</span>
