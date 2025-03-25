@@ -1,79 +1,159 @@
-// src/app/projects/[slug]/page.js
-'use client';
-
-import React, { useEffect, useState } from 'react';
+// src/app/(with-layout)/projects/[slug]/page.js
+import React from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import Head from 'next/head';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import Script from 'next/script';
+import ProjectGallery from '@/app/components/ProjectGallery/ProjectGallery';
 
-const ProjectDetailsPage = ({ params }) => {
-    const { slug } = params;
-    const [project, setProject] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [activeGalleryImage, setActiveGalleryImage] = useState(0);
-    const router = useRouter();
 
-    useEffect(() => {
-        const fetchProject = async () => {
-            try {
-                const response = await fetch(`/api/projects?slug=${slug}`);
-                if (!response.ok) throw new Error('Failed to fetch project');
-                const data = await response.json();
-                if (!data.project) throw new Error('Project not found');
-                setProject(data.project);
-                setLoading(false);
-            } catch (err) {
-                console.error('Error fetching project:', err);
-                setError(err.message);
-                setLoading(false);
-            }
-        };
 
-        fetchProject();
-    }, [slug]);
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-screen bg-gray-900">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            </div>
-        );
+// Fetch project data (server-side)
+async function fetchProject(slug) {
+    try {
+        // Use the environment variable or fallback to localhost
+        const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+        const response = await fetch(`${baseUrl}/api/projects?slug=${slug}`, {
+            cache: 'no-store',
+        });
+        if (!response.ok) throw new Error('Failed to fetch project');
+        const data = await response.json();
+        if (!data.project) throw new Error('Project not found');
+        return data.project;
+    } catch (err) {
+        console.error('Error fetching project:', err);
+        throw err;
     }
+}
 
-    if (error) {
+// Generate metadata dynamically
+export async function generateMetadata({ params }) {
+    const { slug } = params;
+
+    try {
+        const project = await fetchProject(slug);
+
+        const metaDescription = project.metaDescription && project.metaDescription.length > 0
+            ? project.metaDescription.slice(0, 160)
+            : `${project.title} - A ${project.category} project by Ataullah Mesbah. ${project.contentShort || project.description || ''}`.slice(0, 160);
+
+        return {
+            title: `${project.title} - Ataullah Mesbah`,
+            description: metaDescription,
+            keywords: `${project.category}, ${project.title}, project portfolio, Ataullah Mesbah`,
+            authors: [{ name: 'Ataullah Mesbah' }],
+            openGraph: {
+                title: `${project.title} - Projects | Ataullah Mesbah`,
+                description: metaDescription,
+                images: [project.mainImage],
+                url: `https://yourwebsite.com/projects/${project.slug}`, // Replace with your domain
+                type: 'website',
+                siteName: 'Ataullah Mesbah',
+            },
+            twitter: {
+                card: 'summary_large_image',
+                title: `${project.title} - Projects | Ataullah Mesbah`,
+                description: metaDescription,
+                images: [project.mainImage],
+            },
+            alternates: {
+                canonical: `https://yourwebsite.com/projects/${project.slug}`, // Replace with your domain
+            },
+        };
+    } catch (err) {
+        return {
+            title: 'Projects | Ataullah Mesbah',
+            description: 'Explore our portfolio of projects including marketing, ecommerce, travel, blog, and personal portfolio websites.',
+        };
+    }
+}
+
+const ProjectDetailsPage = async ({ params }) => {
+    const { slug } = params;
+    let project;
+
+    try {
+        project = await fetchProject(slug);
+    } catch (err) {
+        if (err.message === 'Project not found') {
+            notFound();
+        }
         return (
             <div className="bg-red-500/10 border border-red-500/20 text-red-300 p-4 rounded-lg text-center max-w-md mx-auto mt-10">
-                Error: {error}
+                Error: {err.message}
             </div>
         );
     }
 
-    if (!project) {
-        return (
-            <div className="bg-gray-900 min-h-screen p-6 text-center text-white">
-                Project not found.
-            </div>
-        );
-    }
+    // Schema markup for the project (CreativeWork)
+    const schemaData = {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "name": project.title,
+        "description": project.metaDescription || `${project.title} - A ${project.category} project by Ataullah Mesbah.`,
+        "image": project.mainImage,
+        "url": `https://yourwebsite.com/projects/${project.slug}`, // Replace with your domain
+        "author": {
+            "@type": "Person",
+            "name": "Ataullah Mesbah"
+        },
+        "datePublished": project.createdAt ? new Date(project.createdAt).toISOString() : undefined,
+        "dateModified": project.updatedAt ? new Date(project.updatedAt).toISOString() : undefined,
+        "keywords": `${project.category}, ${project.title}, project portfolio`,
+        "inLanguage": "en-US",
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "Ataullah Mesbah",
+            "url": "https://yourwebsite.com" // Replace with your domain
+        }
+    };
+
+    // Breadcrumb schema
+    const breadcrumbSchema = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://yourwebsite.com" // Replace with your domain
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Projects",
+                "item": "https://yourwebsite.com/projects" // Replace with your domain
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": project.title,
+                "item": `https://yourwebsite.com/projects/${project.slug}` // Replace with your domain
+            }
+        ]
+    };
 
     const renderContentSection = (section, index) => {
         const Tag = section.tag || 'p';
+        const adjustedTag = Tag === 'h1' && index > 0 ? 'h2' : Tag;
         const baseSize = {
-            'h1': 'text-3xl sm:text-4xl',
+            'h1': 'text-2xl sm:text-2xl',
             'h2': 'text-2xl sm:text-3xl',
             'h3': 'text-xl sm:text-2xl',
             'h4': 'text-lg sm:text-xl',
             'h5': 'text-base sm:text-lg',
             'h6': 'text-sm sm:text-base',
             'p': 'text-base sm:text-lg'
-        }[Tag];
+        }[adjustedTag];
 
         return (
             <section key={index} className="mb-8">
-                <Tag className={`${baseSize} font-medium text-white mb-4`}>
-                    {section.content}
-                </Tag>
+                {React.createElement(
+                    adjustedTag,
+                    { className: `${baseSize} font-medium text-white mb-4` },
+                    section.content
+                )}
                 {section.bulletPoints && section.bulletPoints.length > 0 && (
                     <ul className="space-y-2 pl-5">
                         {section.bulletPoints.map((point, idx) => (
@@ -89,39 +169,46 @@ const ProjectDetailsPage = ({ params }) => {
 
     return (
         <div className="bg-gray-900 min-h-screen border-b border-gray-800 py-7">
-            <Head>
-                <title>{project.title} | Ataullah Mesbah</title>
-                <meta name="description" content={project.metaDescription} />
-                <meta name="keywords" content={`${project.category}, ${project.title}, project portfolio`} />
-                <meta name="robots" content="index, follow" />
-                <meta property="og:title" content={project.title} />
-                <meta property="og:description" content={project.metaDescription} />
-                <meta property="og:image" content={project.mainImage} />
-                <meta property="og:type" content="website" />
-            </Head>
+            {/* Schema Markup */}
+            <Script
+                id="project-schema"
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+            />
+            <Script
+                id="breadcrumb-schema"
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+            />
 
-            {/* Back Button - Sticky at top */}
+            {/* Breadcrumbs with Back Button */}
             <div className="sticky top-0 z-10 bg-gray-900/80 backdrop-blur-sm py-3 px-4">
-                <button
-                    onClick={() => router.back()}
-                    className="flex items-center text-gray-300 hover:text-white transition-colors"
-                >
-                    <svg
-                        className="w-5 h-5 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M15 19l-7-7 7-7"
-                        />
-                    </svg>
-                    Back to Projects
-                </button>
+                <div className="flex items-center justify-between">
+                    <nav className="flex items-center text-gray-300 space-x-2 text-sm">
+                        <Link href="/" className="hover:text-white transition-colors">Home</Link>
+                        <span>›</span>
+                        <Link href="/projects" className="hover:text-white transition-colors">Projects</Link>
+                        <span>›</span>
+                        <span className="text-white">{project.title}</span>
+                    </nav>
+                    <Link href="/projects" className="flex items-center text-gray-300 hover:text-white transition-colors">
+                        <svg
+                            className="w-5 h-5 mr-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M15 19l-7-7 7-7"
+                            />
+                        </svg>
+                        Back to Projects
+                    </Link>
+                </div>
             </div>
 
             <main className="container max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 poppins-regular">
@@ -134,6 +221,7 @@ const ProjectDetailsPage = ({ params }) => {
                             fill
                             className="object-cover"
                             priority
+                            loading="eager"
                         />
                     </div>
 
@@ -150,12 +238,12 @@ const ProjectDetailsPage = ({ params }) => {
                         <h1 className="text-xl sm:text-3xl font-semibold text-white leading-tight">
                             {project.title}
                         </h1>
-                        <p className='text-white'>{project.metaDescription}</p>
+                        <p className="text-white">{project.metaDescription}</p>
 
                         <h2 className="text-xl sm:text-2xl text-gray-300">
                             {project.subtitle}
                         </h2>
-                        <p className='text-white'>{project.contentShort}</p>
+                        <p className="text-white">{project.contentShort}</p>
                     </div>
                 </div>
 
@@ -201,44 +289,24 @@ const ProjectDetailsPage = ({ params }) => {
                                 </ul>
                             </section>
                         )}
+
+                        {/* Related Projects (Internal Linking) */}
+                        <section>
+                            <h2 className="text-xl font-bold text-white mb-6">Explore More Projects</h2>
+                            <div className="flex space-x-4">
+                                <Link href="/projects" className="text-blue-400 hover:underline">View All Projects</Link>
+                                <Link href={`/projects?category=${project.category}`} className="text-blue-400 hover:underline">
+                                    More {project.category} Projects
+                                </Link>
+                            </div>
+                        </section>
                     </div>
 
                     {/* Sidebar */}
                     <div className="space-y-8">
                         {/* Gallery */}
                         {project.gallery && project.gallery.length > 0 && (
-                            <section>
-                                <h2 className="text-xl font-bold text-white mb-4">Gallery</h2>
-                                <div className="space-y-4">
-                                    {/* Main Gallery Image */}
-                                    <div className="relative aspect-square rounded-lg overflow-hidden">
-                                        <Image
-                                            src={project.gallery[activeGalleryImage].url}
-                                            alt={project.gallery[activeGalleryImage].alt}
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    </div>
-
-                                    {/* Thumbnail Grid */}
-                                    <div className="grid grid-cols-4 gap-2">
-                                        {project.gallery.map((image, idx) => (
-                                            <button
-                                                key={idx}
-                                                onClick={() => setActiveGalleryImage(idx)}
-                                                className={`relative aspect-square rounded overflow-hidden transition-opacity ${activeGalleryImage === idx ? 'ring-2 ring-blue-400' : 'opacity-70 hover:opacity-100'}`}
-                                            >
-                                                <Image
-                                                    src={image.url}
-                                                    alt={image.alt}
-                                                    fill
-                                                    className="object-cover"
-                                                />
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </section>
+                            <ProjectGallery gallery={project.gallery} />
                         )}
 
                         {/* Website Features */}
