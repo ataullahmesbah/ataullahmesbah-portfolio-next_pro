@@ -24,6 +24,8 @@ export async function GET(request, { params }) {
     }
 }
 
+
+
 // PUT: Update a project (Admin only)
 export async function PUT(request, { params }) {
     await dbConnect();
@@ -34,8 +36,8 @@ export async function PUT(request, { params }) {
         const title = formData.get('title');
         const subtitle = formData.get('subtitle');
         const description = formData.get('description');
-        const contentShort = formData.get('contentShort');
-        const content = formData.get('content');
+        const contentShort = formData.get('contentShort'); // Updated to contentShort
+        const content = formData.get('content'); // Get content as a JSON string
         const category = formData.get('category');
         const keyPoints = formData.getAll('keyPoints');
         const websiteFeatures = formData.getAll('websiteFeatures');
@@ -57,14 +59,16 @@ export async function PUT(request, { params }) {
         project.subtitle = subtitle || project.subtitle;
         project.description = description || project.description;
         project.contentShort = contentShort || project.contentShort;
-        project.content = content || project.content;
+        if (content) {
+            project.content = JSON.parse(content); // Parse the JSON string into an array of objects
+        }
         project.category = category || project.category;
         project.keyPoints = keyPoints.length > 0 ? keyPoints : project.keyPoints;
         project.websiteFeatures = websiteFeatures.length > 0 ? websiteFeatures : project.websiteFeatures;
         project.supportSystem = supportSystem || project.supportSystem;
         project.metaDescription = metaDescription || project.metaDescription;
         project.imageAlt = imageAlt || project.imageAlt;
-        project.views = project.views || 0; // Ensure views is set
+        project.views = project.views || 0;
         project.updatedAt = Date.now();
 
         // Update main image if provided

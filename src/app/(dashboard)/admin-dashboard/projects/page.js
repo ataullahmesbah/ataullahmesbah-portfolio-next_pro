@@ -13,13 +13,13 @@ const ManageProjectsPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [editingProject, setEditingProject] = useState(null);
-    const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state for form submission
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
         subtitle: '',
         description: '',
-        shortDescription: '', // Added shortDescription
-        contentSections: [{ content: '', tag: 'p', bulletPoints: [] }], // bulletPoints as an array
+        contentShort: '', // Renamed from shortDescription to contentShort
+        contentSections: [{ content: '', tag: 'p', bulletPoints: [] }],
         category: 'Marketing',
         newCategory: '',
         keyPoints: [],
@@ -56,7 +56,7 @@ const ManageProjectsPage = () => {
         if (name === 'metaDescription' && value.length > 160) {
             return;
         }
-        if (name === 'shortDescription' && value.length > 250) {
+        if (name === 'contentShort' && value.length > 250) { // Updated to contentShort
             return;
         }
         setFormData((prev) => ({ ...prev, [name]: value }));
@@ -124,12 +124,12 @@ const ManageProjectsPage = () => {
             title: project.title,
             subtitle: project.subtitle,
             description: project.description,
-            shortDescription: project.shortDescription || '', // Added shortDescription
+            contentShort: project.contentShort || '', // Updated to contentShort
             contentSections: project.content && project.content.length > 0
                 ? project.content.map(section => ({
                     content: section.content,
                     tag: section.tag,
-                    bulletPoints: section.bulletPoints || [], // Ensure bulletPoints is an array
+                    bulletPoints: section.bulletPoints || [],
                 }))
                 : [{ content: '', tag: 'p', bulletPoints: [] }],
             category: project.category,
@@ -148,19 +148,20 @@ const ManageProjectsPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitting(true); // Set loading state
+        setIsSubmitting(true);
 
         const data = new FormData();
         data.append('title', formData.title);
         data.append('subtitle', formData.subtitle);
         data.append('description', formData.description);
-        data.append('shortDescription', formData.shortDescription); // Added shortDescription
+        data.append('contentShort', formData.contentShort); // Updated to contentShort
 
-        formData.contentSections.forEach((section) => {
-            data.append('contentSections', section.content);
-            data.append('tags', section.tag);
-            data.append('bulletPoints', section.bulletPoints.length > 0 ? section.bulletPoints.join(', ') : '');
-        });
+        // Append content sections as a JSON string
+        data.append('content', JSON.stringify(formData.contentSections.map(section => ({
+            content: section.content,
+            tag: section.tag,
+            bulletPoints: section.bulletPoints,
+        }))));
 
         data.append('category', formData.newCategory || formData.category);
         formData.keyPoints.forEach((point) => data.append('keyPoints', point));
@@ -206,7 +207,7 @@ const ManageProjectsPage = () => {
                 title: '',
                 subtitle: '',
                 description: '',
-                shortDescription: '',
+                contentShort: '',
                 contentSections: [{ content: '', tag: 'p', bulletPoints: [] }],
                 category: 'Marketing',
                 newCategory: '',
@@ -232,7 +233,7 @@ const ManageProjectsPage = () => {
                 draggable: true,
             });
         } finally {
-            setIsSubmitting(false); // Reset loading state
+            setIsSubmitting(false);
         }
     };
 
@@ -324,15 +325,15 @@ const ManageProjectsPage = () => {
                         <div>
                             <label className="block text-gray-300 font-medium mb-1">Short Description (max 250 characters)</label>
                             <textarea
-                                name="shortDescription"
-                                value={formData.shortDescription}
+                                name="contentShort" // Updated to contentShort
+                                value={formData.contentShort}
                                 onChange={handleInputChange}
                                 className="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 rows="2"
                                 required
                             />
                             <p className="text-gray-400 text-sm mt-1">
-                                {formData.shortDescription.length}/250 characters
+                                {formData.contentShort.length}/250 characters
                             </p>
                         </div>
                         <div>
@@ -536,9 +537,8 @@ const ManageProjectsPage = () => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className={`w-full px-4 py-3 rounded-lg font-medium text-white transition flex items-center justify-center ${
-                                    isSubmitting ? 'bg-gray-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-                                }`}
+                                className={`w-full px-4 py-3 rounded-lg font-medium text-white transition flex items-center justify-center ${isSubmitting ? 'bg-gray-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                                    }`}
                             >
                                 {isSubmitting ? (
                                     <>
@@ -576,7 +576,7 @@ const ManageProjectsPage = () => {
                                         title: '',
                                         subtitle: '',
                                         description: '',
-                                        shortDescription: '',
+                                        contentShort: '',
                                         contentSections: [{ content: '', tag: 'p', bulletPoints: [] }],
                                         category: 'Marketing',
                                         newCategory: '',
