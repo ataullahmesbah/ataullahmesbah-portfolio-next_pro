@@ -303,7 +303,7 @@ const AddProjectPage = () => {
                         </p>
                     </div>
                     <div>
-                        <label className="block text-gray-300">Main Image</label>
+                        <label className="block text-gray-300">Main Image 1600px × 900px (16:9 aspect ratio)</label>
                         <input
                             type="file"
                             name="mainImage"

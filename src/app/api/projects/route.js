@@ -4,6 +4,7 @@ import Project from "@/models/project";
 import cloudinary from "@/utils/cloudinary";
 import { NextResponse } from "next/server";
 
+
 // GET: Fetch all projects or by slug
 export async function GET(request) {
     await dbConnect();
@@ -64,13 +65,18 @@ export async function POST(request) {
         // Limit metaDescription to 160 characters
         const trimmedMetaDescription = metaDescription.slice(0, 160);
 
-        // Upload main image to Cloudinary
+        // Upload main image to Cloudinary (convert to WebP)
         let mainImageUrl = '';
         if (mainImageFile && mainImageFile.size > 0) {
             const mainImageBuffer = Buffer.from(await mainImageFile.arrayBuffer());
             mainImageUrl = await new Promise((resolve, reject) => {
                 cloudinary.uploader.upload_stream(
-                    { folder: 'projects/main' },
+                    {
+                        folder: 'projects/main',
+                        fetch_format: 'webp', // Convert to WebP
+                        quality: 'auto', // Automatically optimize quality
+                        flags: 'lossy', // Use lossy compression for better file size
+                    },
                     (error, result) => {
                         if (error) {
                             console.error("Cloudinary Main Image Upload Error:", error);
@@ -86,7 +92,7 @@ export async function POST(request) {
             return NextResponse.json({ error: "Main image is required" }, { status: 400 });
         }
 
-        // Upload gallery images to Cloudinary
+        // Upload gallery images to Cloudinary (convert to WebP)
         const gallery = [];
         for (let i = 0; i < galleryFiles.length; i++) {
             const file = galleryFiles[i];
@@ -94,7 +100,12 @@ export async function POST(request) {
                 const buffer = Buffer.from(await file.arrayBuffer());
                 const url = await new Promise((resolve, reject) => {
                     cloudinary.uploader.upload_stream(
-                        { folder: 'projects/gallery' },
+                        {
+                            folder: 'projects/gallery',
+                            fetch_format: 'webp', // Convert to WebP
+                            quality: 'auto', // Automatically optimize quality
+                            flags: 'lossy', // Use lossy compression for better file size
+                        },
                         (error, result) => {
                             if (error) {
                                 console.error("Cloudinary Gallery Image Upload Error:", error);

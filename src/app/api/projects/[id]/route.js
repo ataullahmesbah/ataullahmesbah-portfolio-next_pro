@@ -1,4 +1,6 @@
 // src/app/api/projects/[id]/route.js
+
+
 import dbConnect from "@/lib/dbMongoose";
 import Project from "@/models/project";
 import cloudinary from "@/utils/cloudinary";
@@ -24,8 +26,6 @@ export async function GET(request, { params }) {
     }
 }
 
-
-
 // PUT: Update a project (Admin only)
 export async function PUT(request, { params }) {
     await dbConnect();
@@ -36,7 +36,7 @@ export async function PUT(request, { params }) {
         const title = formData.get('title');
         const subtitle = formData.get('subtitle');
         const description = formData.get('description');
-        const contentShort = formData.get('contentShort'); // Updated to contentShort
+        const contentShort = formData.get('contentShort');
         const content = formData.get('content'); // Get content as a JSON string
         const category = formData.get('category');
         const keyPoints = formData.getAll('keyPoints');
@@ -71,12 +71,17 @@ export async function PUT(request, { params }) {
         project.views = project.views || 0;
         project.updatedAt = Date.now();
 
-        // Update main image if provided
+        // Update main image if provided (convert to WebP)
         if (mainImageFile && mainImageFile.size > 0) {
             const mainImageBuffer = Buffer.from(await mainImageFile.arrayBuffer());
             const mainImageUrl = await new Promise((resolve, reject) => {
                 cloudinary.uploader.upload_stream(
-                    { folder: 'projects/main' },
+                    {
+                        folder: 'projects/main',
+                        fetch_format: 'webp', // Convert to WebP
+                        quality: 'auto', // Automatically optimize quality
+                        flags: 'lossy', // Use lossy compression for better file size
+                    },
                     (error, result) => {
                         if (error) reject(error);
                         else resolve(result.secure_url);
@@ -86,7 +91,7 @@ export async function PUT(request, { params }) {
             project.mainImage = mainImageUrl;
         }
 
-        // Update gallery images if provided
+        // Update gallery images if provided (convert to WebP)
         if (galleryFiles && galleryFiles.length > 0) {
             const gallery = [];
             for (let i = 0; i < galleryFiles.length; i++) {
@@ -95,7 +100,12 @@ export async function PUT(request, { params }) {
                     const buffer = Buffer.from(await file.arrayBuffer());
                     const url = await new Promise((resolve, reject) => {
                         cloudinary.uploader.upload_stream(
-                            { folder: 'projects/gallery' },
+                            {
+                                folder: 'projects/gallery',
+                                fetch_format: 'webp', // Convert to WebP
+                                quality: 'auto', // Automatically optimize quality
+                                flags: 'lossy', // Use lossy compression for better file size
+                            },
                             (error, result) => {
                                 if (error) reject(error);
                                 else resolve(result.secure_url);

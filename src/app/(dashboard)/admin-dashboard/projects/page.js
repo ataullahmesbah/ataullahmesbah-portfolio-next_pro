@@ -480,7 +480,7 @@ const ManageProjectsPage = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-gray-300 font-medium mb-1">Main Image (Leave empty to keep existing)</label>
+                            <label className="block text-gray-300 font-medium mb-1">Main Image (Leave empty to keep existing) - 1600px × 900px (16:9 aspect ratio)</label>
                             <input
                                 type="file"
                                 name="mainImage"

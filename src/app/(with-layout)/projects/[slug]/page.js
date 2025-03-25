@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Script from 'next/script';
 import ProjectGallery from '@/app/components/ProjectGallery/ProjectGallery';
+import { FaTwitter, FaFacebook, FaLinkedin, FaMedium, FaShareAlt } from 'react-icons/fa';
 
 
 
@@ -138,13 +139,13 @@ const ProjectDetailsPage = async ({ params }) => {
         const Tag = section.tag || 'p';
         const adjustedTag = Tag === 'h1' && index > 0 ? 'h2' : Tag;
         const baseSize = {
-            'h1': 'text-2xl sm:text-2xl',
-            'h2': 'text-2xl sm:text-3xl',
-            'h3': 'text-xl sm:text-2xl',
-            'h4': 'text-lg sm:text-xl',
+            'h1': 'text-2xl font-semibold sm:text-2xl',
+            'h2': 'text-2xl sm:text-2xl',
+            'h3': 'text-2xl sm:text-2xl',
+            'h4': 'text-2xl sm:text-2xl',
             'h5': 'text-base sm:text-lg',
-            'h6': 'text-sm sm:text-base',
-            'p': 'text-base sm:text-lg'
+            'h6': 'text-sm sm:text-lg',
+            'p': 'text-gray-200 leading-relaxed'
         }[adjustedTag];
 
         return (
@@ -239,7 +240,7 @@ const ProjectDetailsPage = async ({ params }) => {
                             {project.title}
                         </h1>
                         <p className="text-white">{project.metaDescription}</p>
-
+                        {/* Subtitle & Short Description */}
                         <h2 className="text-xl sm:text-2xl text-gray-300">
                             {project.subtitle}
                         </h2>
@@ -335,6 +336,72 @@ const ProjectDetailsPage = async ({ params }) => {
                                 </div>
                             </section>
                         )}
+
+                        {/* Share Options */}
+                        <section>
+                            <h2 className="text-xl font-bold text-white mb-4">Share This Project</h2>
+                            <div className="flex space-x-4">
+                                {/* Twitter */}
+                                <a
+                                    href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(`https://yourwebsite.com/projects/${project.slug}`)}&text=${encodeURIComponent(`Check out this project: ${project.title} by Ataullah Mesbah`)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2 rounded-full bg-gray-800 hover:bg-blue-500 transition-colors"
+                                    aria-label="Share on Twitter"
+                                >
+                                    <FaTwitter className="w-6 h-6 text-white" />
+                                </a>
+
+                                {/* Facebook */}
+                                <a
+                                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://yourwebsite.com/projects/${project.slug}`)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2 rounded-full bg-gray-800 hover:bg-blue-600 transition-colors"
+                                    aria-label="Share on Facebook"
+                                >
+                                    <FaFacebook className="w-6 h-6 text-white" />
+                                </a>
+
+                                {/* LinkedIn */}
+                                <a
+                                    href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(`https://yourwebsite.com/projects/${project.slug}`)}&title=${encodeURIComponent(project.title)}&summary=${encodeURIComponent(project.metaDescription || project.description)}&source=Ataullah%20Mesbah`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2 rounded-full bg-gray-800 hover:bg-blue-700 transition-colors"
+                                    aria-label="Share on LinkedIn"
+                                >
+                                    <FaLinkedin className="w-6 h-6 text-white" />
+                                </a>
+
+                                {/* Medium */}
+                                <a
+                                    href={`https://medium.com/?url=${encodeURIComponent(`https://yourwebsite.com/projects/${project.slug}`)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2 rounded-full bg-gray-800 hover:bg-gray-600 transition-colors"
+                                    aria-label="Share on Medium"
+                                >
+                                    <FaMedium className="w-6 h-6 text-white" />
+                                </a>
+                            </div>
+                        </section>
+
+                        {/* Contact Information */}
+                        <section>
+                            <h2 className="text-xl font-bold text-white mb-4">Get in Touch</h2>
+                            <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                                <p className="text-gray-300 mb-4">
+                                    Interested in working together or have questions about this project? Let’s connect!
+                                </p>
+                                <Link
+                                    href="/contact"
+                                    className="inline-block px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
+                                >
+                                    Contact Me
+                                </Link>
+                            </div>
+                        </section>
                     </div>
                 </div>
             </main>
