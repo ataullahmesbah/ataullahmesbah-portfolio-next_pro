@@ -92,7 +92,7 @@ const NewsletterInfoPage = () => {
                                                 View
                                             </button>
                                         </Link>
-                                        <Link href={`/newsletter/edit/${newsletter._id}`}>
+                                        <Link href={`/admin-dashboard/newsletter/edit/${newsletter._id}`}>
                                             <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-300">
                                                 Update
                                             </button>

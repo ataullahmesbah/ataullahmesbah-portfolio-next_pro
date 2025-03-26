@@ -169,7 +169,7 @@ const NewsLetter = () => {
             <LetterReview />
 
 
-            {/* NewsLetter Hacks */}
+            {/* NewsLetter POST */}
 
             <NewsLetterPage />
 
