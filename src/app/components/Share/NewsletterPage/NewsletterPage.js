@@ -1,35 +1,11 @@
 // src/app/newsletter/page.js
-
-'use client'
 import React from 'react';
 import Link from 'next/link';
+
 import { FaTwitter, FaFacebook, FaLinkedin, FaLightbulb, FaFolder, FaGift } from 'react-icons/fa';
+import NewsletterForm from '../NewsletterForm/NewsletterForm';
 
 const NewsletterPage = () => {
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const email = e.target.email.value;
-        const name = e.target.name.value;
-
-        // API call to save email (backend e save korar jonno)
-        try {
-            const res = await fetch('/api/newsletter', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, name }),
-            });
-            const data = await res.json();
-            if (res.ok) {
-                alert('Successfully subscribed!');
-                e.target.reset();
-            } else {
-                alert(data.error || 'Failed to subscribe. Please try again.');
-            }
-        } catch (error) {
-            alert('An error occurred. Please try again later.');
-        }
-    };
-
     return (
         <div className="bg-gray-900 min-h-screen py-10">
             {/* Header */}
@@ -50,45 +26,8 @@ const NewsletterPage = () => {
             {/* Main Content */}
             <main className="container max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Sign-Up Form */}
-                    <div className="bg-gray-800/50 p-8 rounded-lg border border-gray-700">
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div>
-                                <label htmlFor="name" className="block text-gray-300 mb-2">
-                                    Your Name (Optional)
-                                </label>
-                                <input
-                                    type="text"
-                                    id="name"
-                                    name="name"
-                                    placeholder="Your name"
-                                    className="w-full p-3 rounded-lg bg-gray-900 text-white border border-gray-700 focus:outline-none focus:border-blue-500"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="email" className="block text-gray-300 mb-2">
-                                    Email Address
-                                </label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    placeholder="Enter your email address"
-                                    required
-                                    className="w-full p-3 rounded-lg bg-gray-900 text-white border border-gray-700 focus:outline-none focus:border-blue-500"
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
-                            >
-                                Subscribe Now
-                            </button>
-                            <p className="text-gray-400 text-sm text-center">
-                                We respect your privacy. Your email will not be shared.
-                            </p>
-                        </form>
-                    </div>
+                    {/* Sign-Up Form (Client Component) */}
+                    <NewsletterForm />
 
                     {/* Benefits Section */}
                     <div className="space-y-6">
