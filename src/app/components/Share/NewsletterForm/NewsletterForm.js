@@ -5,15 +5,16 @@ import React, { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
 const NewsletterForm = () => {
-    const [isLoading, setIsLoading] = useState(false); // Loading state
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (isLoading) return; // Prevent double submit
+        if (isLoading) return;
 
-        setIsLoading(true); // Show loading
-        const email = e.target.email.value;
-        const name = e.target.name.value;
+        setIsLoading(true);
+        const formData = new FormData(e.target);
+        const email = formData.get('email');
+        const name = formData.get('name') || '';
 
         try {
             const res = await fetch('/api/newsletter', {
@@ -21,23 +22,42 @@ const NewsletterForm = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, name }),
             });
+
             const data = await res.json();
-            if (res.ok) {
-                toast.success('Successfully subscribed!', { duration: 4000 });
-                e.target.reset();
-            } else {
-                toast.error(data.error || 'Failed to subscribe. Please try again.', { duration: 4000 });
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Subscription failed');
             }
+
+            toast.success('Successfully subscribed!', {
+                duration: 5000,
+                position: 'top-center'
+            });
+            e.target.reset();
+
         } catch (error) {
-            toast.error('An error occurred. Please try again later.', { duration: 4000 });
+            console.error('Subscription error:', error);
+
+            let errorMessage = error.message;
+
+            // Handle IP authorization error specifically
+            if (errorMessage.includes('whitelist') || errorMessage.includes('IP')) {
+                errorMessage = 'Server configuration issue - please try again later';
+            }
+
+            toast.error(errorMessage, {
+                duration: 6000,
+                position: 'top-center'
+            });
+
         } finally {
-            setIsLoading(false); // Hide loading
+            setIsLoading(false);
         }
     };
 
     return (
         <div className="bg-gray-800/50 p-8 rounded-lg border border-gray-700">
-            <Toaster position="top-right" /> {/* Add Toaster for toast notifications */}
+            <Toaster />
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                     <label htmlFor="name" className="block text-gray-300 mb-2">
@@ -53,13 +73,13 @@ const NewsletterForm = () => {
                 </div>
                 <div>
                     <label htmlFor="email" className="block text-gray-300 mb-2">
-                        Email Address
+                        Email Address *
                     </label>
                     <input
                         type="email"
                         id="email"
                         name="email"
-                        placeholder="Enter your email address"
+                        placeholder="your@email.com"
                         required
                         className="w-full p-3 rounded-lg bg-gray-900 text-white border border-gray-700 focus:outline-none focus:border-blue-500"
                     />
@@ -99,7 +119,7 @@ const NewsletterForm = () => {
                     )}
                 </button>
                 <p className="text-gray-400 text-sm text-center">
-                    We respect your privacy. Your email will not be shared.
+                    We will never share your email. Unsubscribe anytime.
                 </p>
             </form>
         </div>

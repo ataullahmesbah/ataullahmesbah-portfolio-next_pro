@@ -20,8 +20,10 @@
     font-weight: 400;
 }
 
-
-
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+body {
+  font-family: 'Poppins', sans-serif;
+}
 
 /* Add this to your global CSS file or in a <style jsx global> tag */
 

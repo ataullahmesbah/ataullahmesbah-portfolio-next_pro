@@ -55,6 +55,17 @@ const AdminDashboardLayout = ({ children }) => {
                 { label: 'Projects Statistics', link: '/admin-dashboard/projects/statistics' },
             ],
         },
+        {
+            label: 'News Letter',
+            children: [
+                { label: 'Newsletter Info', link: '/admin-dashboard/newsletter' },
+
+                { label: 'Attach Newsletter', link: '/admin-dashboard/newsletter/attachnewsletter' },
+                { label: 'Newsletter Details', link: '/admin-dashboard/newsletter/newsletterinfo' },
+                { label: 'Newsletter Stats', link: '/admin-dashboard/newsletter/stats' },
+                
+            ],
+        },
     ];
 
     // Redirect if user is not authenticated or not an admin

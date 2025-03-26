@@ -7,14 +7,12 @@ import NewsletterForm from '../NewsletterForm/NewsletterForm';
 
 const NewsletterPage = () => {
     return (
-        <div className="bg-gray-900 min-h-screen py-10">
+        <div className="bg-gray-900 py-16 poppins-regular">
             {/* Header */}
             <header className="text-center mb-12">
                 <div className="container max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <Link href="/" className="inline-block mb-6">
-                        <h1 className="text-3xl font-bold text-white">Ataullah Mesbah</h1>
-                    </Link>
-                    <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+
+                    <h1 className="text-xl sm:text-3xl font-bold text-white mb-4">
                         Join My Newsletter!
                     </h1>
                     <p className="text-gray-300 text-lg sm:text-xl max-w-2xl mx-auto">
@@ -49,32 +47,36 @@ const NewsletterPage = () => {
                         <p className="text-blue-400 hover:underline">
                             Don’t miss out – join now!
                         </p>
+
+                        {/* Footer */}
+                        <footer className="mt-12 ">
+                            <div className=" ">
+                                <div className="flex space-x-6 mb-4">
+                                    <a href="https://www.linkedin.com/in/ataullah-mesbah/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-blue-500 transition-colors">
+                                        <FaLinkedin className="w-6 h-6" />
+                                    </a>
+                                    <a href="https://x.com/ataullah_mesbah" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-blue-500 transition-colors">
+                                        <FaTwitter className="w-6 h-6" />
+                                    </a>
+                                    <a href="https://www.facebook.com/ataullahmesbah10" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-blue-500 transition-colors">
+                                        <FaFacebook className="w-6 h-6" />
+                                    </a>
+
+                                </div>
+                                <p className="text-gray-400 text-sm mb-2">
+                                    You can unsubscribe anytime.
+                                </p>
+                                <Link href="/contact" className="text-blue-400 hover:underline">
+                                    Contact Me
+                                </Link>
+                            </div>
+                        </footer>
                     </div>
+
                 </div>
             </main>
 
-            {/* Footer */}
-            <footer className="mt-12 text-center">
-                <div className="container max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-center space-x-6 mb-4">
-                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-blue-500 transition-colors">
-                            <FaTwitter className="w-6 h-6" />
-                        </a>
-                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-blue-500 transition-colors">
-                            <FaFacebook className="w-6 h-6" />
-                        </a>
-                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-blue-500 transition-colors">
-                            <FaLinkedin className="w-6 h-6" />
-                        </a>
-                    </div>
-                    <p className="text-gray-400 text-sm mb-2">
-                        You can unsubscribe anytime.
-                    </p>
-                    <Link href="/contact" className="text-blue-400 hover:underline">
-                        Contact Me
-                    </Link>
-                </div>
-            </footer>
+
         </div>
     );
 };

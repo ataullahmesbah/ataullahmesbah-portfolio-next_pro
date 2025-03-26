@@ -13,6 +13,7 @@ import NewSection from "../components/Home/NewSection/NewSection";
 import ProjectsTab from "../components/Share/ProjectsTab/ProjectsTab";
 import LicenseCertification from "../components/Share/LicenseCertification/LicenseCertification";
 import SideIcons from '../components/SideIcons/SideIcons';
+import NewsletterPage from '../components/Share/NewsletterPage/NewsletterPage';
 
 const HomePage = () => {
     const { data: session, status } = useSession();
@@ -43,6 +44,7 @@ const HomePage = () => {
                 <Testimonials />
                 <NewSection />
                 <LicenseCertification />
+                <NewsletterPage />
                 <ContactAssistance />
                 <SideIcons />
             </main>

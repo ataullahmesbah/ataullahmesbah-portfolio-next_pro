@@ -8,15 +8,44 @@ const newsletterSubscriberSchema = new mongoose.Schema({
         unique: true,
         trim: true,
         lowercase: true,
+        validate: {
+            validator: function (v) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+            },
+            message: props => `${props.value} is not a valid email address!`
+        }
     },
     name: {
         type: String,
-        trim: true,
+        trim: true
+    },
+    brevoSynced: {
+        type: Boolean,
+        default: false
+    },
+    brevoSyncedAt: {
+        type: Date
+    },
+    retryAttempts: {
+        type: Number,
+        default: 0
+    },
+    lastError: {
+        type: String
     },
     subscribedAt: {
         type: Date,
-        default: Date.now,
+        default: Date.now
     },
+    ipAddress: {
+        type: String,
+        default: 'unknown'
+    },
+    country: {
+        type: String,
+        default: 'Unknown'
+    }
 });
 
-export default mongoose.models.NewsletterSubscriber || mongoose.model('NewsletterSubscriber', newsletterSubscriberSchema);
+export default mongoose.models.NewsletterSubscriber ||
+    mongoose.model('NewsletterSubscriber', newsletterSubscriberSchema);
