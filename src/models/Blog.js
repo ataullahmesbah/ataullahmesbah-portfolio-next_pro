@@ -6,6 +6,11 @@ const blogSchema = new mongoose.Schema({
   mainImage: { type: String, required: true },
   shortDescription: { type: String, required: true },
   author: { type: String, required: true },
+  authorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   content: [
     {
       type: { type: String, required: true }, // 'text' or 'image'

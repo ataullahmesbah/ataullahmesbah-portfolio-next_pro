@@ -5,7 +5,6 @@ import Newsletter from '@/models/newsletter';
 import cloudinary from '@/utils/cloudinary';
 import { NextResponse } from 'next/server';
 
-
 export async function GET(req) {
     await dbConnect();
     try {
@@ -37,6 +36,8 @@ export async function GET(req) {
     }
 }
 
+
+
 export async function POST(req) {
     await dbConnect();
     try {
@@ -45,15 +46,10 @@ export async function POST(req) {
         const metaTitle = formData.get('metaTitle');
         const metaDescription = formData.get('metaDescription');
         const description = formData.get('description');
-        const contentSections = formData.getAll('contentSections');
-        const tags = formData.getAll('tags');
-        const bulletPoints = formData.getAll('bulletPoints');
+        const contentSections = JSON.parse(formData.get('contentSections'));
         const category = formData.get('category');
         const imageAlt = formData.get('imageAlt');
         const mainImageFile = formData.get('mainImage');
-        const galleryFiles = formData.getAll('gallery');
-        const galleryNames = formData.getAll('galleryNames');
-        const galleryAlts = formData.getAll('galleryAlts');
         const author = formData.get('author');
 
         // Validate required fields
@@ -61,78 +57,34 @@ export async function POST(req) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        // Limit metaDescription to 160 characters
-        const trimmedMetaDescription = metaDescription.slice(0, 160);
-
-        // Upload main image to Cloudinary (convert to WebP)
+        // Upload main image to Cloudinary
         let mainImageUrl = '';
-        if (mainImageFile && mainImageFile.size > 0) {
-            const mainImageBuffer = Buffer.from(await mainImageFile.arrayBuffer());
-            mainImageUrl = await new Promise((resolve, reject) => {
-                cloudinary.uploader.upload_stream(
-                    {
-                        folder: 'newsletters/main',
-                        fetch_format: 'webp',
-                        quality: 'auto',
-                        flags: 'lossy',
-                    },
-                    (error, result) => {
-                        if (error) reject(error);
-                        else resolve(result.secure_url);
-                    }
-                ).end(mainImageBuffer);
-            });
-        } else {
-            return NextResponse.json({ error: 'Main image is required' }, { status: 400 });
-        }
-
-        // Upload gallery images to Cloudinary (convert to WebP)
-        const gallery = [];
-        for (let i = 0; i < galleryFiles.length; i++) {
-            const file = galleryFiles[i];
-            if (file && file.size > 0) {
-                const buffer = Buffer.from(await file.arrayBuffer());
-                const url = await new Promise((resolve, reject) => {
-                    cloudinary.uploader.upload_stream(
-                        {
-                            folder: 'newsletters/gallery',
-                            fetch_format: 'webp',
-                            quality: 'auto',
-                            flags: 'lossy',
-                        },
-                        (error, result) => {
-                            if (error) reject(error);
-                            else resolve(result.secure_url);
-                        }
-                    ).end(buffer);
-                });
-                gallery.push({
-                    url,
-                    name: galleryNames[i] || `Gallery Image ${i + 1}`,
-                    alt: galleryAlts[i] || `Gallery image ${i + 1} for ${title}`,
-                });
-            }
-        }
-
-        // Structure content sections with tags and bullet points
-        const contentData = contentSections.map((content, index) => ({
-            content,
-            tag: tags[index] || 'p',
-            bulletPoints: bulletPoints[index] ? bulletPoints[index].split(',').map(item => item.trim()) : [],
-        }));
+        const mainImageBuffer = Buffer.from(await mainImageFile.arrayBuffer());
+        mainImageUrl = await new Promise((resolve, reject) => {
+            cloudinary.uploader.upload_stream(
+                {
+                    folder: 'newsletters/main',
+                    fetch_format: 'webp',
+                    quality: 'auto',
+                    flags: 'lossy',
+                },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result.secure_url);
+                }
+            ).end(mainImageBuffer);
+        });
 
         const newsletterData = {
             title,
             metaTitle,
-            metaDescription: trimmedMetaDescription,
+            metaDescription: metaDescription.slice(0, 160),
             description,
-            content: contentData,
+            content: contentSections,
             category,
             mainImage: mainImageUrl,
             imageAlt,
-            gallery,
             author,
-            views: 0,
         };
 
         const newsletter = new Newsletter(newsletterData);
@@ -153,15 +105,10 @@ export async function PUT(req) {
         const metaTitle = formData.get('metaTitle');
         const metaDescription = formData.get('metaDescription');
         const description = formData.get('description');
-        const contentSections = formData.getAll('contentSections');
-        const tags = formData.getAll('tags');
-        const bulletPoints = formData.getAll('bulletPoints');
+        const contentSections = JSON.parse(formData.get('contentSections'));
         const category = formData.get('category');
         const imageAlt = formData.get('imageAlt');
         const mainImageFile = formData.get('mainImage');
-        const galleryFiles = formData.getAll('gallery');
-        const galleryNames = formData.getAll('galleryNames');
-        const galleryAlts = formData.getAll('galleryAlts');
         const author = formData.get('author');
 
         const newsletter = await Newsletter.findById(id);
@@ -179,12 +126,8 @@ export async function PUT(req) {
         newsletter.author = author || newsletter.author;
 
         // Update content sections
-        if (contentSections.length > 0) {
-            newsletter.content = contentSections.map((content, index) => ({
-                content,
-                tag: tags[index] || 'p',
-                bulletPoints: bulletPoints[index] ? bulletPoints[index].split(',').map(item => item.trim()) : [],
-            }));
+        if (contentSections) {
+            newsletter.content = contentSections;
         }
 
         // Update main image if provided
@@ -205,37 +148,6 @@ export async function PUT(req) {
                 ).end(mainImageBuffer);
             });
             newsletter.mainImage = mainImageUrl;
-        }
-
-        // Update gallery images if provided
-        if (galleryFiles && galleryFiles.length > 0) {
-            const gallery = [];
-            for (let i = 0; i < galleryFiles.length; i++) {
-                const file = galleryFiles[i];
-                if (file && file.size > 0) {
-                    const buffer = Buffer.from(await file.arrayBuffer());
-                    const url = await new Promise((resolve, reject) => {
-                        cloudinary.uploader.upload_stream(
-                            {
-                                folder: 'newsletters/gallery',
-                                fetch_format: 'webp',
-                                quality: 'auto',
-                                flags: 'lossy',
-                            },
-                            (error, result) => {
-                                if (error) reject(error);
-                                else resolve(result.secure_url);
-                            }
-                        ).end(buffer);
-                    });
-                    gallery.push({
-                        url,
-                        name: galleryNames[i] || `Gallery Image ${i + 1}`,
-                        alt: galleryAlts[i] || `Gallery image ${i + 1} for ${title}`,
-                    });
-                }
-            }
-            newsletter.gallery = gallery.length > 0 ? gallery : newsletter.gallery;
         }
 
         await newsletter.save();

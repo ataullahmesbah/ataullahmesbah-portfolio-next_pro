@@ -9,23 +9,37 @@ import dbConnect from '@/lib/dbMongoose';
 
 export async function GET(req, { params }) {
     await dbConnect();
-    const session = await getServerSession(authOptions);
 
-    if (!session) {
-        return Response.json({ message: 'Unauthorized' }, { status: 401 });
+    try {
+        // Public profile access (no session required)
+        const profile = await UserProfile.findOne({ userId: params.id })
+            .populate('userId', 'name email username role'); // Populate user details
+
+        if (!profile) {
+            return Response.json({ message: 'Profile not found' }, { status: 404 });
+        }
+
+        // Return public profile data
+        const publicProfile = {
+            image: profile.image,
+            intro: profile.intro,
+            bio: profile.bio,
+            description: profile.description,
+            verification: profile.verification,
+            user: {
+                name: profile.userId.name,
+                username: profile.userId.username,
+                role: profile.userId.role
+            }
+        };
+
+        return Response.json({ profile: publicProfile });
+
+    } catch (error) {
+        console.error("Error fetching profile:", error);
+        return Response.json({ error: 'Failed to fetch profile' }, { status: 500 });
     }
-
-    const userId = session.user.id;
-
-    const profile = await UserProfile.findOne({ userId });
-
-    if (!profile) {
-        return Response.json({ message: 'Profile not found' }, { status: 404 });
-    }
-
-    return Response.json({ profile });
 }
-
 
 export async function POST(req) {
     await dbConnect();
