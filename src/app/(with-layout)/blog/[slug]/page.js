@@ -1,6 +1,6 @@
+// src/app/blog/[slug]/page.js
 import Image from 'next/image';
 import Script from 'next/script';
-
 
 async function getBlogBySlug(slug) {
     const res = await fetch(`${process.env.NEXTAUTH_URL}/api/blog/${slug}`, {
@@ -52,73 +52,54 @@ export default async function BlogDetail({ params }) {
         "image": blog.mainImage,
         "author": {
             "@type": "Person",
-            "name": blog.writer || 'Unknown Author',
+            "name": blog.author || 'Unknown Author', // Use 'author' field
         },
         "datePublished": blog.publishDate,
-        "dateModified": blog.publishDate, // Update this if you have a modified date
-        "url": `${siteUrl}/blog/${blog.slug}`, // Dynamic URL
+        "dateModified": blog.publishDate,
+        "url": `${siteUrl}/blog/${blog.slug}`,
     };
 
-    // Add fallbacks for missing fields
     const categories = blog.categories || [];
-    const author = blog.writer || 'Unknown Author';
+    const author = blog.author || 'Unknown Author';
+    const readTime = blog.readTime || 1; // Fallback to 1 min if readTime is missing
 
     return (
         <div className="bg-gray-50">
-            <div className="container max-w-3xl mx-auto px-4 py-8 ">
-                <div className="">
-                    {/* Add Schema Markup */}
+            <div className="container max-w-3xl mx-auto px-4 py-8">
+                <div>
                     <Script
                         id="schema-markup"
                         type="application/ld+json"
                         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
                     />
-                    {/* Left Side */}
-
-                    <div className="md:col-span-2  p-6">
-
-
-                        {/* Categories - Title - Author - Date */}
-
+                    <div className="md:col-span-2 p-6">
                         <div className="py-5 px-4">
-                            {/*  Categories */}
                             <div className="flex flex-wrap gap-2">
                                 {categories.map((category, index) => (
-                                    <span key={index} className=" text-blue-800 text-sm rounded">
+                                    <span key={index} className="text-blue-800 text-sm rounded">
                                         {category}
                                     </span>
                                 ))}
                             </div>
-
-                            {/* Blog Title */}
                             <h1 className="text-3xl py-3 poppins-regular">{blog.title}</h1>
-
-                            {/* Author and Date */}
-                            <div className='flex gap-2 items-center text-sm mb-3'>
-                                <div className='flex gap-2 items-center'>
-                                    {/* <FaUser /> */}
-                                    By
-                                    <p className="text-gray-600">{author}</p>
+                            <div className="flex gap-2 items-center text-sm mb-3">
+                                <div className="flex gap-2 items-center">
+                                    <p className="text-gray-600">By {author}</p>
                                 </div>
                                 |
-                                {/* Publish Date */}
                                 <p>Published</p>
                                 <p className="text-gray-800">
-
                                     {new Intl.DateTimeFormat('en-US', {
-                                        weekday: 'long', // "Thursday"
-                                        month: 'long',   // "March"
-                                        day: '2-digit',  // "06"
-                                        year: 'numeric'  // "2025"
+                                        weekday: 'long',
+                                        month: 'long',
+                                        day: '2-digit',
+                                        year: 'numeric'
                                     }).format(new Date(blog.publishDate))}
                                 </p>
-
+                                |
+                                <p>{readTime} min read</p>
                             </div>
-
-
                         </div>
-                        {/* Main Image */}
-
                         <Image
                             src={blog.mainImage}
                             alt={blog.title}
@@ -127,23 +108,16 @@ export default async function BlogDetail({ params }) {
                             className="w-full h-64 md:h-96 object-cover rounded-lg"
                             priority
                         />
-
-                        {/* Description Content */}
-                        <div className="py-5 px-4 poppins-regular ">
-
-                            {/* Meta Description max 160 character */}
-
-                            <p className="mt-4 ">{blog.metaDescription}</p>
-                            <p className="mt-4 ">{blog.shortDescription}</p>
-
-                            {/* Render Content */}
+                        <div className="py-5 px-4 poppins-regular">
+                            <p className="mt-4">{blog.metaDescription}</p>
+                            <p className="mt-4">{blog.shortDescription}</p>
                             <div className="mt-6 space-y-4">
                                 {blog.content.map((item, index) => (
                                     <div key={index}>
                                         {item.type === 'text' && (
                                             <div className="text-gray-800">
-                                                {item.data.split(/<br\s*\/?>/).map((text, index) => (
-                                                    <div key={index} className="mt-3">
+                                                {item.data.split(/<br\s*\/?>/).map((text, idx) => (
+                                                    <div key={idx} className="mt-3">
                                                         {text}
                                                     </div>
                                                 ))}
@@ -156,30 +130,22 @@ export default async function BlogDetail({ params }) {
                                                 width={600}
                                                 height={400}
                                                 className="w-full h-64 object-cover rounded-lg"
-                                                loading="lazy" // Lazy loading for images
+                                                loading="lazy"
                                             />
                                         )}
                                     </div>
                                 ))}
                             </div>
-
-                            {/* Key Points */}
                             <h2 className="text-2xl font-bold mt-8">Key Points</h2>
                             <ul className="list-disc list-inside mt-2">
                                 {blog.keyPoints.map((point, index) => (
                                     <li key={index} className="">{point}</li>
                                 ))}
                             </ul>
-
                         </div>
-
                     </div>
-
-
-
                 </div>
             </div>
         </div>
     );
-
 }

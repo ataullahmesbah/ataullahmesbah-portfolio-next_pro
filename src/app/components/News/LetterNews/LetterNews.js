@@ -163,15 +163,13 @@ const NewsLetter = () => {
                 </div>
             </section>
 
+            {/* NewsLetter POST */}
+
+            <NewsLetterPage />
 
             {/* "Client Says" */}
 
             <LetterReview />
-
-
-            {/* NewsLetter POST */}
-
-            <NewsLetterPage />
 
 
         </div>

@@ -1,5 +1,8 @@
+// src/app/api/blog/[slug]/route.js
+
 import dbConnect from "@/lib/dbMongoose";
 import Blog from "@/models/Blog";
+
 
 export async function GET(request, { params }) {
     await dbConnect();

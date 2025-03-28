@@ -26,6 +26,7 @@ const blogSchema = new mongoose.Schema({
   categories: [{ type: String }],
   auth: { type: String, required: true },
   views: { type: Number, default: 0 },
+  readTime: { type: Number, default: 0 }, // New field for read time in minutes
 });
 
 export default mongoose.models.Blog || mongoose.model('Blog', blogSchema);

@@ -4,11 +4,48 @@ import Blog from "@/models/Blog";
 import cloudinary from "@/utils/cloudinary";
 import { NextResponse } from 'next/server';
 
+
+// Function to calculate read time based on content
+const calculateReadTime = (content) => {
+    const wordsPerMinute = 200; // Average reading speed
+    let totalWords = 0;
+
+    // Count words in text blocks of content
+    content.forEach((block) => {
+        if (block.type === 'text') {
+            const words = block.data.trim().split(/\s+/).length;
+            totalWords += words;
+        }
+    });
+
+    // Calculate read time in minutes (round up)
+    const readTime = Math.ceil(totalWords / wordsPerMinute);
+    return readTime || 1; // Minimum 1 minute if content is very short
+};
+
 export async function GET(request) {
     await dbConnect();
     try {
-        const blogs = await Blog.find({});
-        return new Response(JSON.stringify(blogs), {
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get('page')) || 1;
+        const limit = parseInt(searchParams.get('limit')) || 6; // Default 6 blogs per page
+        const skip = (page - 1) * limit;
+
+        // Fetch blogs with pagination
+        const blogs = await Blog.find({})
+            .skip(skip)
+            .limit(limit)
+            .sort({ publishDate: -1 });
+
+        // Get total blogs count for pagination
+        const totalBlogs = await Blog.countDocuments();
+
+        return new Response(JSON.stringify({
+            blogs,
+            totalBlogs,
+            currentPage: page,
+            totalPages: Math.ceil(totalBlogs / limit),
+        }), {
             headers: { 'Content-Type': 'application/json' },
         });
     } catch (error) {
@@ -18,8 +55,6 @@ export async function GET(request) {
         });
     }
 }
-
-
 
 export async function POST(req) {
     await dbConnect();
@@ -124,7 +159,6 @@ export async function POST(req) {
 
 
 
-// DELETE BLOG LIST
 
 export async function DELETE(request) {
     await dbConnect();
@@ -133,7 +167,6 @@ export async function DELETE(request) {
     const slug = searchParams.get('slug');
 
     try {
-        // Delete the blog by slug
         const result = await Blog.deleteOne({ slug });
 
         if (result.deletedCount === 0) {
