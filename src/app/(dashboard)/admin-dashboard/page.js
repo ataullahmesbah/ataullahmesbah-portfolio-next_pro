@@ -9,6 +9,7 @@ import BlogStatistics from '@/app/Dashboard/AdminDashboard/BlogStatistics/BlogSt
 import UserProfileStatisticsChart from '@/app/Dashboard/AdminDashboard/UserProfileStats/UserProfileStats';
 import ProjectStatisticsPage from './projects/statistics/page';
 import NewsletterStats from './newsletter/stats/page';
+import NewsletterStatisticsPage from './newsletter/newsletterstatistics/page';
 
 export default function AdminDashboardPage() {
     const { data: session, status } = useSession();
@@ -43,6 +44,7 @@ export default function AdminDashboardPage() {
                 <BlogStatistics />
                 <ProjectStatisticsPage />
                 <NewsletterStats />
+                <NewsletterStatisticsPage />
 
 
                 <div>

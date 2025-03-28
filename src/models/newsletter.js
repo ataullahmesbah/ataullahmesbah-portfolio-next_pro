@@ -28,11 +28,7 @@ const newsletterSchema = new mongoose.Schema({
     category: { type: String, required: true, trim: true },
     mainImage: { type: String, required: true },
     imageAlt: { type: String, required: true, trim: true },
-    authorId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
+    author: { type: String, required: true, trim: true },
     views: { type: Number, default: 0 },
     publishDate: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },

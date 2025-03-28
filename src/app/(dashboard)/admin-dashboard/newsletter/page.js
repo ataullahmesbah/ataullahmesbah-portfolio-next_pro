@@ -113,9 +113,9 @@ const NewsletterAdmin = () => {
             <Toaster position="top-center" />
 
             {/* Header Section */}
-            <div className="flex justify-between items-center mb-10">
-                <h1 className="text-4xl font-normal tracking-tight text-shadow-md">
-                    Newsletter Admin Panel
+            <div className="flex justify-between items-center mb-10 poppins-regular">
+                <h1 className="text-3xl font-normal tracking-tight text-shadow-md">
+                   Subscribe Newsletter Panel
                 </h1>
                 <button
                     onClick={handleRefresh}

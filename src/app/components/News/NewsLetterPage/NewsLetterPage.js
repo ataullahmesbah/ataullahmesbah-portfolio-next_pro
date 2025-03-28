@@ -33,13 +33,16 @@ const NewsLetterPage = () => {
         fetchNewsletters();
     }, []);
 
+    
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-screen bg-gray-900">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
             </div>
         );
     }
+
 
     return (
         <div className="m bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white p-4 sm:p-6 md:p-8 lg:p-10">
@@ -86,7 +89,7 @@ const NewsLetterPage = () => {
                                 {/* Meta Description */}
                                 <p className="text-gray-300 text-sm mb-4 line-clamp-3">
                                     {newsletter.metaDescription.length > 40
-                                        ? `${newsletter.metaDescription.slice(0, 40)}...`
+                                        ? `${newsletter.metaDescription.slice(0, 160)}`
                                         : newsletter.metaDescription}
                                 </p>
 
@@ -96,6 +99,7 @@ const NewsLetterPage = () => {
                                         <FiEye className="mr-1" />
                                         <span>{newsletter.views}</span>
                                     </div>
+
                                     <Link
                                         href={`/letter/${newsletter.slug}`}
                                         className="flex items-center text-sm text-purple-400 hover:text-purple-300 transition-colors"

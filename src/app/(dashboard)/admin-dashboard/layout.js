@@ -58,12 +58,13 @@ const AdminDashboardLayout = ({ children }) => {
         {
             label: 'News Letter',
             children: [
-                { label: 'Newsletter Info', link: '/admin-dashboard/newsletter' },
 
-                { label: 'Attach Newsletter', link: '/admin-dashboard/newsletter/attachnewsletter' },
                 { label: 'Newsletter Details', link: '/admin-dashboard/newsletter/newsletterinfo' },
-                { label: 'Newsletter Stats', link: '/admin-dashboard/newsletter/stats' },
-                
+                { label: 'Attach Newsletter', link: '/admin-dashboard/newsletter/attachnewsletter' },
+                { label: 'Newsletter Statistics', link: '/admin-dashboard/newsletter/newsletterstatistics' },
+                { label: 'Subscribe Newsletter Info', link: '/admin-dashboard/newsletter' },
+                { label: 'Subscribers Stats', link: '/admin-dashboard/newsletter/stats' },
+
             ],
         },
     ];

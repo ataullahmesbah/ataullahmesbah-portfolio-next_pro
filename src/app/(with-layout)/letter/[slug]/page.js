@@ -15,21 +15,17 @@ const NewsLetterDetails = ({ params }) => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
-
-
     useEffect(() => {
         const fetchNewsletter = async () => {
             try {
                 const res = await fetch(`/api/newsletter/letter?slug=${params.slug}`);
-                const data = await res.json();
-                if (res.ok) {
-                    setNewsletter(data);
-                } else {
-                    toast.error('Newsletter not found');
-                    router.push('/newsletter');
+                if (!res.ok) {
+                    throw new Error('Failed to fetch newsletter');
                 }
+                const data = await res.json();
+                setNewsletter(data);
             } catch (error) {
-                toast.error('Error loading newsletter');
+                toast.error(error.message || 'Error loading newsletter');
                 router.push('/newsletter');
             } finally {
                 setLoading(false);
@@ -53,6 +49,7 @@ const NewsLetterDetails = ({ params }) => {
             </div>
         );
     }
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white p-6 md:p-10">
@@ -80,12 +77,8 @@ const NewsLetterDetails = ({ params }) => {
                     <div className="flex items-center space-x-4 text-sm text-gray-400 mb-6">
                         <span className="text-purple-400 text-sm font-medium">{newsletter.category}</span>
 
-                        <span>By <Link
-                            href={`/author/${newsletter.author}`}
-                            className="text-purple-400 hover:text-purple-300"
-                        >
-                            {newsletter.author}
-                        </Link></span>
+                        <span>By {newsletter?.author}</span>
+
                         <span>•</span>
                         <span>{new Date(newsletter.publishDate).toLocaleDateString()}</span>
                         <span>•</span>

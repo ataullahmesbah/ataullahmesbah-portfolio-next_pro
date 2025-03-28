@@ -5,6 +5,8 @@ import Newsletter from '@/models/newsletter';
 import cloudinary from '@/utils/cloudinary';
 import { NextResponse } from 'next/server';
 
+
+
 export async function GET(req) {
     await dbConnect();
     try {
@@ -35,8 +37,6 @@ export async function GET(req) {
         return NextResponse.json({ error: 'Failed to fetch newsletters' }, { status: 500 });
     }
 }
-
-
 
 export async function POST(req) {
     await dbConnect();
