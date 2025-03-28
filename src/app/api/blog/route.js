@@ -5,23 +5,6 @@ import cloudinary from "@/utils/cloudinary";
 import { NextResponse } from 'next/server';
 
 
-// Function to calculate read time based on content
-const calculateReadTime = (content) => {
-    const wordsPerMinute = 200; // Average reading speed
-    let totalWords = 0;
-
-    // Count words in text blocks of content
-    content.forEach((block) => {
-        if (block.type === 'text') {
-            const words = block.data.trim().split(/\s+/).length;
-            totalWords += words;
-        }
-    });
-
-    // Calculate read time in minutes (round up)
-    const readTime = Math.ceil(totalWords / wordsPerMinute);
-    return readTime || 1; // Minimum 1 minute if content is very short
-};
 
 export async function GET(request) {
     await dbConnect();
@@ -61,104 +44,195 @@ export async function POST(req) {
 
     try {
         const formData = await req.formData();
+        console.log('FormData entries:', [...formData.entries()]); // Debug
 
-        // Extract fields from form data
-        const title = formData.get('title');
-        const slug = formData.get('slug');
+        // Validate required fields
+        const requiredFields = ['title', 'slug', 'mainImage', 'shortDescription', 'author', 'metaTitle', 'metaDescription'];
+        const missingFields = requiredFields.filter(field => !formData.get(field));
+        if (missingFields.length > 0) {
+            return NextResponse.json({ success: false, error: `Missing required fields: ${missingFields.join(', ')}` }, { status: 400 });
+        }
+
+        // Upload main image to Cloudinary
         const mainImageFile = formData.get('mainImage');
-        const shortDescription = formData.get('shortDescription');
-        const metaDescription = formData.get('metaDescription'); // New field
-        const author = formData.get('author');
-        const publishDate = formData.get('publishDate');
-        const metaTitle = formData.get('metaTitle');
-        const auth = formData.get('auth');
-
-        // Safely parse JSON fields
-        const content = JSON.parse(formData.get('content') || '[]');
-        const keyPoints = JSON.parse(formData.get('keyPoints') || '[]');
-        const tags = JSON.parse(formData.get('tags') || '[]');
-        const categories = JSON.parse(formData.get('categories') || '[]');
-
-        // Upload main image to Cloudinary if exists
         let mainImageUrl = '';
-        if (mainImageFile && mainImageFile.size > 0) {
+        if (mainImageFile.size > 0) {
             const arrayBuffer = await mainImageFile.arrayBuffer();
             const buffer = Buffer.from(arrayBuffer);
-
             const result = await new Promise((resolve, reject) => {
                 cloudinary.uploader.upload_stream(
-                    { folder: 'blog_images' },
+                    { folder: 'blog_images', format: 'webp', quality: 'auto' },
                     (error, result) => {
-                        if (error) reject(error);
+                        if (error) reject(new Error(`Cloudinary upload failed: ${error.message}`));
                         else resolve(result);
                     }
                 ).end(buffer);
             });
-
             mainImageUrl = result.secure_url;
         }
 
-        // Upload images in content blocks to Cloudinary
-        const updatedContent = await Promise.all(
-            content.map(async (block, index) => {
-                if (block.type === 'image') {
-                    // Find the corresponding image file in FormData
-                    const imageFile = formData.get(`contentImages_${index}`);
-                    if (imageFile && imageFile.size > 0) {
-                        const arrayBuffer = await imageFile.arrayBuffer();
-                        const buffer = Buffer.from(arrayBuffer);
-
-                        const result = await new Promise((resolve, reject) => {
-                            cloudinary.uploader.upload_stream(
-                                { folder: 'blog_images' },
-                                (error, result) => {
-                                    if (error) reject(error);
-                                    else resolve(result);
-                                }
-                            ).end(buffer);
-                        });
-
-                        return {
-                            ...block,
-                            data: result.secure_url, // Replace file object with image URL
-                        };
-                    }
+        // Process content sections
+        const content = JSON.parse(formData.get('content') || '[]') || [];
+        const contentImages = formData.getAll('contentImages');
+        let imageIndex = 0;
+        const processedContent = await Promise.all(content.map(async (item) => {
+            if (item.type === 'image') {
+                const imageFile = contentImages[imageIndex];
+                imageIndex++;
+                if (imageFile?.size > 0) {
+                    const arrayBuffer = await imageFile.arrayBuffer();
+                    const buffer = Buffer.from(arrayBuffer);
+                    const result = await new Promise((resolve, reject) => {
+                        cloudinary.uploader.upload_stream(
+                            { folder: 'blog_images/content', format: 'webp', quality: 'auto' },
+                            (error, result) => {
+                                if (error) reject(error);
+                                else resolve(result);
+                            }
+                        ).end(buffer);
+                    });
+                    return { type: 'image', data: result.secure_url, alt: item.alt || '' };
                 }
-                return block; // Return text blocks as-is
-            })
-        );
+            }
+            return item;
+        }));
 
-        // Create the blog post
+        // Calculate read time
+        const wordCount = processedContent
+            .filter(item => item.type === 'text')
+            .reduce((count, item) => count + item.data.split(/\s+/).length, 0);
+        const readTime = Math.max(1, Math.ceil(wordCount / 200));
+
+        // Create new blog post
         const newBlog = new Blog({
-            title,
-            slug,
+            title: formData.get('title'),
+            slug: formData.get('slug'),
             mainImage: mainImageUrl,
-            shortDescription,
-            metaDescription, // Save the new metaDescription field
-            author,
-            content: updatedContent, // Use the updated content with image URLs
-            keyPoints,
-            publishDate: new Date(publishDate),
-            metaTitle,
-            tags,
-            categories,
-            auth,
+            shortDescription: formData.get('shortDescription'),
+            author: formData.get('author') || 'Unknown Author', // Fallback
+            content: processedContent,
+            keyPoints: JSON.parse(formData.get('keyPoints') || '[]'),
+            publishDate: new Date(formData.get('publishDate') || Date.now()),
+            metaTitle: formData.get('metaTitle'),
+            metaDescription: formData.get('metaDescription'),
+            tags: JSON.parse(formData.get('tags') || '[]'),
+            categories: JSON.parse(formData.get('categories') || '[]'),
+            readTime
         });
 
+        console.log('New blog data:', newBlog); // Debug
         await newBlog.save();
 
-        return NextResponse.json({
-            message: 'Blog post created successfully',
-            blog: newBlog,
-        });
+        return NextResponse.json({ success: true, data: newBlog }, { status: 201 });
     } catch (error) {
-        console.error('Error creating blog post:', error);
-        return NextResponse.json({ error: 'Failed to create blog post' }, { status: 500 });
+        console.error('Blog creation error:', error);
+        return NextResponse.json(
+            { success: false, error: error.message || 'Failed to create blog post' },
+            { status: 500 }
+        );
     }
 }
 
 
+export async function PUT(req) {
+    await dbConnect();
 
+    try {
+        const formData = await req.formData();
+        const slug = formData.get('slug');
+
+        if (!slug) {
+            return NextResponse.json(
+                { success: false, error: 'Slug is required' },
+                { status: 400 }
+            );
+        }
+
+        const blog = await Blog.findOne({ slug });
+        if (!blog) {
+            return NextResponse.json(
+                { success: false, error: 'Blog not found' },
+                { status: 404 }
+            );
+        }
+
+        if (formData.get('title')) blog.title = formData.get('title');
+        if (formData.get('metaTitle')) blog.metaTitle = formData.get('metaTitle');
+        if (formData.get('metaDescription')) blog.metaDescription = formData.get('metaDescription');
+        if (formData.get('shortDescription')) blog.shortDescription = formData.get('shortDescription');
+        if (formData.get('author')) blog.author = formData.get('author');
+
+        const mainImageFile = formData.get('mainImage');
+        if (mainImageFile && mainImageFile.size > 0) {
+            const arrayBuffer = await mainImageFile.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            const result = await new Promise((resolve, reject) => {
+                cloudinary.uploader.upload_stream(
+                    { folder: 'blog_images', format: 'webp', quality: 'auto' },
+                    (error, result) => {
+                        if (error) reject(new Error(`Cloudinary upload failed: ${error.message}`));
+                        else resolve(result);
+                    }
+                ).end(buffer);
+            });
+            blog.mainImage = result.secure_url;
+        }
+
+        const content = JSON.parse(formData.get('content') || '[]') || [];
+        if (content.length > 0) {
+            const contentImages = formData.getAll('contentImages');
+            let imageIndex = 0;
+            blog.content = await Promise.all(
+                content.map(async (item) => {
+                    if (item.type === 'image') {
+                        const imageFile = contentImages[imageIndex];
+                        imageIndex++;
+                        if (imageFile?.size > 0) {
+                            const arrayBuffer = await imageFile.arrayBuffer();
+                            const buffer = Buffer.from(arrayBuffer);
+                            const result = await new Promise((resolve, reject) => {
+                                cloudinary.uploader.upload_stream(
+                                    { folder: 'blog_images/content', format: 'webp', quality: 'auto' },
+                                    (error, result) => {
+                                        if (error) reject(error);
+                                        else resolve(result);
+                                    }
+                                ).end(buffer);
+                            });
+                            return { type: 'image', data: result.secure_url, alt: item.alt || '' };
+                        }
+                        return item;
+                    }
+                    return item;
+                })
+            );
+        }
+
+        if (formData.get('keyPoints')) blog.keyPoints = JSON.parse(formData.get('keyPoints') || '[]');
+        if (formData.get('tags')) blog.tags = JSON.parse(formData.get('tags') || '[]');
+        if (formData.get('categories')) blog.categories = JSON.parse(formData.get('categories') || '[]');
+
+        const wordCount = blog.content
+            .filter(item => item.type === 'text')
+            .reduce((count, item) => count + item.data.split(/\s+/).length, 0);
+        blog.readTime = Math.max(1, Math.ceil(wordCount / 200));
+
+        await blog.save();
+
+        return NextResponse.json(
+            { success: true, data: blog },
+            { status: 200 }
+        );
+    } catch (error) {
+        console.error('Blog update error:', error);
+        return NextResponse.json(
+            { success: false, error: error.message || 'Failed to update blog' },
+            { status: 500 }
+        );
+    }
+}
+
+// Keep GET and DELETE as they are
 
 export async function DELETE(request) {
     await dbConnect();

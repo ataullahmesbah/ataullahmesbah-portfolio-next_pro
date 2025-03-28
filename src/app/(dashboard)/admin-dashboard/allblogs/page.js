@@ -2,58 +2,62 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FaEye, FaTrashAlt } from 'react-icons/fa'; // Import icons
-import { toast } from 'react-toastify'; // Import toast for notifications
-import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
+import { FaEye, FaTrashAlt, FaEdit } from 'react-icons/fa'; // Added FaEdit
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function AllBlogs() {
     const [blogs, setBlogs] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const blogsPerPage = 10; // Show 10 blogs per page
-    const [deleteSlug, setDeleteSlug] = useState(null); // Track which blog is being deleted
-    const [showDeleteModal, setShowDeleteModal] = useState(false); // Modal visibility
+    const [totalPages, setTotalPages] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const blogsPerPage = 10;
+    const [deleteSlug, setDeleteSlug] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-    // Fetch blogs on component mount
+    // Fetch blogs with pagination
     useEffect(() => {
         async function getBlogs() {
-            const res = await fetch('/api/blog', { cache: 'no-store' });
-
-            if (!res.ok) {
-                console.error('Failed to fetch blogs');
-                return;
+            setLoading(true);
+            try {
+                const res = await fetch(`/api/blog?page=${currentPage}&limit=${blogsPerPage}`, { cache: 'no-store' });
+                if (!res.ok) throw new Error('Failed to fetch blogs');
+                const data = await res.json();
+                setBlogs(data.blogs || []);
+                setTotalPages(data.totalPages || 1);
+            } catch (err) {
+                console.error(err);
+                setError(err.message);
+                toast.error('Failed to load blogs');
+            } finally {
+                setLoading(false);
             }
-
-            const data = await res.json();
-            setBlogs(data);
         }
-
         getBlogs();
-    }, []);
+    }, [currentPage]); // Refetch when page changes
 
     // Delete blog function
     const deleteBlog = async () => {
         if (!deleteSlug) return;
-
-        const res = await fetch(`/api/blog?slug=${deleteSlug}`, { method: 'DELETE' });
-
-        if (res.ok) {
+        try {
+            const res = await fetch(`/api/blog?slug=${deleteSlug}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error('Failed to delete blog');
             setBlogs(blogs.filter(blog => blog.slug !== deleteSlug));
             setShowDeleteModal(false);
-            toast.success('Blog deleted successfully!'); // Show success toast
-        } else {
-            console.error('Failed to delete blog');
-            toast.error('Failed to delete blog'); // Show error toast
+            toast.success('Blog deleted successfully!');
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to delete blog');
         }
     };
 
     // Pagination logic
-    const indexOfLastBlog = currentPage * blogsPerPage;
-    const indexOfFirstBlog = indexOfLastBlog - blogsPerPage;
-    const currentBlogs = blogs.slice(indexOfFirstBlog, indexOfLastBlog);
-    const totalPages = Math.ceil(blogs.length / blogsPerPage);
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     return (
         <div className="bg-gray-50 min-h-screen p-6">
+            <ToastContainer position="top-right" autoClose={3000} />
             <div className="container mx-auto">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
@@ -62,85 +66,98 @@ export default function AllBlogs() {
                 </div>
 
                 {/* Blog List */}
-                <div className="bg-white shadow-lg rounded-lg p-6 overflow-x-auto">
-                    <table className="w-full border-collapse">
-                        <thead>
-                            <tr className="bg-gray-100 text-gray-800 text-left">
-                                <th className="p-3 border-b border-gray-200">#</th>
-                                <th className="p-3 border-b border-gray-200">Title</th>
-                                <th className="p-3 border-b border-gray-200">Author</th>
-                                <th className="p-3 border-b border-gray-200 text-center">VIEW</th>
-                                <th className="p-3 border-b border-gray-200 text-center">DELETE</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {currentBlogs.map((blog, index) => (
-                                <tr key={blog.slug} className="border-b border-gray-200 hover:bg-gray-50">
-                                    <td className="p-3 align-top">{indexOfFirstBlog + index + 1}</td>
-                                    <td className="p-3 align-top">
-                                        <p className="font-semibold text-gray-800">{blog.title}</p>
-                                        <p className="mt-2 text-gray-600 text-sm">
-                                            {blog.metaDescription?.slice(0, 70)}...
-                                        </p>
-                                    </td>
-                                    <td className="p-3 align-top">{blog.writer}</td>
-                                    <td className="p-3 text-center align-top">
-                                        <Link
-                                            href={`/blog/${blog.slug}`}
-                                            className="text-blue-500 hover:text-blue-700 mr-4 flex items-center justify-center bg-blue-50 px-4 py-2 rounded-lg shadow-sm"
-                                        >
-                                            <FaEye size={18} className="mr-1" />
-                                            <span>View</span>
-                                        </Link>
-                                    </td>
-                                    <td className="p-3 text-center align-top">
-                                        <button
-                                            onClick={() => {
-                                                setDeleteSlug(blog.slug);
-                                                setShowDeleteModal(true);
-                                            }}
-                                            className="text-red-500 hover:text-red-700 flex items-center justify-center bg-red-50 px-4 py-2 rounded-lg shadow-sm"
-                                        >
-                                            <FaTrashAlt size={18} className="mr-1" />
-                                            <span>Delete</span>
-                                        </button>
-                                    </td>
+                {loading ? (
+                    <p className="text-center text-gray-600">Loading blogs...</p>
+                ) : error ? (
+                    <p className="text-center text-red-500">{error}</p>
+                ) : (
+                    <div className="bg-white shadow-lg rounded-lg p-6 overflow-x-auto">
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr className="bg-gray-100 text-gray-800 text-left">
+                                    <th className="p-3 border-b border-gray-200">#</th>
+                                    <th className="p-3 border-b border-gray-200">Title</th>
+                                    <th className="p-3 border-b border-gray-200">Author</th>
+                                    <th className="p-3 border-b border-gray-200">Views</th>
+                                    <th className="p-3 border-b border-gray-200 text-center">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {blogs.map((blog, index) => (
+                                    <tr key={blog.slug} className="border-b border-gray-200 hover:bg-gray-50">
+                                        <td className="p-3 align-top">{(currentPage - 1) * blogsPerPage + index + 1}</td>
+                                        <td className="p-3 align-top">
+                                            <p className="font-semibold text-gray-800">{blog.title}</p>
+                                            <p className="mt-2 text-gray-600 text-sm">
+                                                {blog.metaDescription?.slice(0, 70)}...
+                                            </p>
+                                        </td>
+                                        <td className="p-3 align-top">{blog.author}</td>
+                                        <td className="p-3 align-top">{blog.views}</td>
+                                        <td className="p-3 text-center align-top flex justify-center space-x-2">
+                                            <Link
+                                                href={`/blog/${blog.slug}`}
+                                                className="text-blue-500 hover:text-blue-700 flex items-center bg-blue-50 px-3 py-1 rounded-lg shadow-sm"
+                                            >
+                                                <FaEye size={16} className="mr-1" />
+                                                View
+                                            </Link>
 
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                        <div className="flex justify-center mt-6 space-x-2">
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                                disabled={currentPage === 1}
-                                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 disabled:opacity-50"
-                            >
-                                Previous
-                            </button>
-                            {Array.from({ length: totalPages }, (_, i) => (
+                                         
+                                            <Link
+                                                href={`/admin-dashboard/blog/edit/${blog.slug}`} // Adjust route as needed
+                                                className="text-yellow-500 hover:text-yellow-700 flex items-center bg-yellow-50 px-3 py-1 rounded-lg shadow-sm"
+                                            >
+                                                <FaEdit size={16} className="mr-1" />
+                                                Edit
+                                            </Link>
+                                            <button
+                                                onClick={() => {
+                                                    setDeleteSlug(blog.slug);
+                                                    setShowDeleteModal(true);
+                                                }}
+                                                className="text-red-500 hover:text-red-700 flex items-center bg-red-50 px-3 py-1 rounded-lg shadow-sm"
+                                            >
+                                                <FaTrashAlt size={16} className="mr-1" />
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="flex justify-center mt-6 space-x-2">
                                 <button
-                                    key={i + 1}
-                                    onClick={() => setCurrentPage(i + 1)}
-                                    className={`px-4 py-2 rounded ${
-                                        currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
-                                    }`}
+                                    onClick={() => paginate(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 disabled:opacity-50"
                                 >
-                                    {i + 1}
+                                    Previous
                                 </button>
-                            ))}
-                            <button
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                                disabled={currentPage === totalPages}
-                                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 disabled:opacity-50"
-                            >
-                                Next
-                            </button>
-                        </div>
-                    )}
-                </div>
+                                {Array.from({ length: totalPages }, (_, i) => (
+                                    <button
+                                        key={i + 1}
+                                        onClick={() => paginate(i + 1)}
+                                        className={`px-4 py-2 rounded ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'
+                                            }`}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => paginate(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 disabled:opacity-50"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Delete Confirmation Modal */}
                 {showDeleteModal && (

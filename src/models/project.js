@@ -14,11 +14,7 @@ const projectSchema = new mongoose.Schema({
     slug: { type: String, unique: true },
     subtitle: { type: String, required: true },
     description: { type: String, required: true },
-    authorId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
+    
     contentShort: {
         type: String,
         required: true,
