@@ -1,5 +1,3 @@
-// src/app/admin-dashboard/blog/edit/[slug]/page.js
-
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -20,7 +18,7 @@ const UpdateBlogPostPage = () => {
         categories: [],
         author: session?.user?.name || 'Unknown Author',
         metaDescription: '',
-        shortDescription: '',
+        shortDescriptions: [''], // Changed to array
         mainImage: null,
         imageAlt: '',
         contentSections: [{ content: '', tag: 'p', bulletPoints: [], image: null, imageAlt: '' }],
@@ -42,14 +40,11 @@ const UpdateBlogPostPage = () => {
             try {
                 console.log('Fetching blog with slug:', slug);
                 const res = await fetch(`/api/blog/${slug}`, { cache: 'no-store' });
-                console.log('Response status:', res.status);
                 if (!res.ok) {
                     const errorData = await res.json();
-                    console.log('Error response:', errorData);
                     throw new Error(errorData.error || 'Failed to fetch blog');
                 }
                 const blog = await res.json();
-                console.log('Fetched blog:', blog);
 
                 setFormData({
                     title: blog.title || '',
@@ -59,13 +54,13 @@ const UpdateBlogPostPage = () => {
                     categories: [],
                     author: blog.author || session?.user?.name || 'Unknown Author',
                     metaDescription: blog.metaDescription || '',
-                    shortDescription: blog.shortDescription || '',
+                    shortDescriptions: blog.shortDescriptions || [blog.shortDescription || ''], // Fallback to single if old data
                     mainImage: null,
                     imageAlt: '',
                     contentSections: blog.content.map(item => ({
                         content: item.type === 'text' ? item.data : '',
                         tag: 'p',
-                        bulletPoints: item.type === 'text' && item.data.includes('\n') ? item.data.split('\n').filter(Boolean) : [],
+                        bulletPoints: item.bulletPoints || (item.type === 'text' && item.data.includes('\n') ? item.data.split('\n').filter(Boolean) : []),
                         image: item.type === 'image' ? null : null,
                         imageAlt: item.type === 'image' ? item.alt || '' : '',
                     })),
@@ -117,6 +112,21 @@ const UpdateBlogPostPage = () => {
         } else {
             setFormData({ ...formData, [name]: value });
         }
+    };
+
+    const handleShortDescriptionChange = (index, value) => {
+        const updatedDescriptions = [...formData.shortDescriptions];
+        updatedDescriptions[index] = value;
+        setFormData({ ...formData, shortDescriptions: updatedDescriptions });
+    };
+
+    const addShortDescription = () => {
+        setFormData({ ...formData, shortDescriptions: [...formData.shortDescriptions, ''] });
+    };
+
+    const removeShortDescription = (index) => {
+        const updatedDescriptions = formData.shortDescriptions.filter((_, i) => i !== index);
+        setFormData({ ...formData, shortDescriptions: updatedDescriptions });
     };
 
     const handleFileChange = (e, index = null) => {
@@ -182,24 +192,21 @@ const UpdateBlogPostPage = () => {
             formDataToSend.append('title', formData.title);
             formDataToSend.append('metaTitle', formData.metaTitle);
             formDataToSend.append('metaDescription', formData.metaDescription);
-            formDataToSend.append('shortDescription', formData.shortDescription);
+            formDataToSend.append('shortDescriptions', JSON.stringify(formData.shortDescriptions.filter(d => d.trim())));
             formDataToSend.append('author', session?.user?.name || 'Unknown Author');
-
-            if (formData.mainImage) {
-                formDataToSend.append('mainImage', formData.mainImage);
-            }
+            if (formData.mainImage) formDataToSend.append('mainImage', formData.mainImage);
 
             const contentSections = formData.contentSections.map(section => {
+                const sectionData = { type: section.image ? 'image' : 'text' };
                 if (section.image) {
                     formDataToSend.append('contentImages', section.image);
-                    return { type: 'image', data: section.image.name, alt: section.imageAlt || '' };
+                    sectionData.data = section.image.name;
+                    sectionData.alt = section.imageAlt || '';
                 } else {
-                    let content = section.content;
-                    if (section.bulletPoints.length > 0) {
-                        content += '\n' + section.bulletPoints.join('\n');
-                    }
-                    return { type: 'text', data: content };
+                    sectionData.data = section.content;
+                    sectionData.bulletPoints = section.bulletPoints;
                 }
+                return sectionData;
             });
             formDataToSend.append('content', JSON.stringify(contentSections));
 
@@ -209,15 +216,10 @@ const UpdateBlogPostPage = () => {
 
             console.log('FormData to send:', [...formDataToSend.entries()]);
 
-            const response = await fetch('/api/blog', {
-                method: 'PUT',
-                body: formDataToSend,
-            });
+            const response = await fetch('/api/blog', { method: 'PUT', body: formDataToSend });
             const result = await response.json();
 
-            if (!response.ok) {
-                throw new Error(result.error || 'Failed to update blog post');
-            }
+            if (!response.ok) throw new Error(result.error || 'Failed to update blog post');
 
             toast.success('Blog post updated successfully!');
             router.push('/admin-dashboard/allblogs');
@@ -253,131 +255,76 @@ const UpdateBlogPostPage = () => {
                     Update Blog Post
                 </h1>
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Form JSX remains the same as before */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-gray-300 mb-2 text-sm font-medium">Title *</label>
-                            <input
-                                type="text"
-                                name="title"
-                                value={formData.title}
-                                onChange={handleChange}
-                                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="Enter blog title (10-75 characters)"
-                                maxLength="75"
-                                required
-                            />
+                            <input type="text" name="title" value={formData.title} onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter blog title (10-75 characters)" maxLength="75" required />
                             <div className="text-right text-xs text-gray-500 mt-1">{formData.title.length}/75 characters</div>
                         </div>
                         <div>
                             <label className="block text-gray-300 mb-2 text-sm font-medium">Slug *</label>
-                            <input
-                                type="text"
-                                name="slug"
-                                value={formData.slug}
-                                onChange={handleChange}
-                                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="Auto-generated from title"
-                                maxLength="75"
-                                required
-                            />
+                            <input type="text" name="slug" value={formData.slug} onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Auto-generated from title" maxLength="75" required />
                             <div className="text-right text-xs text-gray-500 mt-1">{formData.slug.length}/75 characters</div>
                         </div>
                         <div>
                             <label className="block text-gray-300 mb-2 text-sm font-medium">Meta Title *</label>
-                            <input
-                                type="text"
-                                name="metaTitle"
-                                value={formData.metaTitle}
-                                onChange={handleChange}
-                                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="Enter meta title (10-75 characters)"
-                                maxLength="75"
-                                required
-                            />
+                            <input type="text" name="metaTitle" value={formData.metaTitle} onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter meta title (10-75 characters)" maxLength="75" required />
                             <div className="text-right text-xs text-gray-500 mt-1">{formData.metaTitle.length}/75 characters</div>
                         </div>
                         <div>
                             <label className="block text-gray-300 mb-2 text-sm font-medium">Category *</label>
                             <div className="relative">
-                                <input
-                                    type="text"
-                                    name="category"
-                                    value={formData.category}
-                                    onChange={handleChange}
-                                    list="categorySuggestions"
-                                    className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    placeholder="Select or enter new category"
-                                    required
-                                />
-                                <datalist id="categorySuggestions">
-                                    {formData.categories.map((cat, index) => (
-                                        <option key={index} value={cat} />
-                                    ))}
-                                </datalist>
+                                <input type="text" name="category" value={formData.category} onChange={handleChange} list="categorySuggestions" className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Select or enter new category" required />
+                                <datalist id="categorySuggestions">{formData.categories.map((cat, index) => (<option key={index} value={cat} />))}</datalist>
                             </div>
                         </div>
                         <div>
                             <label className="block text-gray-300 mb-2 text-sm font-medium">Author *</label>
-                            <input
-                                type="text"
-                                name="author"
-                                value={formData.author}
-                                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-not-allowed"
-                                readOnly
-                                disabled
-                            />
+                            <input type="text" name="author" value={formData.author} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-not-allowed" readOnly disabled />
                         </div>
                     </div>
                     <div>
                         <label className="block text-gray-300 mb-2 text-sm font-medium">Meta Description *</label>
-                        <textarea
-                            name="metaDescription"
-                            value={formData.metaDescription}
-                            onChange={handleChange}
-                            className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="Enter meta description (50-160 characters)"
-                            rows="3"
-                            maxLength="160"
-                            required
-                        />
+                        <textarea name="metaDescription" value={formData.metaDescription} onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter meta description (50-160 characters)" rows="3" maxLength="160" required />
                         <div className="text-right text-xs text-gray-500 mt-1">{formData.metaDescription.length}/160 characters</div>
                     </div>
-                    <div>
-                        <label className="block text-gray-300 mb-2 text-sm font-medium">Short Description (Optional)</label>
-                        <textarea
-                            name="shortDescription"
-                            value={formData.shortDescription}
-                            onChange={handleChange}
-                            className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="Enter short description (optional)"
-                            rows="4"
-                        />
+                    <div className="space-y-4">
+                        <label className="block text-gray-300 text-sm font-medium">Short Descriptions (Optional)</label>
+                        {formData.shortDescriptions.map((desc, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                                <textarea
+                                    value={desc}
+                                    onChange={(e) => handleShortDescriptionChange(index, e.target.value)}
+                                    className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder={`Short Description ${index + 1} (optional)`}
+                                    rows="2"
+                                />
+                                {formData.shortDescriptions.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeShortDescription(index)}
+                                        className="text-red-500 hover:text-red-400 text-sm"
+                                    >
+                                        Remove
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                        <button type="button" onClick={addShortDescription} className="flex items-center text-purple-400 hover:text-purple-300 text-sm">
+                            <span className="mr-1">+</span> Add Another Short Description
+                        </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image</label>
                             <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center">
-                                <input
-                                    type="file"
-                                    name="mainImage"
-                                    onChange={handleFileChange}
-                                    className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
-                                    accept="image/*"
-                                />
-                                <p className="mt-2 text-xs text-gray-500">Upload a new image to replace the existing one (WebP, 1200x630px recommended)</p>
+                                <input type="file" name="mainImage" onChange={handleFileChange} className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700" accept="image/*" />
+                                <p className="mt-2 text-xs text-gray-500">Upload a new image to replace (WebP, 1200x630px recommended)</p>
                             </div>
                         </div>
                         <div>
                             <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image Alt Text</label>
-                            <input
-                                type="text"
-                                name="imageAlt"
-                                value={formData.imageAlt}
-                                onChange={handleChange}
-                                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="Describe the image for accessibility"
-                            />
+                            <input type="text" name="imageAlt" value={formData.imageAlt} onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Describe the image for accessibility" />
                         </div>
                     </div>
                     <div className="space-y-6">
@@ -387,22 +334,12 @@ const UpdateBlogPostPage = () => {
                                 <div className="flex justify-between items-center mb-4">
                                     <h3 className="text-lg font-medium text-gray-300">Section {index + 1}</h3>
                                     {formData.contentSections.length > 1 && (
-                                        <button
-                                            type="button"
-                                            onClick={() => removeContentSection(index)}
-                                            className="text-red-500 hover:text-red-400 text-sm flex items-center"
-                                        >
-                                            Remove Section
-                                        </button>
+                                        <button type="button" onClick={() => removeContentSection(index)} className="text-red-500 hover:text-red-400 text-sm flex items-center">Remove Section</button>
                                     )}
                                 </div>
                                 <div className="mb-4">
                                     <label className="block text-gray-300 mb-2 text-sm">Content Type *</label>
-                                    <select
-                                        value={section.tag}
-                                        onChange={(e) => handleContentSectionChange(index, 'tag', e.target.value)}
-                                        className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    >
+                                    <select value={section.tag} onChange={(e) => handleContentSectionChange(index, 'tag', e.target.value)} className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
                                         <option value="p">Paragraph</option>
                                         <option value="h1">Heading 1</option>
                                         <option value="h2">Heading 2</option>
@@ -414,33 +351,16 @@ const UpdateBlogPostPage = () => {
                                 </div>
                                 <div className="mb-4">
                                     <label className="block text-gray-300 mb-2 text-sm">Content *</label>
-                                    <textarea
-                                        value={section.content}
-                                        onChange={(e) => handleContentSectionChange(index, 'content', e.target.value)}
-                                        className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                        placeholder="Enter your content here"
-                                        rows="4"
-                                        required
-                                    />
+                                    <textarea value={section.content} onChange={(e) => handleContentSectionChange(index, 'content', e.target.value)} className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter your content here" rows="4" required />
                                 </div>
                                 <div className="mb-4">
                                     <label className="block text-gray-300 mb-2 text-sm">Bullet Points (Optional)</label>
-                                    <input
-                                        type="text"
-                                        value={section.bulletPoints.join(', ')}
-                                        onChange={(e) => handleContentSectionChange(index, 'bulletPoints', e.target.value)}
-                                        className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                        placeholder="Comma separated points"
-                                    />
+                                    <input type="text" value={section.bulletPoints.join(', ')} onChange={(e) => handleContentSectionChange(index, 'bulletPoints', e.target.value)} className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Comma separated points" />
                                     <p className="text-xs text-gray-500 mt-1">Leave empty if not needed</p>
                                     {section.bulletPoints.length > 0 && (
                                         <div className="mt-4">
                                             <h4 className="text-sm font-medium text-gray-300 mb-2">Preview Bullet Points:</h4>
-                                            <ul className="list-disc pl-5 space-y-1 text-gray-300">
-                                                {section.bulletPoints.map((point, i) => (
-                                                    <li key={i}>{point}</li>
-                                                ))}
-                                            </ul>
+                                            <ul className="list-disc pl-5 space-y-1 text-gray-300">{section.bulletPoints.map((point, i) => (<li key={i}>{point}</li>))}</ul>
                                         </div>
                                     )}
                                 </div>
@@ -448,107 +368,50 @@ const UpdateBlogPostPage = () => {
                                     <div>
                                         <label className="block text-gray-300 mb-2 text-sm">Add Image (Optional)</label>
                                         <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center">
-                                            <input
-                                                type="file"
-                                                onChange={(e) => handleFileChange(e, index)}
-                                                className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
-                                                accept="image/*"
-                                            />
-                                            <p className="mt-2 text-xs text-gray-500">Upload a new image to replace (WebP, 1200x630px recommended)</p>
+                                            <input type="file" onChange={(e) => handleFileChange(e, index)} className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700" accept="image/*" />
+                                            <p className="mt-2 text-xs text-gray-500">Recommended: WebP format, 1200x630px</p>
                                         </div>
                                     </div>
                                     {section.image && (
                                         <div>
                                             <label className="block text-gray-300 mb-2 text-sm">Image Alt Text</label>
-                                            <input
-                                                type="text"
-                                                value={section.imageAlt}
-                                                onChange={(e) => handleContentSectionChange(index, 'imageAlt', e.target.value)}
-                                                className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                                placeholder="Describe the image for accessibility"
-                                            />
+                                            <input type="text" value={section.imageAlt} onChange={(e) => handleContentSectionChange(index, 'imageAlt', e.target.value)} className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Describe the image for accessibility" />
                                         </div>
                                     )}
                                 </div>
                             </div>
                         ))}
-                        <button
-                            type="button"
-                            onClick={addContentSection}
-                            className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
-                        >
-                            <span className="mr-1">+</span> Add Another Content Section
-                        </button>
+                        <button type="button" onClick={addContentSection} className="flex items-center text-purple-400 hover:text-purple-300 text-sm"><span className="mr-1">+</span> Add Another Content Section</button>
                     </div>
                     <div className="space-y-4">
                         <label className="block text-gray-300 text-sm font-medium">Key Points (Optional)</label>
                         {formData.keyPoints.map((point, index) => (
                             <div key={index} className="flex items-center space-x-2">
-                                <input
-                                    type="text"
-                                    value={point}
-                                    onChange={(e) => handleKeyPointsChange(index, e.target.value)}
-                                    className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    placeholder="Enter key point"
-                                />
+                                <input type="text" value={point} onChange={(e) => handleKeyPointsChange(index, e.target.value)} className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter key point" />
                             </div>
                         ))}
-                        <button
-                            type="button"
-                            onClick={addKeyPoint}
-                            className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
-                        >
-                            <span className="mr-1">+</span> Add Key Point
-                        </button>
+                        <button type="button" onClick={addKeyPoint} className="flex items-center text-purple-400 hover:text-purple-300 text-sm"><span className="mr-1">+</span> Add Key Point</button>
                     </div>
                     <div className="space-y-4">
                         <label className="block text-gray-300 text-sm font-medium">Tags (Optional)</label>
                         {formData.tags.map((tag, index) => (
                             <div key={index} className="flex items-center space-x-2">
-                                <input
-                                    type="text"
-                                    value={tag}
-                                    onChange={(e) => handleTagsChange(index, e.target.value)}
-                                    className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    placeholder="Enter tag"
-                                />
+                                <input type="text" value={tag} onChange={(e) => handleTagsChange(index, e.target.value)} className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter tag" />
                             </div>
                         ))}
-                        <button
-                            type="button"
-                            onClick={addTag}
-                            className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
-                        >
-                            <span className="mr-1">+</span> Add Tag
-                        </button>
+                        <button type="button" onClick={addTag} className="flex items-center text-purple-400 hover:text-purple-300 text-sm"><span className="mr-1">+</span> Add Tag</button>
                     </div>
                     <div className="pt-4">
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className={`w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg font-medium text-white hover:from-purple-700 hover:to-blue-700 transition-all duration-300 flex items-center justify-center ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
-                                }`}
-                        >
+                        <button type="submit" disabled={isSubmitting} className={`w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg font-medium text-white hover:from-purple-700 hover:to-blue-700 transition-all duration-300 flex items-center justify-center ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}>
                             {isSubmitting ? (
                                 <>
-                                    <svg
-                                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                    >
+                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path
-                                            className="opacity-75"
-                                            fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                        ></path>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
                                     Updating Blog Post...
                                 </>
-                            ) : (
-                                'Update Blog Post'
-                            )}
+                            ) : 'Update Blog Post'}
                         </button>
                     </div>
                 </form>

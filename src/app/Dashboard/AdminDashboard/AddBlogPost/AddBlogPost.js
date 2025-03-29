@@ -13,14 +13,14 @@ const AddBlogPostPage = () => {
     metaTitle: '',
     category: '',
     categories: [],
-    author: session?.user?.name || 'Unknown Author', // Default fallback
+    author: session?.user?.name || 'Unknown Author',
     metaDescription: '',
-    shortDescription: '',
+    shortDescriptions: [''], // Changed to array for multiple descriptions
     mainImage: null,
     imageAlt: '',
-    contentSections: [{ content: '', tag: 'p', bulletPoints: [] }],
+    contentSections: [{ content: '', tag: 'p', bulletPoints: [], image: null, imageAlt: '' }],
     keyPoints: [],
-    tags: []
+    tags: [],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -28,7 +28,6 @@ const AddBlogPostPage = () => {
     if (session?.user?.name) {
       setFormData(prev => ({ ...prev, author: session.user.name }));
     }
-    console.log('Session:', session); // Debug
   }, [session]);
 
   useEffect(() => {
@@ -53,11 +52,26 @@ const AddBlogPostPage = () => {
         ...formData,
         title: value,
         slug: value.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').slice(0, 75),
-        metaTitle: value.slice(0, 75)
+        metaTitle: value.slice(0, 75),
       });
     } else {
       setFormData({ ...formData, [name]: value });
     }
+  };
+
+  const handleShortDescriptionChange = (index, value) => {
+    const updatedDescriptions = [...formData.shortDescriptions];
+    updatedDescriptions[index] = value;
+    setFormData({ ...formData, shortDescriptions: updatedDescriptions });
+  };
+
+  const addShortDescription = () => {
+    setFormData({ ...formData, shortDescriptions: [...formData.shortDescriptions, ''] });
+  };
+
+  const removeShortDescription = (index) => {
+    const updatedDescriptions = formData.shortDescriptions.filter((_, i) => i !== index);
+    setFormData({ ...formData, shortDescriptions: updatedDescriptions });
   };
 
   const handleFileChange = (e, index = null) => {
@@ -84,7 +98,7 @@ const AddBlogPostPage = () => {
   const addContentSection = () => {
     setFormData({
       ...formData,
-      contentSections: [...formData.contentSections, { content: '', tag: 'p', bulletPoints: [], image: null, imageAlt: '' }]
+      contentSections: [...formData.contentSections, { content: '', tag: 'p', bulletPoints: [], image: null, imageAlt: '' }],
     });
   };
 
@@ -123,25 +137,22 @@ const AddBlogPostPage = () => {
       formDataToSend.append('slug', formData.slug);
       formDataToSend.append('metaTitle', formData.metaTitle);
       formDataToSend.append('metaDescription', formData.metaDescription);
-      formDataToSend.append('shortDescription', formData.shortDescription);
-      formDataToSend.append('author', session?.user?.name || 'Unknown Author'); // Ensure author is set
+      formDataToSend.append('shortDescriptions', JSON.stringify(formData.shortDescriptions.filter(d => d.trim()))); // Array of descriptions
+      formDataToSend.append('author', session?.user?.name || 'Unknown Author');
       formDataToSend.append('publishDate', new Date().toISOString());
-
-      if (formData.mainImage) {
-        formDataToSend.append('mainImage', formData.mainImage);
-      }
+      if (formData.mainImage) formDataToSend.append('mainImage', formData.mainImage);
 
       const contentSections = formData.contentSections.map(section => {
+        const sectionData = { type: section.image ? 'image' : 'text' };
         if (section.image) {
           formDataToSend.append('contentImages', section.image);
-          return { type: 'image', data: section.image.name, alt: section.imageAlt || '' };
+          sectionData.data = section.image.name;
+          sectionData.alt = section.imageAlt || '';
         } else {
-          let content = section.content;
-          if (section.bulletPoints.length > 0) {
-            content += '\n' + section.bulletPoints.join('\n');
-          }
-          return { type: 'text', data: content };
+          sectionData.data = section.content;
+          sectionData.bulletPoints = section.bulletPoints; // Preserve bullet points
         }
+        return sectionData;
       });
       formDataToSend.append('content', JSON.stringify(contentSections));
 
@@ -149,14 +160,12 @@ const AddBlogPostPage = () => {
       formDataToSend.append('tags', JSON.stringify(formData.tags.filter(t => t.trim())));
       formDataToSend.append('categories', JSON.stringify([formData.category].filter(c => c.trim())));
 
-      console.log('FormData to send:', [...formDataToSend.entries()]); // Debug
+      console.log('FormData to send:', [...formDataToSend.entries()]);
 
       const response = await fetch('/api/blog', { method: 'POST', body: formDataToSend });
       const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to create blog post');
-      }
+      if (!response.ok) throw new Error(result.error || 'Failed to create blog post');
 
       toast.success('Blog post created successfully!');
       router.push('/admin-dashboard/blog/bloginfo');
@@ -168,7 +177,6 @@ const AddBlogPostPage = () => {
     }
   };
 
-  // Rest of your JSX remains unchanged
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white p-4 md:p-6 lg:p-8">
       <Toaster position="top-center" />
@@ -177,7 +185,6 @@ const AddBlogPostPage = () => {
           Add New Blog Post
         </h1>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Your form JSX remains the same */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-gray-300 mb-2 text-sm font-medium">Title *</label>
@@ -211,9 +218,31 @@ const AddBlogPostPage = () => {
             <textarea name="metaDescription" value={formData.metaDescription} onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter meta description (50-160 characters)" rows="3" maxLength="160" required />
             <div className="text-right text-xs text-gray-500 mt-1">{formData.metaDescription.length}/160 characters</div>
           </div>
-          <div>
-            <label className="block text-gray-300 mb-2 text-sm font-medium">Short Description (Optional)</label>
-            <textarea name="shortDescription" value={formData.shortDescription} onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter short description (optional)" rows="4" />
+          <div className="space-y-4">
+            <label className="block text-gray-300 text-sm font-medium">Short Descriptions (Optional)</label>
+            {formData.shortDescriptions.map((desc, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <textarea
+                  value={desc}
+                  onChange={(e) => handleShortDescriptionChange(index, e.target.value)}
+                  className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder={`Short Description ${index + 1} (optional)`}
+                  rows="2"
+                />
+                {formData.shortDescriptions.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeShortDescription(index)}
+                    className="text-red-500 hover:text-red-400 text-sm"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+            <button type="button" onClick={addShortDescription} className="flex items-center text-purple-400 hover:text-purple-300 text-sm">
+              <span className="mr-1">+</span> Add Another Short Description
+            </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -275,8 +304,8 @@ const AddBlogPostPage = () => {
                   </div>
                   {section.image && (
                     <div>
-                      <label className="block text-gray-300 mb-2 text-sm">Image Alt Text *</label>
-                      <input type="text" value={section.imageAlt} onChange={(e) => handleContentSectionChange(index, 'imageAlt', e.target.value)} className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Describe the image for accessibility" required />
+                      <label className="block text-gray-300 mb-2 text-sm">Image Alt Text</label>
+                      <input type="text" value={section.imageAlt} onChange={(e) => handleContentSectionChange(index, 'imageAlt', e.target.value)} className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Describe the image for accessibility" />
                     </div>
                   )}
                 </div>

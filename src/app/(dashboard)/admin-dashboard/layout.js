@@ -24,8 +24,8 @@ const AdminDashboardLayout = ({ children }) => {
         {
             label: 'BLOGS',
             children: [
-                { label: 'Add Blogs', link: '/admin-dashboard/addblogpost' },
-                { label: 'All Blogs', link: '/admin-dashboard/allblogs' },
+                { label: 'Add Blogs', link: '/admin-dashboard/blog/addblogpost' },
+                { label: 'All Blogs', link: '/admin-dashboard/blog/allblogs' },
             ],
         },
         {
