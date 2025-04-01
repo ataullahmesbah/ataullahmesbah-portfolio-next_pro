@@ -4,6 +4,17 @@ import { useRouter, useParams } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 
+const CONTENT_TYPES = [
+    { value: 'text-h1', label: 'Heading 1 (h1)' },
+    { value: 'text-h2', label: 'Heading 2 (h2)' },
+    { value: 'text-h3', label: 'Heading 3 (h3)' },
+    { value: 'text-h4', label: 'Heading 4 (h4)' },
+    { value: 'text-h5', label: 'Heading 5 (h5)' },
+    { value: 'text-h6', label: 'Heading 6 (h6)' },
+    { value: 'text-p', label: 'Paragraph (p)' },
+    { value: 'image', label: 'Image' },
+];
+
 const UpdateBlogPostPage = () => {
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -16,18 +27,26 @@ const UpdateBlogPostPage = () => {
         metaTitle: '',
         category: '',
         categories: [],
-        author: session?.user?.name || 'Unknown Author',
+        author: session?.user?.name || '',
         metaDescription: '',
-        shortDescriptions: [''], // Changed to array
+        shortDescriptions: [''],
         mainImage: null,
         imageAlt: '',
-        contentSections: [{ content: '', tag: 'p', bulletPoints: [], image: null, imageAlt: '' }],
+        contentSections: [{
+            contentType: 'text-p',
+            data: '',
+            bulletPoints: [],
+            alt: '',
+            image: null,
+            existingImageUrl: ''
+        }],
         keyPoints: [],
         tags: [],
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [mainImagePreview, setMainImagePreview] = useState('');
 
     useEffect(() => {
         if (!slug) {
@@ -38,12 +57,8 @@ const UpdateBlogPostPage = () => {
 
         const fetchBlog = async () => {
             try {
-                console.log('Fetching blog with slug:', slug);
                 const res = await fetch(`/api/blog/${slug}`, { cache: 'no-store' });
-                if (!res.ok) {
-                    const errorData = await res.json();
-                    throw new Error(errorData.error || 'Failed to fetch blog');
-                }
+                if (!res.ok) throw new Error('Failed to fetch blog');
                 const blog = await res.json();
 
                 setFormData({
@@ -51,22 +66,27 @@ const UpdateBlogPostPage = () => {
                     slug: blog.slug || '',
                     metaTitle: blog.metaTitle || '',
                     category: blog.categories?.[0] || '',
-                    categories: [],
-                    author: blog.author || session?.user?.name || 'Unknown Author',
+                    categories: blog.categories || [],
+                    author: blog.author || session?.user?.name || '',
                     metaDescription: blog.metaDescription || '',
-                    shortDescriptions: blog.shortDescriptions || [blog.shortDescription || ''], // Fallback to single if old data
+                    shortDescriptions: blog.shortDescriptions?.length ? blog.shortDescriptions : [''],
                     mainImage: null,
-                    imageAlt: '',
+                    imageAlt: blog.mainImage ? 'Existing Image' : '',
                     contentSections: blog.content.map(item => ({
-                        content: item.type === 'text' ? item.data : '',
-                        tag: 'p',
-                        bulletPoints: item.bulletPoints || (item.type === 'text' && item.data.includes('\n') ? item.data.split('\n').filter(Boolean) : []),
-                        image: item.type === 'image' ? null : null,
-                        imageAlt: item.type === 'image' ? item.alt || '' : '',
+                        contentType: item.type === 'image' ? 'image' : `text-${item.tag || 'p'}`,
+                        data: item.type === 'text' ? item.data : '',
+                        bulletPoints: item.bulletPoints || [],
+                        alt: item.type === 'image' ? item.alt || '' : '',
+                        image: null,
+                        existingImageUrl: item.type === 'image' ? item.data : ''
                     })),
                     keyPoints: blog.keyPoints || [],
                     tags: blog.tags || [],
                 });
+
+                if (blog.mainImage) {
+                    setMainImagePreview(blog.mainImage);
+                }
             } catch (error) {
                 console.error('Error fetching blog:', error);
                 setError(error.message);
@@ -129,33 +149,67 @@ const UpdateBlogPostPage = () => {
         setFormData({ ...formData, shortDescriptions: updatedDescriptions });
     };
 
+
+    const handleContentSectionChange = (index, field, value) => {
+        const updatedSections = [...formData.contentSections];
+
+        if (field === 'contentType') {
+            updatedSections[index].contentType = value;
+            // Reset data when changing type
+            if (value.startsWith('text-')) {
+                updatedSections[index].data = '';
+                updatedSections[index].bulletPoints = [];
+                updatedSections[index].image = null;
+                updatedSections[index].alt = '';
+            } else {
+                updatedSections[index].data = '';
+                updatedSections[index].bulletPoints = [];
+            }
+        } else if (field === 'bulletPoints') {
+            const points = value.split(',').map(p => p.trim()).filter(p => p);
+            updatedSections[index].bulletPoints = points;
+        } else {
+            updatedSections[index][field] = value;
+        }
+
+        setFormData({ ...formData, contentSections: updatedSections });
+    };
+
     const handleFileChange = (e, index = null) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
         if (e.target.name === 'mainImage') {
-            setFormData({ ...formData, mainImage: e.target.files[0] });
+            setFormData({ ...formData, mainImage: file });
+            setMainImagePreview(URL.createObjectURL(file));
         } else if (index !== null) {
             const updatedSections = [...formData.contentSections];
-            updatedSections[index].image = e.target.files[0];
+            updatedSections[index].image = file;
+            updatedSections[index].existingImageUrl = '';
             setFormData({ ...formData, contentSections: updatedSections });
         }
     };
 
-    const handleContentSectionChange = (index, field, value) => {
-        const updatedSections = [...formData.contentSections];
-        if (field === 'bulletPoints') {
-            const points = value.split(',').map(point => point.trim()).filter(point => point.length > 0);
-            updatedSections[index][field] = points;
-        } else {
-            updatedSections[index][field] = value;
-        }
-        setFormData({ ...formData, contentSections: updatedSections });
-    };
 
     const addContentSection = () => {
         setFormData({
             ...formData,
-            contentSections: [...formData.contentSections, { content: '', tag: 'p', bulletPoints: [], image: null, imageAlt: '' }],
+            contentSections: [
+                ...formData.contentSections,
+                {
+                    contentType: 'text-p', // Make sure this matches your CONTENT_TYPES
+                    data: '',
+                    bulletPoints: [],
+                    alt: '',
+                    image: null,
+                    existingImageUrl: ''
+                }
+            ],
         });
     };
+
+
+
 
     const removeContentSection = (index) => {
         const updatedSections = formData.contentSections.filter((_, i) => i !== index);
@@ -188,41 +242,73 @@ const UpdateBlogPostPage = () => {
 
         try {
             const formDataToSend = new FormData();
-            formDataToSend.append('slug', formData.slug);
             formDataToSend.append('title', formData.title);
+            formDataToSend.append('slug', formData.slug);
             formDataToSend.append('metaTitle', formData.metaTitle);
             formDataToSend.append('metaDescription', formData.metaDescription);
             formDataToSend.append('shortDescriptions', JSON.stringify(formData.shortDescriptions.filter(d => d.trim())));
-            formDataToSend.append('author', session?.user?.name || 'Unknown Author');
-            if (formData.mainImage) formDataToSend.append('mainImage', formData.mainImage);
+            formDataToSend.append('author', formData.author);
+            formDataToSend.append('publishDate', new Date().toISOString());
 
+            if (formData.mainImage) {
+                formDataToSend.append('mainImage', formData.mainImage);
+            }
+
+            // Process content sections
             const contentSections = formData.contentSections.map(section => {
-                const sectionData = { type: section.image ? 'image' : 'text' };
-                if (section.image) {
-                    formDataToSend.append('contentImages', section.image);
-                    sectionData.data = section.image.name;
-                    sectionData.alt = section.imageAlt || '';
+                if (section.contentType === 'image') {
+                    if (section.image) {
+                        // New image upload
+                        formDataToSend.append('contentImages', section.image);
+                        return {
+                            type: 'image',
+                            data: 'new-upload', // Marker for new upload
+                            alt: section.alt || '',
+                            tag: 'image'
+                        };
+                    } else if (section.existingImageUrl) {
+                        // Existing image
+                        return {
+                            type: 'image',
+                            data: section.existingImageUrl, // Keep existing URL
+                            alt: section.alt || '',
+                            tag: 'image'
+                        };
+                    }
+                    throw new Error('Image file is required for new image sections');
                 } else {
-                    sectionData.data = section.content;
-                    sectionData.bulletPoints = section.bulletPoints;
+                    // Text content
+                    const [_, tag] = section.contentType.split('-');
+                    if (!section.data.trim()) {
+                        throw new Error('Text content cannot be empty');
+                    }
+                    return {
+                        type: 'text',
+                        data: section.data,
+                        tag: tag || 'p',
+                        bulletPoints: section.bulletPoints || []
+                    };
                 }
-                return sectionData;
-            });
-            formDataToSend.append('content', JSON.stringify(contentSections));
+            }).filter(section => section); // Remove any undefined sections
 
+            formDataToSend.append('content', JSON.stringify(contentSections));
             formDataToSend.append('keyPoints', JSON.stringify(formData.keyPoints.filter(p => p.trim())));
             formDataToSend.append('tags', JSON.stringify(formData.tags.filter(t => t.trim())));
             formDataToSend.append('categories', JSON.stringify([formData.category].filter(c => c.trim())));
 
-            console.log('FormData to send:', [...formDataToSend.entries()]);
+            const response = await fetch(`/api/blog/${slug}`, {
+                method: 'PUT',
+                body: formDataToSend,
+            });
 
-            const response = await fetch('/api/blog', { method: 'PUT', body: formDataToSend });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to update blog post');
+            }
+
             const result = await response.json();
-
-            if (!response.ok) throw new Error(result.error || 'Failed to update blog post');
-
             toast.success('Blog post updated successfully!');
-            router.push('/admin-dashboard/allblogs');
+            router.push('/admin-dashboard/blog/allblogs');
         } catch (error) {
             console.error('Submission error:', error);
             toast.error(error.message || 'Failed to update blog post');
@@ -231,10 +317,18 @@ const UpdateBlogPostPage = () => {
         }
     };
 
-    if (loading) {
+    if (status === 'loading' || loading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white flex items-center justify-center">
                 <p>Loading blog data...</p>
+            </div>
+        );
+    }
+
+    if (!session) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white flex items-center justify-center">
+                <p className="text-red-500">Please sign in to update a blog post.</p>
             </div>
         );
     }
@@ -327,6 +421,11 @@ const UpdateBlogPostPage = () => {
                             <input type="text" name="imageAlt" value={formData.imageAlt} onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Describe the image for accessibility" />
                         </div>
                     </div>
+
+
+
+                    {/* Updated Content Sections rendering */}
+                    {/* Content Sections */}
                     <div className="space-y-6">
                         <label className="block text-gray-300 text-sm font-medium">Content Sections</label>
                         {formData.contentSections.map((section, index) => (
@@ -334,55 +433,116 @@ const UpdateBlogPostPage = () => {
                                 <div className="flex justify-between items-center mb-4">
                                     <h3 className="text-lg font-medium text-gray-300">Section {index + 1}</h3>
                                     {formData.contentSections.length > 1 && (
-                                        <button type="button" onClick={() => removeContentSection(index)} className="text-red-500 hover:text-red-400 text-sm flex items-center">Remove Section</button>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeContentSection(index)}
+                                            className="text-red-500 hover:text-red-400 text-sm flex items-center"
+                                        >
+                                            Remove Section
+                                        </button>
                                     )}
                                 </div>
+
                                 <div className="mb-4">
                                     <label className="block text-gray-300 mb-2 text-sm">Content Type *</label>
-                                    <select value={section.tag} onChange={(e) => handleContentSectionChange(index, 'tag', e.target.value)} className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                                        <option value="p">Paragraph</option>
-                                        <option value="h1">Heading 1</option>
-                                        <option value="h2">Heading 2</option>
-                                        <option value="h3">Heading 3</option>
-                                        <option value="h4">Heading 4</option>
-                                        <option value="h5">Heading 5</option>
-                                        <option value="h6">Heading 6</option>
+                                    <select
+                                        value={section.contentType || 'text-p'} // Fallback to 'text-p'
+                                        onChange={(e) => handleContentSectionChange(index, 'contentType', e.target.value)}
+                                        className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    >
+                                        {CONTENT_TYPES.map((type) => (
+                                            <option key={type.value} value={type.value}>{type.label}</option>
+                                        ))}
                                     </select>
                                 </div>
-                                <div className="mb-4">
-                                    <label className="block text-gray-300 mb-2 text-sm">Content *</label>
-                                    <textarea value={section.content} onChange={(e) => handleContentSectionChange(index, 'content', e.target.value)} className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter your content here" rows="4" required />
-                                </div>
-                                <div className="mb-4">
-                                    <label className="block text-gray-300 mb-2 text-sm">Bullet Points (Optional)</label>
-                                    <input type="text" value={section.bulletPoints.join(', ')} onChange={(e) => handleContentSectionChange(index, 'bulletPoints', e.target.value)} className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Comma separated points" />
-                                    <p className="text-xs text-gray-500 mt-1">Leave empty if not needed</p>
-                                    {section.bulletPoints.length > 0 && (
-                                        <div className="mt-4">
-                                            <h4 className="text-sm font-medium text-gray-300 mb-2">Preview Bullet Points:</h4>
-                                            <ul className="list-disc pl-5 space-y-1 text-gray-300">{section.bulletPoints.map((point, i) => (<li key={i}>{point}</li>))}</ul>
+
+                                {/* Safely render text or image content based on type */}
+                                {section.contentType && section.contentType.startsWith('text-') && (
+                                    <>
+                                        <div className="mb-4">
+                                            <label className="block text-gray-300 mb-2 text-sm">Content *</label>
+                                            <textarea
+                                                value={section.data}
+                                                onChange={(e) => handleContentSectionChange(index, 'data', e.target.value)}
+                                                className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                placeholder="Enter your content here"
+                                                rows="4"
+                                                required
+                                            />
                                         </div>
-                                    )}
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-gray-300 mb-2 text-sm">Add Image (Optional)</label>
-                                        <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center">
-                                            <input type="file" onChange={(e) => handleFileChange(e, index)} className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700" accept="image/*" />
-                                            <p className="mt-2 text-xs text-gray-500">Recommended: WebP format, 1200x630px</p>
+
+                                        <div className="mb-4">
+                                            <label className="block text-gray-300 mb-2 text-sm">Bullet Points (Optional)</label>
+                                            <input
+                                                type="text"
+                                                value={section.bulletPoints?.join(', ') || ''}
+                                                onChange={(e) => handleContentSectionChange(index, 'bulletPoints', e.target.value)}
+                                                className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                placeholder="Comma separated points"
+                                            />
+                                            {section.bulletPoints?.length > 0 && (
+                                                <div className="mt-4">
+                                                    <h4 className="text-sm font-medium text-gray-300 mb-2">Preview Bullet Points:</h4>
+                                                    <ul className="list-disc pl-5 space-y-1 text-gray-300">
+                                                        {section.bulletPoints.map((point, i) => (
+                                                            <li key={i}>{point}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
                                         </div>
-                                    </div>
-                                    {section.image && (
-                                        <div>
-                                            <label className="block text-gray-300 mb-2 text-sm">Image Alt Text</label>
-                                            <input type="text" value={section.imageAlt} onChange={(e) => handleContentSectionChange(index, 'imageAlt', e.target.value)} className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Describe the image for accessibility" />
+                                    </>
+                                )}
+
+                                {section.contentType && section.contentType === 'image' && (
+                                    <>
+                                        <div className="mb-4">
+                                            <label className="block text-gray-300 mb-2 text-sm">Image *</label>
+                                            <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center">
+                                                <input
+                                                    type="file"
+                                                    onChange={(e) => handleFileChange(e, index)}
+                                                    className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+                                                    accept="image/*"
+                                                />
+                                                {section.existingImageUrl && !section.image && (
+                                                    <div className="mt-2">
+                                                        <p className="text-xs text-gray-400 mb-1">Current Image:</p>
+                                                        <img
+                                                            src={section.existingImageUrl}
+                                                            alt="Current content"
+                                                            className="h-32 object-contain mx-auto"
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
-                                    )}
-                                </div>
+
+                                        <div className="mb-4">
+                                            <label className="block text-gray-300 mb-2 text-sm">Image Alt Text *</label>
+                                            <input
+                                                type="text"
+                                                value={section.alt || ''}
+                                                onChange={(e) => handleContentSectionChange(index, 'alt', e.target.value)}
+                                                className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                placeholder="Describe the image for accessibility"
+                                                required
+                                            />
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         ))}
-                        <button type="button" onClick={addContentSection} className="flex items-center text-purple-400 hover:text-purple-300 text-sm"><span className="mr-1">+</span> Add Another Content Section</button>
+
+                        <button
+                            type="button"
+                            onClick={addContentSection}
+                            className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+                        >
+                            <span className="mr-1">+</span> Add Another Content Section
+                        </button>
                     </div>
+
                     <div className="space-y-4">
                         <label className="block text-gray-300 text-sm font-medium">Key Points (Optional)</label>
                         {formData.keyPoints.map((point, index) => (
