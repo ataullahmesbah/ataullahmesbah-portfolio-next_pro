@@ -72,9 +72,7 @@ export default function BlogContent({ blog }) {
                             placeholder="blur"
                             blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/+F9PQAI8wNPgZf9WwAAAABJRU5ErkJggg=="
                         />
-                        {item.alt && (
-                            <p className="text-center text-sm text-gray-500 mt-2">{item.alt}</p>
-                        )}
+                        
                     </div>
                 );
 

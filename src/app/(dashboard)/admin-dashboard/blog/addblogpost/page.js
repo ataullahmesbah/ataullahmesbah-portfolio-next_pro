@@ -1,4 +1,4 @@
-import AddBlogPost from "@/app/Dashboard/AdminDashboard/AddBlogPost/AddBlogPost";
+import AddBlogPost from "@/app/Dashboard/AddBlogPost/AddBlogPost";
 
 
 const page = () => {

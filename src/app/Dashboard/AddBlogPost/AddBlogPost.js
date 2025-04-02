@@ -316,7 +316,7 @@ const AddBlogPostPage = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image *</label>
+              <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image 1600px × 900px (16:9 aspect ratio) *</label>
               <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center">
                 <input type="file" name="mainImage" onChange={handleFileChange} className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700" accept="image/*" required />
                 <p className="mt-2 text-xs text-gray-500">Recommended: WebP format, 1200x630px</p>

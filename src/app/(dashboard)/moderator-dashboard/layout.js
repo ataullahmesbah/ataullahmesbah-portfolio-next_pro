@@ -1,12 +1,36 @@
 'use client';
 
+
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { FaUser, FaUserTie, FaBars, FaTimes } from 'react-icons/fa';
+import Link from 'next/link';
+import { Suspense, useState } from 'react';
+import Image from 'next/image';
+import Loading from '@/app/loading';
+import DynamicDropDown from '@/app/components/Share/DynamicDropDown/DynamicDropDown';
 
 export default function ModeratorDashboardLayout({ children }) {
-    const { data: session, status } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const FolderData = [
+    {
+      label: 'MODERATOR DASHBOARD',
+      children: [
+        { label: 'Dashboard Home', link: '/moderator-dashboard' },
+      ],
+    },
+    {
+      label: 'BLOGS',
+      children: [
+        { label: 'Add Blogs', link: '/moderator-dashboard/blog/attachblogpost' },
+        { label: 'All Blogs', link: '/moderator-dashboard/blog/blogInfo' },
+      ],
+    },
+  ]
+
 
   // Redirect if user is not authenticated or not a moderator
   if (status === 'unauthenticated' || session?.user?.role !== 'moderator') {
@@ -19,23 +43,72 @@ export default function ModeratorDashboardLayout({ children }) {
     return <div>Loading...</div>;
   }
 
-    return (
-        <div className="flex h-screen bg-gray-200">
-            {/* Sidebar */}
-            <aside className="w-64 bg-gray-900 text-white p-6 shadow-lg">
-            <p>Hello, {session.user.name}!</p>
-                <h2 className="text-2xl font-semibold mb-6 text-center">Moderator Dashboard</h2>
-                <nav>
-                    
+  return (
+    <div className="moderator-dashboard-layout min-h-screen flex">
 
-                </nav>
-            </aside>
+      {/* Drawer Toggle Button (Mobile) */}
+      <button
+        onClick={() => setIsDrawerOpen(!isDrawerOpen)}
+        className="fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded-md lg:hidden"
+      >
+        {isDrawerOpen ? <FaTimes /> : <FaBars />}
+      </button>
 
-            {/* Main Content */}
-            <main className="flex-1 p-8 bg-gray-50 overflow-y-auto">
-                <h1 className="font-semibold text-2xl">Moderator Dashboard</h1>
-                {children}
-            </main>
+      {/* Sidebar */}
+
+
+      <div
+        className={`fixed lg:relative lg:block w-80 bg-gray-900 text-white p-6 transform transition-transform duration-300 ease-in-out ${isDrawerOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 z-40`}
+      >
+
+        <div className="flex flex-col items-center text-center poppins-regular mb-5">
+          <div className="rounded-lg p-6">
+            {/* User Image / Avatar */}
+            {session.user.image ? (
+              <Image
+                src={session?.user?.image}
+                alt="User Avatar"
+                width={64}  // w-16 = 64px
+                height={64} // h-16 = 64px
+                className="w-20 h-20 rounded-full mx-auto border-2 border-sky-900 object-cover"
+              />
+            ) : session.user.gender === 'female' ? (
+              <FaUserTie className="w-16 h-16 mx-auto text-gray-500" />
+            ) : (
+              <FaUser className="w-16 h-16 mx-auto text-gray-500" />
+            )}
+
+            {/* User Name */}
+            <h2 className="text-xl font-bold mt-4">Moderator Panel</h2>
+
+            {/* Welcome Message */}
+            <p className="text-base text-blue-300 font-medium bg-gray-800 text-center rounded-md p-1 mt-2">
+              Hello, {session?.user?.name}!
+            </p>
+
+            {/* Email Display */}
+            <p className="text-blue-200 mt-2">{session?.user?.email}</p>
+          </div>
         </div>
-    );
+
+        <div className="space-y-3">
+          <div className="Flex">
+            <DynamicDropDown data={FolderData} />
+          </div>
+
+
+          <Link href="/" className="block p-2 hover:bg-gray-700 rounded">
+            ➕ Home
+          </Link>
+        </div>
+      </div>
+
+      {/* Main Content with Suspense for Loading */}
+      <div className="flex-1 p-3 bg-gray-800 overflow-y-auto">
+        <Suspense fallback={<Loading />}>
+          {children}
+        </Suspense>
+      </div>
+    </div>
+  );
 }
