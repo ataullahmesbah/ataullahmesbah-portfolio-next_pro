@@ -56,7 +56,7 @@ const AdminDashboardLayout = ({ children }) => {
             ],
         },
         {
-            label: 'News Letter',
+            label: 'NEWS LETTER',
             children: [
 
                 { label: 'Newsletter Details', link: '/admin-dashboard/newsletter/newsletterinfo' },
@@ -64,6 +64,14 @@ const AdminDashboardLayout = ({ children }) => {
                 { label: 'Newsletter Statistics', link: '/admin-dashboard/newsletter/newsletterstatistics' },
                 { label: 'Subscribe Newsletter Info', link: '/admin-dashboard/newsletter' },
                 { label: 'Subscribers Stats', link: '/admin-dashboard/newsletter/stats' },
+
+            ],
+        },
+        {
+            label: 'TRAVEL',
+            children: [
+                { label: 'ALL Travel Data', link: '/admin-dashboard/travel/all-travel-data' },
+                { label: 'Travel Add-Update', link: '/admin-dashboard/travel/add-travel-info' },
 
             ],
         },
