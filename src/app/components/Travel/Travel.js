@@ -67,8 +67,8 @@ export default function MesbahOffWeGo({ travels }) {
                         <p className="text-gray-300 mt-4 leading-relaxed">{journey.description?.split('\n')[1] || 'These experiences have inspired me to share my journey.'}</p>
                         <button className="mt-6 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md font-semibold">
                             <Link href={`/mesbahoffwego/${journey.slug}`}>View Historical Sites</Link>
+                            {/*  */}
 
-                            
                         </button>
                     </div>
                     <div>
