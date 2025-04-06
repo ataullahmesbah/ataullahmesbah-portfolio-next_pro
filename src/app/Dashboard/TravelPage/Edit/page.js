@@ -17,6 +17,19 @@ export default function EditTravel() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const initialSlug = searchParams.get('slug');
+    const [slugPreview, setSlugPreview] = useState('');
+    const handleTitleChange = (e) => {
+        const title = e.target.value;
+        setForm({ ...form, title });
+        // Show slug preview to admin
+        setSlugPreview(title.toLowerCase()
+            .replace(/&/g, 'and')
+            .replace(/[^\w\s-]/g, '')
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+        );
+    };
 
     useEffect(() => {
         const fetchTravels = async () => {
@@ -95,18 +108,26 @@ export default function EditTravel() {
                         ))}
                     </ul>
                 </div>
+
                 {editSlug && (
                     <form onSubmit={handleSubmit} className="bg-gray-700 p-8 rounded-xl shadow-2xl transform hover:shadow-3xl transition-shadow duration-300">
+
                         <div className="mb-6">
                             <label className="block text-white font-semibold mb-2">Title</label>
                             <input
                                 type="text"
                                 value={form.title}
-                                onChange={e => setForm({ ...form, title: e.target.value })}
+                                onChange={handleTitleChange} // Updated handler
                                 className="w-full p-3 rounded-lg bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
                                 required
                             />
+                            {slugPreview && (
+                                <p className="text-gray-400 text-sm mt-1">
+                                    New URL Slug: {slugPreview}
+                                </p>
+                            )}
                         </div>
+
                         <div className="mb-6">
                             <label className="block text-white font-semibold mb-2">Description</label>
                             <textarea

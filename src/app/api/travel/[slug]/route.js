@@ -2,6 +2,17 @@ import dbConnect from "@/lib/dbMongoose";
 import Travel from "@/models/Travel";
 import cloudinary from "@/utils/cloudinary";
 
+// Helper function to generate safe slugs
+function generateSlug(title) {
+    return title
+        .toLowerCase()
+        .replace(/&/g, 'and') // Replace & with 'and'
+        .replace(/[^\w\s-]/g, '') // Remove all non-word chars except spaces and hyphens
+        .trim() // Trim whitespace
+        .replace(/\s+/g, '-') // Replace spaces with -
+        .replace(/-+/g, '-'); // Replace multiple - with single -
+}
+
 export async function POST(req, { params }) {
     await dbConnect();
     try {
@@ -12,7 +23,7 @@ export async function POST(req, { params }) {
         const category = formData.get('category');
         const image = formData.get('image');
 
-        const slug = title.toLowerCase().replace(/\s+/g, '-');
+        const slug = generateSlug(title); // Use the safe slug generator
 
         // Upload image to Cloudinary
         const imageBuffer = Buffer.from(await image.arrayBuffer());
@@ -61,7 +72,7 @@ export async function PUT(req, { params }) {
         const image = formData.get('image');
 
         let updateData = { title, description, location, category };
-        updateData.slug = title.toLowerCase().replace(/\s+/g, '-');
+        updateData.slug = generateSlug(title); // Use the safe slug generator
 
         if (image) {
             const imageBuffer = Buffer.from(await image.arrayBuffer());

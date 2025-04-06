@@ -1,9 +1,8 @@
 //robots.txt
 
-# Block all crawlers for /accounts
 User-agent: *
-Disallow: /accounts
-
-# Allow all crawlers
-User-agent: *
+Disallow: /admin-dashboard/
+Disallow: /moderator-dashboard/
+Disallow: /user-dashboard/
+Disallow: /accounts/
 Allow: /
