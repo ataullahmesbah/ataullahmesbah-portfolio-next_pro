@@ -1,7 +1,7 @@
-// app/api/content/route.js
 import { NextResponse } from "next/server";
 import Content from "@/models/Content";
 import dbConnect from "@/lib/dbMongoose";
+import slugify from "slugify"; // Add this import
 
 export async function GET() {
     await dbConnect();

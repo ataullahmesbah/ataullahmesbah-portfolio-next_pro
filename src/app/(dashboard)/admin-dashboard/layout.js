@@ -78,6 +78,7 @@ const AdminDashboardLayout = ({ children }) => {
         {
             label: 'CONTENT',
             children: [
+                { label: 'All Content', link: '/admin-dashboard/content/all-content' },
                 { label: 'Add Content', link: '/admin-dashboard/content/add-content' },
                 { label: 'Update Content', link: '/admin-dashboard/content/edit' },
 

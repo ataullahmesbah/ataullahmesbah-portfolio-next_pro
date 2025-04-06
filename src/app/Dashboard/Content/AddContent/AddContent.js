@@ -1,3 +1,4 @@
+// app/(dashboard)/admin-dashboard/content/add/page.js
 'use client';
 
 import { useState } from "react";
