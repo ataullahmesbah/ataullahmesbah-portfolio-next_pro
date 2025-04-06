@@ -75,6 +75,14 @@ const AdminDashboardLayout = ({ children }) => {
 
             ],
         },
+        {
+            label: 'CONTENT',
+            children: [
+                { label: 'Add Content', link: '/admin-dashboard/content/add-content' },
+                { label: 'Update Content', link: '/admin-dashboard/content/edit' },
+
+            ],
+        },
     ];
 
     // Redirect if user is not authenticated or not an admin
