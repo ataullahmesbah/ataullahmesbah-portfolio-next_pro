@@ -1,27 +1,42 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
-export default function EditContent({ params }) {
-    const [form, setForm] = useState({ title: "", description: "", link: "", platform: "" });
+export default function EditContent() {
+    const [form, setForm] = useState({ title: "", description: "", link: "", platform: "YouTube" });
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-    const { slug } = params;
+    const { slug } = useParams();
 
     useEffect(() => {
         const fetchContent = async () => {
+            setLoading(true);
             try {
-                const res = await axios.get(`/api/content/${slug}`);
-                setForm(res.data);
+                const res = await axios.get(`/api/content`);
+                const content = res.data.find(item => item.slug === slug);
+                if (content) {
+                    setForm({
+                        title: content.title,
+                        description: content.description,
+                        link: content.link,
+                        platform: content.platform,
+                    });
+                } else {
+                    toast.error("Content not found");
+                    router.push("/admin-dashboard/content");
+                }
             } catch (error) {
-                toast.error("Error fetching content");
+                toast.error("Failed to load content");
+                console.error("Fetch error:", error);
+            } finally {
+                setLoading(false);
             }
         };
-        fetchContent();
-    }, [slug]);
+        if (slug) fetchContent();
+    }, [slug, router]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,9 +44,10 @@ export default function EditContent({ params }) {
         try {
             await axios.put(`/api/content/${slug}`, form);
             toast.success("Content updated successfully");
-            router.push("/admin-dashboard/content");
+            router.push("/admin-dashboard/content/all-content");
         } catch (error) {
-            toast.error("Error: " + error.response?.data?.error);
+            toast.error("Error: " + (error.response?.data?.error || error.message));
+            console.error("Update error:", error);
         } finally {
             setLoading(false);
         }
@@ -39,44 +55,47 @@ export default function EditContent({ params }) {
 
     return (
         <div className="min-h-screen bg-gray-900 text-white p-6">
-            <h1 className="text-3xl font-bold mb-6">Edit Content</h1>
-            <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-4">
+            <h1 className="text-4xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-purple-400">
+                Edit Content
+            </h1>
+            {loading && <div className="text-center text-gray-400 mb-4">Loading...</div>}
+            <form onSubmit={handleSubmit} className="max-w-lg mx-auto space-y-6">
                 <div>
-                    <label className="block text-sm font-medium">Title</label>
+                    <label className="block text-sm font-medium text-gray-300">Title</label>
                     <input
                         type="text"
                         value={form.title}
                         onChange={e => setForm({ ...form, title: e.target.value })}
-                        className="w-full p-2 mt-1 bg-gray-800 rounded"
+                        className="w-full p-3 mt-1 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all"
                         required
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium">Description</label>
+                    <label className="block text-sm font-medium text-gray-300">Description</label>
                     <textarea
                         value={form.description}
                         onChange={e => setForm({ ...form, description: e.target.value })}
-                        className="w-full p-2 mt-1 bg-gray-800 rounded"
+                        className="w-full p-3 mt-1 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all"
                         rows="4"
                         required
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium">Video Link</label>
+                    <label className="block text-sm font-medium text-gray-300">Video Link</label>
                     <input
                         type="url"
                         value={form.link}
                         onChange={e => setForm({ ...form, link: e.target.value })}
-                        className="w-full p-2 mt-1 bg-gray-800 rounded"
+                        className="w-full p-3 mt-1 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all"
                         required
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium">Platform</label>
+                    <label className="block text-sm font-medium text-gray-300">Platform</label>
                     <select
                         value={form.platform}
                         onChange={e => setForm({ ...form, platform: e.target.value })}
-                        className="w-full p-2 mt-1 bg-gray-800 rounded"
+                        className="w-full p-3 mt-1 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all"
                     >
                         <option value="YouTube">YouTube</option>
                         <option value="Facebook">Facebook</option>
@@ -85,7 +104,7 @@ export default function EditContent({ params }) {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded text-white font-semibold"
+                    className="w-full py-3 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg text-white font-semibold hover:opacity-90 disabled:opacity-50 transition-all"
                 >
                     {loading ? "Updating..." : "Update Content"}
                 </button>

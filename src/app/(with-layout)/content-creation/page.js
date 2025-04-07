@@ -1,6 +1,5 @@
-import Link from "next/link";
-import { Metadata } from "next";
 import ClientContentCreation from "@/app/components/Content/ClientContentPage/ClientContentPage";
+import { Metadata } from "next";
 
 
 async function getContentData() {
@@ -12,25 +11,18 @@ async function getContentData() {
 }
 
 export async function generateMetadata() {
-    try {
-        const content = await getContentData();
-        const description = "Discover Ataullah Mesbah's creative journey through captivating videos.";
-        return {
+    return {
+        title: "Content Creation - Ataullah Mesbah",
+        description: "Discover Ataullah Mesbah's creative journey through captivating videos.",
+        alternates: { canonical: "https://ataullahmesbah.com/content-creation" },
+        openGraph: {
             title: "Content Creation - Ataullah Mesbah",
-            description,
-            keywords: ["content creation", "Ataullah Mesbah", "YouTube", "Facebook", "videos"],
-            alternates: { canonical: "https://ataullahmesbah.com/content-creation" },
-            openGraph: {
-                title: "Content Creation - Ataullah Mesbah",
-                description,
-                url: "https://ataullahmesbah.com/content-creation",
-                images: [{ url: "https://ataullahmesbah.com/og-image-content.jpg" }],
-                type: "website",
-            },
-        };
-    } catch (error) {
-        return { title: "Content Creation - Ataullah Mesbah" };
-    }
+            description: "Explore my video creations on YouTube and Facebook",
+            url: "https://ataullahmesbah.com/content-creation",
+            images: [{ url: "https://ataullahmesbah.com/og-image-content.jpg" }],
+            type: "website",
+        },
+    };
 }
 
 export default async function ContentCreationPage() {
@@ -45,6 +37,11 @@ export default async function ContentCreationPage() {
     const facebookVideos = content.filter(v => v.platform === 'Facebook').slice(0, 6);
 
     return (
-        <ClientContentCreation youtubeVideos={youtubeVideos} facebookVideos={facebookVideos} content={content} />
+        <ClientContentCreation
+            youtubeVideos={youtubeVideos}
+            facebookVideos={facebookVideos}
+            youtubeCount={content.filter(v => v.platform === 'YouTube').length}
+            facebookCount={content.filter(v => v.platform === 'Facebook').length}
+        />
     );
 }

@@ -1,20 +1,38 @@
 import { NextResponse } from "next/server";
 import Content from "@/models/Content";
 import dbConnect from "@/lib/dbMongoose";
-import slugify from "slugify"; // Add this import
+import slugify from "slugify";
 
-export async function GET() {
-    await dbConnect();
-    const content = await Content.find();
-    return NextResponse.json(content);
+export async function GET(request) {
+    try {
+        await dbConnect();
+        const { searchParams } = new URL(request.url);
+        const platform = searchParams.get("platform");
+
+        const query = platform ? { platform } : {};
+        const content = await Content.find(query);
+        return NextResponse.json(content);
+    } catch (error) {
+        console.error("GET Error:", error);
+        return NextResponse.json({ error: "Failed to fetch content" }, { status: 500 });
+    }
 }
 
 export async function POST(request) {
-    await dbConnect();
-    const { title, description, link, platform } = await request.json();
-    const slug = slugify(title, { lower: true, strict: true });
+    try {
+        await dbConnect();
+        const { title, description, link, platform } = await request.json();
 
-    const content = new Content({ title, slug, description, link, platform });
-    await content.save();
-    return NextResponse.json(content, { status: 201 });
+        if (!title || !description || !link || !platform) {
+            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+        }
+
+        const slug = slugify(title, { lower: true, strict: true });
+        const content = new Content({ title, slug, description, link, platform });
+        await content.save();
+        return NextResponse.json(content, { status: 201 });
+    } catch (error) {
+        console.error("POST Error:", error);
+        return NextResponse.json({ error: "Failed to add content" }, { status: 500 });
+    }
 }

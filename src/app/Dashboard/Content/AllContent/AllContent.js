@@ -11,16 +11,23 @@ export default function AllContentPage() {
     const [filteredContents, setFilteredContents] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [platformFilter, setPlatformFilter] = useState("All");
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const NEXTAUTH_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
     const fetchContent = async () => {
+        setLoading(true);
         try {
             const res = await axios.get("/api/content");
             const sortedContent = res.data.sort((a, b) => new Date(b.date) - new Date(a.date));
             setContents(sortedContent);
             filterContent(sortedContent, searchQuery, platformFilter);
+            toast.success("Content loaded successfully");
         } catch (error) {
             toast.error("Failed to fetch content");
+            console.error("Fetch error:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -50,18 +57,44 @@ export default function AllContentPage() {
 
     const handleDelete = async (slug) => {
         if (!confirm("Are you sure you want to delete this content?")) return;
+        setLoading(true);
         try {
-            await axios.delete(`/api/content/${slug}`);
-            toast.success("Content deleted successfully");
-            fetchContent();
+            const res = await axios.delete(`/api/content/${slug}`);
+            if (res.status === 200) {
+                toast.success("Content deleted successfully");
+                fetchContent();
+            }
         } catch (error) {
-            toast.error("Failed to delete content");
+            toast.error("Failed to delete content: " + (error.response?.data?.error || error.message));
+            console.error("Delete error:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
+    const handleRefresh = () => {
+        fetchContent();
+    };
+
+
+
     return (
         <div className="min-h-screen bg-gray-900 text-white p-6">
-            <h1 className="text-3xl font-bold mb-8 text-center">All Content Data</h1>
+            <div className="py-8 space-y-5 text-center">
+                <h1 className="text-4xl font-bold  bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-purple-400">
+                    All Content Data
+                </h1>
+                <p className="text-base ">
+                    Want to see my latest videos?{" "}
+                    <Link
+                        href={`${NEXTAUTH_URL}/content-creation`}
+                        className="text-pink-400 hover:text-purple-400 underline transition-colors"
+                    >
+                        Visit this page
+                    </Link>{" "}
+                    to explore my content creation journey!
+                </p>
+            </div>
 
             {/* Search and Filter */}
             <div className="max-w-4xl mx-auto mb-8 flex flex-col sm:flex-row gap-4">
@@ -71,9 +104,12 @@ export default function AllContentPage() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search by title or link..."
-                        className="w-full p-2 bg-gray-800 rounded text-white"
+                        className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all"
                     />
-                    <button type="submit" className="px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-600 rounded hover:opacity-90">
+                    <button
+                        type="submit"
+                        className="px-4 py-3 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg hover:opacity-90 text-white font-semibold"
+                    >
                         Search
                     </button>
                 </form>
@@ -83,25 +119,27 @@ export default function AllContentPage() {
                         setPlatformFilter(e.target.value);
                         filterContent(contents, searchQuery, e.target.value);
                     }}
-                    className="p-2 bg-gray-800 rounded text-white"
+                    className="p-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all"
                 >
                     <option value="All">All Platforms</option>
                     <option value="YouTube">YouTube</option>
                     <option value="Facebook">Facebook</option>
                 </select>
                 <button
-                    onClick={fetchContent}
-                    className="px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-600 rounded hover:opacity-90"
+                    onClick={handleRefresh}
+                    disabled={loading}
+                    className="px-4 py-3 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg hover:opacity-90 text-white font-semibold disabled:opacity-50"
                 >
-                    Refresh
+                    {loading ? "Refreshing..." : "Refresh"}
                 </button>
             </div>
 
             {/* Content Table */}
-            <div className="max-w-6xl mx-auto overflow-x-auto">
+            <div className="max-w-6xl mx-auto overflow-x-auto bg-gray-800 rounded-lg shadow-lg">
+                {loading && <div className="text-center py-4 text-gray-400">Loading...</div>}
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-gray-800">
+                        <tr className="bg-gray-700">
                             <th className="p-4">Title</th>
                             <th className="p-4">Link</th>
                             <th className="p-4">Platform</th>
@@ -115,10 +153,10 @@ export default function AllContentPage() {
                             </tr>
                         ) : (
                             filteredContents.map(content => (
-                                <tr key={content._id} className="border-b border-gray-700 hover:bg-gray-850">
+                                <tr key={content._id} className="border-b border-gray-700 hover:bg-gray-750 transition-all">
                                     <td className="p-4">{content.title}</td>
                                     <td className="p-4">
-                                        <Link href={content.link} target="_blank" className="text-indigo-400 hover:underline">
+                                        <Link href={content.link} target="_blank" className="text-pink-400 hover:underline">
                                             {content.link}
                                         </Link>
                                     </td>
@@ -126,20 +164,21 @@ export default function AllContentPage() {
                                     <td className="p-4 flex gap-2">
                                         <button
                                             onClick={() => router.push(`/admin-dashboard/content/edit/${content.slug}`)}
-                                            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm"
+                                            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm text-white"
                                         >
                                             Update
                                         </button>
                                         <button
                                             onClick={() => handleDelete(content.slug)}
-                                            className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
+                                            disabled={loading}
+                                            className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm text-white disabled:opacity-50"
                                         >
                                             Delete
                                         </button>
                                         <Link
                                             href={content.link}
                                             target="_blank"
-                                            className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-sm"
+                                            className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-sm text-white"
                                         >
                                             View
                                         </Link>
