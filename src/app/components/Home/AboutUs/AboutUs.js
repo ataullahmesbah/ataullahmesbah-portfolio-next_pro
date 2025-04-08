@@ -1,38 +1,43 @@
 import Image from 'next/image';
 import Link from 'next/link';
-
-import mesbah from '/public/images/mesbah_pro.jpg'
+import mesbah from '/public/images/mesbah_pro.jpg';
 
 const AboutUs = () => {
     return (
-        // <section id="about" className="py-20 bg-gray-100">
-        <section id="about" className="py-20  ">
+        <section id="about" className="py-16 bg-gradient-to-b from-gray-900 to-gray-950">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-20">
-                    {/* Left Side: Image with Gradient Overlay */}
-                    <div className=" rounded-lg  w-full lg:w-1/2">
-                        <Image
-                            src={mesbah}
-                            alt="Ataullah Mesbah"
-                            layout="responsive"
-                            width={500}
-                            height={500}
-                            placeholder='blur'
-                            className="rounded-lg"
-                        />
+                <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
+                    {/* Left Side: Optimized Image */}
+                    <div className="w-full lg:w-2/5">
+                        <div className="relative rounded-lg overflow-hidden aspect-square max-w-md mx-auto">
+                            <Image
+                                src={mesbah}
+                                alt="Ataullah Mesbah"
+                                fill
+                                placeholder='blur'
+                                className="object-cover"
+                                sizes="(max-width: 768px) 80vw, 40vw"
+                            />
+                        </div>
                     </div>
 
                     {/* Right Side: Content */}
-                    <div className="w-full lg:w-1/2 text-center lg:text-left text-white poppins-regular">
-                        <h2 className="text-3xl sm:text-4xl font-bold  mb-6">
+                    <div className="w-full lg:w-3/5 text-center lg:text-left">
+                        <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-sky-500 mb-5">
                             About Ataullah Mesbah
                         </h2>
-                        <p className="text-lg text-gray-300  mb-6 leading-relaxed">
-                            I’m Ataullah Mesbah, a passionate developer, SEO expert, and traveler. I love creating dynamic web applications and exploring new places. With my skills in software development and a strong problem-solving approach, I specialize in crafting intuitive and efficient digital solutions.
-                        </p>
-                        <p className="text-lg text-gray-300  mb-6 leading-relaxed">
-                            My tech journey has been both challenging and rewarding, offering me opportunities to work across diverse industries. Whether it’s building a sleek custom website, optimizing for search engines, or working with Node.js, Next.js, Redux, and React Native, I’m committed to delivering high-quality results.
-                        </p>
+
+                        <div className="space-y-5 text-gray-300 leading-relaxed">
+                            <p className="text-base sm:text-lg">
+                                A Full Stack Developer and SEO Specialist with 6+ years of experience creating high-performance digital solutions that drive business growth.
+                            </p>
+                            <p className="text-base sm:text-lg">
+                                Specializing in <span className="text-purple-400 font-medium">Next.js</span>, <span className="text-purple-400 font-medium">React</span>, and <span className="text-purple-400 font-medium">Node.js</span>, I combine technical expertise with strategic thinking to deliver measurable results for clients worldwide.
+                            </p>
+                            <p className="text-base sm:text-lg">
+                                My global perspective, shaped by travels to 15+ countries, informs innovative approaches to solving complex digital challenges.
+                            </p>
+                        </div>
 
                         {/* Get Started button */}
                         <div className="py-5 ">
@@ -49,11 +54,6 @@ const AboutUs = () => {
                                 </div>
                             </div>
                         </div>
-
-
-
-
-
                     </div>
                 </div>
             </div>
