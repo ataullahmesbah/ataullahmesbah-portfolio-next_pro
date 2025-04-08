@@ -1,48 +1,65 @@
-// src/components/Sponser.js
-import React from 'react';
-import Image from 'next/image';
-import hy from "/public/images/sponser/Hyascka.png";
-import sp1 from "/public/images/sponser/sp1.png";
-import sp2 from "/public/images/sponser/sp2.png";
-import sp3 from "/public/images/sponser/sp3.png";
-import sp4 from "/public/images/sponser/sp4.png";
-import sp5 from "/public/images/sponser/sp5.png";
-import diaries from "/public/images/sponser/dairies1.png";
+// components/Sponser.js
+'use client';
+
+import { motion } from 'framer-motion';
+
+const sponsors = [
+  { name: 'Hyascka', category: 'Digital Services' },
+  { name: 'Trekking Diaries', category: 'Adventure Community' },
+  { name: 'Trek Explore Travel', category: 'Tour Operator' },
+  { name: 'Mesbah Off We Go', category: 'Travel Vlog' },
+  { name: 'Masterminds Sporting', category: 'Football Academy' },
+  { name: 'Deen Halal', category: 'Islamic Brand' },
+  { name: 'FCTB', category: 'Travel Group' }
+];
 
 const Sponser = () => {
-    return (
-        // <main className='bg-blue-50 py-10'>
-        <main className=' py-10'>
-            <div className="max-w-6xl mx-auto overflow-hidden">
-                <div className="flex space-x-8 animate-marquee poppins-regular">
-                    {/* First set of sponsor images */}
-                    {[hy, sp1, sp2, sp3, sp4, sp5, diaries].map((sponsorImage, index) => (
-                        <div key={`first-${index}`} className="flex-none w-40 h-20 relative">
-                            <Image
-                                src={sponsorImage}
-                                alt={`Sponsor ${index + 1}`}
-                                layout="fill"
-                                objectFit="contain"
-                                className="rounded-md"
-                            />
-                        </div>
-                    ))}
-                    {/* Duplicate the set of sponsor images for continuous effect */}
-                    {[hy, sp1, sp2, sp3, sp4, sp5, diaries].map((sponsorImage, index) => (
-                        <div key={`second-${index}`} className="flex-none w-40 h-20 relative">
-                            <Image
-                                src={sponsorImage}
-                                alt={`Sponsor ${index + 1}`}
-                                layout="fill"
-                                objectFit="contain"
-                                className="rounded-md "
-                            />
-                        </div>
-                    ))}
+  return (
+    <section className="py-16 overflow-hidden relative ">
+      {/* Gradient fade edges */}
+      <div className="absolute inset-y-0 left-0 w-32  to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-y-0 right-0 w-32  to-transparent z-10 pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 relative">
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          className="mb-12 text-center"
+        >
+          <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-purple-400 mb-2">
+            Strategic Partners
+          </h2>
+          <p className="text-gray-400/80 max-w-xl mx-auto text-sm">
+            Premium brands I’ve collaborated with to create exceptional digital experiences
+          </p>
+        </motion.div>
+
+        {/* Enhanced Marquee */}
+        <div className="relative overflow-hidden py-2">
+          <div className="flex animate-marquee whitespace-nowrap items-center">
+            {[...sponsors, ...sponsors].map((sponsor, index) => (
+              <motion.div
+                key={`sponsor-${index}`}
+                className="inline-flex mx-3 px-6 py-3 bg-gray-900 rounded-lg border border-gray-800 items-center justify-center min-w-[180px] h-[80px] relative group"
+                whileHover={{
+                  y: -3,
+                  borderColor: '#38bdf8',
+                  backgroundColor: 'rgba(17, 24, 39, 0.8)',
+                  transition: { duration: 0.2 }
+                }}
+              >
+                <div className="text-center">
+                  <h3 className="text-[15px] font-medium text-gray-200 leading-tight">{sponsor.name}</h3>
+                  <p className="text-xs text-gray-400 mt-1">{sponsor.category}</p>
                 </div>
-            </div>
-        </main>
-    );
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 };
 
 export default Sponser;

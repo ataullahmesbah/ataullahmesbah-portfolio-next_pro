@@ -7,8 +7,8 @@
 
 /* Apply Font to .amsfonts Class */
 .amsfonts {
-    font-family: 'New Amsterdam', sans-serif;
-    font-weight: 700;
+  font-family: 'New Amsterdam', sans-serif;
+  font-weight: 700;
 }
 
 
@@ -16,11 +16,12 @@
 
 /* Regular 400 */
 .poppins-regular {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 400;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
 body {
   font-family: 'Poppins', sans-serif;
 }
@@ -28,33 +29,60 @@ body {
 /* Add this to your global CSS file or in a <style jsx global> tag */
 
 .swiper-pagination {
-    @apply mt-4; 
-    position: relative; 
-    z-index: 10; 
+  @apply mt-4;
+  position: relative;
+  z-index: 10;
 }
 
 .swiper-pagination-bullet {
-    @apply bg-sky-900; /* Color for inactive bullets */
-    width: 12px;
-    height: 12px;
+  @apply bg-sky-900;
+  /* Color for inactive bullets */
+  width: 12px;
+  height: 12px;
 }
 
 .swiper-pagination-bullet-active {
-    @apply bg-sky-900; /* Color for active bullets */
-    opacity: 1;
+  @apply bg-sky-900;
+  /* Color for active bullets */
+  opacity: 1;
 }
 
 
 @keyframes spin-slow {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
+  0% {
+    transform: rotate(0deg);
   }
-  
-  .animate-spin-slow {
-    animation: spin-slow 10s linear infinite;
+
+  100% {
+    transform: rotate(360deg);
   }
-  
+}
+
+.animate-spin-slow {
+  animation: spin-slow 10s linear infinite;
+}
+
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+  display: inline-flex;
+}
+
+/* For reduced motion preference */
+@media (prefers-reduced-motion) {
+  .animate-marquee {
+    animation: none;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .animate-marquee::-webkit-scrollbar {
+    display: none;
+  }
+}
