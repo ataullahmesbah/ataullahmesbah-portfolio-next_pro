@@ -84,6 +84,16 @@ const AdminDashboardLayout = ({ children }) => {
 
             ],
         },
+        {
+            label: 'STORY',
+            children: [
+                { label: 'ALL Featured Story', link: '/admin-dashboard/story/all-featured-story' },
+                { label: 'Add Featured Story', link: '/admin-dashboard/story/add-featured-story' },
+
+
+
+            ],
+        },
     ];
 
     // Redirect if user is not authenticated or not an admin

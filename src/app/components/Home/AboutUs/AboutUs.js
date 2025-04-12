@@ -38,7 +38,6 @@ const AboutUs = () => {
                                 My global perspective, shaped by travels to 15+ countries, informs innovative approaches to solving complex digital challenges.
                             </p>
                         </div>
-
                         {/* Get Started button */}
                         <div className="py-5 ">
                             <div className="grid gap-8 justify-start items-start ">
