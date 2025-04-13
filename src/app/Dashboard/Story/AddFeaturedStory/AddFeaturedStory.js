@@ -1,9 +1,11 @@
 'use client';
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 
 export default function CreateFeaturedStory() {
+    const { data: session } = useSession();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -18,36 +20,73 @@ export default function CreateFeaturedStory() {
         contentBlocks: [{ type: 'paragraph', content: '', caption: '' }],
     });
 
+ 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!session) {
+            toast.error('You must be logged in to create a story');
+            return;
+        }
+
         setLoading(true);
-        const formDataToSend = new FormData();
 
-        // Validate contentBlocks
-        const invalidBlock = formData.contentBlocks.find((block) => {
-            if (block.type === 'image' && !block.imageUrl) return true;
-            if (block.type !== 'image' && !block.content) return true;
-            if (block.type === 'heading' && !block.level) return true;
-            return false;
-        });
-
-        if (invalidBlock) {
-            toast.error('All content blocks must have required fields filled');
+        // Validate required fields
+        if (!formData.title || !formData.metaTitle || !formData.metaDescription ||
+            !formData.shortDescription || !formData.mainImage) {
+            toast.error('Please fill all required fields');
             setLoading(false);
             return;
         }
 
-        // Append all fields
+        // Validate content blocks
+        const invalidBlock = formData.contentBlocks.find((block, index) => {
+            if (block.type === 'image') {
+                if (!block.imageFile) {
+                    toast.error(`Image block ${index + 1} is missing an image`);
+                    return true;
+                }
+            } else if (!block.content) {
+                toast.error(`Block ${index + 1} is missing content`);
+                return true;
+            }
+            return false;
+        });
+
+        if (invalidBlock) {
+            setLoading(false);
+            return;
+        }
+
+        const formDataToSend = new FormData();
+
+        // Append scalar fields
         formDataToSend.append('title', formData.title);
         formDataToSend.append('metaTitle', formData.metaTitle);
         formDataToSend.append('metaDescription', formData.metaDescription);
         formDataToSend.append('shortDescription', formData.shortDescription);
-        if (formData.mainImage) formDataToSend.append('mainImage', formData.mainImage);
+        formDataToSend.append('mainImage', formData.mainImage);
         formDataToSend.append('category', formData.category);
         formDataToSend.append('tags', formData.tags);
         formDataToSend.append('keyPoints', formData.keyPoints);
-        formDataToSend.append('contentBlocks', JSON.stringify(formData.contentBlocks));
-        formDataToSend.append('author', '66f4d0b0f1a1b2c3d4e5f6a7'); // Placeholder ObjectId
+
+        // Prepare content blocks with image references
+        const blocksForSubmission = formData.contentBlocks.map((block, index) => {
+            if (block.type === 'image') {
+                const imageKey = `image-${index}`;
+                // Append image file to FormData
+                formDataToSend.append(imageKey, block.imageFile);
+                return {
+                    type: 'image',
+                    imageKey: imageKey, // Reference to the FormData key
+                    caption: block.caption || ''
+                };
+            }
+            return block;
+        });
+
+        console.log('Submitting content blocks:', blocksForSubmission);
+        formDataToSend.append('contentBlocks', JSON.stringify(blocksForSubmission));
 
         try {
             const response = await fetch('/api/feature', {
@@ -55,17 +94,16 @@ export default function CreateFeaturedStory() {
                 body: formDataToSend,
             });
 
+            const data = await response.json();
             if (!response.ok) {
-                const text = await response.text(); // Get raw response for debugging
-                console.error('Response text:', text);
-                throw new Error(`Failed to create story: ${response.status} ${response.statusText}`);
+                throw new Error(data.error || 'Failed to create story');
             }
 
-            const data = await response.json();
+            console.log('Story created:', data);
             toast.success('Story created successfully!');
-            router.push('/admin/stories');
+            router.push('/admin-dashboard/story/all-featured-story');
         } catch (error) {
-            console.error('Submit error:', error);
+            console.error('Error creating story:', error);
             toast.error(error.message || 'Error creating story');
         } finally {
             setLoading(false);
@@ -74,17 +112,17 @@ export default function CreateFeaturedStory() {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleContentBlockChange = (index, field, value) => {
         const updatedBlocks = [...formData.contentBlocks];
         updatedBlocks[index][field] = value;
-        setFormData((prev) => ({ ...prev, contentBlocks: updatedBlocks }));
+        setFormData(prev => ({ ...prev, contentBlocks: updatedBlocks }));
     };
 
     const addContentBlock = (type = 'paragraph') => {
-        setFormData((prev) => ({
+        setFormData(prev => ({
             ...prev,
             contentBlocks: [
                 ...prev.contentBlocks,
@@ -92,10 +130,10 @@ export default function CreateFeaturedStory() {
                     type,
                     content: '',
                     caption: '',
-                    ...(type === 'image' && { imageUrl: '' }),
                     ...(type === 'heading' && { level: 2 }),
-                },
-            ],
+                    ...(type === 'image' && { imageUrl: '', imageFile: null }),
+                }
+            ]
         }));
     };
 
@@ -104,46 +142,40 @@ export default function CreateFeaturedStory() {
             toast.error('You must have at least one content block');
             return;
         }
-        setFormData((prev) => ({
+        setFormData(prev => ({
             ...prev,
-            contentBlocks: prev.contentBlocks.filter((_, i) => i !== index),
+            contentBlocks: prev.contentBlocks.filter((_, i) => i !== index)
         }));
     };
 
     const handleMainImageChange = (e) => {
-        setFormData((prev) => ({ ...prev, mainImage: e.target.files[0] }));
+        setFormData(prev => ({ ...prev, mainImage: e.target.files[0] }));
     };
 
-    const handleImageUpload = async (index, file) => {
+    const handleImageUpload = (index, file) => {
         if (!file) return;
+
         setLoading(true);
         try {
-            // Convert file to base64
-            const reader = new FileReader();
-            const base64Image = await new Promise((resolve) => {
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.readAsDataURL(file);
-            });
+            // Create preview URL
+            const previewUrl = URL.createObjectURL(file);
 
-            // Upload to Cloudinary via API
-            const response = await fetch('/api/feature/upload-image', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: base64Image }),
-            });
+            // Update the content block
+            const updatedBlocks = [...formData.contentBlocks];
+            updatedBlocks[index] = {
+                ...updatedBlocks[index],
+                type: 'image',
+                imageUrl: previewUrl, // For preview only
+                imageFile: file,     // Actual file for upload
+                caption: updatedBlocks[index].caption || ''
+            };
 
-            if (!response.ok) {
-                const text = await response.text();
-                console.error('Image upload response text:', text);
-                throw new Error('Image upload failed');
-            }
+            setFormData(prev => ({ ...prev, contentBlocks: updatedBlocks }));
 
-            const data = await response.json();
-            handleContentBlockChange(index, 'imageUrl', data.url);
-            toast.success('Image uploaded successfully');
+            toast.success('Image added successfully');
         } catch (error) {
             console.error('Image upload error:', error);
-            toast.error('Failed to upload image');
+            toast.error('Failed to add image');
         } finally {
             setLoading(false);
         }
@@ -154,12 +186,14 @@ export default function CreateFeaturedStory() {
             <Toaster position="top-right" />
             <div className="max-w-4xl mx-auto">
                 <h1 className="text-4xl font-bold text-white mb-8">Create Featured Story</h1>
+
                 <form onSubmit={handleSubmit} className="bg-gray-700 p-6 rounded-lg shadow-lg">
                     {/* Basic Information Section */}
                     <div className="mb-8">
                         <h2 className="text-xl font-semibold text-white mb-4 border-b border-gray-600 pb-2">
                             Basic Information
                         </h2>
+
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-white mb-2" htmlFor="title">
@@ -175,6 +209,7 @@ export default function CreateFeaturedStory() {
                                     required
                                 />
                             </div>
+
                             <div>
                                 <label className="block text-white mb-2" htmlFor="metaTitle">
                                     Meta Title*
@@ -193,6 +228,7 @@ export default function CreateFeaturedStory() {
                                     {formData.metaTitle.length}/60 characters
                                 </p>
                             </div>
+
                             <div>
                                 <label className="block text-white mb-2" htmlFor="metaDescription">
                                     Meta Description*
@@ -211,6 +247,7 @@ export default function CreateFeaturedStory() {
                                     {formData.metaDescription.length}/160 characters
                                 </p>
                             </div>
+
                             <div>
                                 <label className="block text-white mb-2" htmlFor="shortDescription">
                                     Short Description*
@@ -229,6 +266,7 @@ export default function CreateFeaturedStory() {
                                     {formData.shortDescription.length}/300 characters
                                 </p>
                             </div>
+
                             <div>
                                 <label className="block text-white mb-2" htmlFor="mainImage">
                                     Main Image*
@@ -242,9 +280,15 @@ export default function CreateFeaturedStory() {
                                     className="w-full p-2 rounded bg-gray-600 text-white"
                                     required
                                 />
-                                <p className="text-gray-400 text-sm mt-1">
-                                    This will be the featured image displayed first
-                                </p>
+                                {formData.mainImage && (
+                                    <div className="mt-2">
+                                        <img
+                                            src={URL.createObjectURL(formData.mainImage)}
+                                            alt="Preview"
+                                            className="max-h-40 rounded"
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -254,6 +298,7 @@ export default function CreateFeaturedStory() {
                         <h2 className="text-xl font-semibold text-white mb-4 border-b border-gray-600 pb-2">
                             Content Blocks
                         </h2>
+
                         <div className="space-y-6">
                             {formData.contentBlocks.map((block, index) => (
                                 <div key={index} className="border border-gray-600 rounded-lg p-4">
@@ -279,10 +324,11 @@ export default function CreateFeaturedStory() {
                                                     type: newType,
                                                     content: newType !== 'image' ? block.content || '' : '',
                                                     imageUrl: newType === 'image' ? block.imageUrl || '' : '',
+                                                    imageFile: newType === 'image' ? block.imageFile || null : null,
                                                     caption: block.caption || '',
                                                     ...(newType === 'heading' && { level: block.level || 2 }),
                                                 };
-                                                setFormData((prev) => ({ ...prev, contentBlocks: updatedBlocks }));
+                                                setFormData(prev => ({ ...prev, contentBlocks: updatedBlocks }));
                                             }}
                                             className="w-full p-2 rounded bg-gray-600 text-white"
                                         >
@@ -304,10 +350,8 @@ export default function CreateFeaturedStory() {
                                                 }
                                                 className="w-full p-2 rounded bg-gray-600 text-white"
                                             >
-                                                {[1, 2, 3, 4, 5, 6].map((level) => (
-                                                    <option key={level} value={level}>
-                                                        H{level}
-                                                    </option>
+                                                {[1, 2, 3, 4, 5, 6].map(level => (
+                                                    <option key={level} value={level}>H{level}</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -324,27 +368,27 @@ export default function CreateFeaturedStory() {
                                             />
                                             {block.imageUrl && (
                                                 <div className="mt-2">
-                                                    <img src={block.imageUrl} alt="Preview" className="max-h-40 rounded" />
+                                                    <img
+                                                        src={block.imageUrl}
+                                                        alt="Preview"
+                                                        className="max-h-40 rounded"
+                                                    />
                                                 </div>
                                             )}
                                         </div>
                                     ) : (
                                         <div className="mb-3">
                                             <label className="block text-white mb-2">
-                                                {block.type === 'paragraph'
-                                                    ? 'Text Content'
-                                                    : block.type === 'heading'
-                                                        ? 'Heading Text'
-                                                        : block.type === 'video'
-                                                            ? 'Video URL'
-                                                            : 'Code Content'}
+                                                {block.type === 'paragraph' ? 'Text Content' :
+                                                    block.type === 'heading' ? 'Heading Text' :
+                                                        block.type === 'video' ? 'Video URL' : 'Code Content'}
                                             </label>
                                             <textarea
                                                 value={block.content}
                                                 onChange={(e) => handleContentBlockChange(index, 'content', e.target.value)}
                                                 className="w-full p-2 rounded bg-gray-600 text-white"
                                                 rows={block.type === 'code' ? 6 : 4}
-                                                required
+                                                required={block.type !== 'image'}
                                             />
                                         </div>
                                     )}
@@ -384,20 +428,6 @@ export default function CreateFeaturedStory() {
                                 >
                                     Add Image
                                 </button>
-                                <button
-                                    type="button"
-                                    onClick={() => addContentBlock('video')}
-                                    className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition"
-                                >
-                                    Add Video
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => addContentBlock('code')}
-                                    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
-                                >
-                                    Add Code
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -407,6 +437,7 @@ export default function CreateFeaturedStory() {
                         <h2 className="text-xl font-semibold text-white mb-4 border-b border-gray-600 pb-2">
                             Additional Information
                         </h2>
+
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-white mb-2" htmlFor="category">
@@ -426,6 +457,7 @@ export default function CreateFeaturedStory() {
                                     <option value="personal">Personal</option>
                                 </select>
                             </div>
+
                             <div>
                                 <label className="block text-white mb-2" htmlFor="tags">
                                     Tags (comma separated)
@@ -440,6 +472,7 @@ export default function CreateFeaturedStory() {
                                     placeholder="tag1, tag2, tag3"
                                 />
                             </div>
+
                             <div>
                                 <label className="block text-white mb-2" htmlFor="keyPoints">
                                     Key Points (one per line)

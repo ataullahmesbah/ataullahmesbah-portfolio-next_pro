@@ -1,73 +1,88 @@
-'use client';
+// app/(with-layout)/featured-story/page.js
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import toast, { Toaster } from 'react-hot-toast';
+import StoriesClient from '@/app/components/Story/StoriesClient/StoriesClient';
+import dbConnect from '@/lib/dbMongoose';
+import FeaturedStory from '@/models/FeaturedStory';
 
-export default function FeaturedStory() {
-    const [story, setStory] = useState(null);
-    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchStory = async () => {
-            try {
-                setLoading(true);
-                const res = await fetch('/api/feature');
-                if (!res.ok) throw new Error('Failed to fetch stories');
-                const data = await res.json();
-                setStory(data[0]); // Show the latest story
-            } catch (error) {
-                toast.error('Error loading featured story');
-            } finally {
-                setLoading(false);
-            }
+export async function generateMetadata() {
+    return {
+        title: 'Featured Stories | Ataullah Mesbah',
+        description: 'Explore our collection of featured stories',
+        keywords: 'featured stories, tech, travel, SEO, personal stories',
+        openGraph: {
+            title: 'Featured Stories | Your Site Name',
+            description: 'Discover inspiring featured stories on tech, travel, SEO, and personal experiences.',
+            images: ['/images/og-image.jpg'],
+            url: 'https://ataullahmesbah.com/featured-story',
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: 'Featured Stories | Your Site Name',
+            description: 'Discover inspiring featured stories on tech, travel, SEO, and personal experiences.',
+            images: ['/images/og-image.jpg'],
+        },
+    };
+}
+
+async function fetchStories(page = 1, limit = 6) {
+    try {
+        await dbConnect();
+        const skip = (page - 1) * limit;
+
+        const [stories, total] = await Promise.all([
+            FeaturedStory.find({ status: 'published' })
+                .sort({ publishedDate: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            FeaturedStory.countDocuments({ status: 'published' })
+        ]);
+
+        return {
+            stories,
+            total,
+            page,
+            pages: Math.ceil(total / limit)
         };
-        fetchStory();
-    }, []);
-
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-gray-800 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            </div>
-        );
+    } catch (error) {
+        console.error('Error fetching stories:', error);
+        return { stories: [], total: 0, page: 1, pages: 1 };
     }
+}
 
-    if (!story) {
-        return (
-            <div className="min-h-screen bg-gray-800 flex items-center justify-center">
-                <p className="text-white text-lg">No featured story available</p>
-            </div>
-        );
-    }
+export default async function FeaturedStories({ searchParams }) {
+    const page = parseInt(searchParams.page) || 1;
+    const { stories, total, pages } = await fetchStories(page);
+
+    // Schema Markup for Article List
+    const schema = {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        itemListElement: stories.map((story, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            item: {
+                '@type': 'Article',
+                headline: story.title,
+                description: story.metaDescription,
+                image: story.mainImage,
+                url: `https://ataullahmesbah.com/featured-story/${story.slug}`,
+                author: { '@type': 'Person', name: story.author },
+                datePublished: story.publishedDate,
+            },
+        })),
+    };
 
     return (
-        <div className="min-h-screen bg-gray-800 py-12 px-4">
-            <Toaster position="top-right" />
-            <div className="max-w-4xl mx-auto">
-                <h1 className="text-4xl font-bold text-white mb-8 text-center">Featured Story</h1>
-                <div className="bg-gray-700 rounded-lg shadow-lg overflow-hidden transform transition duration-300 hover:scale-105">
-                    <div className="relative h-64">
-                        <Image
-                            src={story.image}
-                            alt={story.title}
-                            layout="fill"
-                            objectFit="cover"
-                            className="rounded-t-lg"
-                        />
-                    </div>
-                    <div className="p-6">
-                        <h2 className="text-2xl font-semibold text-white mb-2">{story.title}</h2>
-                        <p className="text-gray-300 mb-4">{story.description}</p>
-                        <Link href={`/featured-story/${story.slug}`}>
-                            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                                Read More
-                            </button>
-                        </Link>
-                    </div>
-                </div>
-            </div>
+        <div className="min-h-screen bg-gray-800 py-12 px-4 sm:px-6 lg:px-8 ">
+            <StoriesClient
+                stories={stories}
+                schema={schema}
+                currentPage={page}
+                totalPages={pages}
+            />
         </div>
     );
 }

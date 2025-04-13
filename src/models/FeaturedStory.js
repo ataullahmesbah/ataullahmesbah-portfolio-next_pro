@@ -49,6 +49,9 @@ const FeaturedStorySchema = new mongoose.Schema(
             required: true,
             unique: true,
             index: true,
+            default: function () { // Add default function
+                return slugify(this.title, { lower: true, strict: true });
+            }
         },
         metaDescription: {
             type: String,
@@ -92,12 +95,6 @@ const FeaturedStorySchema = new mongoose.Schema(
         tags: {
             type: [String],
             default: [],
-            validate: {
-                validator: function (v) {
-                    return v.length <= 10;
-                },
-                message: 'Cannot have more than 10 tags',
-            },
         },
         metaTitle: {
             type: String,
@@ -105,9 +102,8 @@ const FeaturedStorySchema = new mongoose.Schema(
             maxlength: [60, 'Meta title cannot exceed 60 characters'],
         },
         author: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true,
+            type: String,  // Changed from ObjectId to String
+            required: [true, 'Author is required'],
         },
         keyPoints: {
             type: [String],
@@ -122,10 +118,14 @@ const FeaturedStorySchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-// Add pre-save hook for slug generation
+// Improved slug generation
 FeaturedStorySchema.pre('save', function (next) {
-    if (!this.slug && this.title) {
-        this.slug = slugify(this.title, { lower: true, strict: true });
+    if (!this.slug || this.isModified('title')) {
+        this.slug = slugify(this.title, {
+            lower: true,
+            strict: true,
+            remove: /[*+~.()'"!:@]/g
+        });
     }
     next();
 });
