@@ -89,6 +89,7 @@ const AdminDashboardLayout = ({ children }) => {
             children: [
                 { label: 'ALL Featured Story', link: '/admin-dashboard/story/all-featured-story' },
                 { label: 'Add Featured Story', link: '/admin-dashboard/story/add-featured-story' },
+                { label: 'Statistics', link: '/admin-dashboard/story/statistics' },
 
 
 

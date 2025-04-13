@@ -13,6 +13,8 @@ import NewsletterStatisticsPage from './newsletter/newsletterstatistics/page';
 import { useEffect, useState } from 'react';
 import { FaSun, FaCloudSun, FaMoon, FaStar } from 'react-icons/fa';
 
+
+
 export default function AdminDashboardPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -85,6 +87,7 @@ export default function AdminDashboardPage() {
                 <ProjectStatisticsPage />
                 <NewsletterStats />
                 <NewsletterStatisticsPage />
+                {/* <Statistics /> */}
 
 
                 <div>

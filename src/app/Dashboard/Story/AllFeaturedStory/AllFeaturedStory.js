@@ -89,7 +89,7 @@ export default function AllFeaturedStories() {
                         >
                             <FiRefreshCw className="text-xl" />
                         </button>
-                        <Link href="/admin/Story/CreateFeaturedStory" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                        <Link href="/admin-dashboard/story/add-featured-story" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
                             Create New Story
                         </Link>
                     </div>
