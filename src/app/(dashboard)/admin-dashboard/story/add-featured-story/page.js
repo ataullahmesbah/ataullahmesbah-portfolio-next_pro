@@ -1,10 +1,10 @@
-import AddFeaturedStory from "@/app/Dashboard/Story/AddFeaturedStory/AddFeaturedStory";
+import CreateFeaturedStory from "@/app/Dashboard/Story/AddFeaturedStory/AddFeaturedStory";
 
 
 const page = () => {
     return (
         <div>
-            <AddFeaturedStory />
+            <CreateFeaturedStory />
         </div>
     );
 };

@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server';
-import slugify from 'slugify';
 import cloudinary from '@/utils/cloudinary';
 import FeaturedStory from '@/models/FeaturedStory';
+import mongoose from 'mongoose';
 import dbConnect from '@/lib/dbMongoose';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/route';
-
 
 export async function GET() {
     try {
@@ -13,74 +10,72 @@ export async function GET() {
         const stories = await FeaturedStory.find({ status: 'published' })
             .sort({ publishedDate: -1 })
             .populate('author', 'name email');
-        return NextResponse.json(stories);
+        return NextResponse.json(stories, { status: 200 });
     } catch (error) {
-        console.error('GET /api/feature error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch stories' },
-            { status: 500 }
-        );
+        console.error('GET /api/featured-stories error:', error);
+        return NextResponse.json({ error: 'Failed to fetch stories' }, { status: 500 });
     }
 }
 
 export async function POST(request) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-        return NextResponse.json(
-            { error: 'Unauthorized' },
-            { status: 401 }
-        );
-    }
-
     try {
         await dbConnect();
         const formData = await request.formData();
 
-        // Extract all fields
+        // Extract fields
         const title = formData.get('title');
+        const metaTitle = formData.get('metaTitle');
         const metaDescription = formData.get('metaDescription');
-        const description = formData.get('description');
-        const contentRaw = formData.get('content');
-        const imageFile = formData.get('image');
+        const shortDescription = formData.get('shortDescription');
+        const mainImage = formData.get('mainImage');
         const category = formData.get('category');
         const tags = formData.get('tags')?.split(',').map(t => t.trim()).filter(t => t) || [];
-        const metaTitle = formData.get('metaTitle');
-        const keyPoints = formData.get('keyPoints')?.split('|').map(k => k.trim()).filter(k => k) || [];
+        const keyPoints = formData.get('keyPoints')?.split('\n').map(k => k.trim()).filter(k => k) || [];
+        const contentBlocksRaw = formData.get('contentBlocks');
+        const author = formData.get('author') || '66f4d0b0f1a1b2c3d4e5f6a7'; // Placeholder ObjectId
 
         // Validate required fields
-        if (!title || !metaDescription || !description || !imageFile || !metaTitle) {
-            return NextResponse.json(
-                { error: 'Missing required fields' },
-                { status: 400 }
-            );
+        if (!title || !metaTitle || !metaDescription || !shortDescription || !mainImage) {
+            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        // Parse and validate content
-        let content;
+        // Parse and validate contentBlocks
+        let contentBlocks;
         try {
-            content = JSON.parse(contentRaw);
-            if (!Array.isArray(content) || content.length === 0) {
-                throw new Error('Content must be a non-empty array');
+            contentBlocks = JSON.parse(contentBlocksRaw);
+            if (!Array.isArray(contentBlocks) || contentBlocks.length === 0) {
+                throw new Error('Content blocks must be a non-empty array');
             }
+            contentBlocks.forEach(block => {
+                if (!['paragraph', 'heading', 'image', 'video', 'code'].includes(block.type)) {
+                    throw new Error('Invalid block type');
+                }
+                if (block.type === 'image' && !block.imageUrl) {
+                    throw new Error('Image URL required for image blocks');
+                }
+                if (block.type !== 'image' && !block.content) {
+                    throw new Error('Content required for non-image blocks');
+                }
+                if (block.type === 'heading' && !block.level) {
+                    throw new Error('Level required for heading blocks');
+                }
+            });
         } catch (error) {
-            return NextResponse.json(
-                { error: 'Invalid content format' },
-                { status: 400 }
-            );
+            console.error('Content blocks parse error:', error);
+            return NextResponse.json({ error: error.message }, { status: 400 });
         }
 
-        // Convert image file to buffer
-        const imageBuffer = await imageFile.arrayBuffer();
+        // Upload main image to Cloudinary
+        const imageBuffer = await mainImage.arrayBuffer();
         const imageArray = Array.from(new Uint8Array(imageBuffer));
         const imageData = Buffer.from(imageArray);
 
-        // Upload image to Cloudinary
         const uploadResult = await new Promise((resolve) => {
             cloudinary.uploader.upload_stream(
                 {
                     resource_type: 'image',
                     format: 'webp',
-                    quality: 'auto:good'
+                    quality: 'auto:good',
                 },
                 (error, result) => {
                     if (error) {
@@ -93,46 +88,29 @@ export async function POST(request) {
         });
 
         if (!uploadResult) {
-            return NextResponse.json(
-                { error: 'Failed to upload image' },
-                { status: 500 }
-            );
+            return NextResponse.json({ error: 'Failed to upload main image' }, { status: 500 });
         }
 
-        // Create slug
-        const slug = title.toLowerCase()
-            .replace(/[^\w\s-]/g, '')
-            .replace(/[\s_-]+/g, '-')
-            .replace(/^-+|-+$/g, '');
-
-        // Create new story
+        // Create story
         const story = new FeaturedStory({
             title,
-            slug,
+            metaTitle,
             metaDescription,
-            description,
-            image: uploadResult.secure_url,
-            content,
+            shortDescription,
+            mainImage: uploadResult.secure_url,
             category,
             tags,
-            metaTitle,
-            author: session.user.id,
             keyPoints,
-            status: 'published'
+            contentBlocks,
+            author: new mongoose.Types.ObjectId(author), // Convert to ObjectId
+            status: 'published',
         });
 
         await story.save();
 
-        return NextResponse.json(
-            { message: 'Story created successfully', story },
-            { status: 201 }
-        );
-
+        return NextResponse.json({ message: 'Story created successfully', story }, { status: 201 });
     } catch (error) {
-        console.error('POST /api/feature error:', error);
-        return NextResponse.json(
-            { error: 'Internal server error' },
-            { status: 500 }
-        );
+        console.error('POST /api/featured-stories error:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
