@@ -1,62 +1,129 @@
-import Image from "next/image";
+// app/(with-layout)/featured-story/page.js
+'use client';
 
-const FeaturedStory = () => {
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import toast, { Toaster } from 'react-hot-toast';
+import { FiCalendar } from 'react-icons/fi';
+import { useSession } from 'next-auth/react';
+import { FaUser, FaUserTie } from 'react-icons/fa';
+
+export default function FeaturedStory() {
+    const [story, setStory] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const { data: session, status } = useSession();
+
+    useEffect(() => {
+        async function fetchLatestStory() {
+            try {
+                const res = await fetch('/api/feature', {
+                    cache: 'no-store',
+                });
+                if (!res.ok) {
+                    throw new Error('Failed to fetch story');
+                }
+                const stories = await res.json();
+                // Get the latest published story
+                const latestStory = Array.isArray(stories)
+                    ? stories.find(s => s.status === 'published')
+                    : null;
+                setStory(latestStory);
+            } catch (error) {
+                console.error('Error fetching story:', error);
+                toast.error('Failed to load featured story');
+                setStory(null);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchLatestStory();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className=" flex items-center justify-center px-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
+
+    if (!story) {
+        return (
+            <div className="flex items-center justify-center px-4">
+                <p className="text-white text-base">No featured story available</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="max-w-6xl mx-auto px-4 py-8">
-            <div className="grid md:grid-cols-2 gap-6 items-center">
-                {/* Left Image Section */}
-                <div className="w-full">
-                    <Image
-                        src="https://i.ibb.co/YT42Bhc2/ai43.jpg"
-                        alt="Featured Story"
-                        width={550}
-                        height={450}
-                        className="w-full rounded-md h-72 md:h-80 object-cover"
-                        priority
-                    />
-                </div>
+        <>
+            <Toaster position="top-right" />
+            <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+                <div className="max-w-5xl mx-auto">
+                    <div className="bg-gray-800 rounded-xl shadow-lg overflow-hidden flex flex-col lg:flex-row">
+                        {/* Left Side: Image */}
+                        <div className="lg:w-1/2 relative h-64 lg:h-auto">
+                            <Image
+                                src={story.mainImage || '/images/placeholder.jpg'}
+                                alt={story.title}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 1024px) 100vw, 50vw"
+                                priority
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent lg:bg-gradient-to-r lg:from-black/50 lg:to-transparent" />
+                        </div>
 
-                {/* Right Text Section */}
-                <div className="space-y-4">
-                    <p className="text-sm uppercase font-semibold text-gray-500 tracking-wide">
-                        Featured Story
-                    </p>
-                    <h1 className="text-xl md:text-2xl font-bold text-gray-900 leading-tight">
-                        Ten principles of Hostinger: What’s the antidote to stagnation?
-                    </h1>
-                    <p className="text-gray-600 text-sm md:text-base">
-                        Launching a project or finding the perfect way to start a blog post can sometimes feel like an endless task, right? I know the struggle all too well. But there's one thing I've le…
-                    </p>
+                        {/* Right Side: Details */}
+                        <div className="lg:w-1/2 p-6 lg:p-8 flex flex-col justify-center">
+                            <h3 className="text-lg font-semibold text-blue-400 uppercase tracking-wider mb-3">
+                                Featured Story
+                            </h3>
+                            <Link href={`/featured-story/${story.slug}`}>
+                                <h2 className="text-2xl font-bold text-white mb-3 hover:text-blue-400 transition-colors">
+                                    {story.title}
+                                </h2>
+                            </Link>
+                            <p className="text-gray-300 mb-4 text-sm line-clamp-3">
+                                {story.metaDescription.slice(0, 130)}...
+                            </p>
+                            <div className="flex gap-3 items-center">
+                                <div>
+                                    {/* User Image / Avatar */}
+                                    {session?.user?.image ? (
+                                        <Image
+                                            src={session.user.image}
+                                            alt="User Avatar"
+                                            width={48} // w-12 = 48px
+                                            height={48} // h-12 = 48px
+                                            className="w-11 h-11 rounded-full border-2 border-sky-900 object-cover"
+                                        />
+                                    ) : session?.user?.gender === 'female' ? (
+                                        <FaUserTie className="w-12 h-12 text-gray-500" />
+                                    ) : (
+                                        <FaUser className="w-12 h-12 text-gray-500" />
+                                    )}
+                                </div>
 
-                    {/* Author Section */}
-                    <div className="flex items-center gap-4 mt-4">
-                        <Image
-                            src="https://i.ibb.co/YT42Bhc2/ai43.jpg"
-                            alt="Author"
-                            width={50}
-                            height={50}
-                            className="w-12 h-12 rounded-full object-cover"
-                            priority
-                        />
-                        <div>
-                            <p className="font-semibold text-gray-800">Ataullah Mesbah</p>
-                            <p className="text-sm text-gray-500">Mar 06, 2025</p>
-
-                            {/* <p className="text-gray-800">
-                                {new Intl.DateTimeFormat('en-US', {
-                                    month: 'short', // "Mar"
-                                    day: '2-digit', // "06"
-                                    year: 'numeric' // "2025"
-                                }).format(new Date(blog.publishDate))}
-                            </p> */}
-
-
+                                <div className="items-center text-gray-400 text-sm space-y-1">
+                                    <span className="text-white font-medium">{story.author}</span>
+                                    <span className="mx-2"></span>
+                                    <span className="flex items-center">
+                                        <FiCalendar className="mr-1" />
+                                        {new Date(story.publishedDate).toLocaleDateString('en-US', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                        })}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
-};
-
-export default FeaturedStory;
+}
