@@ -1,10 +1,11 @@
-import FreaturedStory from '@/app/components/Share/FreaturedStory/FreaturedStory'; // Note: Fix typo if it’s "Freatured" vs "Featured"
+import FreaturedStory from '@/app/components/Share/FreaturedStory/FreaturedStory';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FiEye, FiArrowRight } from "react-icons/fi";
-
 import { Suspense } from 'react';
-import Loader from '@/app/components/Loader/Loader';
+
+import UiLoader from '@/app/components/Loader/UiLoader/UiLoader';
+
 
 // Fetch blogs and categories from the API
 async function getBlogs(page = 1, limit = 6) {
@@ -185,7 +186,7 @@ export default function BlogList({ searchParams }) {
 
   return (
     <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white p-4 sm:p-6 md:p-6 lg:p-8 min-h-screen relative">
-      <Suspense fallback={<Loader />}>
+      <Suspense fallback={<UiLoader />}>
         <BlogContent page={page} limit={limit} />
       </Suspense>
     </div>

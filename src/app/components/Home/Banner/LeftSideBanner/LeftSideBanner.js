@@ -1,70 +1,81 @@
 'use client';
-
 import { useTypewriter, Cursor } from 'react-simple-typewriter';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 const LeftSideBanner = () => {
     const [text] = useTypewriter({
-        words: ['a Developer.', 'an SEO Expert.', 'a Content Creator.', 'a Traveler.' ],
+        words: ['Web Developer', 'SEO Expert', 'Travel Lover', 'Tech Enthusiast'],
         loop: true,
-        typeSpeed: 20,
-        deleteSpeed: 10,
-        delaySpeed: 2000,
+        typeSpeed: 30,
+        deleteSpeed: 20,
     });
 
     return (
-        <div className="flex flex-col items-center md:items-start md:w-1/2 gap-5 text-center md:text-left poppins-regular">
-            <h1 className="md:text-5xl text-3xl font-bold">
-                Hi, I’m <span className="text-[#9393a4] capitalize">Ataullah Mesbah</span>
-            </h1>
-            <h2 className="lg:text-4xl text-xl font-bold">
-                <span className="text-[#eeeeee]">{text}</span>
-                <Cursor cursorStyle="|" cursorColor="#00CCFF" />
-            </h2>
+        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 space-y-8">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="space-y-2"
+            >
+                <p className="text-lg text-pink-400 font-mono">Hello, This is</p>
+                <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">
+                    Ataullah <span className="text-cyan-400">Mesbah</span>
+                </h1>
+            </motion.div>
 
-            {/* User description */}
-            <p className="mt-4">
-                I am passionate about development, search engine optimization, and exploring new places.
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-xl md:text-2xl text-gray-300"
+            >
+                <span>I am a </span>
+                <span className="text-cyan-400">{text}</span>
+                <Cursor cursorColor="#FF10F0" />
+            </motion.div>
 
-                I thrive in creating efficient and dynamic web applications that solve real-world problems.
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="space-y-4 text-gray-400 text-justify"
+            >
+                <p className="leading-relaxed">
+                    Professional web developer with 3+ years of experience specializing in modern JavaScript frameworks like Next.js and React. Expert in SEO optimization and performance tuning to create blazing fast websites.
+                </p>
+                <p className="leading-relaxed">
+                    Passionate about combining technology and creativity to build digital experiences that inspire. When not coding, you will find me exploring new destinations and capturing travel stories.
+                </p>
+            </motion.div>
 
-                As a travel enthusiast, I love to document my journeys and share them with the world.
-            </p>
-            <p className="mt-4">
-                Whether it’s coding, trekking, or sports, I’m always eager to take on new challenges.
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="flex flex-wrap gap-4 pt-2"
+            >
+                <Link href="/contact" className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+                    <button className="relative px-6 py-3 bg-gray-900 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-colors">
+                        <span className="text-gray-100 font-medium">Get Started</span>
+                        <svg className="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </button>
+                </Link>
 
-                Join me on this exciting journey to explore, learn, and grow together!
-            </p>
-
-            {/* Get Started button */}
-            {/* <a href='/contact' className="flex flex-col items-center md:items-start w-full">
-                <button className="mt-6 w-36 bg-sky-800 text-white py-3 px-4 rounded-lg hover:bg-opacity-80 transition duration-300">
-                    Get Started
-                </button>
-            </a> */}
-
-            <div className="py-5">
-                <div className="grid gap-8 items-start justify-center">
-                    <div className="relative group">
-
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
-
-
-                        <button className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600">
-                            <span className="flex items-center space-x-5">
-
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-pink-600 -rotate-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7" />
-                                </svg>
-
-
-                                <a href='/contact' className="pr-6 text-gray-100">Get Started</a>
-                            </span>
-                            <span className="pl-6 text-indigo-400 group-hover:text-gray-100 transition duration-200">Begin your journey &rarr;</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
+                <Link href="/projects" className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+                    <button className="relative px-6 py-3 bg-gray-900 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-colors">
+                        <span className="text-gray-100 font-medium">View Projects</span>
+                        <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                    </button>
+                </Link>
+            </motion.div>
         </div>
     );
 };
