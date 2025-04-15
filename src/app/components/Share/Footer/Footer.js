@@ -124,7 +124,8 @@ const Footer = () => {
                                 { href: "/featured-story", label: "Feature Story" },
                                 { href: "/mesbahoffwego", label: "Travel Story" },
                                 { href: "/projects", label: "Projects" },
-                                { href: "/blog", label: "Blog" }
+                                { href: "/blog", label: "Blog" },
+                                { href: "/content-creation", label: "Content Journey" }
                             ].map((link) => (
                                 <li key={link.href} className="text-center md:text-left">
                                     <Link
