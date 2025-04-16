@@ -5,7 +5,7 @@ const Footer = () => {
     return (
         <footer className="bg-gray-900 text-white py-10">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {/* Logo and Description */}
                     <div className="lg:col-span-1">
                         <div className="flex justify-center md:justify-start">
@@ -71,28 +71,24 @@ const Footer = () => {
                         </p>
                     </div>
 
-
-
-                    {/* Contact Section */}
+                    {/* Newsletter Section */}
                     <div className="lg:col-span-1">
-                        <h6 className="font-semibold text-white mb-3 amsfonts text-center md:text-left">Contact Now</h6>
+                        <h6 className="font-semibold text-white mb-3 amsfonts text-center md:text-left">Stay Updated</h6>
                         <p className="text-sm text-gray-400 mb-3 text-center md:text-left">
-                            Don’t miss our future updates! Get Subscribed Today!
+                            Subscribe to my newsletter for the latest updates and insights.
                         </p>
                         <div className="flex justify-center md:justify-start">
-                            <Link href='/contact'>
+                            <Link href='/letter'>
                                 <button className="text-sm text-white bg-sky-900/30 hover:bg-sky-900/50 p-2 px-4 rounded-md transition-colors duration-200">
-                                    Subscribe
+                                    Join Newsletter
                                 </button>
                             </Link>
                         </div>
                     </div>
 
-
-
                     {/* Social Icons */}
                     <div className="lg:col-span-1">
-                        <h6 className=" text-white mb-4 amsfonts text-center md:text-left">Connect With Me</h6>
+                        <h6 className="text-white mb-3 amsfonts text-center md:text-left">Connect With Me</h6>
                         <ul className="flex space-x-4 justify-center md:justify-start">
                             <li>
                                 <a href="https://www.facebook.com/ataullahmesbah10" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-500 transition-colors duration-200">
@@ -115,28 +111,50 @@ const Footer = () => {
                                 </a>
                             </li>
                         </ul>
+                        <p className="text-xs text-gray-400 mt-4 text-center md:text-left">
+                            Follow me on social media for daily updates and insights.
+                        </p>
                     </div>
-                    {/* Quick Links */}
+
+                    {/* Useful Links - Split into two columns */}
                     <div className="lg:col-span-1">
-                        <h6 className="font-semibold text-white mb-4 amsfonts text-center md:text-left">Quick Links</h6>
-                        <ul className="space-y-1">
-                            {[
-                                { href: "/featured-story", label: "Feature Story" },
-                                { href: "/mesbahoffwego", label: "Travel Story" },
-                                { href: "/projects", label: "Projects" },
-                                { href: "/blog", label: "Blog" },
-                                { href: "/content-creation", label: "Content Journey" }
-                            ].map((link) => (
-                                <li key={link.href} className="text-center md:text-left">
-                                    <Link
-                                        href={link.href}
-                                        className="text-gray-400 hover:text-gray-200 transition-colors duration-200 text-sm"
-                                    >
-                                        {link.label}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
+                        <h6 className="font-semibold text-white mb-3 amsfonts text-center md:text-left">Useful Links</h6>
+                        <div className="grid grid-cols-2 gap-4">
+                            <ul className="space-y-1">
+                                {[
+                                    { href: "/blog", label: "Blog" },
+                                    { href: "/projects", label: "Projects" },
+                                    { href: "/about", label: "About AMZ" },
+                                    { href: "/mesbahoffwego", label: "Travel Story" }
+                                ].map((link) => (
+                                    <li key={link.href} className="text-center md:text-left">
+                                        <Link
+                                            href={link.href}
+                                            className="text-gray-400 hover:text-gray-200 transition-colors duration-200 text-sm"
+                                        >
+                                            {link.label}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                            <ul className="space-y-1">
+                                {[
+                                    { href: "/featured-story", label: "Feature Story" },
+                                    { href: "/content-creation", label: "Content Story" },
+                                    { href: "/privacy-policy", label: "Privacy Policy" },
+                                    { href: "/terms-of-service", label: "Terms & Conditions" }
+                                ].map((link) => (
+                                    <li key={link.href} className="text-center md:text-left">
+                                        <Link
+                                            href={link.href}
+                                            className="text-gray-400 hover:text-gray-200 transition-colors duration-200 text-sm"
+                                        >
+                                            {link.label}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
