@@ -95,6 +95,18 @@ const AdminDashboardLayout = ({ children }) => {
 
             ],
         },
+        {
+            label: 'CERTIFICATIONS',
+            children: [
+                { label: 'ALL Award-License', link: '/admin-dashboard/certification/all-certifications' },
+                { label: 'Add Certification', link: '/admin-dashboard/certification/add-certification' },
+
+
+
+
+
+            ],
+        },
     ];
 
     // Redirect if user is not authenticated or not an admin
