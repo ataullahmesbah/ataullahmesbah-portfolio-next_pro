@@ -85,6 +85,8 @@ export default function CertificationsAwards() {
                                         className="object-contain rounded-md shadow"
                                         priority
                                     />
+
+                                    {/* hh */}
                                 </div>
                                 <div className="mt-3">
                                     <p className="text-gray-100 font-medium text-sm md:text-base">{cert.title}</p>
