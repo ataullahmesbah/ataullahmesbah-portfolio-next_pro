@@ -69,7 +69,7 @@ export default function AddCertificationForm() {
             console.log('API success response:', result);
 
             toast.success('Certification added successfully!');
-            router.push('/admin/certifications');
+            router.push('/admin-dashboard/certification/all-certifications');
         } catch (error) {
             console.error('Add certification error:', error);
             toast.error(error.message || 'Failed to add certification');

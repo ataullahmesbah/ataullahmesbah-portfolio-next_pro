@@ -3,15 +3,33 @@ import Certification from '@/models/Certification';
 import { getServerSession } from 'next-auth/next';
 import cloudinary from '@/utils/cloudinary';
 import { authOptions } from '../auth/[...nextauth]/route';
+import dbConnect from '@/lib/dbMongoose';
 
-export async function GET() {
+// Add this GET endpoint for single certification
+export async function GET(request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+
+        if (!id) {
+            // Return all certifications if no ID provided
+            await dbConnect();
+            const certifications = await Certification.find().lean();
+            return NextResponse.json(certifications);
+        }
+
+        // Return single certification if ID provided
         await dbConnect();
-        const certifications = await Certification.find().lean();
-        return NextResponse.json(certifications);
+        const certification = await Certification.findById(id).lean();
+
+        if (!certification) {
+            return NextResponse.json({ message: 'Certification not found' }, { status: 404 });
+        }
+
+        return NextResponse.json(certification);
     } catch (error) {
-        console.error('GET certifications error:', error);
-        return NextResponse.json({ message: 'Failed to fetch certifications' }, { status: 500 });
+        console.error('GET certification error:', error);
+        return NextResponse.json({ message: 'Failed to fetch certification' }, { status: 500 });
     }
 }
 
@@ -33,16 +51,18 @@ export async function POST(request) {
             return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
         }
 
+        // Convert image to buffer for Cloudinary upload
+        const imageBuffer = await image.arrayBuffer();
+
         // Upload image to Cloudinary
         const uploadResult = await new Promise((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream(
+            cloudinary.uploader.upload_stream(
                 { folder: 'certifications', format: 'webp' },
                 (error, result) => {
                     if (error) reject(error);
                     else resolve(result);
                 }
-            );
-            image.stream().pipe(stream);
+            ).end(Buffer.from(imageBuffer));
         });
 
         await dbConnect();
@@ -50,14 +70,17 @@ export async function POST(request) {
             niche,
             title,
             issuer,
-            credentialId,
+            credentialId: credentialId || undefined,
             image: uploadResult.secure_url,
         });
 
         return NextResponse.json(certification, { status: 201 });
     } catch (error) {
         console.error('POST certification error:', error);
-        return NextResponse.json({ message: 'Failed to create certification' }, { status: 500 });
+        return NextResponse.json({
+            message: 'Failed to create certification',
+            error: error.message
+        }, { status: 500 });
     }
 }
 
@@ -84,16 +107,15 @@ export async function PUT(request) {
         const updateData = { niche, title, issuer, credentialId };
 
         if (image && image.size > 0) {
-            // Upload new image to Cloudinary
+            const imageBuffer = await image.arrayBuffer();
             const uploadResult = await new Promise((resolve, reject) => {
-                const stream = cloudinary.uploader.upload_stream(
+                cloudinary.uploader.upload_stream(
                     { folder: 'certifications', format: 'webp' },
                     (error, result) => {
                         if (error) reject(error);
                         else resolve(result);
                     }
-                );
-                image.stream().pipe(stream);
+                ).end(Buffer.from(imageBuffer));
             });
             updateData.image = uploadResult.secure_url;
         }
@@ -110,7 +132,10 @@ export async function PUT(request) {
         return NextResponse.json(certification);
     } catch (error) {
         console.error('PUT certification error:', error);
-        return NextResponse.json({ message: 'Failed to update certification' }, { status: 500 });
+        return NextResponse.json({
+            message: 'Failed to update certification',
+            error: error.message
+        }, { status: 500 });
     }
 }
 

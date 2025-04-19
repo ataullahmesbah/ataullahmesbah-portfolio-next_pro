@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-toastify';
 import UiLoader from '@/app/components/Loader/UiLoader/UiLoader';
 
+export default function EditCertification() {
+    // Get params using useParams hook
+    const params = useParams();
+    const id = params?.id;
 
-export default function EditCertification({ params }) {
-    const { id } = params;
     const [formData, setFormData] = useState({
         niche: '',
         title: '',
@@ -23,11 +25,16 @@ export default function EditCertification({ params }) {
 
     useEffect(() => {
         if (status === 'authenticated' && session?.user?.role === 'admin') {
+            if (!id) {
+                toast.error('Invalid certification ID');
+                router.push('/admin-dashboard/certification/all-certifications');
+                return;
+            }
             fetchCertification();
         } else if (status === 'unauthenticated' || session?.user?.role !== 'admin') {
             router.push('/');
         }
-    }, [status, session, router]);
+    }, [status, session, id, router]);
 
     const fetchCertification = async () => {
         try {
@@ -41,7 +48,7 @@ export default function EditCertification({ params }) {
                     niche: data.niche || '',
                     title: data.title || '',
                     issuer: data.issuer || '',
-                    credentialId: data.credentialId || '', // Fixed typo: CredentialId → credentialId
+                    credentialId: data.credentialId || '',
                 });
             } else {
                 throw new Error('Certification not found');
@@ -49,7 +56,7 @@ export default function EditCertification({ params }) {
         } catch (error) {
             console.error('Fetch certification error:', error);
             toast.error(error.message || 'Failed to fetch certification');
-            router.push('/admin/certifications');
+            router.push('/admin-dashboard/certification/all-certifications');
         } finally {
             setFetching(false);
         }
@@ -89,7 +96,7 @@ export default function EditCertification({ params }) {
             }
 
             toast.success('Certification updated successfully!');
-            router.push('/admin/certifications');
+            router.push('/admin-dashboard/certification/all-certifications');
         } catch (error) {
             console.error('Update certification error:', error);
             toast.error(error.message || 'Failed to update certification');

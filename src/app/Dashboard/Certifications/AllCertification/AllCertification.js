@@ -102,7 +102,7 @@ export default function AllCertifications() {
                             />
                         </div>
                         <Link
-                            href="/admin/certifications/add"
+                            href="/admin-dashboard/certification/add-certification"
                             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                         >
                             Add Certification
@@ -132,7 +132,7 @@ export default function AllCertifications() {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 flex gap-2">
                                                 <Link
-                                                    href={`/admin/certifications/edit/${cert._id}`}
+                                                    href={`/admin-dashboard/certification/edit/${cert._id}`}
                                                     className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-1 text-sm"
                                                 >
                                                     <FaEdit className="text-xs" /> Update
