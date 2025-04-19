@@ -176,6 +176,13 @@ const Navbar = () => {
                                         >
                                             Search Engine Optimization
                                         </Link>
+                                        <Link
+                                            href="/affiliate"
+                                            className="block px-4 py-2 w-full text-gray-100 hover:bg-gray-800"
+                                            onClick={closeMobileMenu}
+                                        >
+                                            Affiliate Program
+                                        </Link>
                                     </div>
                                 )}
                             </div>
