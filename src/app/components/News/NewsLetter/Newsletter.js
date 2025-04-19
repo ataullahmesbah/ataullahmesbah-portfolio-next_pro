@@ -5,13 +5,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { FiEye, FiArrowRight } from 'react-icons/fi';
+import { FiEye, FiArrowRight, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
-const LatestNewsLetter = () => {
+const NewsLetter = () => {
     const [newsletters, setNewsletters] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6;
     const router = useRouter();
-    const maxNewsletters = 6; // Limit to 6 newsletters
 
     useEffect(() => {
         const fetchNewsletters = async () => {
@@ -32,6 +33,59 @@ const LatestNewsLetter = () => {
         fetchNewsletters();
     }, []);
 
+    // Pagination calculations
+    const totalPages = Math.ceil(newsletters.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentNewsletters = newsletters.slice(startIndex, endIndex);
+
+    // Handle page change
+    const handlePageChange = (page) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
+    // Generate pagination items
+    const getPaginationItems = () => {
+        const items = [];
+        const maxVisiblePages = 5;
+
+        if (totalPages <= maxVisiblePages) {
+            for (let i = 1; i <= totalPages; i++) {
+                items.push(i);
+            }
+        } else {
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+
+            if (currentPage <= 3) {
+                startPage = 1;
+                endPage = maxVisiblePages;
+            } else if (currentPage >= totalPages - 2) {
+                startPage = totalPages - maxVisiblePages + 1;
+                endPage = totalPages;
+            }
+
+            if (startPage > 1) {
+                items.push(1);
+                if (startPage > 2) items.push('...');
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                items.push(i);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) items.push('...');
+                items.push(totalPages);
+            }
+        }
+
+        return items;
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-screen bg-gray-900">
@@ -45,12 +99,12 @@ const LatestNewsLetter = () => {
             <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent">
-                        Latest Newsletters
+                        Favourite Newsletter
                     </h1>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-6">
-                    {newsletters.slice(0, maxNewsletters).map((newsletter) => (
+                    {currentNewsletters.map((newsletter) => (
                         <div
                             key={newsletter._id}
                             className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-700"
@@ -107,15 +161,50 @@ const LatestNewsLetter = () => {
                     ))}
                 </div>
 
-                {/* View More Button */}
-                {newsletters.length > maxNewsletters && (
-                    <div className="mt-8 flex justify-center">
-                        <Link
-                            href="/newsletter"
-                            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-lg hover:shadow-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 text-sm font-medium"
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="mt-8 flex justify-center items-center gap-2">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className={`px-3 py-2 rounded-md flex items-center gap-1 text-sm ${
+                                currentPage === 1
+                                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                                    : 'bg-gray-800 text-white hover:bg-gray-600'
+                            }`}
                         >
-                            View More Newsletters
-                        </Link>
+                            <FiChevronLeft />
+                            Previous
+                        </button>
+
+                        {getPaginationItems().map((item, index) => (
+                            <button
+                                key={index}
+                                onClick={() => typeof item === 'number' && handlePageChange(item)}
+                                className={`px-4 py-2 rounded-md text-sm ${
+                                    item === currentPage
+                                        ? 'bg-purple-600 text-white'
+                                        : item === '...'
+                                        ? 'bg-gray-800 text-gray-400 cursor-default'
+                                        : 'bg-gray-800 text-white hover:bg-gray-600'
+                                }`}
+                            >
+                                {item}
+                            </button>
+                        ))}
+
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className={`px-3 py-2 rounded-md flex items-center gap-1 text-sm ${
+                                currentPage === totalPages
+                                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                                    : 'bg-gray-800 text-white hover:bg-gray-600'
+                            }`}
+                        >
+                            Next
+                            <FiChevronRight />
+                        </button>
                     </div>
                 )}
 
@@ -131,4 +220,4 @@ const LatestNewsLetter = () => {
     );
 };
 
-export default LatestNewsLetter;
+export default NewsLetter;

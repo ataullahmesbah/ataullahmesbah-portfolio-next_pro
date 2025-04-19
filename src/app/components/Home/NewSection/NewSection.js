@@ -36,7 +36,7 @@ const NewSection = () => {
     <section className="bg-gradient-to-b from-gray-900 to-gray-800 py-20 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -53,7 +53,7 @@ const NewSection = () => {
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Side - Statistics (50% width) */}
-          <motion.div 
+          <motion.div
             className="lg:w-1/2"
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -99,9 +99,9 @@ const NewSection = () => {
                   <p className="text-gray-300 mb-8 flex-1">
                     Offering top-tier SEO consultancy and services that help businesses rank higher and generate organic traffic through targeted strategies.
                   </p>
-                  <DynamicButton 
-                    text="View Projects" 
-                    alignment="left" 
+                  <DynamicButton
+                    text="View Projects"
+                    alignment="left"
                     className="w-fit"
                   />
                 </div>
@@ -129,9 +129,9 @@ const NewSection = () => {
                     <p className="text-gray-300 mb-8 flex-1">
                       Delivering modern and scalable web development solutions, specializing in custom websites and full-stack development.
                     </p>
-                    <DynamicButton 
-                      text="View Projects" 
-                      alignment="left" 
+                    <DynamicButton
+                      text="View Projects"
+                      alignment="left"
                       className="w-fit"
                     />
                   </div>
@@ -157,9 +157,9 @@ const NewSection = () => {
                     <p className="text-gray-300 mb-8 flex-1">
                       Crafting engaging and compelling content that aligns with brand strategy and drives user engagement.
                     </p>
-                    <DynamicButton 
-                      text="View Projects" 
-                      alignment="left" 
+                    <DynamicButton
+                      text="View Projects"
+                      alignment="left"
                       className="w-fit"
                     />
                   </div>

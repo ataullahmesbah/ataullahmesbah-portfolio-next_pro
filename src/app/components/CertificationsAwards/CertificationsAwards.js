@@ -9,34 +9,23 @@ import { FaCertificate } from 'react-icons/fa';
 
 export default function CertificationsAwards() {
     const [certifications, setCertifications] = useState([]);
-    const [loading, setLoading] = useState(true);
+
 
     useEffect(() => {
         const fetchCertifications = async () => {
             try {
-                const res = await fetch('/api/certifications', { cache: 'no-store' });
-                if (!res.ok) {
-                    throw new Error('Failed to fetch certifications');
-                }
+                const res = await fetch('/api/certifications');
+                if (!res.ok) return;
                 const data = await res.json();
                 setCertifications(data);
             } catch (error) {
-                console.error('Fetch certifications error:', error);
-                setCertifications([]);
-            } finally {
-                setLoading(false);
+                console.error('Fetch error:', error);
             }
         };
         fetchCertifications();
     }, []);
 
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-gray-800 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            </div>
-        );
-    }
+    if (certifications.length === 0) return null;
 
     return (
         <section className="bg-gray-800 py-12 px-4 md:px-8 lg:px-12">

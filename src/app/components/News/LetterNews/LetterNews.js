@@ -6,7 +6,8 @@ import DynamicButton from "@/app/components/Share/Button/DynamicButton/DynamicBu
 import Head from "next/head";
 import LetterReview from "@/app/components/Share/LetterReview/LetterReview";
 import NewsletterPage from "@/app/components/Share/NewsletterPage/NewsletterPage";
-import NewsLetterPage from "../NewsLetterPage/NewsLetterPage";
+import LatestNewsLetter from "../NewsLetterPage/NewsLetterPage";
+
 
 {/* This is my newsletter platform */ }
 
@@ -109,6 +110,11 @@ const NewsLetter = () => {
 
             <NewsletterPage />
 
+
+            {/* NewsLetter POST Page */}
+
+            <LatestNewsLetter />
+
             {/* Section - 3 */}
             <div className="bg-gray-800">
                 <div className="max-w-3xl mx-auto text-center justify-center py-12 space-y-10 px-2">
@@ -130,42 +136,67 @@ const NewsLetter = () => {
 
 
             {/* section - 4 */}
+            <section className="bg-black text-white py-16 px-4 sm:px-6">
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                            Our <span className="text-blue-400">Process</span>
+                        </h2>
+                        <p className="text-gray-300 max-w-2xl mx-auto">
+                            A streamlined approach to delivering exceptional results
+                        </p>
+                    </div>
 
-            <section className="bg-black text-white py-12">
-                <div className="max-w-7xl mx-auto px-6">
-                    <h2 className="text-center text-4xl font-bold mb-8">How Does It Work?</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="border border-white p-6 rounded-lg">
-                            <h3 className="text-xl font-bold mb-4">Step 1</h3>
-                            <p className="font-bold mb-2">Share Your Idea</p>
-                            <p>
-                                Submit your business idea or project for analysis. I ll review it
-                                to understand your goals and objectives.
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+                        {/* Connecting line */}
+                        <div className="hidden md:block absolute top-12 left-1/3 right-1/3 h-1 bg-gradient-to-r from-blue-500 to-purple-500 z-0"></div>
+
+                        {/* Step 1 */}
+                        <div className="relative z-10 bg-gray-900/50 hover:bg-gray-900/70 border border-gray-700 rounded-xl p-8 transition-all duration-300 group">
+                            <div className="flex items-center mb-4">
+                                <div className="bg-blue-600 text-white font-bold rounded-full w-10 h-10 flex items-center justify-center mr-4 group-hover:bg-blue-500 transition">
+                                    1
+                                </div>
+                                <h3 className="text-xl font-bold">Concept Analysis</h3>
+                            </div>
+                            <p className="font-semibold text-blue-300 mb-2">Share Your Idea</p>
+                            <p className="text-gray-300">
+                                Submit your business idea or project for comprehensive analysis. I’ll review it thoroughly to understand your unique goals and objectives.
                             </p>
                         </div>
-                        <div className="border border-white p-6 rounded-lg">
-                            <h3 className="text-xl font-bold mb-4">Step 2</h3>
-                            <p className="font-bold mb-2">Content Creation</p>
-                            <p>
-                                Based on your requirements, Ill create high-quality content and
-                                implement SEO strategies tailored to your business.
+
+                        {/* Step 2 */}
+                        <div className="relative z-10 bg-gray-900/50 hover:bg-gray-900/70 border border-gray-700 rounded-xl p-8 transition-all duration-300 group">
+                            <div className="flex items-center mb-4">
+                                <div className="bg-purple-600 text-white font-bold rounded-full w-10 h-10 flex items-center justify-center mr-4 group-hover:bg-purple-500 transition">
+                                    2
+                                </div>
+                                <h3 className="text-xl font-bold">Strategic Execution</h3>
+                            </div>
+                            <p className="font-semibold text-purple-300 mb-2">Content Creation</p>
+                            <p className="text-gray-300">
+                                Based on your requirements, I’ll craft high-quality content and implement customized SEO strategies specifically tailored to your business needs.
                             </p>
                         </div>
-                        <div className="border border-white p-6 rounded-lg">
-                            <h3 className="text-xl font-bold mb-4">Step 3</h3>
-                            <p className="font-bold mb-2">Results & Feedback</p>
-                            <p>
-                                Monitor the results, refine strategies, and continue optimizing
-                                to ensure your web presence grows effectively.
+
+                        {/* Step 3 */}
+                        <div className="relative z-10 bg-gray-900/50 hover:bg-gray-900/70 border border-gray-700 rounded-xl p-8 transition-all duration-300 group">
+                            <div className="flex items-center mb-4">
+                                <div className="bg-green-600 text-white font-bold rounded-full w-10 h-10 flex items-center justify-center mr-4 group-hover:bg-green-500 transition">
+                                    3
+                                </div>
+                                <h3 className="text-xl font-bold">Performance Optimization</h3>
+                            </div>
+                            <p className="font-semibold text-green-300 mb-2">Results & Feedback</p>
+                            <p className="text-gray-300">
+                                We’ll monitor results together, refine strategies, and continuously optimize to ensure your digital presence grows effectively and sustainably.
                             </p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* NewsLetter POST */}
 
-            <NewsLetterPage />
 
             {/* "Client Says" */}
 

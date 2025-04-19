@@ -11,9 +11,9 @@ import Sponser from "../components/Sponser/Sponser";
 import MarketingSection from "../components/Share/MarketingSection/MarketingSection";
 import NewSection from "../components/Home/NewSection/NewSection";
 import ProjectsTab from "../components/Share/ProjectsTab/ProjectsTab";
-import LicenseCertification from "../components/Share/LicenseCertification/LicenseCertification";
 import SideIcons from '../components/SideIcons/SideIcons';
 import NewsletterPage from '../components/Share/NewsletterPage/NewsletterPage';
+import CertificationsAwards from '../components/CertificationsAwards/CertificationsAwards';
 
 const HomePage = () => {
     const { data: session, status } = useSession();
@@ -43,7 +43,7 @@ const HomePage = () => {
                 <MarketingSection />
                 <Testimonials />
                 <NewSection />
-                <LicenseCertification />
+                <CertificationsAwards />
                 <NewsletterPage />
                 <ContactAssistance />
                 <SideIcons />
