@@ -38,7 +38,7 @@ const UiLoader = ({
     if (!showLoader) return null;
 
     return (
-        <div className={`flex items-center justify-center px-4 ${fullPage ? 'fixed inset-0 bg-gray-900/80 z-50' : ''}`}>
+        <div className={`flex items-center justify-center min-h-screen px-4 ${fullPage ? 'fixed inset-0 bg-gray-900/80 z-50' : ''}`}>
             <div className="flex flex-col items-center">
                 <div className={`animate-spin rounded-full ${sizeClasses[size]} ${colorClasses[color]}`}></div>
                 {message && (
