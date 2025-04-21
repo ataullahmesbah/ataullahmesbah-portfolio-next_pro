@@ -24,7 +24,7 @@ export async function POST(req) {
     }
 
     try {
-        // 🔑 Extra Security Check
+        // 🔑 Extra Security Check --
         const existingProfile = await UserProfile.findOne({ userId });
         if (existingProfile && session?.user?.email !== session.user.email) {
             return Response.json({ message: 'Unauthorized Access Detected' }, { status: 401 });
