@@ -35,27 +35,34 @@ export async function POST(req) {
       );
     }
 
-    // 5. Handle image upload
+    // 5. Handle image upload with WebP conversion
     let imageUrl = '';
     if (formData.image && formData.image.startsWith('data:image')) {
       try {
-        console.log('Uploading image to Cloudinary...');
+        console.log('Uploading image to Cloudinary with WebP conversion...');
         const uploadResult = await cloudinary.uploader.upload(formData.image, {
           folder: 'profile_images',
           public_id: `profile_${session.user.id}`,
           overwrite: true,
-          transformation: [{ width: 800, crop: 'limit' }]
+          format: 'webp', // Force WebP format
+          quality: 'auto:best', // Best quality with automatic optimization
+          transformation: [
+            { width: 800, crop: 'limit' },
+            { fetch_format: 'webp' }, // Additional format enforcement
+            { quality: 'auto:good' } // Good quality with automatic compression
+          ]
         });
         imageUrl = uploadResult.secure_url;
-        console.log('Image uploaded:', imageUrl);
+        console.log('WebP image uploaded:', imageUrl);
       } catch (uploadError) {
-        console.error('Image upload failed:', uploadError);
+        console.error('WebP image upload failed:', uploadError);
         return NextResponse.json(
           { success: false, message: 'Image upload failed' },
           { status: 500 }
         );
       }
     }
+
 
     // 6. Prepare data for database
     const profileData = {
@@ -112,7 +119,7 @@ export async function POST(req) {
       }
     };
 
-  
+
 
     // 7. Save to database
     const updatedProfile = await UserProfile.findOneAndUpdate(
