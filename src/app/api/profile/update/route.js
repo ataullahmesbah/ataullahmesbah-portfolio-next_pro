@@ -35,7 +35,7 @@ export async function POST(req) {
       );
     }
 
-    // 5. Handle image upload with WebP conversion
+    // 5. Handle image upload with WebP conversion (Cloudinary)
     let imageUrl = '';
     if (formData.image && formData.image.startsWith('data:image')) {
       try {
