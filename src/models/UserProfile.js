@@ -1,13 +1,21 @@
 import mongoose from 'mongoose';
+import slugify from 'slugify';
 
 const userProfileSchema = new mongoose.Schema(
     {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
-        image: { type: String }, // Profile image (Cloudinary URL)
-        verificationImage: { type: String }, // NID/Passport image
+        image: { type: String },
+        verificationImage: { type: String },
         verification: { type: String, enum: ['not_applied', 'pending', 'accepted', 'rejected'], default: 'not_applied' },
-        displayName: { type: String },
-        title: { type: String, maxlength: 50 }, // e.g., Full Stack Developer
+        displayName: { type: String, required: true },
+        slug: {
+            type: String,
+            unique: true,
+            default: function () {
+                return slugify(this.displayName, { lower: true, strict: true, remove: /[*+~.()'"!:@]/g });
+            }
+        },
+        title: { type: String, maxlength: 50 },
         location: { type: String, maxlength: 100 }, // e.g., Dhaka, Bangladesh
         expertise: [{ type: String }], // e.g., ["React", "Node.js"]
         bio: { type: String, minlength: 380, maxlength: 1000 }, // Updated to min 380, max 1000
@@ -54,5 +62,12 @@ const userProfileSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+
+userProfileSchema.pre('save', function (next) {
+    if (this.isModified('displayName')) {
+        this.slug = slugify(this.displayName, { lower: true, strict: true, remove: /[*+~.()'"!:@]/g });
+    }
+    next();
+});
 
 export default mongoose.models.UserProfile || mongoose.model('UserProfile', userProfileSchema);

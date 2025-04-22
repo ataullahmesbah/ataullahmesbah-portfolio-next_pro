@@ -1,5 +1,3 @@
-
-
 import dbConnect from '@/lib/dbMongoose';
 import UserProfile from '@/models/UserProfile';
 import { getServerSession } from 'next-auth/next';
@@ -7,20 +5,20 @@ import { authOptions } from '../../auth/[...nextauth]/route';
 
 
 
-export async function GET() {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== 'admin') {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401 });
-    }
-
+export async function GET(request) {
     await dbConnect();
 
     try {
-        // Fetch all profiles with verification status 'pending'
-        const profiles = await UserProfile.find({ verification: 'pending' }).populate('userId');
-        return new Response(JSON.stringify({ profiles }), { status: 200 });
+        const pending = await UserProfile.find({ verification: 'pending' }, 'slug displayName verification userId verificationImage')
+            .populate('userId', 'username email')
+            .lean();
+        const verified = await UserProfile.find({ verification: 'accepted' }, 'slug displayName verification userId verificationImage')
+            .populate('userId', 'username email')
+            .lean();
+
+        return new Response(JSON.stringify({ pending, verified }), { status: 200 });
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error fetching verifications:', error);
         return new Response(JSON.stringify({ message: 'Something went wrong' }), { status: 500 });
     }
 }
@@ -36,12 +34,15 @@ export async function PUT(request) {
     try {
         const { id, status } = await request.json();
 
-        // Update the verification status
+        if (!['accepted', 'rejected'].includes(status)) {
+            return new Response(JSON.stringify({ message: 'Invalid status' }), { status: 400 });
+        }
+
         const profile = await UserProfile.findByIdAndUpdate(
             id,
             { verification: status },
             { new: true }
-        );
+        ).populate('userId', 'username email');
 
         if (!profile) {
             return new Response(JSON.stringify({ message: 'Profile not found' }), { status: 404 });
@@ -49,12 +50,11 @@ export async function PUT(request) {
 
         return new Response(JSON.stringify({ profile }), { status: 200 });
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error updating verification:', error);
         return new Response(JSON.stringify({ message: 'Something went wrong' }), { status: 500 });
     }
 }
 
-// DELETE route for removing a user completely
 export async function DELETE(request) {
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== 'admin') {
@@ -74,7 +74,7 @@ export async function DELETE(request) {
 
         return new Response(JSON.stringify({ message: 'User profile deleted successfully' }), { status: 200 });
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error deleting profile:', error);
         return new Response(JSON.stringify({ message: 'Something went wrong' }), { status: 500 });
     }
 }
