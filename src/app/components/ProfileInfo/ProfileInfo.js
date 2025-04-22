@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -9,6 +10,7 @@ import { FaLinkedin, FaTwitter, FaGithub, FaDribbble, FaBehance } from 'react-ic
 import UiLoader from '../Loader/UiLoader/UiLoader';
 import Image from 'next/image';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 const RoleIcons = {
     developer: <FiCode className="text-blue-500" />,
@@ -33,6 +35,9 @@ export default function ProfileInfo() {
     const [profile, setProfile] = useState(null);
     const [user, setUser] = useState(null);
     const [activeTab, setActiveTab] = useState('experience');
+    const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+    const [verificationImage, setVerificationImage] = useState(null);
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     // Fetch profile data
@@ -49,15 +54,15 @@ export default function ProfileInfo() {
                 const data = await response.json();
                 console.log('Profile data:', data);
 
-                if (data) {
+                if (data.profile || data.user) {
                     setProfile(data.profile || {});
                     setUser(data.user || {});
                 } else {
-                    console.error('No data received');
+                    console.error('No profile or user data received');
                 }
             } catch (error) {
                 console.error('Error fetching profile:', error);
-                // Handle error state if needed
+                toast.error('Failed to load profile');
             }
         }
     };
@@ -65,6 +70,7 @@ export default function ProfileInfo() {
     useEffect(() => {
         if (status === 'unauthenticated') {
             router.push('/login');
+            toast.error('Please log in to access your profile.');
             return;
         }
 
@@ -72,6 +78,42 @@ export default function ProfileInfo() {
             fetchProfile();
         }
     }, [status, session]);
+
+    // Handle verification submission
+    const handleVerificationSubmit = async () => {
+        if (!verificationImage) {
+            toast.error('Please upload an image');
+            return;
+        }
+
+        setLoading(true);
+        const formData = new FormData();
+        formData.append('image', verificationImage);
+        formData.append('userId', session.user.id);
+
+        try {
+            const response = await fetch('/api/profile/upload', {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await response.json();
+
+            if (response.ok && data.profile) {
+                setProfile(data.profile);
+                setVerificationImage(null);
+                setIsVerificationModalOpen(false);
+                toast.success('Verification submitted successfully');
+                await fetchProfile();
+            } else {
+                setLoading(false);
+                toast.error(data.message || 'Failed to submit verification');
+            }
+        } catch (error) {
+            setLoading(false);
+            console.error('Error submitting verification:', error);
+            toast.error('Something went wrong');
+        }
+    };
 
     // Determine primary role and icons
     const getPrimaryRole = () => {
@@ -124,7 +166,6 @@ export default function ProfileInfo() {
         );
     }
 
-
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Enhanced Header */}
@@ -132,38 +173,34 @@ export default function ProfileInfo() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
-                className="bg-gradient-to-r from-gray-900 to-gray-800 text-white pb-24 pt-12"
+                className="bg-gradient-to-r from-gray-900 to-gray-800 text-white pb-24 pt-12 min-h-[300px]"
             >
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col md:flex-row gap-8 items-start">
+                    <div className="flex flex-col md:flex-row flex-wrap gap-8 items-start">
                         {/* Profile Image with Badge */}
-                        <div className="flex flex-col md:flex-row gap-8 items-start">
-  {/* Profile Image with Motion */}
-  <motion.div 
-    className="relative group"
-    whileHover={{ scale: 1.05 }}
-    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-  >
-    <Image
-      src={profile?.image || '/default-profile.png'}
-      alt="Profile"
-      width={160}
-      height={160}
-      className="w-40 h-40 rounded-full object-cover border-4 border-white shadow-lg"
-    />
-    {profile?.verification === 'accepted' && (
-      <motion.div
-        className="absolute bottom-0 right-0 bg-blue-500 p-1 rounded-full"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 0.2, type: "spring" }}
-      >
-        <RiVerifiedBadgeFill size={24} className="text-white" />
-      </motion.div>
-    )}
-  </motion.div>
-</div>
-
+                        <motion.div
+                            className="relative group"
+                            whileHover={{ scale: 1.05 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        >
+                            <Image
+                                src={profile?.image || '/default-profile.png'}
+                                alt="Profile"
+                                width={160}
+                                height={160}
+                                className="w-40 h-40 rounded-full object-cover border-4 border-white shadow-lg"
+                            />
+                            {profile?.verification === 'accepted' && (
+                                <motion.div
+                                    className="absolute bottom-0 right-0 bg-blue-500 p-1 rounded-full"
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ delay: 0.2, type: "spring" }}
+                                >
+                                    <RiVerifiedBadgeFill size={24} className="text-white" />
+                                </motion.div>
+                            )}
+                        </motion.div>
 
                         {/* Profile Info */}
                         <div className="flex-1">
@@ -178,16 +215,18 @@ export default function ProfileInfo() {
                             </div>
 
                             {/* Verified Expert Badge */}
-                            <motion.div
-                                whileHover={{ scale: 1.02 }}
-                                className="inline-flex items-center gap-2 bg-gray-700 bg-opacity-50 px-4 py-1 rounded-full mb-3"
-                            >
-                                <RiVerifiedBadgeFill className="text-green-500" />
-                                <span className="text-sm font-medium text-green-400">
-                                    {expertBadge}
-                                    {additionalRoles.length > 0 && ` + ${additionalRoles.length} more`}
-                                </span>
-                            </motion.div>
+                            {profile?.verification === 'accepted' && (
+                                <motion.div
+                                    whileHover={{ scale: 1.02 }}
+                                    className="inline-flex items-center gap-2 bg-gray-700 bg-opacity-50 px-4 py-1 rounded-full mb-3"
+                                >
+                                    <RiVerifiedBadgeFill className="text-green-500" />
+                                    <span className="text-sm font-medium text-green-400">
+                                        {expertBadge}
+                                        {additionalRoles.length > 0 && ` + ${additionalRoles.length} more`}
+                                    </span>
+                                </motion.div>
+                            )}
 
                             {/* Location and Member Since */}
                             <div className="flex flex-wrap gap-4 text-gray-300 mb-4">
@@ -198,25 +237,24 @@ export default function ProfileInfo() {
                                     </svg>
                                     <span>{profile?.location || 'Location'}</span>
                                 </div>
-
                                 <div className="flex items-center gap-2">
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
                                     <span>
-                                        Member since {new Date(user.memberSince).toLocaleDateString('en-US', {
-                                            year: 'numeric'
-                                        })}
+                                        Member since {user?.memberSince
+                                            ? new Date(user.memberSince).toLocaleDateString('en-US', { year: 'numeric' })
+                                            : 'N/A'}
                                     </span>
                                 </div>
                             </div>
 
-                            {/* Social Links with Animation */}
+                            {/* Social Links */}
                             <motion.div
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 }}
-                                className="flex gap-4"
+                                className="flex flex-wrap gap-4"
                             >
                                 {profile?.socialLinks?.linkedin && (
                                     <SocialIcon href={profile.socialLinks.linkedin} icon={<FaLinkedin size={20} />} />
@@ -236,24 +274,101 @@ export default function ProfileInfo() {
                             </motion.div>
                         </div>
 
-                        {/* Edit Profile Button */}
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Link
-                                href="/profile/update"
-                                className="flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors shadow-lg"
+                        {/* Action buttons */}
+                        <div className="flex flex-col gap-4">
+                            {/* Edit Profile Button */}
+                            <motion.div
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                                Edit Profile
-                            </Link>
-                        </motion.div>
+                                <Link
+                                    href="/profile/update"
+                                    className="flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors shadow-lg"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    Edit Profile
+                                </Link>
+                            </motion.div>
+
+                            {/* Verification Actions */}
+                            <motion.div
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                {profile?.verification === 'not_applied' && (
+                                    <button
+                                        onClick={() => setIsVerificationModalOpen(true)}
+                                        className="flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors shadow-lg"
+                                    >
+                                        <RiVerifiedBadgeFill size={20} />
+                                        Apply for Verification
+                                    </button>
+                                )}
+                                {profile?.verification === 'pending' && (
+                                    <p className="text-yellow-400 font-medium">Verification Pending...</p>
+                                )}
+                                {profile?.verification === 'rejected' && (
+                                    <div className="flex flex-col gap-2">
+                                        <p className="text-red-400 font-medium">Verification Rejected</p>
+                                        <button
+                                            onClick={() => setIsVerificationModalOpen(true)}
+                                            className="flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors shadow-lg"
+                                        >
+                                            <RiVerifiedBadgeFill size={20} />
+                                            Try Again
+                                        </button>
+                                    </div>
+                                )}
+                            </motion.div>
+                        </div>
                     </div>
                 </div>
             </motion.div>
+
+
+            {/* Verification Modal */}
+            {isVerificationModalOpen && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50"
+                >
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.9, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                        className="bg-white rounded-xl p-8 max-w-lg w-full shadow-2xl"
+                    >
+                        <h3 className="text-2xl font-bold text-gray-800 mb-4">Upload Verification Document</h3>
+                        <p className="text-gray-600 mb-6">Please upload a valid ID (e.g., NID, passport) for verification.</p>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => setVerificationImage(e.target.files[0])}
+                            className="w-full mb-6 text-gray-700 border border-gray-300 rounded-lg p-2"
+                        />
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={() => setIsVerificationModalOpen(false)}
+                                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleVerificationSubmit}
+                                disabled={loading || !verificationImage}
+                                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loading ? 'Submitting...' : 'Submit'}
+                            </button>
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 -mt-16">
@@ -317,7 +432,7 @@ export default function ProfileInfo() {
                                         </Section>
                                     )}
 
-                                    {/* Work Experience - Enhanced Design */}
+                                    {/* Work Experience */}
                                     {profile?.workExperience?.length > 0 && (
                                         <Section title="Work Experience">
                                             <div className="space-y-8">
@@ -339,13 +454,13 @@ export default function ProfileInfo() {
                                                             <h3 className="text-xl font-semibold text-gray-800">{job.companyName}</h3>
                                                             <p className="text-gray-600">{job.designation}</p>
                                                             <p className="text-gray-500 text-sm mt-1">
-                                                                {new Date(job.startDate).toLocaleDateString('en-US', {
+                                                                {job.startDate && new Date(job.startDate).toLocaleDateString('en-US', {
                                                                     month: 'short',
                                                                     year: 'numeric',
                                                                 })} - {job.endDate ? new Date(job.endDate).toLocaleDateString('en-US', {
                                                                     month: 'short',
                                                                     year: 'numeric',
-                                                                }) : 'Present'} • {calculateDuration(job.startDate, job.endDate)}
+                                                                }) : 'Present'} • {job.startDate && calculateDuration(job.startDate, job.endDate)}
                                                             </p>
                                                             {job.roles?.length > 0 && (
                                                                 <ul className="mt-4 space-y-3">
@@ -371,7 +486,7 @@ export default function ProfileInfo() {
                                     {/* Education */}
                                     {profile?.education?.length > 0 && (
                                         <Section title="Education">
-                                            <div className="grid md:grid-cols-2 gap-6">
+                                            <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-6">
                                                 {profile.education.map((edu, index) => (
                                                     <motion.div
                                                         key={index}
@@ -381,7 +496,7 @@ export default function ProfileInfo() {
                                                         <h3 className="text-lg font-semibold text-gray-800">{edu.degree}</h3>
                                                         <p className="text-gray-600">{edu.instituteName}</p>
                                                         <p className="text-gray-500 text-sm mt-2">
-                                                            {new Date(edu.startDate).toLocaleDateString('en-US', {
+                                                            {edu.startDate && new Date(edu.startDate).toLocaleDateString('en-US', {
                                                                 year: 'numeric'
                                                             })} - {edu.endDate ? new Date(edu.endDate).toLocaleDateString('en-US', {
                                                                 year: 'numeric'
@@ -404,7 +519,7 @@ export default function ProfileInfo() {
                                     transition={{ duration: 0.3 }}
                                 >
                                     {profile?.portfolio?.length > 0 ? (
-                                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-x-auto">
                                             {profile.portfolio.map((project, index) => (
                                                 <motion.div
                                                     key={index}
@@ -468,7 +583,7 @@ export default function ProfileInfo() {
                                         </Section>
                                     )}
 
-                                    {/* Skills - Single Column List */}
+                                    {/* Skills */}
                                     {profile?.skills?.length > 0 && (
                                         <Section title="Technical Skills">
                                             <div className="space-y-6">
@@ -497,11 +612,14 @@ export default function ProfileInfo() {
                     </div>
                 </motion.div>
             </div>
+
         </div>
+
     );
+
 }
 
-// Helper Components
+
 const SocialIcon = ({ href, icon }) => (
     <motion.a
         whileHover={{ y: -3 }}
@@ -525,10 +643,12 @@ const TabButton = ({ active, onClick, icon, label }) => (
 );
 
 const Section = ({ title, children }) => (
-    <div className="mb-12 last:mb-0">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">{title}</h2>
-        {children}
-    </div>
+    children ? (
+        <div className="mb-12 last:mb-0">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">{title}</h2>
+            {children}
+        </div>
+    ) : null
 );
 
 const EmptyState = ({ icon, title, description }) => (
@@ -543,6 +663,7 @@ const EmptyState = ({ icon, title, description }) => (
 
 // Helper function to calculate duration
 function calculateDuration(startDate, endDate) {
+    if (!startDate) return 'N/A';
     const start = new Date(startDate);
     const end = endDate ? new Date(endDate) : new Date();
 
@@ -561,5 +682,3 @@ function calculateDuration(startDate, endDate) {
         return `${remainingMonths} mo`;
     }
 }
-
-// Keep your existing LoadingSpinner and LoadingState components
