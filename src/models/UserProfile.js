@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import slugify from 'slugify';
+
 
 const userProfileSchema = new mongoose.Schema(
     {
@@ -7,14 +7,7 @@ const userProfileSchema = new mongoose.Schema(
         image: { type: String },
         verificationImage: { type: String },
         verification: { type: String, enum: ['not_applied', 'pending', 'accepted', 'rejected'], default: 'not_applied' },
-        displayName: { type: String, required: true },
-        slug: {
-            type: String,
-            unique: true,
-            default: function () {
-                return slugify(this.displayName, { lower: true, strict: true, remove: /[*+~.()'"!:@]/g });
-            }
-        },
+        displayName: { type: String },
         title: { type: String, maxlength: 50 },
         location: { type: String, maxlength: 100 }, // e.g., Dhaka, Bangladesh
         expertise: [{ type: String }], // e.g., ["React", "Node.js"]
@@ -63,11 +56,5 @@ const userProfileSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-userProfileSchema.pre('save', function (next) {
-    if (this.isModified('displayName')) {
-        this.slug = slugify(this.displayName, { lower: true, strict: true, remove: /[*+~.()'"!:@]/g });
-    }
-    next();
-});
 
 export default mongoose.models.UserProfile || mongoose.model('UserProfile', userProfileSchema);
