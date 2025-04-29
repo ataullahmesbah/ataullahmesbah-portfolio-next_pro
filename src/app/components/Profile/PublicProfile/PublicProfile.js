@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import UiLoader from '../../Loader/UiLoader/UiLoader';
 
 
+
 const RoleIcons = {
     developer: <FiCode className="text-blue-500" />,
     designer: <FiPenTool className="text-pink-500" />,
@@ -28,38 +29,35 @@ const ExpertBadges = {
     default: 'Verified Professional'
 };
 
-export default function PublicProfile({ username }) {
+export default function PublicProfile({ username: propUsername }) {
     const { slug } = useParams();
     const [profile, setProfile] = useState(null);
-    const [user, setUser] = useState(null);
     const [activeTab, setActiveTab] = useState('experience');
+    const username = propUsername || params.username;
+    const params = useParams();
+    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
     // Fetch profile data
-    const fetchProfile = async () => {
-        try {
-            const response = await fetch(`/api/profile/public-profile/${username}`);
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const response = await fetch(`/api/profile/public-profile/${username}`);
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+                if (!response.ok) throw new Error('Profile not found');
 
-            const data = await response.json();
-
-            if (data.profile || data.user) {
+                const data = await response.json();
                 setProfile(data.profile || {});
                 setUser(data.user || {});
-            } else {
-                console.error('No profile or user data received');
-                toast.error('Profile not found');
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Error fetching profile:', error);
-            toast.error('Failed to load profile');
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
+
+        if (username) fetchProfile();
+    }, [username]);
 
     useEffect(() => {
         if (slug) {
