@@ -3,8 +3,6 @@
 import dbConnect from "@/lib/dbMongoose";
 import UserProfile from "@/models/UserProfile";
 
-
-
 export async function GET(request, { params }) {
     await dbConnect();
     const { slug } = params;

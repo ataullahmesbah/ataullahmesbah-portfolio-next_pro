@@ -155,9 +155,23 @@ const AdminDashboardLayout = ({ children }) => {
                         <h2 className="text-xl font-bold mt-4">Admin Panel</h2>
 
                         {/* Welcome Message */}
+                        <div className="relative p-[2px] rounded-lg overflow-hidden m-2">
+                            {/* Rotating Border Line - Red to Yellow */}
+                            <div className="
+    absolute inset-0 rounded-lg
+    bg-[conic-gradient(transparent,transparent,#ef4444,#f59e0b,#ef4444,transparent)]
+    animate-[spin_4s_linear_infinite]
+  "></div>
+
+                            {/* Content */}
+                            <div className="relative bg-gray-900 rounded-lg p-2 px-4 text-amber-100 font-medium z-10">
+                                {session?.user?.displayName}
+                            </div>
+                        </div>
                         <p className="text-base text-blue-300 font-medium bg-gray-800 text-center rounded-md p-1 mt-2">
                             Hello, {session?.user?.name}!
                         </p>
+
 
                         {/* Email Display */}
                         <p className="text-blue-200 mt-2">{session?.user?.email}</p>

@@ -51,6 +51,7 @@ export const authOptions = {
             session.user.id = token.id; // Add user ID to the session
             session.user.image = userProfile?.image || null; // Add image
             session.user.intro = userProfile?.intro || null; // Add intro
+            session.user.displayName = userProfile?.displayName || null; // Add intro
 
             return session;
         },
