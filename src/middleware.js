@@ -18,9 +18,14 @@ export async function middleware(req) {
         return NextResponse.redirect(new URL('/', req.url));
     }
 
+    // ✅ 3. Public profile routes (/u/[username]) - No authentication required
+    if (pathname.startsWith('/u/')) {
+        return NextResponse.next();
+    }
+
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ['/', '/login', '/register'],
+    matcher: ['/', '/login', '/register', '/u/:username*'],
 };

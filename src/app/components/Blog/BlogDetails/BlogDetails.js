@@ -2,8 +2,10 @@
 
 "use client";
 import Image from 'next/image';
+import Link from 'next/link';
 import Script from 'next/script';
 import { FaAnglesRight } from "react-icons/fa6";
+import UserLink from '../../Profile/ProfileLink/UserLink';
 
 export default function BlogContent({ blog }) {
     const siteUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
@@ -72,7 +74,7 @@ export default function BlogContent({ blog }) {
                             placeholder="blur"
                             blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/+F9PQAI8wNPgZf9WwAAAABJRU5ErkJggg=="
                         />
-                        
+
                     </div>
                 );
 
@@ -126,7 +128,13 @@ export default function BlogContent({ blog }) {
                 </h1>
 
                 <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-6">
+
+
+
+                <span>By <UserLink author={blog.author} /></span>
                     <span>By {blog.author || 'Unknown Author'}</span>
+
+
                     <span>•</span>
                     <time dateTime={new Date(blog.publishDate).toISOString()}>
                         {new Intl.DateTimeFormat('en-US', {
