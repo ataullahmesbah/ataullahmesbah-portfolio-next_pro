@@ -131,8 +131,7 @@ export default function BlogContent({ blog }) {
 
 
 
-                <span>By <UserLink author={blog.author} /></span>
-                    <span>By {blog.author || 'Unknown Author'}</span>
+                    <span>By <UserLink author={blog.author} /></span>
 
 
                     <span>•</span>

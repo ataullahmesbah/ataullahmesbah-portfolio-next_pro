@@ -4,8 +4,6 @@ import Blog from "@/models/Blog";
 import cloudinary from "@/utils/cloudinary";
 import { NextResponse } from 'next/server';
 
-
-
 export async function GET(request) {
     await dbConnect();
     try {
