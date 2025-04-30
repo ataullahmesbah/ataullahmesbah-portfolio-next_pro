@@ -96,6 +96,17 @@ const AdminDashboardLayout = ({ children }) => {
             ],
         },
         {
+            label: 'SHOP',
+            children: [
+                { label: 'ALL Products', link: '/admin-dashboard/shop/all-products' },
+                { label: 'Add Product', link: '/admin-dashboard/shop/add-products' },
+
+
+
+
+            ],
+        },
+        {
             label: 'CERTIFICATIONS',
             children: [
                 { label: 'ALL Award-License', link: '/admin-dashboard/certification/all-certifications' },
