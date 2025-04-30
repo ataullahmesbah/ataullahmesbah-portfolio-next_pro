@@ -1,6 +1,7 @@
 // app/(with-layout)/u/[username]/page.js
 import PublicProfile from "@/app/components/Profile/PublicProfile/PublicProfile";
 
+<<<<<<< Updated upstream
 export async function generateMetadata({ params }) {
   try {
     const res = await fetch(
@@ -62,3 +63,9 @@ export default async function Page({ params }) {
 
   return <PublicProfile username={params.username} initialData={data} />;
 }
+=======
+export default function Page({ params }) {
+  return <PublicProfile username={params.username} />;
+}
+
+>>>>>>> Stashed changes
