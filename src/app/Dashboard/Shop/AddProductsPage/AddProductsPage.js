@@ -29,38 +29,9 @@ export default function AddProduct() {
         setIsSubmitting(true);
         setError('');
 
-        if (!session) {
-            setError('You must be logged in');
-            setIsSubmitting(false);
-            return;
-        }
-
-        if (!formData.title) {
-            setError('Title is required');
-            setIsSubmitting(false);
-            return;
-        }
-
-        if (!formData.bdtPrice || isNaN(formData.bdtPrice) || formData.bdtPrice <= 0) {
-            setError('Valid BDT price is required');
-            setIsSubmitting(false);
-            return;
-        }
-
-        if (!formData.description) {
-            setError('Primary description is required');
-            setIsSubmitting(false);
-            return;
-        }
-
-        if (!formData.mainImage) {
-            setError('Main image is required');
-            setIsSubmitting(false);
-            return;
-        }
-
-        if (formData.productType === 'Affiliate' && !formData.affiliateLink) {
-            setError('Affiliate link is required for affiliate products');
+        // Basic validation
+        if (!formData.title || !formData.bdtPrice || !formData.description || !formData.mainImage) {
+            setError('Please fill all required fields');
             setIsSubmitting(false);
             return;
         }
@@ -68,21 +39,19 @@ export default function AddProduct() {
         const data = new FormData();
         data.append('title', formData.title);
         data.append('bdtPrice', formData.bdtPrice);
+        data.append('description', formData.description);
+        data.append('productType', formData.productType);
+        data.append('bulletPoints', formData.bulletPoints);
+        data.append('mainImage', formData.mainImage);
+
+        // Only append if exists
         if (formData.usdPrice) data.append('usdPrice', formData.usdPrice);
         if (formData.eurPrice) data.append('eurPrice', formData.eurPrice);
-        if (formData.usdExchangeRate) data.append('usdExchangeRate', formData.usdExchangeRate);
-        if (formData.eurExchangeRate) data.append('eurExchangeRate', formData.eurExchangeRate);
-        data.append('description', formData.description);
-        data.append('descriptions', formData.descriptions.filter((desc) => desc).join('|||'));
-        data.append('bulletPoints', formData.bulletPoints);
-        data.append('productType', formData.productType);
         if (formData.affiliateLink) data.append('affiliateLink', formData.affiliateLink);
-        data.append('mainImage', formData.mainImage);
-        // Ensure additionalImages are sent as individual files
-        formData.additionalImages.forEach((img, index) => {
-            if (img) {
-                data.append('additionalImages', img);
-            }
+
+        // Add additional images
+        formData.additionalImages.forEach(img => {
+            if (img) data.append('additionalImages', img);
         });
 
         try {
@@ -91,9 +60,10 @@ export default function AddProduct() {
                 body: data,
             });
 
+            const result = await res.json();
+
             if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error || 'Failed to add product');
+                throw new Error(result.error || 'Failed to add product');
             }
 
             router.push('/admin/products');
@@ -357,24 +327,32 @@ export default function AddProduct() {
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-300 mb-2">Main Image*</label>
+                                // For main image
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => setFormData({ ...formData, mainImage: e.target.files[0] })}
-                                    className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                                    onChange={(e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                            setFormData({ ...formData, mainImage: e.target.files[0] });
+                                        }
+                                    }}
                                     required
                                 />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-300 mb-2">Additional Images (max 5)</label>
+                                // For additional images
                                 {formData.additionalImages.map((img, index) => (
-                                    <div key={index} className="flex items-center mb-2">
+                                    <div key={index} className="mb-2">
                                         <input
                                             type="file"
                                             accept="image/*"
-                                            onChange={(e) => handleImageChange(index, e.target.files[0])}
-                                            className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                                            onChange={(e) => {
+                                                const newImages = [...formData.additionalImages];
+                                                newImages[index] = e.target.files[0];
+                                                setFormData({ ...formData, additionalImages: newImages });
+                                            }}
                                         />
                                         <button
                                             type="button"
