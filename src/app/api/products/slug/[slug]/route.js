@@ -5,7 +5,7 @@ import Product from '@/models/Products';
 export async function GET(request, { params }) {
     await dbConnect();
     try {
-        const product = await Product.findById(params.id).populate('category').lean();
+        const product = await Product.findOne({ slug: params.slug }).populate('category').lean();
         if (!product) {
             return Response.json({ error: 'Product not found' }, { status: 404 });
         }

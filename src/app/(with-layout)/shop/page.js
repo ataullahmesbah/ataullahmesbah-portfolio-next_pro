@@ -10,28 +10,54 @@ async function getProducts() {
 }
 
 export default async function Shop() {
-    const products = await getProducts();
+    let products = [];
+    try {
+        products = await getProducts();
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        return (
+            <div className="container mx-auto py-8">
+                <h1 className="text-3xl font-bold mb-8">Shop</h1>
+                <p className="text-red-500">Failed to load products.</p>
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto py-8">
             <h1 className="text-3xl font-bold mb-8">Shop</h1>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {products.map((product) => (
-                    <Link href={`/shop/${product._id}`} key={product._id}>
-                        <div className="border rounded-lg shadow-lg p-4 hover:shadow-xl transition">
-                            <Image
-                                src={product.mainImage}
-                                alt={product.title}
-                                width={400}
-                                height={200}
-                                className="rounded"
-                            />
-                            <h3 className="text-xl font-bold mt-2">{product.title}</h3>
-                            <p className="text-gray-600">BDT {product.price}</p>
-                        </div>
-                    </Link>
-                ))}
-            </div>
+            {products.length === 0 ? (
+                <p>No products available.</p>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    {products.map((product) => {
+                        const bdtPrice = product.prices.find((p) => p.currency === 'BDT')?.amount || 'N/A';
+                        return (
+                            <div
+                                key={product._id}
+                                className="border rounded-lg shadow-lg p-4 hover:shadow-xl transition"
+                            >
+                                <Image
+                                    src={product.mainImage}
+                                    alt={product.title}
+                                    width={400}
+                                    height={200}
+                                    className="rounded object-cover w-full"
+                                />
+                                <h3 className="text-xl font-bold mt-2">
+                                    <Link
+                                        href={`/shop/${product.slug}`}
+                                        className="text-blue-600 hover:text-blue-800"
+                                    >
+                                        {product.title}
+                                    </Link>
+                                </h3>
+                                <p className="text-gray-600">BDT ৳{bdtPrice}</p>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
         </div>
     );
 }

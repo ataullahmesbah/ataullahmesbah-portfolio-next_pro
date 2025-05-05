@@ -1,5 +1,5 @@
-import UpdateProduct from '@/app/Dashboard/Shop/UpdateProduct/UpdateProduct';
-import React from 'react';
+import UpdateProduct from "@/app/Dashboard/Shop/UpdateProduct/UpdateProduct";
+
 
 const page = () => {
     return (
