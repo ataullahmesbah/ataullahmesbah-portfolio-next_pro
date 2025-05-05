@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useRef, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
@@ -8,7 +7,9 @@ import Image from 'next/image';
 export default function UpdateProduct() {
     const { data: session } = useSession();
     const router = useRouter();
-    const { id } = useParams();
+    const params = useParams();
+    const productId = params.id;
+
     const [formData, setFormData] = useState({
         title: '',
         bdtPrice: '',
@@ -24,12 +25,13 @@ export default function UpdateProduct() {
         category: '',
         newCategory: '',
         mainImage: null,
-        existingMainImage: '',
         additionalImages: [],
+        existingMainImage: '',
         existingAdditionalImages: [],
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [imagePreviews, setImagePreviews] = useState({ mainImage: null, additionalImages: [] });
     const [categories, setCategories] = useState([]);
     const mainImageInputRef = useRef(null);
@@ -39,48 +41,74 @@ export default function UpdateProduct() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch product
-                const productRes = await fetch(`/api/products/${id}`);
-                if (!productRes.ok) throw new Error('Failed to fetch product');
-                const product = await productRes.json();
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+                console.log('API URL:', apiUrl);
 
                 // Fetch categories
-                const categoriesRes = await fetch('/api/products?type=categories');
-                if (!categoriesRes.ok) throw new Error('Failed to fetch categories');
-                const categoriesData = await categoriesRes.json();
+                console.log('Fetching categories from:', `${apiUrl}/api/products?type=categories`);
+                const catRes = await fetch(`${apiUrl}/api/products?type=categories`, { cache: 'no-store' });
+                if (!catRes.ok) {
+                    console.error('Categories response status:', catRes.status, catRes.statusText);
+                    const text = await catRes.text();
+                    console.error('Categories response body:', text);
+                    throw new Error(`Failed to fetch categories: ${catRes.status} ${catRes.statusText}`);
+                }
+                const catData = await catRes.json();
+                console.log('Categories fetched:', catData);
+                setCategories(catData);
 
+                // Fetch product
+                console.log('Fetching product from:', `${apiUrl}/api/products/${productId}`);
+                const prodRes = await fetch(`${apiUrl}/api/products/${productId}`, { cache: 'no-store' });
+                if (!prodRes.ok) {
+                    console.error('Product response status:', prodRes.status, prodRes.statusText);
+                    const text = await prodRes.text();
+                    console.error('Product response body:', text);
+                    throw new Error(`Failed to fetch product: ${prodRes.status} ${prodRes.statusText}`);
+                }
+                const product = await prodRes.json();
+                console.log('Product fetched:', product);
+
+                // Initialize formData with product data
                 setFormData({
-                    title: product.title,
+                    title: product.title || '',
                     bdtPrice: product.prices.find((p) => p.currency === 'BDT')?.amount || '',
                     usdPrice: product.prices.find((p) => p.currency === 'USD')?.amount || '',
                     eurPrice: product.prices.find((p) => p.currency === 'EUR')?.amount || '',
                     usdExchangeRate: product.prices.find((p) => p.currency === 'USD')?.exchangeRate || '',
                     eurExchangeRate: product.prices.find((p) => p.currency === 'EUR')?.exchangeRate || '',
-                    description: product.description,
-                    descriptions: product.descriptions.length > 0 ? product.descriptions : [''],
-                    bulletPoints: product.bulletPoints.join(', '),
-                    productType: product.productType,
+                    description: product.description || '',
+                    descriptions: product.descriptions.length ? product.descriptions : [''],
+                    bulletPoints: product.bulletPoints.join(', ') || '',
+                    productType: product.productType || 'Own',
                     affiliateLink: product.affiliateLink || '',
                     category: product.category?._id || '',
                     newCategory: '',
                     mainImage: null,
-                    existingMainImage: product.mainImage,
                     additionalImages: [],
-                    existingAdditionalImages: product.additionalImages,
+                    existingMainImage: product.mainImage || '',
+                    existingAdditionalImages: product.additionalImages || [],
                 });
 
+                // Set image previews
                 setImagePreviews({
-                    mainImage: product.mainImage,
-                    additionalImages: product.additionalImages.map((url) => url),
+                    mainImage: product.mainImage || null,
+                    additionalImages: product.additionalImages || [],
                 });
-
-                setCategories(categoriesData);
             } catch (err) {
+                console.error('Fetch error:', err);
                 setErrors({ general: err.message });
+            } finally {
+                setIsLoading(false);
             }
         };
-        if (id) fetchData();
-    }, [id]);
+        if (productId) {
+            fetchData();
+        } else {
+            setErrors({ general: 'Invalid product ID' });
+            setIsLoading(false);
+        }
+    }, [productId]);
 
     const validateForm = () => {
         const newErrors = {};
@@ -112,9 +140,7 @@ export default function UpdateProduct() {
         if (formData.newCategory && !/^[a-zA-Z0-9\s&-]+$/.test(formData.newCategory)) {
             newErrors.newCategory = 'Category name can only contain letters, numbers, spaces, &, or -';
         }
-        if (!formData.mainImage && !formData.existingMainImage) {
-            newErrors.mainImage = 'Main image is required';
-        }
+        if (!formData.mainImage && !formData.existingMainImage) newErrors.mainImage = 'Main image is required';
         return newErrors;
     };
 
@@ -148,28 +174,38 @@ export default function UpdateProduct() {
         data.append('bulletPoints', formData.bulletPoints);
         data.append('productType', formData.productType);
         if (formData.affiliateLink) data.append('affiliateLink', formData.affiliateLink);
-        if (formData.category) data.append('category', formData.category);
+        if (formData.category && formData.category !== 'new') data.append('category', formData.category);
         if (formData.newCategory) data.append('newCategory', formData.newCategory);
         if (formData.mainImage) data.append('mainImage', formData.mainImage);
-        data.append('existingMainImage', formData.existingMainImage);
+        if (formData.existingMainImage) data.append('existingMainImage', formData.existingMainImage);
         formData.additionalImages.forEach((img) => {
             if (img) data.append('additionalImages', img);
         });
-        data.append('existingAdditionalImages', JSON.stringify(formData.existingAdditionalImages));
+        if (formData.existingAdditionalImages.length) {
+            data.append('existingAdditionalImages', JSON.stringify(formData.existingAdditionalImages));
+        }
 
         try {
-            const res = await fetch(`/api/products/${id}`, {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+            console.log('Submitting PUT to:', `${apiUrl}/api/products/${productId}`);
+            console.log('FormData entries:', [...data.entries()]);
+            const res = await fetch(`${apiUrl}/api/products/${productId}`, {
                 method: 'PUT',
                 body: data,
             });
 
-            const result = await res.json();
             if (!res.ok) {
-                throw new Error(result.error || 'Failed to update product');
+                console.error('PUT response status:', res.status, res.statusText);
+                const text = await res.text();
+                console.error('PUT response body:', text);
+                throw new Error(`Failed to update product: ${res.status} ${res.statusText}`);
             }
 
-            router.push('/admin/products');
+            const result = await res.json();
+            console.log('PUT response:', result);
+            router.push('/admin-dashboard/shop/all-products');
         } catch (err) {
+            console.error('Submit error:', err);
             setErrors({ general: err.message });
         } finally {
             setIsSubmitting(false);
@@ -194,10 +230,7 @@ export default function UpdateProduct() {
     const addImageInput = () => {
         if (formData.additionalImages.length + formData.existingAdditionalImages.length < 5) {
             setFormData({ ...formData, additionalImages: [...formData.additionalImages, null] });
-            setImagePreviews({
-                ...imagePreviews,
-                additionalImages: [...imagePreviews.additionalImages, null],
-            });
+            setImagePreviews({ ...imagePreviews, additionalImages: [...imagePreviews.additionalImages, null] });
         }
     };
 
@@ -213,9 +246,8 @@ export default function UpdateProduct() {
 
     const removeExistingImage = (index) => {
         const newExistingImages = formData.existingAdditionalImages.filter((_, i) => i !== index);
-        const newPreviews = imagePreviews.additionalImages.filter((_, i) => i !== index);
         setFormData({ ...formData, existingAdditionalImages: newExistingImages });
-        setImagePreviews({ ...imagePreviews, additionalImages: newPreviews });
+        setImagePreviews({ ...imagePreviews, additionalImages: imagePreviews.additionalImages.filter((_, i) => i !== index) });
     };
 
     const handleMainImageChange = (e) => {
@@ -256,6 +288,10 @@ export default function UpdateProduct() {
         }
     };
 
+    if (isLoading) {
+        return <div className="container mx-auto py-8">Loading...</div>;
+    }
+
     return (
         <div className="min-h-screen bg-gray-100 p-4 md:p-8">
             <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
@@ -274,7 +310,6 @@ export default function UpdateProduct() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
-                    {/* Basic Info */}
                     <div className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Product Title*</label>
@@ -282,8 +317,7 @@ export default function UpdateProduct() {
                                 type="text"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.title ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
                                 placeholder="Enter product title"
                             />
                             {errors.title && <p className="mt-1 text-sm text-red-500">{errors.title}</p>}
@@ -300,8 +334,7 @@ export default function UpdateProduct() {
                                         newCategory: e.target.value === 'new' ? formData.newCategory : '',
                                     })
                                 }
-                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.category ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.category ? 'border-red-500' : 'border-gray-300'}`}
                             >
                                 <option value="" disabled>
                                     Select a category
@@ -320,8 +353,7 @@ export default function UpdateProduct() {
                                         type="text"
                                         value={formData.newCategory}
                                         onChange={(e) => setFormData({ ...formData, newCategory: e.target.value })}
-                                        className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.newCategory ? 'border-red-500' : 'border-gray-300'
-                                            }`}
+                                        className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.newCategory ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="Enter new category name"
                                     />
                                     {errors.newCategory && <p className="mt-1 text-sm text-red-500">{errors.newCategory}</p>}
@@ -338,8 +370,7 @@ export default function UpdateProduct() {
                                         type="number"
                                         value={formData.bdtPrice}
                                         onChange={(e) => setFormData({ ...formData, bdtPrice: e.target.value })}
-                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.bdtPrice ? 'border-red-500' : 'border-gray-300'
-                                            }`}
+                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.bdtPrice ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="0.00"
                                         step="0.01"
                                         min="0"
@@ -355,8 +386,7 @@ export default function UpdateProduct() {
                                         type="number"
                                         value={formData.usdPrice}
                                         onChange={(e) => setFormData({ ...formData, usdPrice: e.target.value })}
-                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.usdPrice ? 'border-red-500' : 'border-gray-300'
-                                            }`}
+                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.usdPrice ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="0.00"
                                         step="0.01"
                                         min="0"
@@ -370,8 +400,7 @@ export default function UpdateProduct() {
                                             type="number"
                                             value={formData.usdExchangeRate}
                                             onChange={(e) => setFormData({ ...formData, usdExchangeRate: e.target.value })}
-                                            className={`w-full px-3 py-2 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.usdExchangeRate ? 'border-red-500' : 'border-gray-300'
-                                                }`}
+                                            className={`w-full px-3 py-2 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.usdExchangeRate ? 'border-red-500' : 'border-gray-300'}`}
                                             placeholder="0.00"
                                             step="0.01"
                                             min="0"
@@ -388,8 +417,7 @@ export default function UpdateProduct() {
                                         type="number"
                                         value={formData.eurPrice}
                                         onChange={(e) => setFormData({ ...formData, eurPrice: e.target.value })}
-                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.eurPrice ? 'border-red-500' : 'border-gray-300'
-                                            }`}
+                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.eurPrice ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="0.00"
                                         step="0.01"
                                         min="0"
@@ -403,8 +431,7 @@ export default function UpdateProduct() {
                                             type="number"
                                             value={formData.eurExchangeRate}
                                             onChange={(e) => setFormData({ ...formData, eurExchangeRate: e.target.value })}
-                                            className={`w-full px-3 py-2 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.eurExchangeRate ? 'border-red-500' : 'border-gray-300'
-                                                }`}
+                                            className={`w-full px-3 py-2 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.eurExchangeRate ? 'border-red-500' : 'border-gray-300'}`}
                                             placeholder="0.00"
                                             step="0.01"
                                             min="0"
@@ -421,8 +448,7 @@ export default function UpdateProduct() {
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 rows={4}
-                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.description ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
                                 placeholder="Describe your product"
                             />
                             {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
@@ -483,7 +509,6 @@ export default function UpdateProduct() {
                         </div>
                     </div>
 
-                    {/* Product Type */}
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-3">Product Type*</label>
@@ -518,8 +543,7 @@ export default function UpdateProduct() {
                                     type="url"
                                     value={formData.affiliateLink}
                                     onChange={(e) => setFormData({ ...formData, affiliateLink: e.target.value })}
-                                    className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.affiliateLink ? 'border-red-500' : 'border-gray-300'
-                                        }`}
+                                    className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.affiliateLink ? 'border-red-500' : 'border-gray-300'}`}
                                     placeholder="https://example.com/affiliate"
                                 />
                                 {errors.affiliateLink && <p className="mt-1 text-sm text-red-500">{errors.affiliateLink}</p>}
@@ -527,7 +551,6 @@ export default function UpdateProduct() {
                         )}
                     </div>
 
-                    {/* Images */}
                     <div className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Main Image*</label>
@@ -626,8 +649,7 @@ export default function UpdateProduct() {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className={`w-full px-6 py-3 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
+                            className={`w-full px-6 py-3 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             {isSubmitting ? (
                                 <span className="flex items-center justify-center">
