@@ -1,12 +1,66 @@
-import Link from 'next/link';
-import Image from 'next/image';
+// src/app/(with-layout)/shop/page.js
+
+import ShopClient from '@/app/Dashboard/Shop/ShopClient/ShopClient';
+import { Suspense } from 'react';
+
+
+// SEO Metadata
+export async function generateMetadata() {
+    const products = await getProducts();
+    const productCount = products.length;
+    const description = `Browse our collection of ${productCount} high-quality products at Ataullah Mesbah's shop. Find the best deals with fast delivery and top-notch customer service.`;
+
+    return {
+        title: 'Shop - Ataullah Mesbah',
+        description,
+        openGraph: {
+            title: 'Shop - Ataullah Mesbah',
+            description,
+            url: `${process.env.NEXTAUTH_URL}/shop`,
+            type: 'website',
+            images: products[0]?.mainImage ? [{ url: products[0].mainImage, width: 400, height: 200, alt: products[0].title }] : [],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: 'Shop - Ataullah Mesbah',
+            description,
+            images: products[0]?.mainImage ? [products[0].mainImage] : [],
+        },
+    };
+}
+
+// Structured Data for SEO
+function getStructuredData(products) {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: 'Shop',
+        description: 'Browse our collection of high-quality products at Ataullah Mesbah.',
+        url: `${process.env.NEXTAUTH_URL}/shop`,
+        itemListElement: products.map((product, index) => ({
+            '@type': 'Product',
+            position: index + 1,
+            name: product.title,
+            image: product.mainImage,
+            url: `${process.env.NEXTAUTH_URL}/shop/${product.slug}`,
+            offers: {
+                '@type': 'Offer',
+                priceCurrency: 'BDT',
+                price: product.prices.find((p) => p.currency === 'BDT')?.amount || 0,
+                availability: product.quantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            },
+        })),
+    };
+}
 
 async function getProducts() {
     const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products`, { cache: 'no-store' });
     if (!res.ok) {
         throw new Error('Failed to fetch products');
     }
-    return res.json();
+    const products = await res.json();
+    // Filter out products with quantity: 0
+    return products.filter((product) => product.quantity > 0).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
 export default async function Shop() {
@@ -16,48 +70,37 @@ export default async function Shop() {
     } catch (error) {
         console.error('Error fetching products:', error);
         return (
-            <div className="container mx-auto py-8">
-                <h1 className="text-3xl font-bold mb-8">Shop</h1>
-                <p className="text-red-500">Failed to load products.</p>
+            <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                    <h1 className="text-4xl font-bold mb-8">Shop</h1>
+                    <p className="text-red-400 text-lg">Failed to load products. Please try again later.</p>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto py-8">
-            <h1 className="text-3xl font-bold mb-8">Shop</h1>
-            {products.length === 0 ? (
-                <p>No products available.</p>
-            ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {products.map((product) => {
-                        const bdtPrice = product.prices.find((p) => p.currency === 'BDT')?.amount || 'N/A';
-                        return (
-                            <div
-                                key={product._id}
-                                className="border rounded-lg shadow-lg p-4 hover:shadow-xl transition"
-                            >
-                                <Image
-                                    src={product.mainImage}
-                                    alt={product.title}
-                                    width={400}
-                                    height={200}
-                                    className="rounded object-cover w-full"
-                                />
-                                <h3 className="text-xl font-bold mt-2">
-                                    <Link
-                                        href={`/shop/${product.slug}`}
-                                        className="text-blue-600 hover:text-blue-800"
-                                    >
-                                        {product.title}
-                                    </Link>
-                                </h3>
-                                <p className="text-gray-600">BDT ৳{bdtPrice}</p>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
+        <div className="min-h-screen bg-gray-900 text-white">
+            <Suspense fallback={<LoadingSkeleton />}>
+                <ShopClient products={products} structuredData={getStructuredData(products)} />
+            </Suspense>
+        </div>
+    );
+}
+
+function LoadingSkeleton() {
+    return (
+        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <h1 className="text-4xl font-bold mb-8">Shop</h1>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {[...Array(8)].map((_, index) => (
+                    <div key={index} className="border rounded-lg shadow-lg p-4 bg-gray-800 animate-pulse">
+                        <div className="w-full h-48 bg-gray-700 rounded"></div>
+                        <div className="mt-2 h-6 bg-gray-700 rounded w-3/4"></div>
+                        <div className="mt-2 h-4 bg-gray-700 rounded w-1/2"></div>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }

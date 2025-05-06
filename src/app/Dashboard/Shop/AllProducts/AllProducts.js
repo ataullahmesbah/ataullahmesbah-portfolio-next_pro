@@ -51,8 +51,8 @@ export default function AllProducts() {
                 .includes(searchTitle.toLowerCase().trim());
             const categoryMatch = searchCategory
                 ? product.category?.name
-                      ?.toLowerCase()
-                      .includes(searchCategory.toLowerCase().trim()) ?? false
+                    ?.toLowerCase()
+                    .includes(searchCategory.toLowerCase().trim()) ?? false
                 : true;
             return titleMatch && categoryMatch;
         });
@@ -206,15 +206,15 @@ export default function AllProducts() {
                                         className="opacity-75"
                                         fill="currentColor"
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                />
-                            </svg>
-                            Refreshing...
-                        </span>
-                    ) : (
-                        'Refresh'
-                    )}
-                </button>
-            </div>
+                                    />
+                                </svg>
+                                Refreshing...
+                            </span>
+                        ) : (
+                            'Refresh'
+                        )}
+                    </button>
+                </div>
             </div>
 
             {filteredProducts.length === 0 ? (
@@ -226,6 +226,7 @@ export default function AllProducts() {
                             <tr className="bg-gray-100">
                                 <th className="border p-3 text-left">Title</th>
                                 <th className="border p-3 text-left">Category</th>
+                                <th className="border p-3 text-left">Quantity</th>
                                 <th className="border p-3 text-left">Price (BDT)</th>
                                 <th className="border p-3 text-left">Owner</th>
                                 <th className="border p-3 text-left">Actions</th>
@@ -238,6 +239,7 @@ export default function AllProducts() {
                                     <tr key={product._id} className="hover:bg-gray-50">
                                         <td className="border p-3">{product.title}</td>
                                         <td className="border p-3">{product.category?.name || 'N/A'}</td>
+                                        <td className="border p-3">{product.quantity}</td>
                                         <td className="border p-3">৳{bdtPrice}</td>
                                         <td className="border p-3">{product.owner || 'N/A'}</td>
                                         <td className="border p-3 flex gap-3">
@@ -280,11 +282,10 @@ export default function AllProducts() {
                             <button
                                 key={page}
                                 onClick={() => handlePageChange(page)}
-                                className={`px-4 py-2 rounded-lg ${
-                                    currentPage === page
+                                className={`px-4 py-2 rounded-lg ${currentPage === page
                                         ? 'bg-blue-600 text-white'
                                         : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                                }`}
+                                    }`}
                             >
                                 {page}
                             </button>

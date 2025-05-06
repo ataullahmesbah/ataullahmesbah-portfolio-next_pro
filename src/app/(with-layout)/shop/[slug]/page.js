@@ -1,3 +1,5 @@
+// src/app/(with-layout)/shop/[slug]/page.js
+
 import Image from 'next/image';
 import Head from 'next/head';
 
