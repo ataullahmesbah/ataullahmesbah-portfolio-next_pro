@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
@@ -25,13 +25,13 @@ export default function UpdateProduct() {
         category: '',
         newCategory: '',
         mainImage: null,
-        additionalImages: [],
         existingMainImage: '',
+        additionalImages: [],
         existingAdditionalImages: [],
+        quantity: '',
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
     const [imagePreviews, setImagePreviews] = useState({ mainImage: null, additionalImages: [] });
     const [categories, setCategories] = useState([]);
     const mainImageInputRef = useRef(null);
@@ -41,72 +41,55 @@ export default function UpdateProduct() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-                console.log('API URL:', apiUrl);
+                // Fetch product
+                const productRes = await fetch(`/api/products/${productId}`);
+                if (!productRes.ok) throw new Error('Failed to fetch product');
+                const product = await productRes.json();
 
                 // Fetch categories
-                console.log('Fetching categories from:', `${apiUrl}/api/products?type=categories`);
-                const catRes = await fetch(`${apiUrl}/api/products?type=categories`, { cache: 'no-store' });
-                if (!catRes.ok) {
-                    console.error('Categories response status:', catRes.status, catRes.statusText);
-                    const text = await catRes.text();
-                    console.error('Categories response body:', text);
-                    throw new Error(`Failed to fetch categories: ${catRes.status} ${catRes.statusText}`);
-                }
-                const catData = await catRes.json();
-                console.log('Categories fetched:', catData);
-                setCategories(catData);
+                const categoriesRes = await fetch('/api/products?type=categories');
+                if (!categoriesRes.ok) throw new Error('Failed to fetch categories');
+                const categoriesData = await categoriesRes.json();
 
-                // Fetch product
-                console.log('Fetching product from:', `${apiUrl}/api/products/${productId}`);
-                const prodRes = await fetch(`${apiUrl}/api/products/${productId}`, { cache: 'no-store' });
-                if (!prodRes.ok) {
-                    console.error('Product response status:', prodRes.status, prodRes.statusText);
-                    const text = await prodRes.text();
-                    console.error('Product response body:', text);
-                    throw new Error(`Failed to fetch product: ${prodRes.status} ${prodRes.statusText}`);
-                }
-                const product = await prodRes.json();
-                console.log('Product fetched:', product);
+                // Set form data
+                const bdtPriceObj = product.prices.find((p) => p.currency === 'BDT');
+                const usdPriceObj = product.prices.find((p) => p.currency === 'USD');
+                const eurPriceObj = product.prices.find((p) => p.currency === 'EUR');
 
-                // Initialize formData with product data
                 setFormData({
                     title: product.title || '',
-                    bdtPrice: product.prices.find((p) => p.currency === 'BDT')?.amount || '',
-                    usdPrice: product.prices.find((p) => p.currency === 'USD')?.amount || '',
-                    eurPrice: product.prices.find((p) => p.currency === 'EUR')?.amount || '',
-                    usdExchangeRate: product.prices.find((p) => p.currency === 'USD')?.exchangeRate || '',
-                    eurExchangeRate: product.prices.find((p) => p.currency === 'EUR')?.exchangeRate || '',
+                    bdtPrice: bdtPriceObj?.amount || '',
+                    usdPrice: usdPriceObj?.amount || '',
+                    eurPrice: eurPriceObj?.amount || '',
+                    usdExchangeRate: usdPriceObj?.exchangeRate || '',
+                    eurExchangeRate: eurPriceObj?.exchangeRate || '',
                     description: product.description || '',
-                    descriptions: product.descriptions.length ? product.descriptions : [''],
+                    descriptions: product.descriptions.length > 0 ? product.descriptions : [''],
                     bulletPoints: product.bulletPoints.join(', ') || '',
                     productType: product.productType || 'Own',
                     affiliateLink: product.affiliateLink || '',
                     category: product.category?._id || '',
                     newCategory: '',
                     mainImage: null,
-                    additionalImages: [],
                     existingMainImage: product.mainImage || '',
+                    additionalImages: [],
                     existingAdditionalImages: product.additionalImages || [],
+                    quantity: product.quantity || '',
                 });
 
-                // Set image previews
                 setImagePreviews({
                     mainImage: product.mainImage || null,
-                    additionalImages: product.additionalImages || [],
+                    additionalImages: product.additionalImages.map(() => null),
                 });
+
+                setCategories(categoriesData);
             } catch (err) {
-                console.error('Fetch error:', err);
                 setErrors({ general: err.message });
-            } finally {
-                setIsLoading(false);
             }
         };
+
         if (productId) {
             fetchData();
-        } else {
-            setErrors({ general: 'Invalid product ID' });
-            setIsLoading(false);
         }
     }, [productId]);
 
@@ -140,7 +123,12 @@ export default function UpdateProduct() {
         if (formData.newCategory && !/^[a-zA-Z0-9\s&-]+$/.test(formData.newCategory)) {
             newErrors.newCategory = 'Category name can only contain letters, numbers, spaces, &, or -';
         }
-        if (!formData.mainImage && !formData.existingMainImage) newErrors.mainImage = 'Main image is required';
+        if (!formData.mainImage && !formData.existingMainImage) {
+            newErrors.mainImage = 'Main image is required';
+        }
+        if (!formData.quantity || isNaN(formData.quantity) || parseInt(formData.quantity) < 0) {
+            newErrors.quantity = 'Quantity must be a non-negative integer';
+        }
         return newErrors;
     };
 
@@ -177,35 +165,26 @@ export default function UpdateProduct() {
         if (formData.category && formData.category !== 'new') data.append('category', formData.category);
         if (formData.newCategory) data.append('newCategory', formData.newCategory);
         if (formData.mainImage) data.append('mainImage', formData.mainImage);
-        if (formData.existingMainImage) data.append('existingMainImage', formData.existingMainImage);
+        data.append('existingMainImage', formData.existingMainImage);
         formData.additionalImages.forEach((img) => {
             if (img) data.append('additionalImages', img);
         });
-        if (formData.existingAdditionalImages.length) {
-            data.append('existingAdditionalImages', JSON.stringify(formData.existingAdditionalImages));
-        }
+        data.append('existingAdditionalImages', JSON.stringify(formData.existingAdditionalImages));
+        data.append('quantity', formData.quantity);
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            console.log('Submitting PUT to:', `${apiUrl}/api/products/${productId}`);
-            console.log('FormData entries:', [...data.entries()]);
-            const res = await fetch(`${apiUrl}/api/products/${productId}`, {
+            const res = await fetch(`/api/products/${productId}`, {
                 method: 'PUT',
                 body: data,
             });
 
+            const result = await res.json();
             if (!res.ok) {
-                console.error('PUT response status:', res.status, res.statusText);
-                const text = await res.text();
-                console.error('PUT response body:', text);
-                throw new Error(`Failed to update product: ${res.status} ${res.statusText}`);
+                throw new Error(result.error || 'Failed to update product');
             }
 
-            const result = await res.json();
-            console.log('PUT response:', result);
             router.push('/admin-dashboard/shop/all-products');
         } catch (err) {
-            console.error('Submit error:', err);
             setErrors({ general: err.message });
         } finally {
             setIsSubmitting(false);
@@ -247,7 +226,6 @@ export default function UpdateProduct() {
     const removeExistingImage = (index) => {
         const newExistingImages = formData.existingAdditionalImages.filter((_, i) => i !== index);
         setFormData({ ...formData, existingAdditionalImages: newExistingImages });
-        setImagePreviews({ ...imagePreviews, additionalImages: imagePreviews.additionalImages.filter((_, i) => i !== index) });
     };
 
     const handleMainImageChange = (e) => {
@@ -288,10 +266,6 @@ export default function UpdateProduct() {
         }
     };
 
-    if (isLoading) {
-        return <div className="container mx-auto py-8">Loading...</div>;
-    }
-
     return (
         <div className="min-h-screen bg-gray-100 p-4 md:p-8">
             <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
@@ -310,6 +284,7 @@ export default function UpdateProduct() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
+                    {/* Basic Info */}
                     <div className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Product Title*</label>
@@ -321,6 +296,20 @@ export default function UpdateProduct() {
                                 placeholder="Enter product title"
                             />
                             {errors.title && <p className="mt-1 text-sm text-red-500">{errors.title}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Quantity*</label>
+                            <input
+                                type="number"
+                                value={formData.quantity}
+                                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.quantity ? 'border-red-500' : 'border-gray-300'}`}
+                                placeholder="Enter quantity"
+                                min="0"
+                                step="1"
+                            />
+                            {errors.quantity && <p className="mt-1 text-sm text-red-500">{errors.quantity}</p>}
                         </div>
 
                         <div>
@@ -509,6 +498,7 @@ export default function UpdateProduct() {
                         </div>
                     </div>
 
+                    {/* Product Type */}
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-3">Product Type*</label>
@@ -551,6 +541,7 @@ export default function UpdateProduct() {
                         )}
                     </div>
 
+                    {/* Images */}
                     <div className="space-y-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Main Image*</label>
@@ -585,12 +576,12 @@ export default function UpdateProduct() {
                                         alt={`Existing additional image ${index + 1}`}
                                         width={100}
                                         height={100}
-                                        className="rounded-lg object-cover"
+                                        className="rounded-lg object-cover mr-4"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => removeExistingImage(index)}
-                                        className="ml-2 text-red-500 hover:text-red-700"
+                                        className="text-red-500 hover:text-red-700"
                                     >
                                         Remove
                                     </button>

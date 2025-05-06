@@ -23,6 +23,7 @@ export default function AddProduct() {
         newCategory: '',
         mainImage: null,
         additionalImages: [],
+        quantity: '',
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,6 +78,9 @@ export default function AddProduct() {
             newErrors.newCategory = 'Category name can only contain letters, numbers, spaces, &, or -';
         }
         if (!formData.mainImage) newErrors.mainImage = 'Main image is required';
+        if (!formData.quantity || isNaN(formData.quantity) || parseInt(formData.quantity) < 0) {
+            newErrors.quantity = 'Quantity must be a non-negative integer';
+        }
         return newErrors;
     };
 
@@ -116,6 +120,7 @@ export default function AddProduct() {
         formData.additionalImages.forEach((img) => {
             if (img) data.append('additionalImages', img);
         });
+        data.append('quantity', formData.quantity);
 
         try {
             const res = await fetch('/api/products', {
@@ -232,11 +237,24 @@ export default function AddProduct() {
                                 type="text"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.title ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
                                 placeholder="Enter product title"
                             />
                             {errors.title && <p className="mt-1 text-sm text-red-500">{errors.title}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Quantity*</label>
+                            <input
+                                type="number"
+                                value={formData.quantity}
+                                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.quantity ? 'border-red-500' : 'border-gray-300'}`}
+                                placeholder="Enter quantity"
+                                min="0"
+                                step="1"
+                            />
+                            {errors.quantity && <p className="mt-1 text-sm text-red-500">{errors.quantity}</p>}
                         </div>
 
                         <div>
@@ -250,8 +268,7 @@ export default function AddProduct() {
                                         newCategory: e.target.value === 'new' ? formData.newCategory : '',
                                     })
                                 }
-                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.category ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.category ? 'border-red-500' : 'border-gray-300'}`}
                             >
                                 <option value="" disabled>
                                     Select a category
@@ -270,8 +287,7 @@ export default function AddProduct() {
                                         type="text"
                                         value={formData.newCategory}
                                         onChange={(e) => setFormData({ ...formData, newCategory: e.target.value })}
-                                        className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.newCategory ? 'border-red-500' : 'border-gray-300'
-                                            }`}
+                                        className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.newCategory ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="Enter new category name"
                                     />
                                     {errors.newCategory && <p className="mt-1 text-sm text-red-500">{errors.newCategory}</p>}
@@ -288,8 +304,7 @@ export default function AddProduct() {
                                         type="number"
                                         value={formData.bdtPrice}
                                         onChange={(e) => setFormData({ ...formData, bdtPrice: e.target.value })}
-                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.bdtPrice ? 'border-red-500' : 'border-gray-300'
-                                            }`}
+                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.bdtPrice ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="0.00"
                                         step="0.01"
                                         min="0"
@@ -305,8 +320,7 @@ export default function AddProduct() {
                                         type="number"
                                         value={formData.usdPrice}
                                         onChange={(e) => setFormData({ ...formData, usdPrice: e.target.value })}
-                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.usdPrice ? 'border-red-500' : 'border-gray-300'
-                                            }`}
+                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.usdPrice ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="0.00"
                                         step="0.01"
                                         min="0"
@@ -320,8 +334,7 @@ export default function AddProduct() {
                                             type="number"
                                             value={formData.usdExchangeRate}
                                             onChange={(e) => setFormData({ ...formData, usdExchangeRate: e.target.value })}
-                                            className={`w-full px-3 py-2 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.usdExchangeRate ? 'border-red-500' : 'border-gray-300'
-                                                }`}
+                                            className={`w-full px-3 py-2 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.usdExchangeRate ? 'border-red-500' : 'border-gray-300'}`}
                                             placeholder="0.00"
                                             step="0.01"
                                             min="0"
@@ -338,8 +351,7 @@ export default function AddProduct() {
                                         type="number"
                                         value={formData.eurPrice}
                                         onChange={(e) => setFormData({ ...formData, eurPrice: e.target.value })}
-                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.eurPrice ? 'border-red-500' : 'border-gray-300'
-                                            }`}
+                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.eurPrice ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="0.00"
                                         step="0.01"
                                         min="0"
@@ -353,8 +365,7 @@ export default function AddProduct() {
                                             type="number"
                                             value={formData.eurExchangeRate}
                                             onChange={(e) => setFormData({ ...formData, eurExchangeRate: e.target.value })}
-                                            className={`w-full px-3 py-2 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.eurExchangeRate ? 'border-red-500' : 'border-gray-300'
-                                                }`}
+                                            className={`w-full px-3 py-2 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.eurExchangeRate ? 'border-red-500' : 'border-gray-300'}`}
                                             placeholder="0.00"
                                             step="0.01"
                                             min="0"
@@ -371,8 +382,7 @@ export default function AddProduct() {
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 rows={4}
-                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.description ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
                                 placeholder="Describe your product"
                             />
                             {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
@@ -468,8 +478,7 @@ export default function AddProduct() {
                                     type="url"
                                     value={formData.affiliateLink}
                                     onChange={(e) => setFormData({ ...formData, affiliateLink: e.target.value })}
-                                    className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.affiliateLink ? 'border-red-500' : 'border-gray-300'
-                                        }`}
+                                    className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.affiliateLink ? 'border-red-500' : 'border-gray-300'}`}
                                     placeholder="https://example.com/affiliate"
                                 />
                                 {errors.affiliateLink && <p className="mt-1 text-sm text-red-500">{errors.affiliateLink}</p>}
@@ -558,8 +567,7 @@ export default function AddProduct() {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className={`w-full px-6 py-3 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                                }`}
+                            className={`w-full px-6 py-3 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             {isSubmitting ? (
                                 <span className="flex items-center justify-center">
