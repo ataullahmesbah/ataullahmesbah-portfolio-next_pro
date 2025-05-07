@@ -1,20 +1,17 @@
-// src/app/(with-layout)/shop/page.js
-
 import ShopClient from '@/app/Dashboard/Shop/ShopClient/ShopClient';
 import { Suspense } from 'react';
 
 
-// SEO Metadata
 export async function generateMetadata() {
     const products = await getProducts();
     const productCount = products.length;
     const description = `Browse our collection of ${productCount} high-quality products at Ataullah Mesbah's shop. Find the best deals with fast delivery and top-notch customer service.`;
 
     return {
-        title: 'Shop - Ataullah Mesbah',
+        title: 'Premium Shop - Ataullah Mesbah',
         description,
         openGraph: {
-            title: 'Shop - Ataullah Mesbah',
+            title: 'Premium Shop - Ataullah Mesbah',
             description,
             url: `${process.env.NEXTAUTH_URL}/shop`,
             type: 'website',
@@ -22,19 +19,18 @@ export async function generateMetadata() {
         },
         twitter: {
             card: 'summary_large_image',
-            title: 'Shop - Ataullah Mesbah',
+            title: 'Premium Shop - Ataullah Mesbah',
             description,
             images: products[0]?.mainImage ? [products[0].mainImage] : [],
         },
     };
 }
 
-// Structured Data for SEO
 function getStructuredData(products) {
     return {
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
-        name: 'Shop',
+        name: 'Premium Shop',
         description: 'Browse our collection of high-quality products at Ataullah Mesbah.',
         url: `${process.env.NEXTAUTH_URL}/shop`,
         itemListElement: products.map((product, index) => ({
@@ -54,13 +50,15 @@ function getStructuredData(products) {
 }
 
 async function getProducts() {
-    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products`, { cache: 'no-store' });
+    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products`, {
+        next: { tags: ['products'], revalidate: 60 },
+    });
     if (!res.ok) {
         throw new Error('Failed to fetch products');
     }
     const products = await res.json();
-    // Filter out products with quantity: 0
-    return products.filter((product) => product.quantity > 0).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    // Sort by newest first, no quantity filter
+    return products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
 export default async function Shop() {
@@ -70,7 +68,7 @@ export default async function Shop() {
     } catch (error) {
         console.error('Error fetching products:', error);
         return (
-            <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+            <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">
                     <h1 className="text-4xl font-bold mb-8">Shop</h1>
                     <p className="text-red-400 text-lg">Failed to load products. Please try again later.</p>
@@ -80,24 +78,31 @@ export default async function Shop() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white">
-            <Suspense fallback={<LoadingSkeleton />}>
-                <ShopClient products={products} structuredData={getStructuredData(products)} />
-            </Suspense>
-        </div>
+        <main className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+            <div className="container mx-auto px-4 sm:px-6">
+                <Suspense fallback={<LoadingSkeleton />}>
+                    <ShopClient products={products} structuredData={getStructuredData(products)} />
+                </Suspense>
+            </div>
+        </main>
     );
 }
 
 function LoadingSkeleton() {
     return (
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl font-bold mb-8">Shop</h1>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {[...Array(8)].map((_, index) => (
-                    <div key={index} className="border rounded-lg shadow-lg p-4 bg-gray-800 animate-pulse">
-                        <div className="w-full h-48 bg-gray-700 rounded"></div>
-                        <div className="mt-2 h-6 bg-gray-700 rounded w-3/4"></div>
-                        <div className="mt-2 h-4 bg-gray-700 rounded w-1/2"></div>
+        <div className="py-12">
+            <div className="flex justify-between items-center mb-12">
+                <div className="h-10 w-64 bg-gray-700 rounded-full animate-pulse"></div>
+                <div className="h-10 w-48 bg-gray-700 rounded-full animate-pulse"></div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {[...Array(8)].map((_, i) => (
+                    <div key={i} className="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                        <div className="aspect-square bg-gray-700 animate-pulse"></div>
+                        <div className="p-5">
+                            <div className="h-6 bg-gray-700 rounded-full w-3/4 mb-3 animate-pulse"></div>
+                            <div className="h-5 bg-gray-700 rounded-full w-1/2 animate-pulse"></div>
+                        </div>
                     </div>
                 ))}
             </div>

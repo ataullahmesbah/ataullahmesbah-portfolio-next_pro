@@ -1,128 +1,96 @@
 // src/app/(with-layout)/shop/[slug]/page.js
 
-import Image from 'next/image';
-import Head from 'next/head';
+import ProductDetailsClient from '@/app/Dashboard/Shop/ProductDetailsClient/ProductDetailsClient';
+import { Suspense } from 'react';
+
+
+export async function generateMetadata({ params }) {
+  const { slug } = params;
+  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products/slug/${slug}`, { cache: 'no-store' });
+  if (!res.ok) {
+    return {
+      title: 'Product Not Found - Ataullah Mesbah',
+      description: 'The requested product could not be found.',
+    };
+  }
+  const product = await res.json();
+  const description = product.description.substring(0, 160);
+
+  return {
+    title: `${product.title} - Ataullah Mesbah`,
+    description,
+    keywords: `${product.title}, ${product.category?.name || ''}, product, Ataullah Mesbah`,
+    openGraph: {
+      title: `${product.title} - Ataullah Mesbah`,
+      description,
+      url: `${process.env.NEXTAUTH_URL}/shop/${slug}`,
+      type: 'website', // Changed from 'product' to 'website'
+      images: [{ url: product.mainImage, width: 400, height: 400, alt: product.title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${product.title} - Ataullah Mesbah`,
+      description,
+      images: [product.mainImage],
+    },
+  };
+}
+
+async function getProduct(slug) {
+  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products/slug/${slug}`, { cache: 'no-store' });
+  if (!res.ok) {
+    throw new Error('Failed to fetch product');
+  }
+  return res.json();
+}
 
 export default async function ProductDetails({ params }) {
   const { slug } = params;
-
-  // Fetch product
-  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products/slug/${slug}`, { cache: 'no-store' });
-  if (!res.ok) {
+  let product;
+  try {
+    product = await getProduct(slug);
+  } catch (error) {
+    console.error('Error fetching product:', error);
     return (
-      <div className="container mx-auto py-8">
-        <h1 className="text-3xl font-bold mb-8">Product Not Found</h1>
-        <p className="text-red-500">Failed to load product details.</p>
+      <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold mb-8">Product Not Found</h1>
+          <p className="text-red-400 text-lg">Failed to load product details.</p>
+        </div>
       </div>
     );
   }
-  const product = await res.json();
 
   return (
-    <>
-      <Head>
-        <title>{product.title} | Mesbah Portfolio</title>
-        <meta name="description" content={product.description.substring(0, 160)} />
-        <meta name="keywords" content={`${product.title}, ${product.category?.name}, product`} />
-        <meta name="robots" content="index, follow" />
-      </Head>
-      <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">{product.title}</h1>
-        <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Images */}
-            <div>
-              <Image
-                src={product.mainImage}
-                alt={product.title}
-                width={400}
-                height={400}
-                className="rounded-lg object-cover w-full"
-              />
-              {product.additionalImages.length > 0 && (
-                <div className="mt-4 grid grid-cols-2 gap-4">
-                  {product.additionalImages.map((img, index) => (
-                    <Image
-                      key={index}
-                      src={img}
-                      alt={`${product.title} additional image ${index + 1}`}
-                      width={150}
-                      height={150}
-                      className="rounded-lg object-cover"
-                    />
-                  ))}
-                </div>
-              )}
+    <div className="min-h-screen bg-gray-900 text-white">
+      <Suspense fallback={<LoadingSkeleton />}>
+        <ProductDetailsClient product={product} />
+      </Suspense>
+    </div>
+  );
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <div className="h-10 bg-gray-700 rounded w-3/4 mb-8 animate-pulse"></div>
+      <div className="bg-gray-800 rounded-xl shadow-lg p-6 md:p-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <div className="w-full h-96 bg-gray-700 rounded-lg animate-pulse"></div>
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              {[...Array(4)].map((_, index) => (
+                <div key={index} className="h-24 bg-gray-700 rounded-lg animate-pulse"></div>
+              ))}
             </div>
-
-            {/* Details */}
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-700">Category</h2>
-                <p className="text-gray-800">{product.category?.name || 'N/A'}</p>
-              </div>
-
-              <div>
-                <h2 className="text-lg font-semibold text-gray-700">Prices</h2>
-                <ul className="space-y-2">
-                  {product.prices.map((price, index) => (
-                    <li key={index} className="text-gray-800">
-                      {price.currency}: {price.amount}
-                      {price.exchangeRate && ` (1 ${price.currency} = ${price.exchangeRate} BDT)`}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h2 className="text-lg font-semibold text-gray-700">Description</h2>
-                <p className="text-gray-800">{product.description}</p>
-              </div>
-
-              {product.descriptions.length > 0 && (
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-700">Additional Descriptions</h2>
-                  <ul className="list-disc pl-5 space-y-2">
-                    {product.descriptions.map((desc, index) => (
-                      <li key={index} className="text-gray-800">{desc}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {product.bulletPoints.length > 0 && (
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-700">Features</h2>
-                  <ul className="list-disc pl-5 space-y-2">
-                    {product.bulletPoints.map((point, index) => (
-                      <li key={index} className="text-gray-800">{point}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              <div>
-                <h2 className="text-lg font-semibold text-gray-700">Product Type</h2>
-                <p className="text-gray-800">{product.productType}</p>
-              </div>
-
-              {product.productType === 'Affiliate' && product.affiliateLink && (
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-700">Purchase Link</h2>
-                  <a
-                    href={product.affiliateLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
-                  >
-                    Buy Now
-                  </a>
-                </div>
-              )}
-            </div>
+          </div>
+          <div className="space-y-6">
+            {[...Array(5)].map((_, index) => (
+              <div key={index} className="h-6 bg-gray-700 rounded w-full animate-pulse"></div>
+            ))}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

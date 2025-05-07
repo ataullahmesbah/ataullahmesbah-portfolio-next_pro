@@ -187,6 +187,9 @@ const Navbar = () => {
                                 )}
                             </div>
 
+                            <Link href="/shop" className={`${isActiveLink('/shop')} px-4`} onClick={closeMobileMenu}>
+                                Shop
+                            </Link>
                             <Link href="/blog" className={`${isActiveLink('/blog')} px-4`} onClick={closeMobileMenu}>
                                 Blog
                             </Link>
