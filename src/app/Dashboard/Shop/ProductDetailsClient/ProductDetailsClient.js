@@ -1,15 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import CartSlider from '../CartSlider/CartSlider';
 
-export default function ProductDetailsClient({ product }) {
+
+export default function ProductDetailsClient({ product, latestProducts }) {
     const [selectedImage, setSelectedImage] = useState(product.mainImage);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currency, setCurrency] = useState('BDT');
     const [quantity, setQuantity] = useState(1);
+    const [isCartOpen, setIsCartOpen] = useState(false);
     const router = useRouter();
 
     const structuredData = {
@@ -27,30 +30,54 @@ export default function ProductDetailsClient({ product }) {
     };
 
     const handleAddToCart = () => {
-        // Simplified cart logic (store in localStorage for demo)
+        if (product.quantity <= 0) return;
         const cart = JSON.parse(localStorage.getItem('cart') || '[]');
         const existingItem = cart.find((item) => item._id === product._id);
         if (existingItem) {
-            if (existingItem.quantity + quantity <= 3) {
+            if (existingItem.quantity + quantity <= 3 && existingItem.quantity + quantity <= product.quantity) {
                 existingItem.quantity += quantity;
             } else {
-                alert('Cannot add more than 3 units of this product.');
+                alert('Cannot add more than 3 units or exceed available stock.');
                 return;
             }
         } else {
-            cart.push({ _id: product._id, title: product.title, quantity, price: product.prices.find((p) => p.currency === 'BDT')?.amount });
+            if (quantity <= product.quantity) {
+                cart.push({
+                    _id: product._id,
+                    title: product.title,
+                    quantity,
+                    price: product.prices.find((p) => p.currency === 'BDT')?.amount,
+                    mainImage: product.mainImage,
+                });
+            } else {
+                alert('Selected quantity exceeds available stock.');
+                return;
+            }
         }
         localStorage.setItem('cart', JSON.stringify(cart));
-        alert('Added to cart!');
+        setIsCartOpen(true);
     };
 
     const handleBuyNow = () => {
+        if (product.quantity <= 0) return;
         if (product.productType === 'Affiliate') {
             window.open(product.affiliateLink, '_blank', 'noopener,noreferrer');
         } else {
-            // Store order details in localStorage for checkout (simplified)
-            localStorage.setItem('checkout', JSON.stringify({ productId: product._id, quantity, price: product.prices.find((p) => p.currency === 'BDT')?.amount }));
-            router.push('/checkout'); // Assumes checkout page exists
+            if (quantity > product.quantity) {
+                alert('Selected quantity exceeds available stock.');
+                return;
+            }
+            localStorage.setItem(
+                'checkout',
+                JSON.stringify({
+                    productId: product._id,
+                    title: product.title,
+                    quantity,
+                    price: product.prices.find((p) => p.currency === 'BDT')?.amount,
+                    mainImage: product.mainImage,
+                })
+            );
+            router.push('/checkout');
         }
     };
 
@@ -58,21 +85,19 @@ export default function ProductDetailsClient({ product }) {
         const price = product.prices.find((p) => p.currency === currency);
         if (!price) return 'N/A';
         const symbol = currency === 'BDT' ? '৳' : currency === 'USD' ? '$' : '€';
-        return `${symbol}${price.amount.toFixed(2)}`;
+        const total = (price.amount * quantity).toFixed(2);
+        return `${symbol}${total}`;
     };
 
     return (
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-            />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
             <div className="bg-gray-800 rounded-xl shadow-lg p-6 md:p-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Left: Image Gallery */}
                     <div>
                         <div
-                            className="relative w-full h-96 cursor-pointer"
+                            className="relative w-full h-96 cursor-pointer rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105"
                             onClick={() => setIsModalOpen(true)}
                         >
                             <Image
@@ -80,16 +105,17 @@ export default function ProductDetailsClient({ product }) {
                                 alt={product.title}
                                 fill
                                 sizes="(max-width: 768px) 100vw, 50vw"
-                                className="rounded-lg object-cover"
+                                className="object-cover rounded-lg"
                                 priority
                             />
                         </div>
                         {product.additionalImages.length > 0 && (
-                            <div className="mt-4 grid grid-cols-4 gap-2">
+                            <div className="mt-4 grid grid-cols-4 gap-3">
                                 {[product.mainImage, ...product.additionalImages].map((img, index) => (
                                     <div
                                         key={index}
-                                        className={`relative h-20 cursor-pointer rounded-lg overflow-hidden ${selectedImage === img ? 'ring-2 ring-blue-500' : ''}`}
+                                        className={`relative h-24 cursor-pointer rounded-lg overflow-hidden transition-all duration-300 ${selectedImage === img ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-blue-300'
+                                            }`}
                                         onClick={() => setSelectedImage(img)}
                                     >
                                         <Image
@@ -97,7 +123,7 @@ export default function ProductDetailsClient({ product }) {
                                             alt={`${product.title} image ${index + 1}`}
                                             fill
                                             sizes="20vw"
-                                            className="object-cover"
+                                            className="object-cover rounded-lg"
                                         />
                                     </div>
                                 ))}
@@ -160,34 +186,74 @@ export default function ProductDetailsClient({ product }) {
                             <select
                                 value={quantity}
                                 onChange={(e) => setQuantity(Number(e.target.value))}
-                                className="bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                disabled={product.quantity <= 0}
+                                className="bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                                 aria-label="Select quantity"
                             >
-                                {[1, 2, 3].map((num) => (
-                                    <option key={num} value={num}>
-                                        {num}
+                                {[...Array(Math.min(product.quantity || 3, 3))].map((_, i) => (
+                                    <option key={i + 1} value={i + 1}>
+                                        {i + 1}
                                     </option>
                                 ))}
                             </select>
                         </div>
 
-                        <div className="flex space-x-4">
-                            {product.productType === 'Own' && (
+                        {product.quantity <= 0 ? (
+                            <div className="text-red-400 text-lg font-semibold bg-red-900/20 p-4 rounded-lg">
+                                Product Out of Stock
+                            </div>
+                        ) : (
+                            <div className="flex space-x-4">
+                                {product.productType === 'Own' && (
+                                    <button
+                                        onClick={handleAddToCart}
+                                        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                                        disabled={product.quantity <= 0}
+                                    >
+                                        Add to Cart
+                                    </button>
+                                )}
                                 <button
-                                    onClick={handleAddToCart}
-                                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    onClick={handleBuyNow}
+                                    className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+                                    disabled={product.quantity <= 0 && product.productType !== 'Affiliate'}
                                 >
-                                    Add to Cart
+                                    Buy Now
                                 </button>
-                            )}
-                            <button
-                                onClick={handleBuyNow}
-                                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition focus:outline-none focus:ring-2 focus:ring-green-500"
-                            >
-                                Buy Now
-                            </button>
-                        </div>
+                            </div>
+                        )}
                     </div>
+                </div>
+            </div>
+
+            {/* More Items Section */}
+            <div className="mt-12">
+                <h2 className="text-2xl font-bold text-white mb-6">More Items</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                    {latestProducts.map((item) => (
+                        <Link
+                            key={item._id}
+                            href={`/shop/${item.slug || item._id}`}
+                            className="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:shadow-xl"
+                        >
+                            <div className="relative aspect-square">
+                                <Image
+                                    src={item.mainImage}
+                                    alt={item.title}
+                                    fill
+                                    className="object-cover"
+                                    sizes="20vw"
+                                    loading="lazy"
+                                />
+                            </div>
+                            <div className="p-4">
+                                <h3 className="text-lg font-semibold text-white line-clamp-2">{item.title}</h3>
+                                <p className="text-blue-400 font-bold mt-2">
+                                    ৳{item.prices.find((p) => p.currency === 'BDT')?.amount?.toLocaleString() || 'N/A'}
+                                </p>
+                            </div>
+                        </Link>
+                    ))}
                 </div>
             </div>
 
@@ -200,7 +266,7 @@ export default function ProductDetailsClient({ product }) {
                             alt={product.title}
                             width={800}
                             height={800}
-                            className="object-contain"
+                            className="object-contain rounded-lg"
                         />
                         <button
                             onClick={() => setIsModalOpen(false)}
@@ -214,6 +280,9 @@ export default function ProductDetailsClient({ product }) {
                     </div>
                 </div>
             )}
+
+            {/* Cart Slider */}
+            <CartSlider isOpen={isCartOpen} setIsOpen={setIsCartOpen} />
         </div>
     );
 }

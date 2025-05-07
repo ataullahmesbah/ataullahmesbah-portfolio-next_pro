@@ -1,5 +1,4 @@
 // src/app/(with-layout)/shop/[slug]/page.js
-
 import ProductDetailsClient from '@/app/Dashboard/Shop/ProductDetailsClient/ProductDetailsClient';
 import { Suspense } from 'react';
 
@@ -24,7 +23,7 @@ export async function generateMetadata({ params }) {
       title: `${product.title} - Ataullah Mesbah`,
       description,
       url: `${process.env.NEXTAUTH_URL}/shop/${slug}`,
-      type: 'website', // Changed from 'product' to 'website'
+      type: 'website',
       images: [{ url: product.mainImage, width: 400, height: 400, alt: product.title }],
     },
     twitter: {
@@ -44,13 +43,24 @@ async function getProduct(slug) {
   return res.json();
 }
 
+async function getLatestProducts() {
+  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products`, {
+    next: { tags: ['products'], revalidate: 60 },
+  });
+  if (!res.ok) {
+    throw new Error('Failed to fetch products');
+  }
+  const products = await res.json();
+  return products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+}
+
 export default async function ProductDetails({ params }) {
   const { slug } = params;
-  let product;
+  let product, latestProducts;
   try {
-    product = await getProduct(slug);
+    [product, latestProducts] = await Promise.all([getProduct(slug), getLatestProducts()]);
   } catch (error) {
-    console.error('Error fetching product:', error);
+    console.error('Error fetching data:', error);
     return (
       <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
@@ -64,7 +74,7 @@ export default async function ProductDetails({ params }) {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Suspense fallback={<LoadingSkeleton />}>
-        <ProductDetailsClient product={product} />
+        <ProductDetailsClient product={product} latestProducts={latestProducts} />
       </Suspense>
     </div>
   );
