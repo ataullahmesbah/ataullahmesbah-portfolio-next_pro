@@ -1,10 +1,9 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function CartSlider({ isOpen, setIsOpen }) {
+export default function CartSlider({ isOpen, setIsOpen, conversionRates }) {
     const [cart, setCart] = useState([]);
 
     useEffect(() => {
@@ -18,7 +17,12 @@ export default function CartSlider({ isOpen, setIsOpen }) {
         localStorage.setItem('cart', JSON.stringify(updatedCart));
     };
 
-    const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const getBDTPrice = (item) => {
+        if (item.currency === 'BDT') return item.price;
+        return item.price * conversionRates[item.currency];
+    };
+
+    const subtotal = cart.reduce((sum, item) => sum + getBDTPrice(item) * item.quantity, 0);
 
     return (
         <div
@@ -26,11 +30,11 @@ export default function CartSlider({ isOpen, setIsOpen }) {
                 }`}
         >
             <div className="flex flex-col h-full">
-                <div className="p-6 border-b border-gray-700">
+                <div className="p-6 border-b border-gray-700 flex justify-between items-center">
                     <h2 className="text-2xl font-bold">Your Cart</h2>
                     <button
                         onClick={() => setIsOpen(false)}
-                        className="absolute top-4 right-4 text-gray-300 hover:text-white focus:outline-none"
+                        className="text-gray-300 hover:text-white focus:outline-none"
                         aria-label="Close cart"
                     >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,12 +43,12 @@ export default function CartSlider({ isOpen, setIsOpen }) {
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
                     {cart.length === 0 ? (
                         <p className="text-gray-400 text-center">Your cart is empty</p>
                     ) : (
                         cart.map((item) => (
-                            <div key={item._id} className="flex items-center mb-4 border-b border-gray-700 pb-4">
+                            <div key={item._id} className="flex items-center border-b border-gray-700 pb-4">
                                 <div className="relative w-16 h-16">
                                     <Image
                                         src={item.mainImage}
@@ -56,7 +60,7 @@ export default function CartSlider({ isOpen, setIsOpen }) {
                                 <div className="ml-4 flex-1">
                                     <h3 className="text-lg font-semibold line-clamp-2">{item.title}</h3>
                                     <p className="text-gray-300">
-                                        {item.quantity} × ৳{item.price.toLocaleString()} = ৳{(item.quantity * item.price).toLocaleString()}
+                                        {item.quantity} × ৳{getBDTPrice(item).toLocaleString()} = ৳{(getBDTPrice(item) * item.quantity).toLocaleString()}
                                     </p>
                                 </div>
                                 <button

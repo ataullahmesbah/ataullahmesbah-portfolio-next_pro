@@ -1,7 +1,7 @@
 // src/app/(with-layout)/shop/[slug]/page.js
-import ProductDetailsClient from '@/app/Dashboard/Shop/ProductDetailsClient/ProductDetailsClient';
-import { Suspense } from 'react';
 
+import { Suspense } from 'react';
+import ProductDetailsClient from '@/app/Dashboard/Shop/ProductDetailsClient/ProductDetailsClient';
 
 export async function generateMetadata({ params }) {
   const { slug } = params;

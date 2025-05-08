@@ -15,6 +15,13 @@ export default function ProductDetailsClient({ product, latestProducts }) {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const router = useRouter();
 
+    // Conversion rates (demo)
+    const conversionRates = {
+        USD: 120, // 1 USD = 120 BDT
+        EUR: 130, // 1 EUR = 130 BDT
+        BDT: 1,
+    };
+
     const structuredData = {
         '@context': 'https://schema.org',
         '@type': 'Product',
@@ -33,36 +40,50 @@ export default function ProductDetailsClient({ product, latestProducts }) {
         if (product.quantity <= 0) return;
         const cart = JSON.parse(localStorage.getItem('cart') || '[]');
         const existingItem = cart.find((item) => item._id === product._id);
+        let newQuantity = quantity;
+
         if (existingItem) {
-            if (existingItem.quantity + quantity <= 3 && existingItem.quantity + quantity <= product.quantity) {
-                existingItem.quantity += quantity;
-            } else {
-                alert('Cannot add more than 3 units or exceed available stock.');
+            newQuantity = existingItem.quantity + quantity;
+            if (newQuantity > 3) {
+                alert('Cannot add more than 3 units of this product.');
                 return;
             }
-        } else {
-            if (quantity <= product.quantity) {
-                cart.push({
-                    _id: product._id,
-                    title: product.title,
-                    quantity,
-                    price: product.prices.find((p) => p.currency === 'BDT')?.amount,
-                    mainImage: product.mainImage,
-                });
-            } else {
+            if (newQuantity > product.quantity) {
                 alert('Selected quantity exceeds available stock.');
                 return;
             }
+            existingItem.quantity = newQuantity;
+        } else {
+            if (quantity > 3) {
+                alert('Cannot add more than 3 units of this product.');
+                return;
+            }
+            if (quantity > product.quantity) {
+                alert('Selected quantity exceeds available stock.');
+                return;
+            }
+            cart.push({
+                _id: product._id,
+                title: product.title,
+                quantity,
+                price: product.prices.find((p) => p.currency === 'BDT')?.amount, // Store BDT price
+                mainImage: product.mainImage,
+                currency, // Store selected currency for display
+            });
         }
         localStorage.setItem('cart', JSON.stringify(cart));
         setIsCartOpen(true);
     };
 
     const handleBuyNow = () => {
-        if (product.quantity <= 0) return;
+        if (product.quantity <= 0 && product.productType !== 'Affiliate') return;
         if (product.productType === 'Affiliate') {
             window.open(product.affiliateLink, '_blank', 'noopener,noreferrer');
         } else {
+            if (quantity > 3) {
+                alert('Cannot buy more than 3 units of this product.');
+                return;
+            }
             if (quantity > product.quantity) {
                 alert('Selected quantity exceeds available stock.');
                 return;
@@ -73,8 +94,9 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                     productId: product._id,
                     title: product.title,
                     quantity,
-                    price: product.prices.find((p) => p.currency === 'BDT')?.amount,
+                    price: product.prices.find((p) => p.currency === 'BDT')?.amount, // Store BDT price
                     mainImage: product.mainImage,
+                    currency, // Store selected currency
                 })
             );
             router.push('/checkout');
@@ -282,7 +304,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             )}
 
             {/* Cart Slider */}
-            <CartSlider isOpen={isCartOpen} setIsOpen={setIsCartOpen} />
+            <CartSlider isOpen={isCartOpen} setIsOpen={setIsCartOpen} conversionRates={conversionRates} />
         </div>
     );
 }

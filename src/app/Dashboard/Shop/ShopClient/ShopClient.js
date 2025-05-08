@@ -126,15 +126,15 @@ export default function ShopClient({ products, structuredData }) {
                                         </div>
 
                                         {/* Product Info - Fixed Height Container */}
-                                        <div className="p-5 flex flex-col" style={{ minHeight: '140px' }}>
+                                        <div className="p-5  flex flex-col" style={{ minHeight: '140px' }}>
                                             {/* Title - Takes available space */}
-                                            <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2 flex-grow">
+                                            <h3 className="font-medium text-lg text-white mb-2 line-clamp-2 flex-grow">
                                                 {product.title}
                                             </h3>
 
                                             {/* Price & Available - Aligned at bottom */}
                                             <div className="mt-auto pt-3 flex justify-between items-center">
-                                                <p className="text-xl font-bold text-blue-400">
+                                                <p className="text-xl font-bold text-white">
                                                     ৳{bdtPrice?.toLocaleString() || 'N/A'}
                                                 </p>
                                                 {product.quantity > 0 && (
