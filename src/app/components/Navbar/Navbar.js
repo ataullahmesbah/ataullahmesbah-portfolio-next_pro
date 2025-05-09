@@ -2,39 +2,67 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FaBars, FaTimes, FaCaretUp, FaCaretDown, FaUserGraduate, FaUserCircle } from 'react-icons/fa';
+import { FaBars, FaTimes, FaCaretUp, FaCaretDown, FaUserGraduate, FaShoppingCart } from 'react-icons/fa';
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
+import CartSlider from '@/app/Dashboard/Shop/CartSlider/CartSlider';
+
 
 const Navbar = () => {
     const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
     const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [cartCount, setCartCount] = useState(0);
+    const [isCartOpen, setIsCartOpen] = useState(false);
     const pathname = usePathname();
     const menuRef = useRef(null);
-
     const { data: session, status } = useSession();
 
+    // Conversion rates for CartSlider
+    const conversionRates = {
+        USD: 120, // 1 USD = 120 BDT
+        EUR: 130, // 1 EUR = 130 BDT
+        BDT: 1,
+    };
 
+    // Update cart count from localStorage
+    useEffect(() => {
+        const updateCartCount = () => {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            setCartCount(totalItems);
+        };
+        updateCartCount();
+        // Listen for storage event (cross-tab) and custom cartUpdated event (same tab)
+        window.addEventListener('storage', updateCartCount);
+        window.addEventListener('cartUpdated', updateCartCount);
+        return () => {
+            window.removeEventListener('storage', updateCartCount);
+            window.removeEventListener('cartUpdated', updateCartCount);
+        };
+    }, []);
 
     const toggleServicesDropdown = () => {
         setIsServicesDropdownOpen((prevState) => !prevState);
-        setIsUserDropdownOpen(false); // Close user dropdown when services dropdown is opened
+        setIsUserDropdownOpen(false);
+        setIsCartOpen(false);
     };
 
     const toggleUserDropdown = () => {
         setIsUserDropdownOpen((prevState) => !prevState);
-        setIsServicesDropdownOpen(false); // Close services dropdown when user dropdown is opened
+        setIsServicesDropdownOpen(false);
+        setIsCartOpen(false);
     };
 
     const closeAllDropdowns = () => {
         setIsServicesDropdownOpen(false);
         setIsUserDropdownOpen(false);
+        setIsCartOpen(false);
     };
 
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen((prevState) => !prevState);
-        closeAllDropdowns(); // Close all dropdowns when mobile menu is toggled
+        closeAllDropdowns();
     };
 
     const closeMobileMenu = () => {
@@ -45,9 +73,7 @@ const Navbar = () => {
         setIsUserDropdownOpen(false);
     };
 
-
-
-    // Close mobile menu when clicking outside of it
+    // Close mobile menu when clicking outside
     useEffect(() => {
         const handleOutsideClick = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -69,7 +95,7 @@ const Navbar = () => {
 
     if (!pathname.includes('dashboard')) {
         return (
-            <div className="bg-gray-900 py-5 border-b border-b-gray-800">
+            <div className="bg-gray-900 py-5 border-b border-gray-800">
                 <nav className="flex poppins-regular container mx-auto justify-between text-white items-center px-4">
                     {/* Logo */}
                     <Link href="/">
@@ -93,7 +119,7 @@ const Navbar = () => {
                     }
                     .cls-2 {
                       font-size: 31px;
-                      font-family: BritannicBold, Britannic ;
+                      font-family: BritannicBold, Britannic;
                     }
                     .cls-3 {
                       font-size: 38px;
@@ -132,8 +158,16 @@ const Navbar = () => {
                         </h1>
                     </Link>
 
-                    {/* Mobile Menu Icon */}
-                    <div className="lg:hidden">
+                    {/* Mobile Menu Icon and Cart */}
+                    <div className="lg:hidden flex items-center space-x-4">
+                        {cartCount > 0 && (
+                            <button onClick={() => setIsCartOpen(true)} className="relative">
+                                <FaShoppingCart className="text-2xl text-white" />
+                                <span className="absolute -top-2 -right-2 bg-gray-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {cartCount}
+                                </span>
+                            </button>
+                        )}
                         <button onClick={toggleMobileMenu} className="focus:outline-none text-2xl">
                             {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
                         </button>
@@ -141,7 +175,7 @@ const Navbar = () => {
 
                     {/* Links */}
                     <div
-                        ref={menuRef} // Reference for outside click handling
+                        ref={menuRef}
                         className={`fixed top-0 right-0 h-full bg-gray-900 text-white w-64 z-50 transform ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
                             } transition-transform duration-300 ease-in-out lg:relative lg:transform-none lg:w-auto lg:flex lg:items-center lg:bg-transparent lg:translate-x-0 lg:h-auto`}
                     >
@@ -203,110 +237,109 @@ const Navbar = () => {
                                 Contact
                             </Link>
 
+                            {/* Cart Icon for Desktop */}
+                            {cartCount > 0 && (
+                                <button onClick={() => setIsCartOpen(true)} className="relative px-4 hidden lg:block">
+                                    <FaShoppingCart className="text-2xl text-white" />
+                                    <span className="absolute -top-2 -right-2 bg-gray-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                        {cartCount}
+                                    </span>
+                                </button>
+                            )}
 
+                            {/* User Profile Dropdown */}
+                            {session ? (
+                                <div className="relative">
+                                    <button onClick={toggleUserDropdown} className="flex items-center focus:outline-none px-4">
+                                        <div className="flex flex-col items-center">
+                                            {session?.user?.image ? (
+                                                <Image
+                                                    src={session.user.image}
+                                                    alt="User Profile"
+                                                    width={20}
+                                                    height={20}
+                                                    className="rounded-full items-center w-8 h-8 border-2 border-gray-400 object-cover"
+                                                />
+                                            ) : (
+                                                <FaUserGraduate className="text-2xl text-gray-300" />
+                                            )}
+                                        </div>
+                                    </button>
 
-
-
-                            <div className="">
-                                {/* User Profile Dropdown */}
-                                {session ? (
-                                    <div className="relative">
-                                        {/* Icon Button to Open Dropdown */}
-                                        <button onClick={toggleUserDropdown} className="flex items-center focus:outline-none px-4">
-                                            <div className="flex flex-col items-center">
+                                    {isUserDropdownOpen && (
+                                        <div className="absolute right-0 mt-2 w-48 bg-gray-700 shadow-lg rounded-lg py-2 z-20">
+                                            <div className="flex flex-col items-center p-4">
                                                 {session?.user?.image ? (
                                                     <Image
                                                         src={session.user.image}
                                                         alt="User Profile"
-                                                        width={20}
-                                                        height={20}
-                                                        className="rounded-full items-center w-8 h-8 border-2 border-gray-400 object-cover"
+                                                        width={50}
+                                                        height={50}
+                                                        className="rounded-full w-12 h-12 border-2 border-gray-400 object-cover"
                                                     />
                                                 ) : (
                                                     <FaUserGraduate className="text-2xl text-gray-300" />
                                                 )}
-
+                                                <div className="text-white mt-2">{session.user.name}</div>
+                                                <div className="text-sm text-gray-400">Mr. {session.user.role}</div>
                                             </div>
-                                        </button>
 
-                                        {/* Dropdown Content */}
-                                        {isUserDropdownOpen && (
-                                            <div className="absolute right-0 mt-2 w-48 bg-gray-700 shadow-lg rounded-lg py-2 z-20">
-                                                {/* Show Image Inside Dropdown */}
-                                                <div className="flex flex-col items-center p-4">
-                                                    {session?.user?.image ? (
-                                                        <Image
-                                                            src={session.user.image}
-                                                            alt="User Profile"
-                                                            width={50}
-                                                            height={50}
-                                                            className="rounded-full w-12 h-12 border-2 border-gray-400 object-cover"
-                                                        />
-                                                    ) : (
-                                                        <FaUserGraduate className="text-2xl text-gray-300" />
-                                                    )}
-                                                    <div className="text-white mt-2">{session.user.name}</div>
-                                                    <div className="text-sm text-gray-400">Mr. {session.user.role}</div>
-                                                </div>
-
-                                                {/* Role-Based Links */}
-                                                {session.user.role === "admin" && (
-                                                    <Link
-                                                        href="/admin-dashboard"
-                                                        className="block px-4 py-2 text-white hover:bg-gray-800"
-                                                        onClick={closeUserDropdown}
-                                                    >
-                                                        Admin Dashboard
-                                                    </Link>
-                                                )}
-                                                {session.user.role === "moderator" && (
-                                                    <Link
-                                                        href="/moderator-dashboard"
-                                                        className="block px-4 py-2 text-white hover:bg-gray-800"
-                                                        onClick={closeUserDropdown}
-                                                    >
-                                                        Moderator Dashboard
-                                                    </Link>
-                                                )}
-                                                {session.user.role === "user" && (
-                                                    <Link
-                                                        href="/user-dashboard"
-                                                        className="block px-4 py-2 text-white hover:bg-gray-800"
-                                                        onClick={closeUserDropdown}
-                                                    >
-                                                        User Dashboard
-                                                    </Link>
-                                                )}
-
-                                                {/* Profile & Logout */}
+                                            {session.user.role === "admin" && (
                                                 <Link
-                                                    href="/profile"
+                                                    href="/admin-dashboard"
                                                     className="block px-4 py-2 text-white hover:bg-gray-800"
                                                     onClick={closeUserDropdown}
                                                 >
-                                                    Profile
+                                                    Admin Dashboard
                                                 </Link>
-
-                                                <button
-                                                    onClick={() => signOut({ callbackUrl: "/" })}
-                                                    className="block w-full px-4 py-2 text-left text-white hover:bg-gray-800"
+                                            )}
+                                            {session.user.role === "moderator" && (
+                                                <Link
+                                                    href="/moderator-dashboard"
+                                                    className="block px-4 py-2 text-white hover:bg-gray-800"
+                                                    onClick={closeUserDropdown}
                                                 >
-                                                    Sign Out
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="flex space-x-4">
-                                        <Link href="/login" className="px-4 text-white">
-                                            Login
-                                        </Link>
-                                    </div>
-                                )}
-                            </div>
+                                                    Moderator Dashboard
+                                                </Link>
+                                            )}
+                                            {session.user.role === "user" && (
+                                                <Link
+                                                    href="/user-dashboard"
+                                                    className="block px-4 py-2 text-white hover:bg-gray-800"
+                                                    onClick={closeUserDropdown}
+                                                >
+                                                    User Dashboard
+                                                </Link>
+                                            )}
+
+                                            <Link
+                                                href="/profile"
+                                                className="block px-4 py-2 text-white hover:bg-gray-800"
+                                                onClick={closeUserDropdown}
+                                            >
+                                                Profile
+                                            </Link>
+
+                                            <button
+                                                onClick={() => signOut({ callbackUrl: "/" })}
+                                                className="block w-full px-4 py-2 text-left text-white hover:bg-gray-800"
+                                            >
+                                                Sign Out
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="flex space-x-4">
+                                    <Link href="/login" className="px-4 text-white">
+                                        Login
+                                    </Link>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </nav>
+                <CartSlider isOpen={isCartOpen} setIsOpen={setIsCartOpen} conversionRates={conversionRates} />
             </div>
         );
     }

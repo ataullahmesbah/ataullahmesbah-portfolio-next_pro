@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -72,6 +71,8 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             });
         }
         localStorage.setItem('cart', JSON.stringify(cart));
+        // Dispatch custom event to update navbar cart count
+        window.dispatchEvent(new Event('cartUpdated'));
         setIsCartOpen(true);
     };
 

@@ -100,6 +100,9 @@ const AdminDashboardLayout = ({ children }) => {
             children: [
                 { label: 'ALL Products', link: '/admin-dashboard/shop/all-products' },
                 { label: 'Add Product', link: '/admin-dashboard/shop/add-products' },
+                { label: 'Orders', link: '/admin-dashboard/shop/orders' },
+                { label: 'Accept Orders', link: '/admin-dashboard/shop/accepted-orders' },
+                { label: 'Rejected Orders', link: '/admin-dashboard/shop/rejected-orders' },
 
 
 

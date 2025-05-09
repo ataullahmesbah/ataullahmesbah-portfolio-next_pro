@@ -15,6 +15,8 @@ export default function CartSlider({ isOpen, setIsOpen, conversionRates }) {
         const updatedCart = cart.filter((item) => item._id !== productId);
         setCart(updatedCart);
         localStorage.setItem('cart', JSON.stringify(updatedCart));
+        // Dispatch custom event to update navbar cart count
+        window.dispatchEvent(new Event('cartUpdated'));
     };
 
     const getBDTPrice = (item) => {
