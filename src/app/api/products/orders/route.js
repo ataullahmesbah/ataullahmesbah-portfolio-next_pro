@@ -2,10 +2,13 @@ import { NextResponse } from 'next/server';
 import Order from '@/models/Order';
 import dbConnect from '@/lib/dbMongoose';
 
+
+
 export async function POST(request) {
     try {
         await dbConnect();
         const orderData = await request.json();
+        console.log('Order Data Received:', orderData); // Debug log
 
         if (!orderData.orderId || !orderData.products || !orderData.customerInfo) {
             return NextResponse.json({ error: 'Invalid order data' }, { status: 400 });
@@ -18,6 +21,7 @@ export async function POST(request) {
         });
 
         await order.save();
+        console.log('Order Saved:', order); // Debug log
 
         return NextResponse.json({ message: 'Order created', orderId: order._id }, { status: 201 });
     } catch (error) {
@@ -30,6 +34,7 @@ export async function GET() {
     try {
         await dbConnect();
         const orders = await Order.find({}).lean();
+        console.log('Orders Fetched:', orders); // Debug log
         return NextResponse.json(orders, { status: 200 });
     } catch (error) {
         console.error('Error fetching orders:', error);

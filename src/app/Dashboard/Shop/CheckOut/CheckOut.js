@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -17,6 +16,10 @@ export default function Checkout() {
         postcode: '1000',
         country: 'Bangladesh',
     });
+    const [couponCode, setCouponCode] = useState('');
+    const [discount, setDiscount] = useState(0);
+    const [couponError, setCouponError] = useState('');
+    const [shippingCharge, setShippingCharge] = useState(0);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
@@ -24,7 +27,22 @@ export default function Checkout() {
     useEffect(() => {
         const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
         setCart(storedCart);
-    }, []);
+
+        // Fetch shipping charge for COD
+        if (paymentMethod === 'cod') {
+            axios.get('/api/shipping')
+                .then(response => {
+                    console.log('Shipping Charge Fetched:', response.data); // Debug log
+                    setShippingCharge(response.data.charge);
+                })
+                .catch(err => {
+                    console.error('Error fetching shipping charge:', err);
+                    setShippingCharge(0); // Fallback to 0
+                });
+        } else {
+            setShippingCharge(0);
+        }
+    }, [paymentMethod]);
 
     const getBDTPrice = (item) => {
         if (item.currency === 'BDT') return item.price;
@@ -32,10 +50,37 @@ export default function Checkout() {
     };
 
     const subtotal = cart.reduce((sum, item) => sum + getBDTPrice(item) * item.quantity, 0);
+    const payableAmount = subtotal - discount + (paymentMethod === 'cod' ? shippingCharge : 0);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setCustomerInfo((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleQuantityChange = (productId, newQuantity) => {
+        if (newQuantity < 1) return;
+        const updatedCart = cart.map(item =>
+            item._id === productId ? { ...item, quantity: newQuantity } : item
+        );
+        setCart(updatedCart);
+        localStorage.setItem('cart', JSON.stringify(updatedCart));
+        window.dispatchEvent(new Event('cartUpdated'));
+    };
+
+    const handleCouponApply = async () => {
+        setCouponError('');
+        setDiscount(0);
+        try {
+            const response = await axios.post('/api/coupons', { code: couponCode });
+            if (response.data.valid) {
+                setDiscount(response.data.discount);
+            } else {
+                setCouponError('Oops Sorry! This Coupon is Invalid.');
+            }
+        } catch (err) {
+            setCouponError('Error applying coupon.');
+            console.error('Coupon Error:', err);
+        }
     };
 
     const generateOrderId = () => {
@@ -47,7 +92,6 @@ export default function Checkout() {
         setError('');
         setLoading(true);
 
-        // Validate inputs
         if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.address) {
             setError('Please fill in all required fields.');
             setLoading(false);
@@ -71,59 +115,64 @@ export default function Checkout() {
             customerInfo,
             paymentMethod,
             status: paymentMethod === 'cod' ? 'pending' : 'pending_payment',
-            total: subtotal,
+            total: payableAmount,
+            discount,
+            shippingCharge: paymentMethod === 'cod' ? shippingCharge : 0,
         };
 
         try {
-            // First create the order in database
+            console.log('Submitting Order:', orderData); // Debug log
             const orderResponse = await axios.post('/api/products/orders', orderData);
-            
-            if (paymentMethod === 'cod') {
-                localStorage.removeItem('cart');
-                window.dispatchEvent(new Event('cartUpdated'));
-                router.push('/checkout/success');
-            } else {
-                // SSLCOMMERZ Payment
-                const sslcommerzData = {
-                    store_id: process.env.NEXT_PUBLIC_SSLCZ_STORE_ID,
-                    store_passwd: process.env.SSLCZ_STORE_PASSWORD,
-                    total_amount: subtotal,
-                    currency: 'BDT',
-                    tran_id: orderData.orderId,
-                    success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success`,
-                    fail_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/fail`,
-                    cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/cancel`,
-                    ipn_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/ipn`,
-                    cus_name: customerInfo.name,
-                    cus_email: customerInfo.email,
-                    cus_add1: customerInfo.address,
-                    cus_city: customerInfo.city,
-                    cus_postcode: customerInfo.postcode,
-                    cus_country: customerInfo.country,
-                    cus_phone: customerInfo.phone,
-                    shipping_method: 'NO',
-                    product_name: 'Online Purchase',
-                    product_category: 'General',
-                    product_profile: 'general',
-                };
-
-                const response = await axios.post(
-                    process.env.NEXT_PUBLIC_SSLCZ_IS_SANDBOX === 'true'
-                        ? 'https://sandbox.sslcommerz.com/gwprocess/v4/api.php'
-                        : 'https://securepay.sslcommerz.com/gwprocess/v4/api.php',
-                    sslcommerzData,
-                    {
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                    }
-                );
-
-                if (response.data.status === 'SUCCESS' && response.data.GatewayPageURL) {
-                    window.location.href = response.data.GatewayPageURL;
+            if (orderResponse.data.message === 'Order created') {
+                if (paymentMethod === 'cod') {
+                    localStorage.removeItem('cart');
+                    window.dispatchEvent(new Event('cartUpdated'));
+                    router.push(`/checkout/cod-success?orderId=${orderData.orderId}`);
                 } else {
-                    throw new Error(response.data.error || 'Payment initiation failed');
+                    const sslcommerzData = {
+                        store_id: process.env.NEXT_PUBLIC_SSLCZ_STORE_ID,
+                        store_passwd: process.env.SSLCZ_STORE_PASSWORD,
+                        total_amount: payableAmount,
+                        currency: 'BDT',
+                        tran_id: orderData.orderId,
+                        success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success`,
+                        fail_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/fail`,
+                        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/cancel`,
+                        ipn_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/ipn`,
+                        cus_name: customerInfo.name,
+                        cus_email: customerInfo.email,
+                        cus_add1: customerInfo.address,
+                        cus_city: customerInfo.city,
+                        cus_postcode: customerInfo.postcode,
+                        cus_country: customerInfo.country,
+                        cus_phone: customerInfo.phone,
+                        shipping_method: 'NO',
+                        product_name: 'Online Purchase',
+                        product_category: 'General',
+                        product_profile: 'general',
+                    };
+
+                    const formData = new URLSearchParams();
+                    Object.keys(sslcommerzData).forEach((key) => {
+                        formData.append(key, sslcommerzData[key]);
+                    });
+
+                    const response = await axios.post(
+                        process.env.NEXT_PUBLIC_SSLCZ_IS_SANDBOX === 'true'
+                            ? 'https://sandbox.sslcommerz.com/gwprocess/v4/api.php'
+                            : 'https://securepay.sslcommerz.com/gwprocess/v4/api.php',
+                        formData,
+                        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+                    );
+
+                    if (response.data.status === 'SUCCESS' && response.data.GatewayPageURL) {
+                        window.location.href = response.data.GatewayPageURL;
+                    } else {
+                        throw new Error(response.data.error || 'Payment initiation failed');
+                    }
                 }
+            } else {
+                throw new Error('Order creation failed');
             }
         } catch (err) {
             console.error('Checkout Error:', err);
@@ -153,7 +202,7 @@ export default function Checkout() {
                         <h2 className="text-2xl font-semibold text-white mb-6 pb-4 border-b border-gray-700">
                             Your Order
                         </h2>
-                        
+
                         {cart.length === 0 ? (
                             <div className="text-center py-8">
                                 <p className="text-gray-400">Your cart is empty</p>
@@ -169,15 +218,28 @@ export default function Checkout() {
                                                 fill
                                                 className="object-cover rounded-lg"
                                             />
-                                            <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
-                                                {item.quantity}
-                                            </span>
                                         </div>
-                                        <div>
+                                        <div className="flex-1">
                                             <h3 className="text-lg font-medium text-white">{item.title}</h3>
                                             <p className="text-gray-400 mt-1">
                                                 ৳{getBDTPrice(item).toLocaleString()} each
                                             </p>
+                                            <div className="flex items-center mt-2">
+                                                <button
+                                                    onClick={() => handleQuantityChange(item._id, item.quantity - 1)}
+                                                    className="px-2 py-1 bg-gray-600 text-white rounded-l hover:bg-gray-700"
+                                                    disabled={item.quantity <= 1}
+                                                >
+                                                    -
+                                                </button>
+                                                <span className="px-4 py-1 bg-gray-700 text-white">{item.quantity}</span>
+                                                <button
+                                                    onClick={() => handleQuantityChange(item._id, item.quantity + 1)}
+                                                    className="px-2 py-1 bg-gray-600 text-white rounded-r hover:bg-gray-700"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
                                         </div>
                                         <div className="ml-auto text-lg font-medium text-white">
                                             ৳{(getBDTPrice(item) * item.quantity).toLocaleString()}
@@ -186,17 +248,46 @@ export default function Checkout() {
                                 ))}
 
                                 <div className="pt-4 border-t border-gray-700">
-                                    <div className="flex justify-between text-xl font-semibold text-white mb-2">
-                                        <span>Subtotal</span>
-                                        <span>৳{subtotal.toLocaleString()}</span>
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <input
+                                            type="text"
+                                            value={couponCode}
+                                            onChange={(e) => setCouponCode(e.target.value)}
+                                            placeholder="Enter coupon code"
+                                            className="flex-1 bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                        />
+                                        <button
+                                            onClick={handleCouponApply}
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                                        >
+                                            Apply
+                                        </button>
                                     </div>
-                                    <div className="flex justify-between text-lg text-gray-400 mb-4">
-                                        <span>Shipping</span>
-                                        <span>Free</span>
-                                    </div>
-                                    <div className="flex justify-between text-2xl font-bold text-white pt-4 border-t border-gray-700">
-                                        <span>Total</span>
-                                        <span>৳{subtotal.toLocaleString()}</span>
+                                    {couponError && (
+                                        <p className="text-red-500 mb-4">{couponError}</p>
+                                    )}
+                                    {discount > 0 && (
+                                        <p className="text-green-500 mb-4">Coupon applied! ৳{discount} discount</p>
+                                    )}
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-lg text-gray-400">
+                                            <span>Subtotal</span>
+                                            <span>৳{subtotal.toLocaleString()}</span>
+                                        </div>
+                                        {paymentMethod === 'cod' && (
+                                            <div className="flex justify-between text-lg text-gray-400">
+                                                <span>Shipping Charge</span>
+                                                <span>৳{(shippingCharge || 0).toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between text-lg text-gray-400">
+                                            <span>Discount</span>
+                                            <span>৳{discount.toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between text-2xl font-bold text-white pt-2 border-t border-gray-700">
+                                            <span>Payable Amount</span>
+                                            <span>৳{payableAmount.toLocaleString()}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -208,7 +299,7 @@ export default function Checkout() {
                         <h2 className="text-2xl font-semibold text-white mb-6 pb-4 border-b border-gray-700">
                             Billing Details
                         </h2>
-                        
+
                         <form onSubmit={handleCheckout} className="space-y-5">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
@@ -354,7 +445,7 @@ export default function Checkout() {
                                         Processing...
                                     </span>
                                 ) : (
-                                    `Complete Order - ৳${subtotal.toLocaleString()}`
+                                    `Complete Order - ৳${payableAmount.toLocaleString()}`
                                 )}
                             </button>
                         </form>

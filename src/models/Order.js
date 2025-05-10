@@ -27,6 +27,8 @@ const orderSchema = new mongoose.Schema({
         default: 'pending',
     },
     total: { type: Number, required: true },
+    discount: { type: Number, default: 0 },
+    shippingCharge: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });
