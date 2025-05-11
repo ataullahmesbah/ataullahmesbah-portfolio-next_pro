@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import CartSlider from '../CartSlider/CartSlider';
-
+import axios from 'axios';
 
 export default function ProductDetailsClient({ product, latestProducts }) {
     const [selectedImage, setSelectedImage] = useState(product.mainImage);
@@ -12,14 +12,19 @@ export default function ProductDetailsClient({ product, latestProducts }) {
     const [currency, setCurrency] = useState('BDT');
     const [quantity, setQuantity] = useState(1);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [conversionRates, setConversionRates] = useState({ USD: 123, EUR: 135, BDT: 1 });
     const router = useRouter();
 
-    // Conversion rates (demo)
-    const conversionRates = {
-        USD: 120, // 1 USD = 120 BDT
-        EUR: 130, // 1 EUR = 130 BDT
-        BDT: 1,
-    };
+    // Fetch conversion rates
+    useEffect(() => {
+        axios.get('/api/products/conversion-rates')
+            .then(response => {
+                setConversionRates(response.data);
+            })
+            .catch(err => {
+                console.error('Error fetching conversion rates:', err);
+            });
+    }, []);
 
     const structuredData = {
         '@context': 'https://schema.org',
@@ -36,7 +41,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
     };
 
     const handleAddToCart = () => {
-        if (product.quantity <= 0) return;
+        if (product.quantity <= 0 || product.productType === 'Affiliate') return;
         const cart = JSON.parse(localStorage.getItem('cart') || '[]');
         const existingItem = cart.find((item) => item._id === product._id);
         let newQuantity = quantity;
@@ -51,7 +56,8 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                 alert('Selected quantity exceeds available stock.');
                 return;
             }
-            existingItem.quantity = newQuantity;
+            cart.splice(cart.indexOf(existingItem), 1);
+            cart.push({ ...existingItem, quantity: newQuantity });
         } else {
             if (quantity > 3) {
                 alert('Cannot add more than 3 units of this product.');
@@ -61,92 +67,163 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                 alert('Selected quantity exceeds available stock.');
                 return;
             }
+            const priceObj = product.prices.find((p) => p.currency === 'BDT') || product.prices[0];
+            const priceInBDT = priceObj.currency === 'BDT' ? priceObj.amount : priceObj.amount * (conversionRates[priceObj.currency] || 1);
             cart.push({
                 _id: product._id,
                 title: product.title,
                 quantity,
-                price: product.prices.find((p) => p.currency === 'BDT')?.amount, // Store BDT price
+                price: priceInBDT,
                 mainImage: product.mainImage,
-                currency, // Store selected currency for display
+                currency: 'BDT',
             });
         }
         localStorage.setItem('cart', JSON.stringify(cart));
-        // Dispatch custom event to update navbar cart count
         window.dispatchEvent(new Event('cartUpdated'));
         setIsCartOpen(true);
     };
 
     const handleBuyNow = () => {
         if (product.quantity <= 0 && product.productType !== 'Affiliate') return;
+
         if (product.productType === 'Affiliate') {
             window.open(product.affiliateLink, '_blank', 'noopener,noreferrer');
-        } else {
-            if (quantity > 3) {
-                alert('Cannot buy more than 3 units of this product.');
+            return;
+        }
+
+        if (quantity > 3) {
+            alert('Maximum 3 units per order');
+            return;
+        }
+
+        if (quantity > product.quantity) {
+            alert(`Only ${product.quantity} units available`);
+            return;
+        }
+
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const existingItem = cart.find((item) => item._id === product._id);
+        let updatedCart = [...cart];
+
+        if (existingItem) {
+            const newQuantity = existingItem.quantity + quantity;
+            if (newQuantity > 3) {
+                alert('Cannot add more than 3 units of this product.');
                 return;
             }
-            if (quantity > product.quantity) {
+            if (newQuantity > product.quantity) {
                 alert('Selected quantity exceeds available stock.');
                 return;
             }
-            localStorage.setItem(
-                'checkout',
-                JSON.stringify({
-                    productId: product._id,
-                    title: product.title,
-                    quantity,
-                    price: product.prices.find((p) => p.currency === 'BDT')?.amount, // Store BDT price
-                    mainImage: product.mainImage,
-                    currency, // Store selected currency
-                })
-            );
-            router.push('/checkout');
+            updatedCart = updatedCart.filter((item) => item._id !== product._id);
+            updatedCart.push({ ...existingItem, quantity: newQuantity });
+        } else {
+            const priceObj = product.prices.find((p) => p.currency === 'BDT') || product.prices[0];
+            const priceInBDT = priceObj.currency === 'BDT' ? priceObj.amount : priceObj.amount * (conversionRates[priceObj.currency] || 1);
+            updatedCart.push({
+                _id: product._id,
+                title: product.title,
+                quantity,
+                price: priceInBDT,
+                mainImage: product.mainImage,
+                currency: 'BDT',
+            });
         }
+
+        localStorage.setItem('cart', JSON.stringify(updatedCart));
+        window.dispatchEvent(new Event('cartUpdated'));
+        router.push('/checkout');
+    };
+
+    const getPriceInBDT = (price, curr) => {
+        return price * (conversionRates[curr] || 1);
     };
 
     const getPriceDisplay = () => {
-        const price = product.prices.find((p) => p.currency === currency);
-        if (!price) return 'N/A';
+        const priceObj = product.prices.find((p) => p.currency === currency) || product.prices[0];
+        const priceInBDT = priceObj.currency === 'BDT' ? priceObj.amount : priceObj.amount * (conversionRates[priceObj.currency] || 1);
+        const total = priceInBDT * quantity;
         const symbol = currency === 'BDT' ? '৳' : currency === 'USD' ? '$' : '€';
-        const total = (price.amount * quantity).toFixed(2);
-        return `${symbol}${total}`;
+        return `${symbol}${new Intl.NumberFormat(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(currency === 'BDT' ? total : total / (conversionRates[currency] || 1))}`;
     };
 
     return (
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-            <div className="bg-gray-800 rounded-xl shadow-lg p-6 md:p-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Left: Image Gallery */}
-                    <div>
-                        <div
-                            className="relative w-full h-96 cursor-pointer rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105"
-                            onClick={() => setIsModalOpen(true)}
-                        >
+
+            {/* Breadcrumb Navigation */}
+            <nav className="flex mb-6" aria-label="Breadcrumb">
+                <ol className="inline-flex items-center space-x-1 md:space-x-2">
+                    <li className="inline-flex items-center">
+                        <Link href="/" className="inline-flex items-center text-sm font-medium text-gray-400 hover:text-white">
+                            Home
+                        </Link>
+                    </li>
+                    <li>
+                        <div className="flex items-center">
+                            <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
+                            </svg>
+                            <Link href="/shop" className="ml-1 text-sm font-medium text-gray-400 hover:text-white md:ml-2">
+                                Shop
+                            </Link>
+                        </div>
+                    </li>
+                    <li aria-current="page">
+                        <div className="flex items-center">
+                            <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
+                            </svg>
+                            <span className="ml-1 text-sm font-medium text-white md:ml-2">{product.title}</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+
+            {/* Main Product Section */}
+            <div className="bg-gray-800 rounded-xl overflow-hidden">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-8">
+                    {/* Image Gallery */}
+                    <div className="space-y-4">
+                        <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-700">
                             <Image
                                 src={selectedImage}
                                 alt={product.title}
                                 fill
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                                className="object-cover rounded-lg"
+                                className="object-contain"
                                 priority
+                                sizes="(max-width: 640px) 100vw, 50vw"
                             />
+                            {product.quantity <= 0 && (
+                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                    <span className="bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium">
+                                        Out of Stock
+                                    </span>
+                                </div>
+                            )}
                         </div>
+
                         {product.additionalImages.length > 0 && (
-                            <div className="mt-4 grid grid-cols-4 gap-3">
+                            <div className="grid grid-cols-4 gap-3">
                                 {[product.mainImage, ...product.additionalImages].map((img, index) => (
                                     <div
                                         key={index}
-                                        className={`relative h-24 cursor-pointer rounded-lg overflow-hidden transition-all duration-300 ${selectedImage === img ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-blue-300'
-                                            }`}
+                                        className={`relative aspect-square rounded-md overflow-hidden cursor-pointer transition-all ${
+                                            selectedImage === img 
+                                                ? 'ring-2 ring-purple-500' 
+                                                : 'hover:ring-2 hover:ring-purple-300'
+                                        }`}
                                         onClick={() => setSelectedImage(img)}
                                     >
                                         <Image
                                             src={img}
-                                            alt={`${product.title} image ${index + 1}`}
+                                            alt={`${product.title} thumbnail ${index + 1}`}
                                             fill
-                                            sizes="20vw"
-                                            className="object-cover rounded-lg"
+                                            className="object-cover"
+                                            sizes="100px"
                                         />
                                     </div>
                                 ))}
@@ -154,45 +231,24 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                         )}
                     </div>
 
-                    {/* Right: Product Information */}
+                    {/* Product Info */}
                     <div className="space-y-6">
-                        <h1 className="text-3xl font-bold text-white">{product.title}</h1>
-
                         <div>
-                            <h2 className="text-lg font-semibold text-gray-300">Description</h2>
-                            <p className="text-gray-200">{product.description}</p>
+                            <h1 className="text-2xl font-bold text-white">{product.title}</h1>
+                            {product.category && (
+                                <span className="inline-block mt-2 px-3 py-1 bg-purple-900/30 text-purple-300 rounded-full text-xs">
+                                    {product.category.name}
+                                </span>
+                            )}
                         </div>
 
-                        {product.descriptions.length > 0 && (
-                            <div>
-                                <h2 className="text-lg font-semibold text-gray-300">Additional Descriptions</h2>
-                                <ul className="list-disc pl-5 space-y-2 text-gray-200">
-                                    {product.descriptions.map((desc, index) => (
-                                        <li key={index}>{desc}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-
-                        {product.bulletPoints.length > 0 && (
-                            <div>
-                                <h2 className="text-lg font-semibold text-gray-300">Features</h2>
-                                <ul className="list-disc pl-5 space-y-2 text-gray-200">
-                                    {product.bulletPoints.map((point, index) => (
-                                        <li key={index}>{point}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-
-                        <div>
-                            <h2 className="text-lg font-semibold text-gray-300">Price</h2>
-                            <div className="flex items-center space-x-4">
+                        {/* Price Section */}
+                        <div className="bg-purple-900/20 p-4 rounded-lg border border-purple-800">
+                            <div className="flex flex-wrap items-center gap-4">
                                 <select
                                     value={currency}
                                     onChange={(e) => setCurrency(e.target.value)}
-                                    className="bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    aria-label="Select currency"
+                                    className="bg-gray-700 text-white px-3 py-1 rounded-md text-sm focus:ring-2 focus:ring-purple-500"
                                 >
                                     {product.prices.map((price) => (
                                         <option key={price.currency} value={price.currency}>
@@ -200,18 +256,26 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                         </option>
                                     ))}
                                 </select>
-                                <p className="text-xl font-semibold text-white">{getPriceDisplay()}</p>
+                                <span className="text-2xl font-bold text-white">
+                                    {getPriceDisplay()}
+                                </span>
+                                {product.originalPrice && (
+                                    <span className="text-sm text-gray-400 line-through">
+                                        {currency === 'BDT' ? '৳' : '$'}
+                                        {new Intl.NumberFormat().format(product.originalPrice)}
+                                    </span>
+                                )}
                             </div>
                         </div>
 
-                        <div>
-                            <h2 className="text-lg font-semibold text-gray-300">Quantity</h2>
+                        {/* Quantity Selector */}
+                        <div className="flex items-center gap-4">
+                            <label className="text-sm font-medium text-gray-300">Quantity:</label>
                             <select
                                 value={quantity}
                                 onChange={(e) => setQuantity(Number(e.target.value))}
-                                disabled={product.quantity <= 0}
-                                className="bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-                                aria-label="Select quantity"
+                                disabled={product.quantity <= 0 || product.productType === 'Affiliate'}
+                                className="bg-gray-700 text-white px-3 py-1 rounded-md text-sm"
                             >
                                 {[...Array(Math.min(product.quantity || 3, 3))].map((_, i) => (
                                     <option key={i + 1} value={i + 1}>
@@ -221,85 +285,130 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                             </select>
                         </div>
 
-                        {product.quantity <= 0 ? (
-                            <div className="text-red-400 text-lg font-semibold bg-red-900/20 p-4 rounded-lg">
-                                Product Out of Stock
+                        {/* Action Buttons */}
+                        {product.quantity <= 0 && product.productType !== 'Affiliate' ? (
+                            <div className="p-3 bg-red-900/20 text-red-300 rounded-md text-sm">
+                                Currently Out of Stock
                             </div>
                         ) : (
-                            <div className="flex space-x-4">
-                                {product.productType === 'Own' && (
+                            <div className="flex flex-wrap gap-4">
+                                {product.productType !== 'Affiliate' && (
                                     <button
                                         onClick={handleAddToCart}
-                                        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                                         disabled={product.quantity <= 0}
+                                        className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-md font-medium text-white transition-all flex items-center gap-2 disabled:opacity-50"
                                     >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
                                         Add to Cart
                                     </button>
                                 )}
                                 <button
                                     onClick={handleBuyNow}
-                                    className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
-                                    disabled={product.quantity <= 0 && product.productType !== 'Affiliate'}
+                                    className="px-6 py-2 bg-purple-700 hover:bg-purple-800 rounded-md font-medium text-white transition-all flex items-center gap-2"
                                 >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
                                     Buy Now
                                 </button>
                             </div>
                         )}
+
+                        {/* Product Details */}
+                        <div className="space-y-4 pt-4 border-t border-gray-700">
+                            {product.description && (
+                                <div>
+                                    <h3 className="text-lg text-white mb-2">Description</h3>
+                                    <p className="text-gray-300 text-sm">{product.description}</p>
+                                </div>
+                            )}
+                            {product.descriptions && (
+                                <div>
+                                    <h3 className="text-lg text-white mb-2">Additional Description</h3>
+                                    <p className="text-white text-sm">{product.descriptions}</p>
+                                </div>
+                            )}
+
+                            {product.bulletPoints.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg text-white mb-2">Key Features</h3>
+                                    <ul className="space-y-2 text-gray-300 text-sm">
+                                        {product.bulletPoints.map((point, index) => (
+                                            <li key={index} className="flex items-start">
+                                                <span className="text-purple-400 mr-2">•</span>
+                                                {point}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* More Items Section */}
-            <div className="mt-12">
-                <h2 className="text-2xl font-bold text-white mb-6">More Items</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                    {latestProducts.map((item) => (
-                        <Link
-                            key={item._id}
-                            href={`/shop/${item.slug || item._id}`}
-                            className="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:shadow-xl"
-                        >
-                            <div className="relative aspect-square">
-                                <Image
-                                    src={item.mainImage}
-                                    alt={item.title}
-                                    fill
-                                    className="object-cover"
-                                    sizes="20vw"
-                                    loading="lazy"
-                                />
-                            </div>
-                            <div className="p-4">
-                                <h3 className="text-lg font-semibold text-white line-clamp-2">{item.title}</h3>
-                                <p className="text-blue-400 font-bold mt-2">
-                                    ৳{item.prices.find((p) => p.currency === 'BDT')?.amount?.toLocaleString() || 'N/A'}
-                                </p>
-                            </div>
-                        </Link>
-                    ))}
+            {/* More Products Section */}
+            {latestProducts.length > 0 && (
+                <div className="mt-12">
+                    <h2 className="text-xl font-semibold text-white mb-6">You May Also Like</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                        {latestProducts.slice(0, 5).map((item) => (
+                            <Link
+                                key={item._id}
+                                href={`/shop/${item.slug || item._id}`}
+                                className="group bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-purple-500 transition-colors"
+                            >
+                                <div className="relative aspect-square">
+                                    <Image
+                                        src={item.mainImage}
+                                        alt={item.title}
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
+                                    />
+                                    {item.quantity <= 0 && (
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                            <span className="bg-red-600 text-white px-2 py-1 rounded-md text-xs font-medium">
+                                                Out of Stock
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="p-3">
+                                    <h3 className="text-sm font-medium text-white line-clamp-2">{item.title}</h3>
+                                    <p className="text-purple-400 font-semibold mt-1 text-sm">
+                                        ৳{getPriceInBDT(item.prices.find((p) => p.currency === 'BDT')?.amount || item.prices[0].amount, item.prices[0].currency).toLocaleString()}
+                                    </p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Image Zoom Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
                     <div className="relative max-w-4xl w-full">
-                        <Image
-                            src={selectedImage}
-                            alt={product.title}
-                            width={800}
-                            height={800}
-                            className="object-contain rounded-lg"
-                        />
                         <button
                             onClick={() => setIsModalOpen(false)}
-                            className="absolute top-4 right-4 bg-gray-800 text-white rounded-full p-2 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-white"
-                            aria-label="Close image modal"
+                            className="absolute -top-10 right-0 text-white hover:text-gray-300 focus:outline-none"
+                            aria-label="Close modal"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
+                        <div className="relative aspect-square w-full">
+                            <Image
+                                src={selectedImage}
+                                alt={product.title}
+                                fill
+                                className="object-contain"
+                            />
+                        </div>
                     </div>
                 </div>
             )}
