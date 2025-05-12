@@ -1,22 +1,27 @@
 import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
+import Coupon from '@/models/Coupon';
 
-// Mock coupon data (replace with database in production)
-const coupons = [
-    { code: 'Team101', discount: 300 },
-];
+
+export async function GET() {
+    try {
+        await mongoose.connect(process.env.MONGODB_URI);
+        const coupons = await Coupon.find({ isActive: true }).populate('productId', 'title');
+        return NextResponse.json(coupons, { status: 200 });
+    } catch (error) {
+        console.error('Error fetching coupons:', error);
+        return NextResponse.json({ error: 'Failed to fetch coupons' }, { status: 500 });
+    }
+}
 
 export async function POST(request) {
     try {
-        const { code } = await request.json();
-        const coupon = coupons.find(c => c.code.toUpperCase() === code.toUpperCase());
-
-        if (coupon) {
-            return NextResponse.json({ valid: true, discount: coupon.discount }, { status: 200 });
-        } else {
-            return NextResponse.json({ valid: false, message: 'Invalid coupon' }, { status: 400 });
-        }
+        await mongoose.connect(process.env.MONGODB_URI);
+        const { code, productId, discountPercentage } = await request.json();
+        await Coupon.create({ code, productId, discountPercentage });
+        return NextResponse.json({ message: 'Coupon created' }, { status: 200 });
     } catch (error) {
-        console.error('Error validating coupon:', error);
-        return NextResponse.json({ error: 'Failed to validate coupon' }, { status: 500 });
+        console.error('Error creating coupon:', error);
+        return NextResponse.json({ error: 'Failed to create coupon' }, { status: 500 });
     }
 }

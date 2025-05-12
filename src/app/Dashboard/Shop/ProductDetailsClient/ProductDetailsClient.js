@@ -230,8 +230,8 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                         <div
                                             key={index}
                                             className={`relative aspect-square rounded-md overflow-hidden cursor-pointer transition-transform duration-200 ${selectedImage === img
-                                                    ? 'ring-2 ring-purple-500'
-                                                    : 'hover:ring-2 hover:ring-purple-300 hover:scale-105'
+                                                ? 'ring-2 ring-purple-500'
+                                                : 'hover:ring-2 hover:ring-purple-300 hover:scale-105'
                                                 } animate-fade-in`}
                                             onClick={() => setSelectedImage(img)}
                                         >
@@ -341,6 +341,12 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                 <div>
                                     <h3 className="text-lg font-semibold text-white mb-2">Description</h3>
                                     <p className="text-gray-300 text-sm">{product.description}</p>
+                                </div>
+                            )}
+                            {product.descriptions && (
+                                <div>
+                                    <h3 className="text-lg font-semibold text-white mb-2">Additional Description</h3>
+                                    <p className="text-gray-300 text-sm">{product.descriptions}</p>
                                 </div>
                             )}
 
