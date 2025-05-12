@@ -103,6 +103,8 @@ const AdminDashboardLayout = ({ children }) => {
                 { label: 'Orders', link: '/admin-dashboard/shop/orders' },
                 { label: 'Accept Orders', link: '/admin-dashboard/shop/accepted-orders' },
                 { label: 'Rejected Orders', link: '/admin-dashboard/shop/rejected-orders' },
+                { label: 'Coupon', link: '/admin-dashboard/shop/coupons' },
+                { label: 'Shipping Charges', link: '/admin-dashboard/shop/shipping-charges' },
 
 
 

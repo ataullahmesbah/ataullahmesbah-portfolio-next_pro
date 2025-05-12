@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const ShippingChargeSchema = new mongoose.Schema({
-    division: {
+    type: {
         type: String,
         required: true,
         unique: true,
-        enum: ['Dhaka', 'Chattogram', 'Rajshahi', 'Khulna', 'Barisal', 'Sylhet', 'Rangpur', 'Mymensingh', 'Others'],
+        enum: ['Dhaka-Chattogram', 'Others'],
     },
     charge: {
         type: Number,
@@ -16,6 +16,11 @@ const ShippingChargeSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+});
+
+ShippingChargeSchema.pre('save', function (next) {
+    this.updatedAt = Date.now();
+    next();
 });
 
 module.exports = mongoose.models.ShippingCharge || mongoose.model('ShippingCharge', ShippingChargeSchema);

@@ -15,6 +15,8 @@ export default function Checkout() {
         city: 'Dhaka',
         postcode: '1000',
         country: 'Bangladesh',
+        district: '',
+        thana: '',
     });
     const [couponCode, setCouponCode] = useState('');
     const [discount, setDiscount] = useState(0);
@@ -22,43 +24,68 @@ export default function Checkout() {
     const [shippingCharge, setShippingCharge] = useState(0);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [districtsThanas, setDistrictsThanas] = useState({});
     const router = useRouter();
+    const [shippingCharges, setShippingCharges] = useState({ 'Dhaka-Chattogram': 0, 'Others': 0 });
 
     useEffect(() => {
-        const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
-        setCart(storedCart);
+        const fetchData = async () => {
+            try {
+                // Fetch cart
+                const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+                setCart(storedCart);
 
-        // Fetch shipping charge for COD
-        if (paymentMethod === 'cod') {
-            axios.get('/api/shipping')
-                .then(response => {
-                    console.log('Shipping Charge Fetched:', response.data); // Debug log
-                    setShippingCharge(response.data.charge);
-                })
-                .catch(err => {
-                    console.error('Error fetching shipping charge:', err);
-                    setShippingCharge(0); // Fallback to 0
+                // Fetch districts and thanas
+                const districtsResponse = await axios.get('/api/products/districts-thanas');
+                setDistrictsThanas(districtsResponse.data);
+
+                // Fetch shipping charges
+                const shippingResponse = await axios.get('/api/products/shipping-charges');
+                const chargeMap = { 'Dhaka-Chattogram': 0, 'Others': 0 };
+                shippingResponse.data.forEach(c => {
+                    if (c.type === 'Dhaka-Chattogram' || c.type === 'Others') {
+                        chargeMap[c.type] = c.charge || 0;
+                    }
                 });
-        } else {
-            setShippingCharge(0);
-        }
-    }, [paymentMethod]);
+                console.log('Shipping Charges:', chargeMap);
+                setShippingCharges(chargeMap);
+
+                // Set initial shipping charge based on default district
+                if (customerInfo.district) {
+                    const charge = customerInfo.district === 'Dhaka' || customerInfo.district === 'Chattogram' || customerInfo.district === 'Chittagong'
+                        ? chargeMap['Dhaka-Chattogram']
+                        : chargeMap['Others'];
+                    setShippingCharge(Number.isFinite(charge) ? charge : 0);
+                }
+            } catch (error) {
+                console.error('Error fetching checkout data:', error);
+                setError('Failed to load checkout data. Please refresh the page.');
+            }
+        };
+        fetchData();
+    }, []);
 
     const getBDTPrice = (item) => {
+        if (!item || !item.price || !item.currency) return 0;
         if (item.currency === 'BDT') return item.price;
         return item.price * (item.currency === 'USD' ? 120 : 130);
     };
 
-    const subtotal = cart.reduce((sum, item) => sum + getBDTPrice(item) * item.quantity, 0);
-    const payableAmount = subtotal - discount + (paymentMethod === 'cod' ? shippingCharge : 0);
-
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setCustomerInfo((prev) => ({ ...prev, [name]: value }));
+        if (name === 'district') {
+            setCustomerInfo((prev) => ({ ...prev, thana: '', district: value }));
+            const charge = value === 'Dhaka' || value === 'Chattogram' || value === 'Chittagong'
+                ? shippingCharges['Dhaka-Chattogram']
+                : shippingCharges['Others'];
+            setShippingCharge(Number.isFinite(charge) ? charge : 0);
+        } else {
+            setCustomerInfo((prev) => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleQuantityChange = (productId, newQuantity) => {
-        if (newQuantity < 1) return;
+        if (newQuantity < 1 || !productId) return;
         const updatedCart = cart.map(item =>
             item._id === productId ? { ...item, quantity: newQuantity } : item
         );
@@ -71,14 +98,26 @@ export default function Checkout() {
         setCouponError('');
         setDiscount(0);
         try {
-            const response = await axios.post('/api/coupons', { code: couponCode });
+            const productIds = cart.map(item => item._id).filter(id => id);
+            if (!productIds.length) {
+                setCouponError('No valid products in cart.');
+                return;
+            }
+            const response = await axios.post('/api/products/coupons/validate', { code: couponCode, productIds });
             if (response.data.valid) {
-                setDiscount(response.data.discount);
+                const cartItem = cart.find(item => item._id === response.data.productId?.toString());
+                if (!cartItem) {
+                    setCouponError('Coupon not applicable to cart items.');
+                    return;
+                }
+                const itemTotal = getBDTPrice(cartItem) * cartItem.quantity;
+                const discountAmount = (itemTotal * response.data.discountPercentage) / 100;
+                setDiscount(discountAmount);
             } else {
-                setCouponError('Oops Sorry! This Coupon is Invalid.');
+                setCouponError(response.data.message || 'Invalid coupon code.');
             }
         } catch (err) {
-            setCouponError('Error applying coupon.');
+            setCouponError('Error applying coupon. Please try again.');
             console.error('Coupon Error:', err);
         }
     };
@@ -87,6 +126,9 @@ export default function Checkout() {
         return 'ORDER_' + Math.random().toString(36).substr(2, 9).toUpperCase();
     };
 
+    const subtotal = cart.reduce((sum, item) => sum + getBDTPrice(item) * (item.quantity || 1), 0);
+    const payableAmount = subtotal - discount + (paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' ? (Number.isFinite(shippingCharge) ? shippingCharge : 0) : 0);
+
     const handleCheckout = async (e) => {
         e.preventDefault();
         setError('');
@@ -94,6 +136,12 @@ export default function Checkout() {
 
         if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.address) {
             setError('Please fill in all required fields.');
+            setLoading(false);
+            return;
+        }
+
+        if (paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' && (!customerInfo.district || !customerInfo.thana)) {
+            setError('Please select district and thana for COD.');
             setLoading(false);
             return;
         }
@@ -108,20 +156,20 @@ export default function Checkout() {
             orderId: generateOrderId(),
             products: cart.map((item) => ({
                 productId: item._id,
-                title: item.title,
-                quantity: item.quantity,
+                title: item.title || 'Unknown Product',
+                quantity: item.quantity || 1,
                 price: getBDTPrice(item),
             })),
             customerInfo,
             paymentMethod,
             status: paymentMethod === 'cod' ? 'pending' : 'pending_payment',
-            total: payableAmount,
+            total: Number.isFinite(payableAmount) ? payableAmount : 0,
             discount,
-            shippingCharge: paymentMethod === 'cod' ? shippingCharge : 0,
+            shippingCharge: paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' ? (Number.isFinite(shippingCharge) ? shippingCharge : 0) : 0,
         };
 
         try {
-            console.log('Submitting Order:', orderData); // Debug log
+            console.log('Submitting Order:', orderData);
             const orderResponse = await axios.post('/api/products/orders', orderData);
             if (orderResponse.data.message === 'Order created') {
                 if (paymentMethod === 'cod') {
@@ -132,7 +180,7 @@ export default function Checkout() {
                     const sslcommerzData = {
                         store_id: process.env.NEXT_PUBLIC_SSLCZ_STORE_ID,
                         store_passwd: process.env.SSLCZ_STORE_PASSWORD,
-                        total_amount: payableAmount,
+                        total_amount: Number.isFinite(payableAmount) ? payableAmount : 0,
                         currency: 'BDT',
                         tran_id: orderData.orderId,
                         success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success`,
@@ -142,8 +190,8 @@ export default function Checkout() {
                         cus_name: customerInfo.name,
                         cus_email: customerInfo.email,
                         cus_add1: customerInfo.address,
-                        cus_city: customerInfo.city,
-                        cus_postcode: customerInfo.postcode,
+                        cus_city: customerInfo.city || 'Unknown',
+                        cus_postcode: customerInfo.postcode || '0000',
                         cus_country: customerInfo.country,
                         cus_phone: customerInfo.phone,
                         shipping_method: 'NO',
@@ -213,28 +261,28 @@ export default function Checkout() {
                                     <div key={item._id} className="flex items-start gap-4 pb-4 border-b border-gray-700">
                                         <div className="relative w-20 h-20 flex-shrink-0">
                                             <Image
-                                                src={item.mainImage}
-                                                alt={item.title}
+                                                src={item.mainImage || '/placeholder.png'}
+                                                alt={item.title || 'Product'}
                                                 fill
                                                 className="object-cover rounded-lg"
                                             />
                                         </div>
                                         <div className="flex-1">
-                                            <h3 className="text-lg font-medium text-white">{item.title}</h3>
+                                            <h3 className="text-lg font-medium text-white">{item.title || 'Unknown Product'}</h3>
                                             <p className="text-gray-400 mt-1">
-                                                ৳{getBDTPrice(item).toLocaleString()} each
+                                                ৳{(getBDTPrice(item) || 0).toLocaleString()} each
                                             </p>
                                             <div className="flex items-center mt-2">
                                                 <button
-                                                    onClick={() => handleQuantityChange(item._id, item.quantity - 1)}
+                                                    onClick={() => handleQuantityChange(item._id, (item.quantity || 1) - 1)}
                                                     className="px-2 py-1 bg-gray-600 text-white rounded-l hover:bg-gray-700"
-                                                    disabled={item.quantity <= 1}
+                                                    disabled={(item.quantity || 1) <= 1}
                                                 >
                                                     -
                                                 </button>
-                                                <span className="px-4 py-1 bg-gray-700 text-white">{item.quantity}</span>
+                                                <span className="px-4 py-1 bg-gray-700 text-white">{item.quantity || 1}</span>
                                                 <button
-                                                    onClick={() => handleQuantityChange(item._id, item.quantity + 1)}
+                                                    onClick={() => handleQuantityChange(item._id, (item.quantity || 1) + 1)}
                                                     className="px-2 py-1 bg-gray-600 text-white rounded-r hover:bg-gray-700"
                                                 >
                                                     +
@@ -242,7 +290,7 @@ export default function Checkout() {
                                             </div>
                                         </div>
                                         <div className="ml-auto text-lg font-medium text-white">
-                                            ৳{(getBDTPrice(item) * item.quantity).toLocaleString()}
+                                            ৳{((getBDTPrice(item) || 0) * (item.quantity || 1)).toLocaleString()}
                                         </div>
                                     </div>
                                 ))}
@@ -267,26 +315,26 @@ export default function Checkout() {
                                         <p className="text-red-500 mb-4">{couponError}</p>
                                     )}
                                     {discount > 0 && (
-                                        <p className="text-green-500 mb-4">Coupon applied! ৳{discount} discount</p>
+                                        <p className="text-green-500 mb-4">Coupon applied! ৳{discount.toLocaleString()} discount</p>
                                     )}
                                     <div className="space-y-2">
                                         <div className="flex justify-between text-lg text-gray-400">
                                             <span>Subtotal</span>
-                                            <span>৳{subtotal.toLocaleString()}</span>
+                                            <span>৳{(subtotal || 0).toLocaleString()}</span>
                                         </div>
-                                        {paymentMethod === 'cod' && (
+                                        {paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' && (
                                             <div className="flex justify-between text-lg text-gray-400">
                                                 <span>Shipping Charge</span>
-                                                <span>৳{(shippingCharge || 0).toLocaleString()}</span>
+                                                <span>৳{(Number.isFinite(shippingCharge) ? shippingCharge : 0).toLocaleString()}</span>
                                             </div>
                                         )}
                                         <div className="flex justify-between text-lg text-gray-400">
                                             <span>Discount</span>
-                                            <span>৳{discount.toLocaleString()}</span>
+                                            <span>৳{(discount || 0).toLocaleString()}</span>
                                         </div>
                                         <div className="flex justify-between text-2xl font-bold text-white pt-2 border-t border-gray-700">
                                             <span>Payable Amount</span>
-                                            <span>৳{payableAmount.toLocaleString()}</span>
+                                            <span>৳{(Number.isFinite(payableAmount) ? payableAmount : 0).toLocaleString()}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -387,33 +435,78 @@ export default function Checkout() {
                                     <label className="block text-gray-300 text-sm font-medium mb-2">
                                         Country
                                     </label>
-                                    <input
-                                        type="text"
+                                    <select
                                         name="country"
                                         value={customerInfo.country}
                                         onChange={handleInputChange}
                                         className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                    />
+                                    >
+                                        <option value="Bangladesh">Bangladesh</option>
+                                        <option value="Other">Other</option>
+                                    </select>
                                 </div>
                             </div>
+
+                            {paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' && (
+                                <>
+                                    <div>
+                                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                                            District *
+                                        </label>
+                                        <select
+                                            name="district"
+                                            value={customerInfo.district}
+                                            onChange={handleInputChange}
+                                            className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                            required
+                                        >
+                                            <option value="">Select District</option>
+                                            {Object.keys(districtsThanas).map((d) => (
+                                                <option key={d} value={d}>{d}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    {customerInfo.district && (
+                                        <div>
+                                            <label className="block text-gray-300 text-sm font-medium mb-2">
+                                                Thana *
+                                            </label>
+                                            <select
+                                                name="thana"
+                                                value={customerInfo.thana}
+                                                onChange={handleInputChange}
+                                                className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                                required
+                                            >
+                                                <option value="">Select Thana</option>
+                                                {districtsThanas[customerInfo.district]?.map((t) => (
+                                                    <option key={t} value={t}>{t}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+                                </>
+                            )}
 
                             <div className="pt-4 border-t border-gray-700">
                                 <h3 className="text-xl font-semibold text-white mb-4">Payment Method</h3>
                                 <div className="space-y-4">
-                                    <label className="flex items-start bg-gray-700/50 p-4 rounded-lg border border-gray-600 hover:border-blue-500 transition cursor-pointer">
-                                        <input
-                                            type="radio"
-                                            name="paymentMethod"
-                                            value="cod"
-                                            checked={paymentMethod === 'cod'}
-                                            onChange={() => setPaymentMethod('cod')}
-                                            className="mt-1 mr-3 text-blue-500 focus:ring-blue-500"
-                                        />
-                                        <div>
-                                            <span className="block font-medium text-white">Cash on Delivery</span>
-                                            <span className="block text-sm text-gray-400 mt-1">Pay when you receive your order</span>
-                                        </div>
-                                    </label>
+                                    {customerInfo.country === 'Bangladesh' && (
+                                        <label className="flex items-start bg-gray-700/50 p-4 rounded-lg border border-gray-600 hover:border-blue-500 transition cursor-pointer">
+                                            <input
+                                                type="radio"
+                                                name="paymentMethod"
+                                                value="cod"
+                                                checked={paymentMethod === 'cod'}
+                                                onChange={() => setPaymentMethod('cod')}
+                                                className="mt-1 mr-3 text-blue-500 focus:ring-blue-500"
+                                            />
+                                            <div>
+                                                <span className="block font-medium text-white">Cash on Delivery</span>
+                                                <span className="block text-sm text-gray-400 mt-1">Pay when you receive your order</span>
+                                            </div>
+                                        </label>
+                                    )}
                                     <label className="flex items-start bg-gray-700/50 p-4 rounded-lg border border-gray-600 hover:border-blue-500 transition cursor-pointer">
                                         <input
                                             type="radio"
@@ -445,7 +538,7 @@ export default function Checkout() {
                                         Processing...
                                     </span>
                                 ) : (
-                                    `Complete Order - ৳${payableAmount.toLocaleString()}`
+                                    `Complete Order - ৳${(Number.isFinite(payableAmount) ? payableAmount : 0).toLocaleString()}`
                                 )}
                             </button>
                         </form>
