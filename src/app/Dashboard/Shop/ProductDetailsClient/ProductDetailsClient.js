@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import CartSlider from '../CartSlider/CartSlider';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 export default function ProductDetailsClient({ product, latestProducts }) {
     const [selectedImage, setSelectedImage] = useState(product.mainImage);
@@ -41,7 +42,11 @@ export default function ProductDetailsClient({ product, latestProducts }) {
     };
 
     const handleAddToCart = () => {
-        if (product.quantity <= 0 || product.productType === 'Affiliate') return;
+        if (product.quantity <= 0 || product.productType === 'Affiliate') {
+            toast.error('This product cannot be added to cart');
+            return;
+        }
+
         const cart = JSON.parse(localStorage.getItem('cart') || '[]');
         const existingItem = cart.find((item) => item._id === product._id);
         let newQuantity = quantity;
@@ -49,22 +54,23 @@ export default function ProductDetailsClient({ product, latestProducts }) {
         if (existingItem) {
             newQuantity = existingItem.quantity + quantity;
             if (newQuantity > 3) {
-                alert('Cannot add more than 3 units of this product.');
+                toast.error('Cannot add more than 3 units of this product');
                 return;
             }
             if (newQuantity > product.quantity) {
-                alert('Selected quantity exceeds available stock.');
+                toast.error('Selected quantity exceeds available stock');
                 return;
             }
             cart.splice(cart.indexOf(existingItem), 1);
             cart.push({ ...existingItem, quantity: newQuantity });
+            toast.success('Cart updated successfully');
         } else {
             if (quantity > 3) {
-                alert('Cannot add more than 3 units of this product.');
+                toast.error('Cannot add more than 3 units of this product');
                 return;
             }
             if (quantity > product.quantity) {
-                alert('Selected quantity exceeds available stock.');
+                toast.error('Selected quantity exceeds available stock');
                 return;
             }
             const priceObj = product.prices.find((p) => p.currency === 'BDT') || product.prices[0];
@@ -77,6 +83,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                 mainImage: product.mainImage,
                 currency: 'BDT',
             });
+            toast.success('Added to cart successfully');
         }
         localStorage.setItem('cart', JSON.stringify(cart));
         window.dispatchEvent(new Event('cartUpdated'));
@@ -84,20 +91,24 @@ export default function ProductDetailsClient({ product, latestProducts }) {
     };
 
     const handleBuyNow = () => {
-        if (product.quantity <= 0 && product.productType !== 'Affiliate') return;
+        if (product.quantity <= 0 && product.productType !== 'Affiliate') {
+            toast.error('This product is out of stock');
+            return;
+        }
 
         if (product.productType === 'Affiliate') {
             window.open(product.affiliateLink, '_blank', 'noopener,noreferrer');
+            toast.success('Redirecting to affiliate site');
             return;
         }
 
         if (quantity > 3) {
-            alert('Maximum 3 units per order');
+            toast.error('Maximum 3 units per order');
             return;
         }
 
         if (quantity > product.quantity) {
-            alert(`Only ${product.quantity} units available`);
+            toast.error(`Only ${product.quantity} units available`);
             return;
         }
 
@@ -108,11 +119,11 @@ export default function ProductDetailsClient({ product, latestProducts }) {
         if (existingItem) {
             const newQuantity = existingItem.quantity + quantity;
             if (newQuantity > 3) {
-                alert('Cannot add more than 3 units of this product.');
+                toast.error('Cannot add more than 3 units of this product');
                 return;
             }
             if (newQuantity > product.quantity) {
-                alert('Selected quantity exceeds available stock.');
+                toast.error('Selected quantity exceeds available stock');
                 return;
             }
             updatedCart = updatedCart.filter((item) => item._id !== product._id);
@@ -132,6 +143,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
 
         localStorage.setItem('cart', JSON.stringify(updatedCart));
         window.dispatchEvent(new Event('cartUpdated'));
+        toast.success('Proceeding to checkout');
         router.push('/checkout');
     };
 
@@ -187,19 +199,24 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             <div className="bg-gray-800 rounded-xl overflow-hidden">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-8">
                     {/* Image Gallery */}
-                    <div className="space-y-4">
-                        <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-700">
+
+                    <div className="space-y-3">
+                        <div
+                            className="relative w-full max-w-md mx-auto rounded-md overflow-hidden bg-gray-800 shadow-sm cursor-zoom-in"
+                            onClick={() => setIsModalOpen(true)}
+                        >
                             <Image
                                 src={selectedImage}
                                 alt={product.title}
-                                fill
-                                className="object-contain"
+                                width={448}
+                                height={448}
+                                className="object-contain bg-gray-800"
                                 priority
-                                sizes="(max-width: 640px) 100vw, 50vw"
+                                sizes="(max-width: 640px) 100vw, 448px"
                             />
                             {product.quantity <= 0 && (
-                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                    <span className="bg-red-600 text-white px-3 py-1 rounded-md text-sm font-medium">
+                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                    <span className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-semibold">
                                         Out of Stock
                                     </span>
                                 </div>
@@ -207,26 +224,28 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                         </div>
 
                         {product.additionalImages.length > 0 && (
-                            <div className="grid grid-cols-4 gap-3">
-                                {[product.mainImage, ...product.additionalImages].map((img, index) => (
-                                    <div
-                                        key={index}
-                                        className={`relative aspect-square rounded-md overflow-hidden cursor-pointer transition-all ${
-                                            selectedImage === img 
-                                                ? 'ring-2 ring-purple-500' 
-                                                : 'hover:ring-2 hover:ring-purple-300'
-                                        }`}
-                                        onClick={() => setSelectedImage(img)}
-                                    >
-                                        <Image
-                                            src={img}
-                                            alt={`${product.title} thumbnail ${index + 1}`}
-                                            fill
-                                            className="object-cover"
-                                            sizes="100px"
-                                        />
-                                    </div>
-                                ))}
+                            <div className="w-full max-w-md mx-auto">
+                                <div className="grid grid-cols-5 gap-2">
+                                    {[product.mainImage, ...product.additionalImages].map((img, index) => (
+                                        <div
+                                            key={index}
+                                            className={`relative aspect-square rounded-md overflow-hidden cursor-pointer transition-transform duration-200 ${selectedImage === img
+                                                    ? 'ring-2 ring-purple-500'
+                                                    : 'hover:ring-2 hover:ring-purple-300 hover:scale-105'
+                                                } animate-fade-in`}
+                                            onClick={() => setSelectedImage(img)}
+                                        >
+                                            <Image
+                                                src={img}
+                                                alt={`${product.title} thumbnail ${index + 1}`}
+                                                width={80}
+                                                height={80}
+                                                className="object-cover"
+                                                sizes="80px"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>
@@ -243,7 +262,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                         </div>
 
                         {/* Price Section */}
-                        <div className="bg-purple-900/20 p-4 rounded-lg border border-purple-800">
+                        <div className="bg-purple-900/20 p-4 rounded-lg w-full">
                             <div className="flex flex-wrap items-center gap-4">
                                 <select
                                     value={currency}
@@ -296,7 +315,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                     <button
                                         onClick={handleAddToCart}
                                         disabled={product.quantity <= 0}
-                                        className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-md font-medium text-white transition-all flex items-center gap-2 disabled:opacity-50"
+                                        className="px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 rounded-md font-medium text-white transition-all flex items-center gap-2 disabled:opacity-50"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -306,7 +325,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                 )}
                                 <button
                                     onClick={handleBuyNow}
-                                    className="px-6 py-2 bg-purple-700 hover:bg-purple-800 rounded-md font-medium text-white transition-all flex items-center gap-2"
+                                    className="px-6 py-2 bg-gradient-to-r from-purple-700 to-purple-800 hover:from-purple-800 hover:to-purple-900 rounded-md font-medium text-white transition-all flex items-center gap-2"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -320,20 +339,14 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                         <div className="space-y-4 pt-4 border-t border-gray-700">
                             {product.description && (
                                 <div>
-                                    <h3 className="text-lg text-white mb-2">Description</h3>
+                                    <h3 className="text-lg font-semibold text-white mb-2">Description</h3>
                                     <p className="text-gray-300 text-sm">{product.description}</p>
-                                </div>
-                            )}
-                            {product.descriptions && (
-                                <div>
-                                    <h3 className="text-lg text-white mb-2">Additional Description</h3>
-                                    <p className="text-white text-sm">{product.descriptions}</p>
                                 </div>
                             )}
 
                             {product.bulletPoints.length > 0 && (
                                 <div>
-                                    <h3 className="text-lg text-white mb-2">Key Features</h3>
+                                    <h3 className="text-lg font-semibold text-white mb-2">Key Features</h3>
                                     <ul className="space-y-2 text-gray-300 text-sm">
                                         {product.bulletPoints.map((point, index) => (
                                             <li key={index} className="flex items-start">
@@ -358,9 +371,9 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                             <Link
                                 key={item._id}
                                 href={`/shop/${item.slug || item._id}`}
-                                className="group bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-purple-500 transition-colors"
+                                className="group bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-purple-500 transition-colors flex flex-col h-full"
                             >
-                                <div className="relative aspect-square">
+                                <div className="relative aspect-square flex-1">
                                     <Image
                                         src={item.mainImage}
                                         alt={item.title}
@@ -376,7 +389,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                         </div>
                                     )}
                                 </div>
-                                <div className="p-3">
+                                <div className="p-3 mt-auto">
                                     <h3 className="text-sm font-medium text-white line-clamp-2">{item.title}</h3>
                                     <p className="text-purple-400 font-semibold mt-1 text-sm">
                                         ৳{getPriceInBDT(item.prices.find((p) => p.currency === 'BDT')?.amount || item.prices[0].amount, item.prices[0].currency).toLocaleString()}
