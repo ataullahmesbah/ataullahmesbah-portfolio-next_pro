@@ -59,7 +59,6 @@ export default function Checkout() {
                     setShippingCharge(Number.isFinite(charge) ? charge : 0);
                 }
             } catch (error) {
-                console.error('Error fetching checkout data:', error);
                 setError('Failed to load checkout data. Please refresh the page.');
             }
         };
@@ -163,7 +162,6 @@ export default function Checkout() {
             }
         } catch (err) {
             setCouponError('Error applying coupon. Please try again.');
-            console.error('Coupon Error:', err);
         }
     };
 
@@ -218,10 +216,16 @@ export default function Checkout() {
             if (orderResponse.data.message === 'Order created') {
                 // Record coupon usage for product coupons only
                 if (appliedCoupon && appliedCoupon.type === 'product') {
-                    await axios.post('/api/products/coupons/record-usage', {
-                        userId,
-                        couponCode: appliedCoupon.code,
-                    });
+                    try {
+                        await axios.post('/api/products/coupons/record-usage', {
+                            userId,
+                            couponCode: appliedCoupon.code,
+                        });
+                    } catch (usageError) {
+                        setError(usageError.response?.data?.error || 'Failed to record coupon usage.');
+                        setLoading(false);
+                        return;
+                    }
                 }
                 if (paymentMethod === 'cod') {
                     localStorage.removeItem('cart');
@@ -274,7 +278,6 @@ export default function Checkout() {
                 throw new Error('Order creation failed');
             }
         } catch (err) {
-            console.error('Checkout Error:', err);
             setError(err.response?.data?.error || err.message || 'Payment processing failed');
         } finally {
             setLoading(false);

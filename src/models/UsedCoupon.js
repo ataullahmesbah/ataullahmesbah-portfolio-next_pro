@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 
 const UsedCouponSchema = new mongoose.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        type: String,
         required: true,
     },
     couponCode: {
@@ -15,7 +14,5 @@ const UsedCouponSchema = new mongoose.Schema({
         default: Date.now,
     },
 });
-
-UsedCouponSchema.index({ userId: 1, couponCode: 1 }, { unique: true });
 
 module.exports = mongoose.models.UsedCoupon || mongoose.model('UsedCoupon', UsedCouponSchema);
