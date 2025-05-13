@@ -18,6 +18,15 @@ const CouponSchema = new mongoose.Schema({
         min: 0,
         max: 100,
     },
+    useType: {
+        type: String,
+        enum: ['one-time', 'multiple'],
+        default: 'one-time',
+    },
+    expiresAt: {
+        type: Date,
+        required: true,
+    },
     isActive: {
         type: Boolean,
         default: true,
@@ -26,6 +35,15 @@ const CouponSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    updatedAt: {
+        type: Date,
+        default: Date.now,
+    },
+});
+
+CouponSchema.pre('save', function (next) {
+    this.updatedAt = Date.now();
+    next();
 });
 
 module.exports = mongoose.models.Coupon || mongoose.model('Coupon', CouponSchema);

@@ -27,6 +27,8 @@ export default function Checkout() {
     const [districtsThanas, setDistrictsThanas] = useState({});
     const router = useRouter();
     const [shippingCharges, setShippingCharges] = useState({ 'Dhaka-Chattogram': 0, 'Others': 0 });
+    const [userId, setUserId] = useState('mock-user-id'); // Replace with actual user ID from auth
+    const [appliedCoupon, setAppliedCoupon] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -47,7 +49,6 @@ export default function Checkout() {
                         chargeMap[c.type] = c.charge || 0;
                     }
                 });
-                console.log('Shipping Charges:', chargeMap);
                 setShippingCharges(chargeMap);
 
                 // Set initial shipping charge based on default district
@@ -92,27 +93,71 @@ export default function Checkout() {
         setCart(updatedCart);
         localStorage.setItem('cart', JSON.stringify(updatedCart));
         window.dispatchEvent(new Event('cartUpdated'));
+        // Recalculate discount if coupon is applied
+        if (appliedCoupon) {
+            if (appliedCoupon.type === 'product') {
+                const cartItem = updatedCart.find(item => item._id === appliedCoupon.productId);
+                if (cartItem) {
+                    const discountAmount = (getBDTPrice(cartItem) * appliedCoupon.discountPercentage) / 100;
+                    setDiscount(Number.isFinite(discountAmount) ? discountAmount : 0);
+                } else {
+                    setDiscount(0);
+                    setAppliedCoupon(null);
+                    setCouponCode('');
+                    setCouponError('Coupon no longer applicable.');
+                }
+            } else if (appliedCoupon.type === 'global') {
+                const subtotal = updatedCart.reduce((sum, item) => sum + getBDTPrice(item) * (item.quantity || 1), 0);
+                const discountAmount = (subtotal * appliedCoupon.discountPercentage) / 100;
+                setDiscount(Number.isFinite(discountAmount) ? discountAmount : 0);
+            }
+        }
     };
+
+    const subtotal = cart.reduce((sum, item) => sum + getBDTPrice(item) * (item.quantity || 1), 0);
 
     const handleCouponApply = async () => {
         setCouponError('');
         setDiscount(0);
+        setAppliedCoupon(null);
         try {
             const productIds = cart.map(item => item._id).filter(id => id);
             if (!productIds.length) {
                 setCouponError('No valid products in cart.');
                 return;
             }
-            const response = await axios.post('/api/products/coupons/validate', { code: couponCode, productIds });
+            const response = await axios.post('/api/products/coupons/validate', {
+                code: couponCode,
+                productIds,
+                userId,
+                cartTotal: subtotal,
+            });
             if (response.data.valid) {
-                const cartItem = cart.find(item => item._id === response.data.productId?.toString());
-                if (!cartItem) {
-                    setCouponError('Coupon not applicable to cart items.');
-                    return;
+                if (response.data.type === 'product') {
+                    const cartItem = cart.find(item => item._id === response.data.productId?.toString());
+                    if (!cartItem) {
+                        setCouponError('Coupon not applicable to cart items.');
+                        return;
+                    }
+                    // Discount applies to one quantity only
+                    const discountAmount = (getBDTPrice(cartItem) * response.data.discountPercentage) / 100;
+                    setDiscount(Number.isFinite(discountAmount) ? discountAmount : 0);
+                    setAppliedCoupon({
+                        code: couponCode,
+                        type: 'product',
+                        productId: response.data.productId,
+                        discountPercentage: response.data.discountPercentage,
+                    });
+                } else if (response.data.type === 'global') {
+                    // Discount applies to entire subtotal
+                    const discountAmount = (subtotal * response.data.discountPercentage) / 100;
+                    setDiscount(Number.isFinite(discountAmount) ? discountAmount : 0);
+                    setAppliedCoupon({
+                        code: couponCode,
+                        type: 'global',
+                        discountPercentage: response.data.discountPercentage,
+                    });
                 }
-                const itemTotal = getBDTPrice(cartItem) * cartItem.quantity;
-                const discountAmount = (itemTotal * response.data.discountPercentage) / 100;
-                setDiscount(discountAmount);
             } else {
                 setCouponError(response.data.message || 'Invalid coupon code.');
             }
@@ -126,7 +171,6 @@ export default function Checkout() {
         return 'ORDER_' + Math.random().toString(36).substr(2, 9).toUpperCase();
     };
 
-    const subtotal = cart.reduce((sum, item) => sum + getBDTPrice(item) * (item.quantity || 1), 0);
     const payableAmount = subtotal - discount + (paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' ? (Number.isFinite(shippingCharge) ? shippingCharge : 0) : 0);
 
     const handleCheckout = async (e) => {
@@ -166,12 +210,19 @@ export default function Checkout() {
             total: Number.isFinite(payableAmount) ? payableAmount : 0,
             discount,
             shippingCharge: paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' ? (Number.isFinite(shippingCharge) ? shippingCharge : 0) : 0,
+            couponCode: appliedCoupon ? appliedCoupon.code : null,
         };
 
         try {
-            console.log('Submitting Order:', orderData);
             const orderResponse = await axios.post('/api/products/orders', orderData);
             if (orderResponse.data.message === 'Order created') {
+                // Record coupon usage for product coupons only
+                if (appliedCoupon && appliedCoupon.type === 'product') {
+                    await axios.post('/api/products/coupons/record-usage', {
+                        userId,
+                        couponCode: appliedCoupon.code,
+                    });
+                }
                 if (paymentMethod === 'cod') {
                     localStorage.removeItem('cart');
                     window.dispatchEvent(new Event('cartUpdated'));
@@ -315,7 +366,10 @@ export default function Checkout() {
                                         <p className="text-red-500 mb-4">{couponError}</p>
                                     )}
                                     {discount > 0 && (
-                                        <p className="text-green-500 mb-4">Coupon applied! ৳{discount.toLocaleString()} discount</p>
+                                        <p className="text-green-500 mb-4">
+                                            Coupon applied! ৳{discount.toLocaleString()} discount
+                                            {appliedCoupon?.type === 'product' && ` on ${cart.find(item => item._id === appliedCoupon.productId)?.title || 'product'}`}
+                                        </p>
                                     )}
                                     <div className="space-y-2">
                                         <div className="flex justify-between text-lg text-gray-400">
