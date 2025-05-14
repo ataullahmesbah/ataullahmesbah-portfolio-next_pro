@@ -6,61 +6,58 @@ import dbConnect from '@/lib/dbMongoose';
 import Config from '@/models/Config';
 
 
-
-
 export async function POST(request) {
     try {
         await dbConnect();
-        const { code, productIds, userId, cartTotal } = await request.json();
+        const { code, productIds, userId, cartTotal, email, phone } = await request.json();
 
-        if (!code || !productIds || !userId || cartTotal == null) {
+        if (!code || !productIds || !Array.isArray(productIds) || cartTotal == null || !email || !phone) {
             return NextResponse.json({ valid: false, message: 'Missing required fields' }, { status: 400 });
         }
 
-        // Check for product-specific coupon
-        const coupon = await Coupon.findOne({ code, isActive: true });
+        // Check product-specific coupon
+        const coupon = await Coupon.findOne({ code, isActive: true }).populate('productId');
         if (coupon) {
-            if (!productIds.includes(coupon.productId.toString())) {
+            if (!coupon.productId || !productIds.includes(coupon.productId._id.toString())) {
                 return NextResponse.json({ valid: false, message: 'Coupon not applicable to cart items' }, { status: 400 });
             }
             if (coupon.expiresAt && coupon.expiresAt < new Date()) {
                 return NextResponse.json({ valid: false, message: 'Coupon has expired' }, { status: 400 });
             }
             if (coupon.useType === 'one-time') {
-                const usedCoupon = await UsedCoupon.findOne({ userId, couponCode: code });
+                const usedCoupon = await UsedCoupon.findOne({ couponCode: code, email, phone });
                 if (usedCoupon) {
-                    return NextResponse.json({ valid: false, message: 'This coupon has already been used' }, { status: 400 });
+                    return NextResponse.json({ valid: false, message: 'You have already used this coupon' }, { status: 400 });
                 }
             }
             return NextResponse.json({
                 valid: true,
                 type: 'product',
                 discountPercentage: coupon.discountPercentage,
-                productId: coupon.productId,
+                productId: coupon.productId._id,
             }, { status: 200 });
         }
 
-        // Check for global coupon
+        // Check global coupon
         const globalCoupon = await Config.findOne({ key: 'globalCoupon', 'value.code': code });
         if (globalCoupon) {
-            const { discountPercentage, minCartTotal, expiresAt } = globalCoupon.value;
+            const { discountAmount, minCartTotal, expiresAt } = globalCoupon.value;
             if (cartTotal < minCartTotal) {
                 return NextResponse.json({ valid: false, message: `Cart total must be at least ৳${minCartTotal}` }, { status: 400 });
             }
             if (expiresAt && new Date(expiresAt) < new Date()) {
                 return NextResponse.json({ valid: false, message: 'Global coupon has expired' }, { status: 400 });
             }
-            // Global coupons are always multiple-use for simplicity
             return NextResponse.json({
                 valid: true,
                 type: 'global',
-                discountPercentage,
+                discountAmount,
             }, { status: 200 });
         }
 
         return NextResponse.json({ valid: false, message: 'Invalid coupon code' }, { status: 400 });
     } catch (error) {
-        console.error('Error validating coupon:', error);
-        return NextResponse.json({ valid: false, message: 'Failed to validate coupon: ' + error.message }, { status: 500 });
+        console.error('Coupon validation error:', error);
+        return NextResponse.json({ valid: false, message: `Failed to validate coupon: ${error.message}` }, { status: 500 });
     }
 }

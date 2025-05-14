@@ -4,7 +4,7 @@ import axios from 'axios';
 
 export default function Config() {
     const [code, setCode] = useState('');
-    const [discountPercentage, setDiscountPercentage] = useState('');
+    const [discountAmount, setDiscountAmount] = useState('');
     const [minCartTotal, setMinCartTotal] = useState('');
     const [expiresAt, setExpiresAt] = useState('');
     const [error, setError] = useState('');
@@ -15,15 +15,21 @@ export default function Config() {
         try {
             setError('');
             const response = await axios.get('/api/products/config');
-            if (response.data.code) {
+            console.log('Fetch config response:', response.data);
+            if (response.data && response.data.code) {
                 setCode(response.data.code);
-                setDiscountPercentage(response.data.discountPercentage.toString());
-                setMinCartTotal(response.data.minCartTotal.toString());
-                setExpiresAt(new Date(response.data.expiresAt).toISOString().slice(0, 16));
+                setDiscountAmount(response.data.discountAmount ? response.data.discountAmount.toString() : '');
+                setMinCartTotal(response.data.minCartTotal ? response.data.minCartTotal.toString() : '');
+                setExpiresAt(response.data.expiresAt ? new Date(response.data.expiresAt).toISOString().slice(0, 16) : '');
+            } else {
+                console.log('No global coupon found, setting defaults');
+                setCode('');
+                setDiscountAmount('');
+                setMinCartTotal('');
             }
         } catch (error) {
-            console.error('Error fetching config:', error);
-            setError('Failed to fetch global coupon.');
+            console.error('Error fetching config:', error.response?.data || error.message);
+            setError(`Failed to fetch global coupon: ${error.response?.data?.error || error.message}`);
         } finally {
             setLoading(false);
         }
@@ -31,7 +37,6 @@ export default function Config() {
 
     useEffect(() => {
         fetchConfig();
-        // Set default expiresAt to 1 month from now if not set
         if (!expiresAt) {
             const defaultExpiresAt = new Date();
             defaultExpiresAt.setMonth(defaultExpiresAt.getMonth() + 1);
@@ -41,12 +46,12 @@ export default function Config() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!code || !discountPercentage || !minCartTotal || !expiresAt) {
+        if (!code || !discountAmount || !minCartTotal || !expiresAt) {
             setError('All fields are required.');
             return;
         }
-        if (Number(discountPercentage) < 0 || Number(discountPercentage) > 100) {
-            setError('Discount percentage must be between 0 and 100.');
+        if (Number(discountAmount) < 0) {
+            setError('Discount amount cannot be negative.');
             return;
         }
         if (Number(minCartTotal) < 0) {
@@ -65,16 +70,17 @@ export default function Config() {
         try {
             setError('');
             setLoading(true);
-            await axios.post('/api/products/config', {
+            const response = await axios.post('/api/products/config', {
                 code,
-                discountPercentage: Number(discountPercentage),
+                discountAmount: Number(discountAmount),
                 minCartTotal: Number(minCartTotal),
                 expiresAt: expiresAtDate.toISOString(),
             });
+            console.log('Update config response:', response.data);
             alert('Global coupon updated successfully');
             fetchConfig();
         } catch (error) {
-            console.error('Error updating config:', error);
+            console.error('Error updating config:', error.response?.data || error.message);
             setError(error.response?.data?.error || 'Failed to update global coupon.');
         } finally {
             setLoading(false);
@@ -131,22 +137,21 @@ export default function Config() {
                         onChange={(e) => setCode(e.target.value)}
                         className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                         required
-                        placeholder="e.g., GLOBAL10"
+                        placeholder="e.g., GLOBAL350"
                     />
                 </div>
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Discount Percentage (%)
+                        Discount Amount (BDT)
                     </label>
                     <input
                         type="number"
-                        value={discountPercentage}
-                        onChange={(e) => setDiscountPercentage(e.target.value)}
+                        value={discountAmount}
+                        onChange={(e) => setDiscountAmount(e.target.value)}
                         className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                         required
                         min="0"
-                        max="100"
-                        placeholder="e.g., 10"
+                        placeholder="e.g., 350"
                     />
                 </div>
                 <div className="mb-4">
@@ -160,7 +165,7 @@ export default function Config() {
                         className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                         required
                         min="0"
-                        placeholder="e.g., 2000"
+                        placeholder="e.g., 3000"
                     />
                 </div>
                 <div className="mb-4">

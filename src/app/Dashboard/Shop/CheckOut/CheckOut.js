@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 export default function Checkout() {
     const [cart, setCart] = useState([]);
@@ -27,21 +30,18 @@ export default function Checkout() {
     const [districtsThanas, setDistrictsThanas] = useState({});
     const router = useRouter();
     const [shippingCharges, setShippingCharges] = useState({ 'Dhaka-Chattogram': 0, 'Others': 0 });
-    const [userId, setUserId] = useState('mock-user-id'); // Replace with actual user ID from auth
+    const [userId, setUserId] = useState('mock-user-id');
     const [appliedCoupon, setAppliedCoupon] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch cart
                 const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
                 setCart(storedCart);
 
-                // Fetch districts and thanas
                 const districtsResponse = await axios.get('/api/products/districts-thanas');
                 setDistrictsThanas(districtsResponse.data);
 
-                // Fetch shipping charges
                 const shippingResponse = await axios.get('/api/products/shipping-charges');
                 const chargeMap = { 'Dhaka-Chattogram': 0, 'Others': 0 };
                 shippingResponse.data.forEach(c => {
@@ -51,7 +51,6 @@ export default function Checkout() {
                 });
                 setShippingCharges(chargeMap);
 
-                // Set initial shipping charge based on default district
                 if (customerInfo.district) {
                     const charge = customerInfo.district === 'Dhaka' || customerInfo.district === 'Chattogram' || customerInfo.district === 'Chittagong'
                         ? chargeMap['Dhaka-Chattogram']
@@ -84,6 +83,10 @@ export default function Checkout() {
         }
     };
 
+    const handlePhoneChange = (phone) => {
+        setCustomerInfo((prev) => ({ ...prev, phone }));
+    };
+
     const handleQuantityChange = (productId, newQuantity) => {
         if (newQuantity < 1 || !productId) return;
         const updatedCart = cart.map(item =>
@@ -92,7 +95,6 @@ export default function Checkout() {
         setCart(updatedCart);
         localStorage.setItem('cart', JSON.stringify(updatedCart));
         window.dispatchEvent(new Event('cartUpdated'));
-        // Recalculate discount if coupon is applied
         if (appliedCoupon) {
             if (appliedCoupon.type === 'product') {
                 const cartItem = updatedCart.find(item => item._id === appliedCoupon.productId);
@@ -104,11 +106,19 @@ export default function Checkout() {
                     setAppliedCoupon(null);
                     setCouponCode('');
                     setCouponError('Coupon no longer applicable.');
+                    toast.error('Coupon no longer applicable.');
                 }
             } else if (appliedCoupon.type === 'global') {
                 const subtotal = updatedCart.reduce((sum, item) => sum + getBDTPrice(item) * (item.quantity || 1), 0);
-                const discountAmount = (subtotal * appliedCoupon.discountPercentage) / 100;
-                setDiscount(Number.isFinite(discountAmount) ? discountAmount : 0);
+                if (subtotal >= appliedCoupon.minCartTotal) {
+                    setDiscount(Number.isFinite(appliedCoupon.discountAmount) ? appliedCoupon.discountAmount : 0);
+                } else {
+                    setDiscount(0);
+                    setAppliedCoupon(null);
+                    setCouponCode('');
+                    setCouponError(`Cart total must be at least ৳${appliedCoupon.minCartTotal}`);
+                    toast.error(`Cart total must be at least ৳${appliedCoupon.minCartTotal}`);
+                }
             }
         }
     };
@@ -123,6 +133,7 @@ export default function Checkout() {
             const productIds = cart.map(item => item._id).filter(id => id);
             if (!productIds.length) {
                 setCouponError('No valid products in cart.');
+                toast.error('No valid products in cart.');
                 return;
             }
             const response = await axios.post('/api/products/coupons/validate', {
@@ -130,15 +141,17 @@ export default function Checkout() {
                 productIds,
                 userId,
                 cartTotal: subtotal,
+                email: customerInfo.email,
+                phone: customerInfo.phone,
             });
             if (response.data.valid) {
                 if (response.data.type === 'product') {
                     const cartItem = cart.find(item => item._id === response.data.productId?.toString());
                     if (!cartItem) {
                         setCouponError('Coupon not applicable to cart items.');
+                        toast.error('Coupon not applicable to cart items.');
                         return;
                     }
-                    // Discount applies to one quantity only
                     const discountAmount = (getBDTPrice(cartItem) * response.data.discountPercentage) / 100;
                     setDiscount(Number.isFinite(discountAmount) ? discountAmount : 0);
                     setAppliedCoupon({
@@ -147,21 +160,25 @@ export default function Checkout() {
                         productId: response.data.productId,
                         discountPercentage: response.data.discountPercentage,
                     });
+                    toast.success('Coupon applied successfully!');
                 } else if (response.data.type === 'global') {
-                    // Discount applies to entire subtotal
-                    const discountAmount = (subtotal * response.data.discountPercentage) / 100;
+                    const discountAmount = response.data.discountAmount;
                     setDiscount(Number.isFinite(discountAmount) ? discountAmount : 0);
                     setAppliedCoupon({
                         code: couponCode,
                         type: 'global',
-                        discountPercentage: response.data.discountPercentage,
+                        discountAmount,
+                        minCartTotal: response.data.minCartTotal || 0,
                     });
+                    toast.success('Coupon applied successfully!');
                 }
             } else {
                 setCouponError(response.data.message || 'Invalid coupon code.');
+                toast.error(response.data.message || 'Invalid coupon code.');
             }
         } catch (err) {
             setCouponError('Error applying coupon. Please try again.');
+            toast.error('Error applying coupon. Please try again.');
         }
     };
 
@@ -178,18 +195,21 @@ export default function Checkout() {
 
         if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.address) {
             setError('Please fill in all required fields.');
+            toast.error('Please fill in all required fields.');
             setLoading(false);
             return;
         }
 
         if (paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' && (!customerInfo.district || !customerInfo.thana)) {
             setError('Please select district and thana for COD.');
+            toast.error('Please select district and thana for COD.');
             setLoading(false);
             return;
         }
 
         if (!cart.length) {
             setError('Your cart is empty.');
+            toast.error('Your cart is empty.');
             setLoading(false);
             return;
         }
@@ -214,15 +234,17 @@ export default function Checkout() {
         try {
             const orderResponse = await axios.post('/api/products/orders', orderData);
             if (orderResponse.data.message === 'Order created') {
-                // Record coupon usage for product coupons only
-                if (appliedCoupon && appliedCoupon.type === 'product') {
+                if (appliedCoupon) {
                     try {
                         await axios.post('/api/products/coupons/record-usage', {
                             userId,
                             couponCode: appliedCoupon.code,
+                            email: customerInfo.email,
+                            phone: customerInfo.phone,
                         });
                     } catch (usageError) {
                         setError(usageError.response?.data?.error || 'Failed to record coupon usage.');
+                        toast.error(usageError.response?.data?.error || 'Failed to record coupon usage.');
                         setLoading(false);
                         return;
                     }
@@ -230,6 +252,7 @@ export default function Checkout() {
                 if (paymentMethod === 'cod') {
                     localStorage.removeItem('cart');
                     window.dispatchEvent(new Event('cartUpdated'));
+                    toast.success('Order placed successfully!', { duration: 3000 });
                     router.push(`/checkout/cod-success?orderId=${orderData.orderId}`);
                 } else {
                     const sslcommerzData = {
@@ -269,6 +292,7 @@ export default function Checkout() {
                     );
 
                     if (response.data.status === 'SUCCESS' && response.data.GatewayPageURL) {
+                        toast.success('Redirecting to payment gateway...');
                         window.location.href = response.data.GatewayPageURL;
                     } else {
                         throw new Error(response.data.error || 'Payment initiation failed');
@@ -278,18 +302,21 @@ export default function Checkout() {
                 throw new Error('Order creation failed');
             }
         } catch (err) {
-            setError(err.response?.data?.error || err.message || 'Payment processing failed');
+            const errorMessage = err.response?.data?.error || err.message || 'Payment processing failed';
+            setError(errorMessage);
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-white mb-2">Secure Checkout</h1>
-                    <p className="text-gray-400">Complete your purchase in just a few steps</p>
+        <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 py-6 px-4 sm:px-6 lg:px-8">
+            <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#333', color: '#fff' } }} />
+            <div className="max-w-7xl mx-auto">
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Secure Checkout</h1>
+                    <p className="text-gray-400 text-sm sm:text-base">Complete your purchase in just a few steps</p>
                 </div>
 
                 {error && (
@@ -298,10 +325,9 @@ export default function Checkout() {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Order Summary */}
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 shadow-xl">
-                        <h2 className="text-2xl font-semibold text-white mb-6 pb-4 border-b border-gray-700">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-xl">
+                        <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-6 pb-4 border-b border-gray-700">
                             Your Order
                         </h2>
 
@@ -310,10 +336,10 @@ export default function Checkout() {
                                 <p className="text-gray-400">Your cart is empty</p>
                             </div>
                         ) : (
-                            <div className="space-y-6">
+                            <div className="space-y-4 sm:space-y-6">
                                 {cart.map((item) => (
                                     <div key={item._id} className="flex items-start gap-4 pb-4 border-b border-gray-700">
-                                        <div className="relative w-20 h-20 flex-shrink-0">
+                                        <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
                                             <Image
                                                 src={item.mainImage || '/placeholder.png'}
                                                 alt={item.title || 'Product'}
@@ -322,8 +348,8 @@ export default function Checkout() {
                                             />
                                         </div>
                                         <div className="flex-1">
-                                            <h3 className="text-lg font-medium text-white">{item.title || 'Unknown Product'}</h3>
-                                            <p className="text-gray-400 mt-1">
+                                            <h3 className="text-base sm:text-lg font-medium text-white">{item.title || 'Unknown Product'}</h3>
+                                            <p className="text-gray-400 mt-1 text-sm sm:text-base">
                                                 ৳{(getBDTPrice(item) || 0).toLocaleString()} each
                                             </p>
                                             <div className="flex items-center mt-2">
@@ -334,7 +360,7 @@ export default function Checkout() {
                                                 >
                                                     -
                                                 </button>
-                                                <span className="px-4 py-1 bg-gray-700 text-white">{item.quantity || 1}</span>
+                                                <span className="px-3 sm:px-4 py-1 bg-gray-700 text-white text-sm sm:text-base">{item.quantity || 1}</span>
                                                 <button
                                                     onClick={() => handleQuantityChange(item._id, (item.quantity || 1) + 1)}
                                                     className="px-2 py-1 bg-gray-600 text-white rounded-r hover:bg-gray-700"
@@ -343,53 +369,53 @@ export default function Checkout() {
                                                 </button>
                                             </div>
                                         </div>
-                                        <div className="ml-auto text-lg font-medium text-white">
+                                        <div className="ml-auto text-base sm:text-lg font-medium text-white">
                                             ৳{((getBDTPrice(item) || 0) * (item.quantity || 1)).toLocaleString()}
                                         </div>
                                     </div>
                                 ))}
 
                                 <div className="pt-4 border-t border-gray-700">
-                                    <div className="flex items-center gap-4 mb-4">
+                                    <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
                                         <input
                                             type="text"
                                             value={couponCode}
                                             onChange={(e) => setCouponCode(e.target.value)}
                                             placeholder="Enter coupon code"
-                                            className="flex-1 bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                            className="flex-1 bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm sm:text-base"
                                         />
                                         <button
                                             onClick={handleCouponApply}
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full sm:w-auto"
                                         >
                                             Apply
                                         </button>
                                     </div>
                                     {couponError && (
-                                        <p className="text-red-500 mb-4">{couponError}</p>
+                                        <p className="text-red-500 mb-4 text-sm sm:text-base">{couponError}</p>
                                     )}
                                     {discount > 0 && (
-                                        <p className="text-green-500 mb-4">
+                                        <p className="text-green-500 mb-4 text-sm sm:text-base">
                                             Coupon applied! ৳{discount.toLocaleString()} discount
                                             {appliedCoupon?.type === 'product' && ` on ${cart.find(item => item._id === appliedCoupon.productId)?.title || 'product'}`}
                                         </p>
                                     )}
                                     <div className="space-y-2">
-                                        <div className="flex justify-between text-lg text-gray-400">
+                                        <div className="flex justify-between text-sm sm:text-lg text-gray-400">
                                             <span>Subtotal</span>
                                             <span>৳{(subtotal || 0).toLocaleString()}</span>
                                         </div>
                                         {paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' && (
-                                            <div className="flex justify-between text-lg text-gray-400">
+                                            <div className="flex justify-between text-sm sm:text-lg text-gray-400">
                                                 <span>Shipping Charge</span>
                                                 <span>৳{(Number.isFinite(shippingCharge) ? shippingCharge : 0).toLocaleString()}</span>
                                             </div>
                                         )}
-                                        <div className="flex justify-between text-lg text-gray-400">
+                                        <div className="flex justify-between text-sm sm:text-lg text-gray-400">
                                             <span>Discount</span>
                                             <span>৳{(discount || 0).toLocaleString()}</span>
                                         </div>
-                                        <div className="flex justify-between text-2xl font-bold text-white pt-2 border-t border-gray-700">
+                                        <div className="flex justify-between text-lg sm:text-2xl font-bold text-white pt-2 border-t border-gray-700">
                                             <span>Payable Amount</span>
                                             <span>৳{(Number.isFinite(payableAmount) ? payableAmount : 0).toLocaleString()}</span>
                                         </div>
@@ -399,14 +425,13 @@ export default function Checkout() {
                         )}
                     </div>
 
-                    {/* Checkout Form */}
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 shadow-xl">
-                        <h2 className="text-2xl font-semibold text-white mb-6 pb-4 border-b border-gray-700">
+                    <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 sm:p-6 shadow-xl">
+                        <h2 className="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-6 pb-4 border-b border-gray-700">
                             Billing Details
                         </h2>
 
-                        <form onSubmit={handleCheckout} className="space-y-5">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <form onSubmit={handleCheckout} className="space-y-4 sm:space-y-5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                                 <div>
                                     <label className="block text-gray-300 text-sm font-medium mb-2">
                                         Full Name *
@@ -416,7 +441,7 @@ export default function Checkout() {
                                         name="name"
                                         value={customerInfo.name}
                                         onChange={handleInputChange}
-                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                                         required
                                     />
                                 </div>
@@ -429,7 +454,7 @@ export default function Checkout() {
                                         name="email"
                                         value={customerInfo.email}
                                         onChange={handleInputChange}
-                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                                         required
                                     />
                                 </div>
@@ -439,13 +464,14 @@ export default function Checkout() {
                                 <label className="block text-gray-300 text-sm font-medium mb-2">
                                     Phone Number *
                                 </label>
-                                <input
-                                    type="tel"
-                                    name="phone"
+                                <PhoneInput
+                                    country={'bd'}
                                     value={customerInfo.phone}
-                                    onChange={handleInputChange}
-                                    className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                    required
+                                    onChange={handlePhoneChange}
+                                    inputClass="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                    buttonClass="bg-gray-700 border-gray-600"
+                                    dropdownClass="bg-gray-700 text-white border-gray-600"
+                                    containerClass="w-full"
                                 />
                             </div>
 
@@ -458,12 +484,12 @@ export default function Checkout() {
                                     name="address"
                                     value={customerInfo.address}
                                     onChange={handleInputChange}
-                                    className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                    className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                                     required
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
                                 <div>
                                     <label className="block text-gray-300 text-sm font-medium mb-2">
                                         City
@@ -473,7 +499,7 @@ export default function Checkout() {
                                         name="city"
                                         value={customerInfo.city}
                                         onChange={handleInputChange}
-                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                                     />
                                 </div>
                                 <div>
@@ -485,7 +511,7 @@ export default function Checkout() {
                                         name="postcode"
                                         value={customerInfo.postcode}
                                         onChange={handleInputChange}
-                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                                     />
                                 </div>
                                 <div>
@@ -496,7 +522,7 @@ export default function Checkout() {
                                         name="country"
                                         value={customerInfo.country}
                                         onChange={handleInputChange}
-                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                                     >
                                         <option value="Bangladesh">Bangladesh</option>
                                         <option value="Other">Other</option>
@@ -514,7 +540,7 @@ export default function Checkout() {
                                             name="district"
                                             value={customerInfo.district}
                                             onChange={handleInputChange}
-                                            className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                            className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                                             required
                                         >
                                             <option value="">Select District</option>
@@ -532,7 +558,7 @@ export default function Checkout() {
                                                 name="thana"
                                                 value={customerInfo.thana}
                                                 onChange={handleInputChange}
-                                                className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                                className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                                                 required
                                             >
                                                 <option value="">Select Thana</option>
@@ -546,7 +572,7 @@ export default function Checkout() {
                             )}
 
                             <div className="pt-4 border-t border-gray-700">
-                                <h3 className="text-xl font-semibold text-white mb-4">Payment Method</h3>
+                                <h3 className="text-lg sm:text-xl font-semibold text-white mb-4">Payment Method</h3>
                                 <div className="space-y-4">
                                     {customerInfo.country === 'Bangladesh' && (
                                         <label className="flex items-start bg-gray-700/50 p-4 rounded-lg border border-gray-600 hover:border-blue-500 transition cursor-pointer">
@@ -559,7 +585,7 @@ export default function Checkout() {
                                                 className="mt-1 mr-3 text-blue-500 focus:ring-blue-500"
                                             />
                                             <div>
-                                                <span className="block font-medium text-white">Cash on Delivery</span>
+                                                <span className="block font-medium text-white text-sm sm:text-base">Cash on Delivery</span>
                                                 <span className="block text-sm text-gray-400 mt-1">Pay when you receive your order</span>
                                             </div>
                                         </label>
@@ -574,7 +600,7 @@ export default function Checkout() {
                                             className="mt-1 mr-3 text-blue-500 focus:ring-blue-500"
                                         />
                                         <div>
-                                            <span className="block font-medium text-white">Pay with SSLCOMMERZ</span>
+                                            <span className="block font-medium text-white text-sm sm:text-base">Pay with SSLCOMMERZ</span>
                                             <span className="block text-sm text-gray-400 mt-1">Secure online payment (Cards, Mobile Banking, etc.)</span>
                                         </div>
                                     </label>
@@ -584,11 +610,11 @@ export default function Checkout() {
                             <button
                                 type="submit"
                                 disabled={loading || cart.length === 0}
-                                className={`w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-bold hover:from-blue-700 hover:to-blue-800 transition shadow-lg ${loading ? 'opacity-80' : ''}`}
+                                className={`w-full py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-bold hover:from-blue-700 hover:to-blue-800 transition shadow-lg ${loading ? 'opacity-80' : ''} text-sm sm:text-base`}
                             >
                                 {loading ? (
                                     <span className="flex items-center justify-center">
-                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <svg className="animate-spin -ml-1 mr-3 h-4 sm:h-5 w-4 sm:w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>

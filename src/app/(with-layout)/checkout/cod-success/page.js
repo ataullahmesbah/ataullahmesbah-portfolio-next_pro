@@ -1,153 +1,208 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 
-export default function CodSuccessPage() {
-    const [order, setOrder] = useState(null);
-    const [error, setError] = useState('');
+export default function CodSuccess() {
     const searchParams = useSearchParams();
     const orderId = searchParams.get('orderId');
+    const [order, setOrder] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
     useEffect(() => {
-        if (orderId) {
-            axios.get(`/api/products/orders?orderId=${orderId}`)
-                .then(response => {
-                    if (response.data) {
-                        setOrder(response.data);
-                    } else {
-                        setError('Order not found.');
-                    }
-                })
-                .catch(err => {
-                    console.error('Error fetching order:', err);
-                    setError('Failed to load order details.');
-                });
-        } else {
-            setError('Invalid order ID.');
-        }
+        const fetchOrder = async () => {
+            try {
+                if (!orderId) {
+                    setError('No order ID provided.');
+                    setLoading(false);
+                    return;
+                }
+                const response = await axios.get(`/api/products/orders?orderId=${orderId}`);
+                if (response.data) {
+                    setOrder(response.data);
+                    toast.success('Order confirmed! Thank you for your purchase.', {
+                        duration: 5000,
+                        style: { background: '#1f2937', color: '#fff' },
+                    });
+                } else {
+                    setError('Order not found.');
+                }
+            } catch (err) {
+                setError('Failed to fetch order details.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchOrder();
     }, [orderId]);
 
-    if (error) {
-        return (
-            <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-                <div className="bg-red-600/90 text-white p-4 rounded-lg text-center">
-                    {error}
-                </div>
-            </div>
-        );
-    }
-
-    if (!order) {
-        return (
-            <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-                <div className="flex items-center gap-2">
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <p className="text-white">Loading...</p>
-                </div>
-            </div>
-        );
-    }
-
-    const { customerInfo, products, total, discount = 0, shippingCharge = 0 } = order;
-    const subtotal = products.reduce((sum, p) => sum + p.price * p.quantity, 0);
-
-    // Format date as DD-MM-YYYY HH:MM
-    const formatDate = (date) => {
-        const d = new Date(date);
-        return `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
-    };
-
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-white mb-4">Thank you, {customerInfo.name}!</h1>
-                    <p className="text-xl text-gray-300">Your Order has been received</p>
-                    <p className="text-gray-400 mt-2">We will call you to confirm your order as soon as possible.</p>
-                    <p className="text-gray-400 mt-2">
-                        If you have any questions about your order or shipping, feel free to contact us at{' '}
-                        <a href="tel:+880123456789" className="text-blue-500 hover:underline">+880123456789</a>.
-                    </p>
-                </div>
-
-                <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 shadow-xl">
-                    <h2 className="text-2xl font-semibold text-white mb-6 pb-4 border-b border-gray-700">
-                        Order Details
-                    </h2>
-                    <div className="space-y-4 text-gray-300">
-                        <p><strong>Order ID:</strong> {order.orderId}</p>
-                        <p><strong>Date:</strong> {formatDate(order.createdAt)}</p>
-                        <p><strong>Total:</strong> ৳{total.toLocaleString()}</p>
-                        <p><strong>Payment Method:</strong> Cash on Delivery</p>
-                        <p><strong>Shipping Area:</strong> {customerInfo.city}</p>
-                        <p><strong>Shipping Address:</strong> {customerInfo.address}, {customerInfo.thana}, {customerInfo.district}, {customerInfo.city}, {customerInfo.postcode}, {customerInfo.country}</p>
-                    </div>
-
-                    <div className="mt-6">
-                        <h3 className="text-xl font-semibold text-white mb-4">Ordered Items</h3>
-                        {products.map((product, index) => (
-                            <div key={index} className="flex items-start gap-4 pb-4 border-b border-gray-700">
-                                {product.mainImage && (
-                                    <div className="relative w-16 h-16 flex-shrink-0">
-                                        <Image
-                                            src={product.mainImage}
-                                            alt={product.title}
-                                            fill
-                                            className="object-cover rounded-lg"
+        <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black py-6 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+            <Toaster position="top-right" />
+            <div className="max-w-3xl w-full">
+                <div className="bg-gray-850/90 border border-gray-600 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-2xl backdrop-blur-md animate-in">
+                    {loading ? (
+                        <div className="text-center py-12">
+                            <svg
+                                className="animate-spin h-8 w-8 text-blue-400 mx-auto"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                ></circle>
+                                <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                            </svg>
+                            <p className="text-gray-400 mt-4 text-sm sm:text-base">Loading order details...</p>
+                        </div>
+                    ) : error ? (
+                        <div className="text-center py-12">
+                            <p className="text-red-400 text-lg sm:text-xl">{error}</p>
+                            <a
+                                href="/"
+                                className="mt-6 inline-block px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm sm:text-base"
+                            >
+                                Back to Home
+                            </a>
+                        </div>
+                    ) : (
+                        <div className="text-center">
+                            <h1 className="text-2xl sm:text-3xl font-bold text-amber-300 mb-2 tracking-tight">
+                                Thanks, {order.customerInfo.name}!
+                            </h1>
+                            <div className="flex justify-center mb-4">
+                                <div className="bg-green-500 rounded-full p-2 sm:p-3 animate-pulse">
+                                    <svg
+                                        className="h-8 w-8 sm:h-10 sm:w-10 text-white"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                            clipRule="evenodd"
                                         />
-                                    </div>
-                                )}
-                                <div className="flex-1">
-                                    <h4 className="text-lg font-medium text-white">{product.title}</h4>
-                                    <p className="text-gray-400">Size: None</p>
-                                    <p className="text-gray-400">
-                                        {product.quantity} x ৳{product.price.toLocaleString()}
-                                    </p>
-                                </div>
-                                <div className="ml-auto text-lg font-medium text-white">
-                                    ৳{(product.price * product.quantity).toLocaleString()}
+                                    </svg>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                            <h2 className="text-xl sm:text-2xl font-semibold text-white mb-2">Order Confirmed!</h2>
+                            <p className="text-gray-200 text-sm sm:text-base mb-4">
+                                Your order <span className="text-blue-400">{orderId}</span> has been successfully placed.
+                            </p>
+                            <p className="text-gray-300 text-sm sm:text-base mb-6">
+                                Payment Method: <span className="font-medium">{order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</span>
+                                <br />
+                                Expected Delivery:{' '}
+                                {order.paymentMethod === 'cod'
+                                    ? '3-7 working days'
+                                    : '4-7 working days'}
+                            </p>
 
-                    <div className="mt-6 space-y-2">
-                        <div className="flex justify-between text-lg text-gray-400">
-                            <span>Subtotal</span>
-                            <span>৳{subtotal.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between text-lg text-gray-400">
-                            <span>Shipping</span>
-                            <span>৳{(shippingCharge || 0).toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between text-lg text-gray-400">
-                            <span>Discount</span>
-                            <span>৳{(discount || 0).toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between text-lg text-gray-400">
-                            <span>VAT</span>
-                            <span>৳0</span>
-                        </div>
-                        <div className="flex justify-between text-xl font-bold text-white pt-2 border-t border-gray-700">
-                            <span>Total</span>
-                            <span>৳{total.toLocaleString()}</span>
-                        </div>
-                    </div>
-                </div>
+                            <div className="bg-gray-800/50 rounded-xl p-4 sm:p-6 mb-6 border border-gray-700">
+                                <h3 className="text-lg sm:text-xl font-semibold text-white mb-4">Order Summary</h3>
+                                <div className="space-y-3">
+                                    {order?.products?.map((item, index) => (
+                                        <div
+                                            key={index}
+                                            className="flex justify-between text-sm sm:text-base text-gray-200"
+                                        >
+                                            <span className="text-left">{item.title} (x{item.quantity})</span>
+                                            <span>৳{(item.price * item.quantity).toLocaleString()}</span>
+                                        </div>
+                                    ))}
+                                    <div className="border-t border-gray-600 pt-3 mt-3">
+                                        <div className="flex justify-between text-sm sm:text-base text-gray-200">
+                                            <span>Subtotal</span>
+                                            <span>
+                                                ৳
+                                                {(order?.products?.reduce(
+                                                    (sum, item) => sum + item.price * item.quantity,
+                                                    0
+                                                ) || 0).toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-sm sm:text-base text-gray-200">
+                                            <span>Shipping Charge</span>
+                                            <span>৳{(order?.shippingCharge || 0).toLocaleString()}</span>
+                                        </div>
+                                        {order?.discount > 0 && (
+                                            <div className="flex justify-between text-sm sm:text-base text-gray-200">
+                                                <span>Discount ({order?.couponCode})</span>
+                                                <span>-৳{(order?.discount || 0).toLocaleString()}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between text-sm sm:text-base text-gray-200">
+                                            <span>Other Charge</span>
+                                            <span>৳{(order?.otherCharge || 0).toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between text-base sm:text-lg font-bold text-green-400 mt-2">
+                                            <span>Total</span>
+                                            <span>৳{(order?.total || 0).toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                <div className="text-center mt-8">
-                    <Link
-                        href="/shop"
-                        className="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg"
-                    >
-                        Continue Shopping
-                    </Link>
+                            <div className="bg-gray-800/50 rounded-xl p-4 sm:p-6 mb-6 border border-gray-700">
+                                <h3 className="text-lg sm:text-xl font-semibold text-white mb-4">Shipping Information</h3>
+                                <div className="text-sm sm:text-base text-gray-200 space-y-2">
+                                    <p>
+                                        <span className="font-medium">Name:</span> {order?.customerInfo?.name}
+                                    </p>
+                                    <p>
+                                        <span className="font-medium">Email:</span> {order?.customerInfo?.email}
+                                    </p>
+                                    <p>
+                                        <span className="font-medium">Phone:</span> {order?.customerInfo?.phone}
+                                    </p>
+                                    <p>
+                                        <span className="font-medium">Address:</span>{' '}
+                                        {order?.customerInfo?.address}, {order?.customerInfo?.city},{' '}
+                                        {order?.customerInfo?.postcode}, {order?.customerInfo?.country}
+                                    </p>
+                                    {order?.customerInfo?.district && (
+                                        <p>
+                                            <span className="font-medium">District:</span>{' '}
+                                            {order?.customerInfo?.district}
+                                        </p>
+                                    )}
+                                    {order?.customerInfo?.thana && (
+                                        <p>
+                                            <span className="font-medium">Thana:</span> {order?.customerInfo?.thana}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <a
+                                    href="/shop"
+                                    className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm sm:text-base"
+                                >
+                                    Continue Shopping
+                                </a>
+                                <a
+                                    href="/orders"
+                                    className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition text-sm sm:text-base"
+                                >
+                                    View All Orders
+                                </a>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
