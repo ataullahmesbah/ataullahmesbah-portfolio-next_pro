@@ -5,19 +5,28 @@ import Coupon from '@/models/Coupon';
 import Config from '@/models/Config';
 
 
-
-
 export async function GET(request) {
     try {
         console.log('Attempting to connect to MongoDB for GET /api/products/orders');
         await dbConnect();
         const { searchParams } = new URL(request.url);
         const orderId = searchParams.get('orderId');
-        console.log('GET /api/products/orders with orderId:', orderId);
+        const status = searchParams.get('status');
+        const date = searchParams.get('date');
+        console.log('GET /api/products/orders with params:', { orderId, status, date });
 
         let query = {};
         if (orderId) {
             query.orderId = orderId;
+        }
+        if (status) {
+            query.status = status.split(','); // Support multiple statuses (e.g., pending,pending_payment)
+        }
+        if (date) {
+            const startDate = new Date(date);
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + 1);
+            query.createdAt = { $gte: startDate, $lt: endDate };
         }
 
         console.log('Querying orders with:', query);
