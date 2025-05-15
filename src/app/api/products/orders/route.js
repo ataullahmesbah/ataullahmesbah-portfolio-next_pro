@@ -4,27 +4,32 @@ import dbConnect from '@/lib/dbMongoose';
 import Coupon from '@/models/Coupon';
 import Config from '@/models/Config';
 
+
+
+
 export async function GET(request) {
     try {
+        console.log('Attempting to connect to MongoDB for GET /api/products/orders');
         await dbConnect();
         const { searchParams } = new URL(request.url);
         const orderId = searchParams.get('orderId');
+        console.log('GET /api/products/orders with orderId:', orderId);
 
-        if (!orderId) {
-            return NextResponse.json({ error: 'Order ID is required' }, { status: 400 });
+        let query = {};
+        if (orderId) {
+            query.orderId = orderId;
         }
 
-        const order = await Order.findOne({ orderId });
-        if (!order) {
-            return NextResponse.json({ error: 'Order not found' }, { status: 404 });
-        }
+        console.log('Querying orders with:', query);
+        const orders = await Order.find(query).lean();
+        console.log('Orders query result:', orders);
 
-        return NextResponse.json(order, { status: 200 });
+        return NextResponse.json(orders, { status: 200 });
     } catch (error) {
-        return NextResponse.json({ error: `Failed to fetch order: ${error.message}` }, { status: 500 });
+        console.error('Error in GET /api/products/orders:', error.message, error.stack);
+        return NextResponse.json({ error: `Failed to fetch orders: ${error.message}` }, { status: 500 });
     }
 }
-
 
 export async function POST(request) {
     try {
@@ -42,11 +47,23 @@ export async function POST(request) {
             shippingCharge,
             couponCode,
         } = await request.json();
-        console.log('Received order data:', { orderId, couponCode, total, discount });
+        console.log('Received order data:', { orderId, couponCode, total, discount, customerInfo });
 
+        // Validate required fields
         if (!orderId || !products || !customerInfo || !paymentMethod || !status || total == null) {
             console.log('Validation failed: Missing required fields');
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        }
+
+        // Validate customerInfo fields
+        if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.address) {
+            console.log('Validation failed: Missing required customerInfo fields');
+            return NextResponse.json({ error: 'Missing required customer information (name, email, phone, address)' }, { status: 400 });
+        }
+
+        if (paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' && (!customerInfo.district || !customerInfo.thana)) {
+            console.log('Validation failed: Missing district or thana for COD');
+            return NextResponse.json({ error: 'District and thana required for COD orders' }, { status: 400 });
         }
 
         // Validate coupon if provided
