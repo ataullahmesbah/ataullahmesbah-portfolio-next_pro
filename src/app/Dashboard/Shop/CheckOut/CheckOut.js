@@ -11,12 +11,12 @@ export default function Checkout() {
     const [cart, setCart] = useState([]);
     const [paymentMethod, setPaymentMethod] = useState('cod');
     const [customerInfo, setCustomerInfo] = useState({
-        name: 'Alex',
-        email: 'alex@gmail.com',
-        phone: '+880123456789',
-        address: 'Elephant Road',
-        city: 'Dhaka',
-        postcode: '1000',
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        postcode: '',
         country: 'Bangladesh',
         district: '',
         thana: '',
@@ -136,6 +136,7 @@ export default function Checkout() {
                 toast.error('No valid products in cart.');
                 return;
             }
+            console.log('Applying coupon:', { couponCode, productIds, cartTotal: subtotal });
             const response = await axios.post('/api/products/coupons/validate', {
                 code: couponCode,
                 productIds,
@@ -144,6 +145,7 @@ export default function Checkout() {
                 email: customerInfo.email,
                 phone: customerInfo.phone,
             });
+            console.log('Coupon validation response:', response.data);
             if (response.data.valid) {
                 if (response.data.type === 'product') {
                     const cartItem = cart.find(item => item._id === response.data.productId?.toString());
@@ -177,6 +179,7 @@ export default function Checkout() {
                 toast.error(response.data.message || 'Invalid coupon code.');
             }
         } catch (err) {
+            console.error('Coupon apply error:', err.response?.data || err.message);
             setCouponError('Error applying coupon. Please try again.');
             toast.error('Error applying coupon. Please try again.');
         }
@@ -230,12 +233,15 @@ export default function Checkout() {
             shippingCharge: paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' ? (Number.isFinite(shippingCharge) ? shippingCharge : 0) : 0,
             couponCode: appliedCoupon ? appliedCoupon.code : null,
         };
+        console.log('Submitting order:', orderData);
 
         try {
             const orderResponse = await axios.post('/api/products/orders', orderData);
+            console.log('Order response:', orderResponse.data);
             if (orderResponse.data.message === 'Order created') {
                 if (appliedCoupon) {
                     try {
+                        console.log('Recording coupon usage:', { couponCode: appliedCoupon.code });
                         await axios.post('/api/products/coupons/record-usage', {
                             userId,
                             couponCode: appliedCoupon.code,
@@ -243,6 +249,7 @@ export default function Checkout() {
                             phone: customerInfo.phone,
                         });
                     } catch (usageError) {
+                        console.error('Coupon usage error:', usageError.response?.data || usageError.message);
                         setError(usageError.response?.data?.error || 'Failed to record coupon usage.');
                         toast.error(usageError.response?.data?.error || 'Failed to record coupon usage.');
                         setLoading(false);
@@ -302,6 +309,7 @@ export default function Checkout() {
                 throw new Error('Order creation failed');
             }
         } catch (err) {
+            console.error('Order error:', err.response?.data || err.message);
             const errorMessage = err.response?.data?.error || err.message || 'Payment processing failed';
             setError(errorMessage);
             toast.error(errorMessage);
@@ -382,11 +390,11 @@ export default function Checkout() {
                                             value={couponCode}
                                             onChange={(e) => setCouponCode(e.target.value)}
                                             placeholder="Enter coupon code"
-                                            className="flex-1 bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm sm:text-base"
+                                            className="flex-1 bg-gray-700 text-white border border-gray-600 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-purple-500 transition text-sm sm:text-base"
                                         />
                                         <button
                                             onClick={handleCouponApply}
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full sm:w-auto"
+                                            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition w-full sm:w-auto"
                                         >
                                             Apply
                                         </button>
@@ -431,35 +439,36 @@ export default function Checkout() {
                         </h2>
 
                         <form onSubmit={handleCheckout} className="space-y-4 sm:space-y-5">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                                <div>
-                                    <label className="block text-gray-300 text-sm font-medium mb-2">
-                                        Full Name *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={customerInfo.name}
-                                        onChange={handleInputChange}
-                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-gray-300 text-sm font-medium mb-2">
-                                        Email *
-                                    </label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={customerInfo.email}
-                                        onChange={handleInputChange}
-                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                        required
-                                    />
-                                </div>
+                            <div>
+                                <label className="block text-gray-300 text-sm font-medium mb-2">
+                                    Full Name *
+                                </label>
+                                <textarea
+                                    name="name"
+                                    value={customerInfo.name}
+                                    onChange={handleInputChange}
+                                    className="w-full bg-gray-800 text-white rounded-lg border border-gray-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                                    placeholder="Jhon Whick"
+                                    rows="3"
+                                    maxLength="160"
+                                    required
+                                />
                             </div>
-
+                            <div>
+                                <label className="block text-gray-300 text-sm font-medium mb-2">
+                                    Email *
+                                </label>
+                                <textarea
+                                    name="email"
+                                    value={customerInfo.email}
+                                    onChange={handleInputChange}
+                                    className="w-full bg-gray-800 text-white rounded-lg border border-gray-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                                    placeholder="jhon.whick@example.com"
+                                    rows="3"
+                                    maxLength="160"
+                                    required
+                                />
+                            </div>
                             <div>
                                 <label className="block text-gray-300 text-sm font-medium mb-2">
                                     Phone Number *
@@ -468,50 +477,55 @@ export default function Checkout() {
                                     country={'bd'}
                                     value={customerInfo.phone}
                                     onChange={handlePhoneChange}
-                                    inputClass="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                    buttonClass="bg-gray-700 border-gray-600"
-                                    dropdownClass="bg-gray-700 text-white border-gray-600"
+                                    inputClass="w-full bg-gray-800 text-white border border-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                                    buttonClass="bg-gray-800 border-gray-700"
+                                    dropdownClass="bg-gray-800 text-white border-gray-700"
                                     containerClass="w-full"
+                                    placeholder="+8801234567890"
                                 />
                             </div>
-
                             <div>
                                 <label className="block text-gray-300 text-sm font-medium mb-2">
                                     Address *
                                 </label>
-                                <input
-                                    type="text"
+                                <textarea
                                     name="address"
                                     value={customerInfo.address}
                                     onChange={handleInputChange}
-                                    className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                    className="w-full bg-gray-800 text-white rounded-lg border border-gray-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                                    placeholder="123 Elephant Road, Dhaka"
+                                    rows="3"
+                                    maxLength="160"
                                     required
                                 />
                             </div>
-
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
                                 <div>
                                     <label className="block text-gray-300 text-sm font-medium mb-2">
                                         City
                                     </label>
-                                    <input
-                                        type="text"
+                                    <textarea
                                         name="city"
                                         value={customerInfo.city}
                                         onChange={handleInputChange}
-                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                        className="w-full bg-gray-800 text-white rounded-lg border border-gray-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                                        placeholder="Dhaka"
+                                        rows="3"
+                                        maxLength="160"
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-gray-300 text-sm font-medium mb-2">
                                         Postcode
                                     </label>
-                                    <input
-                                        type="text"
+                                    <textarea
                                         name="postcode"
                                         value={customerInfo.postcode}
                                         onChange={handleInputChange}
-                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                        className="w-full bg-gray-800 text-white rounded-lg border border-gray-700 p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                                        placeholder="1000"
+                                        rows="3"
+                                        maxLength="160"
                                     />
                                 </div>
                                 <div>
@@ -522,7 +536,7 @@ export default function Checkout() {
                                         name="country"
                                         value={customerInfo.country}
                                         onChange={handleInputChange}
-                                        className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                        className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
                                     >
                                         <option value="Bangladesh">Bangladesh</option>
                                         <option value="Other">Other</option>
@@ -540,7 +554,7 @@ export default function Checkout() {
                                             name="district"
                                             value={customerInfo.district}
                                             onChange={handleInputChange}
-                                            className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                            className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
                                             required
                                         >
                                             <option value="">Select District</option>
@@ -558,7 +572,7 @@ export default function Checkout() {
                                                 name="thana"
                                                 value={customerInfo.thana}
                                                 onChange={handleInputChange}
-                                                className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-2 sm:py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                                className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
                                                 required
                                             >
                                                 <option value="">Select Thana</option>
@@ -575,14 +589,14 @@ export default function Checkout() {
                                 <h3 className="text-lg sm:text-xl font-semibold text-white mb-4">Payment Method</h3>
                                 <div className="space-y-4">
                                     {customerInfo.country === 'Bangladesh' && (
-                                        <label className="flex items-start bg-gray-700/50 p-4 rounded-lg border border-gray-600 hover:border-blue-500 transition cursor-pointer">
+                                        <label className="flex items-start bg-gray-700/50 p-4 rounded-lg border border-gray-600 hover:border-purple-500 transition cursor-pointer">
                                             <input
                                                 type="radio"
                                                 name="paymentMethod"
                                                 value="cod"
                                                 checked={paymentMethod === 'cod'}
                                                 onChange={() => setPaymentMethod('cod')}
-                                                className="mt-1 mr-3 text-blue-500 focus:ring-blue-500"
+                                                className="mt-1 mr-3 text-purple-500 focus:ring-purple-500"
                                             />
                                             <div>
                                                 <span className="block font-medium text-white text-sm sm:text-base">Cash on Delivery</span>
@@ -590,14 +604,14 @@ export default function Checkout() {
                                             </div>
                                         </label>
                                     )}
-                                    <label className="flex items-start bg-gray-700/50 p-4 rounded-lg border border-gray-600 hover:border-blue-500 transition cursor-pointer">
+                                    <label className="flex items-start bg-gray-700/50 p-4 rounded-lg border border-gray-600 hover:border-purple-500 transition cursor-pointer">
                                         <input
                                             type="radio"
                                             name="paymentMethod"
                                             value="pay_first"
                                             checked={paymentMethod === 'pay_first'}
                                             onChange={() => setPaymentMethod('pay_first')}
-                                            className="mt-1 mr-3 text-blue-500 focus:ring-blue-500"
+                                            className="mt-1 mr-3 text-purple-500 focus:ring-purple-500"
                                         />
                                         <div>
                                             <span className="block font-medium text-white text-sm sm:text-base">Pay with SSLCOMMERZ</span>
@@ -610,7 +624,7 @@ export default function Checkout() {
                             <button
                                 type="submit"
                                 disabled={loading || cart.length === 0}
-                                className={`w-full py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-bold hover:from-blue-700 hover:to-blue-800 transition shadow-lg ${loading ? 'opacity-80' : ''} text-sm sm:text-base`}
+                                className={`w-full py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg font-bold hover:from-purple-700 hover:to-purple-800 transition shadow-lg ${loading ? 'opacity-80' : ''} text-sm sm:text-base`}
                             >
                                 {loading ? (
                                     <span className="flex items-center justify-center">
