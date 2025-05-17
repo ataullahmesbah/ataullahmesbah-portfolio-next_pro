@@ -3,6 +3,8 @@ import Order from '@/models/Order';
 import Coupon from '@/models/Coupon';
 import Config from '@/models/Config';
 import dbConnect from '@/lib/dbMongoose';
+import UsedCoupon from '@/models/UsedCoupon';
+
 
 
 export async function GET(request) {
@@ -73,6 +75,15 @@ export async function POST(request) {
                 }
                 if (coupon.expiresAt && coupon.expiresAt < new Date()) {
                     return NextResponse.json({ error: 'Coupon has expired' }, { status: 400 });
+                }
+                if (coupon.useType === 'one-time') {
+                    const usedCoupon = await UsedCoupon.findOne({
+                        couponCode,
+                        $or: [{ email: customerInfo.email }, { phone: customerInfo.phone }],
+                    });
+                    if (usedCoupon) {
+                        return NextResponse.json({ error: 'Coupon already used with this email or phone number' }, { status: 400 });
+                    }
                 }
             } else {
                 // Check global coupon (case-insensitive)

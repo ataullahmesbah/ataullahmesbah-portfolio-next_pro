@@ -6,6 +6,7 @@ import dbConnect from '@/lib/dbMongoose';
 import Config from '@/models/Config';
 
 
+
 export async function POST(request) {
     try {
         await dbConnect();
@@ -25,9 +26,12 @@ export async function POST(request) {
                 return NextResponse.json({ valid: false, message: 'Coupon has expired' }, { status: 400 });
             }
             if (coupon.useType === 'one-time') {
-                const usedCoupon = await UsedCoupon.findOne({ couponCode: code, email, phone });
+                const usedCoupon = await UsedCoupon.findOne({ 
+                    couponCode: code, 
+                    $or: [{ email }, { phone }] 
+                });
                 if (usedCoupon) {
-                    return NextResponse.json({ valid: false, message: 'You have already used this coupon' }, { status: 400 });
+                    return NextResponse.json({ valid: false, message: 'Coupon already used with this email or phone number' }, { status: 400 });
                 }
             }
             return NextResponse.json({
