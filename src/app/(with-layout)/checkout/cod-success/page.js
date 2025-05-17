@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import { FaCircleCheck } from "react-icons/fa6";
 
 export default function CodSuccess() {
     const searchParams = useSearchParams();
@@ -80,6 +81,9 @@ export default function CodSuccess() {
             <Toaster position="top-right" />
             <div className="max-w-3xl mx-auto bg-gradient-to-br from-gray-800 to-gray-700 border border-purple-500 rounded-2xl p-8 shadow-2xl">
                 <div className="text-center mb-6">
+                    <p className="text-green-400 text-2xl flex justify-center items-center py-3">
+                        <FaCircleCheck />
+                    </p>
                     <h1 className="text-3xl font-extrabold text-purple-400 mb-2">Thanks, {order.customerInfo.name}!</h1>
                     <h2 className="text-xl font-semibold text-white mb-2">Your Order is Confirmed</h2>
                     <p className="text-sm text-gray-300 mb-1">Order ID: <span className="text-purple-400">{orderId}</span></p>
