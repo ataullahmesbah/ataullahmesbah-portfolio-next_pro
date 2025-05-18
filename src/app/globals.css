@@ -64,8 +64,13 @@ body {
 
 
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .animate-marquee {
@@ -82,6 +87,7 @@ body {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
+
   .animate-marquee::-webkit-scrollbar {
     display: none;
   }
@@ -91,30 +97,66 @@ body {
 @import 'react-phone-input-2/lib/style.css';
 
 .react-tel-input .form-control {
-    width: 100% !important;
-    height: 38px !important;
-    background: #374151 !important;
-    color: #fff !important;
-    border: 1px solid #4b5563 !important;
-    border-radius: 0.5rem !important;
-    padding-left: 50px !important;
+  width: 100% !important;
+  height: 38px !important;
+  background: #374151 !important;
+  color: #fff !important;
+  border: 1px solid #4b5563 !important;
+  border-radius: 0.5rem !important;
+  padding-left: 50px !important;
 }
+
 .react-tel-input .flag-dropdown {
-    background: #374151 !important;
-    border: 1px solid #4b5563 !important;
-    border-radius: 0.5rem 0 0 0.5rem !important;
+  background: #374151 !important;
+  border: 1px solid #4b5563 !important;
+  border-radius: 0.5rem 0 0 0.5rem !important;
 }
+
 .react-tel-input .selected-flag {
-    background: #374151 !important;
-    border-radius: 0.5rem 0 0 0.5rem !important;
+  background: #374151 !important;
+  border-radius: 0.5rem 0 0 0.5rem !important;
 }
+
 .react-tel-input .country-list {
-    background: #374151 !important;
-    color: #fff !important;
-    border: 1px solid #4b5563 !important;
+  background: #374151 !important;
+  color: #fff !important;
+  border: 1px solid #4b5563 !important;
 }
+
 @media (min-width: 640px) {
-    .react-tel-input .form-control {
-        height: 48px !important;
-    }
+  .react-tel-input .form-control {
+    height: 48px !important;
+  }
+}
+
+
+/* Shop Banner */
+.animate-fade-in {
+  animation: fadeIn 1s ease-in;
+}
+
+.animate-slide-up {
+  animation: slideUp 1s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

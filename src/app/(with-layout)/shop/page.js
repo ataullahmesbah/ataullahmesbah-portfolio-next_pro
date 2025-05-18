@@ -1,3 +1,4 @@
+
 import ShopClient from '@/app/Dashboard/Shop/ShopClient/ShopClient';
 import { Suspense } from 'react';
 
@@ -79,7 +80,15 @@ export default async function Shop() {
 
     return (
         <main className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
-            <div className="container mx-auto px-4 sm:px-6">
+
+            <div className="container mx-auto px-4 sm:px-6 py-12">
+                <div className="bg-gray-800 min-h-[30vh] flex flex-col items-center justify-center text-center px-4 sm:px-6 rounded-xl shadow-lg mb-6 mx-4">
+                    <h4 className="text-2xl sm:text-3xl font-bold text-white mb-3">🌟 Elite Savings for You</h4>
+                    <p className="text-base sm:text-lg text-gray-300 max-w-xl">
+                        Enjoy exclusive offers and special savings — only for the community of <strong>Mesbah’s Group</strong>.
+                    </p>
+                </div>
+
                 <Suspense fallback={<LoadingSkeleton />}>
                     <ShopClient products={products} structuredData={getStructuredData(products)} />
                 </Suspense>

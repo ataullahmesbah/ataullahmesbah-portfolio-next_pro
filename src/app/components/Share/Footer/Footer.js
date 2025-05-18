@@ -143,7 +143,8 @@ const Footer = () => {
                                     { href: "/featured-story", label: "Feature Story" },
                                     { href: "/content-creation", label: "Content Story" },
                                     { href: "/privacy-policy", label: "Privacy Policy" },
-                                    { href: "/terms-of-service", label: "Terms & Conditions" }
+                                    { href: "/terms-of-service", label: "Terms & Conditions" },
+                                    { href: "/return-policy", label: "Return Policy" }
                                 ].map((link) => (
                                     <li key={link.href} className="text-center md:text-left">
                                         <Link
