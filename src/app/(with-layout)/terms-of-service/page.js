@@ -3,110 +3,238 @@ import React from 'react';
 import Head from 'next/head';
 
 const TermsAndConditions = () => {
-    return (
-        <>
-            <Head>
-                <title>Terms and Conditions | Ataullah Mesbah</title>
-                <meta name="description" content="Official Terms and Conditions for using Ataullah Mesbah’s website and services. Learn your rights, responsibilities, and limitations." />
-                <meta name="robots" content="index, follow" />
-                <meta name="author" content="Ataullah Mesbah" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <link rel="canonical" href="https://ataullahmesbah.com/terms-of-service" />
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{
-                        __html: JSON.stringify({
-                            "@context": "https://schema.org",
-                            "@type": "WebPage",
-                            "name": "Terms and Conditions",
-                            "url": "https://ataullahmesbah.com/terms-of-service",
-                            "description": "Official Terms and Conditions for using Ataullah Mesbah’s website and services. Learn your rights, responsibilities, and limitations.",
-                            "publisher": {
-                                "@type": "Organization",
-                                "name": "Team Ataullah Mesbah"
-                            }
-                        }),
-                    }}
-                />
-            </Head>
-            <div className="bg-gradient-to-br from-gray-900 via-gray-700 to-gray-600">
-                <div className="max-w-5xl mx-auto px-4 py-16 text-sm leading-relaxed text-white  rounded-xl shadow-lg">
-                    <h1 className="text-3xl font-bold mb-6 text-center text-white">Terms and Conditions</h1>
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Terms and Conditions - Ataullah Mesbah",
+    "description": "Official Terms and Conditions for using Ataullah Mesbah’s website and services. Learn your rights, responsibilities, and limitations.",
+    "url": "https://ataullahmesbah.com/terms-of-service",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Ataullah Mesbah",
+      "url": "https://ataullahmesbah.com",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "info@ataullahmesbah.com",
+        "contactType": "Customer Support"
+      }
+    },
+    "lastReviewed": "2025-05-18"
+  };
 
-                    <p className="mb-4">
-                        Welcome to <strong>Ataullah Mesbah</strong>. By accessing or using this website, we assume that you fully accept and agree to all the Terms and Conditions mentioned here. The terms <strong>&quot;we&quot;</strong>, <strong>&quot;our&quot;</strong>, or <strong>&quot;us&quot;</strong> refer to the authority of <strong>Team Ataullah Mesbah</strong>.
-                    </p>
+  return (
+    <>
+      <Head>
+        <title>Terms and Conditions - Ataullah Mesbah</title>
+        <meta
+          name="description"
+          content="Official Terms and Conditions for using Ataullah Mesbah’s website and services. Learn your rights, responsibilities, and limitations."
+        />
+        <meta
+          name="keywords"
+          content="terms and conditions, Ataullah Mesbah, website usage, user responsibilities, intellectual property, refund policy"
+        />
+        <meta name="author" content="Ataullah Mesbah" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://ataullahmesbah.com/terms-of-service" />
+        {/* Open Graph */}
+        <meta property="og:title" content="Terms and Conditions - Ataullah Mesbah" />
+        <meta
+          property="og:description"
+          content="Official Terms and Conditions for using Ataullah Mesbah’s website and services."
+        />
+        <meta property="og:url" content="https://ataullahmesbah.com/terms-of-service" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Ataullah Mesbah" />
+        {/* Twitter Cards */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Terms and Conditions - Ataullah Mesbah" />
+        <meta
+          name="twitter:description"
+          content="Learn the Terms and Conditions for using Ataullah Mesbah’s website and services."
+        />
+        {/* JSON-LD Schema */}
+        <script type="application/ld+json">{JSON.stringify(schemaData)}</script>
+      </Head>
 
-                    <p className="mb-4">
-                        If you do not understand any part of these Terms and Conditions, you may contact us via email or <a
-                            href="https://facebook.com/ataullahmesbah10"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-400 underline hover:text-blue-600"
-                        >
-                            contact FB Team Ataullah Mesbah
-                        </a>. The decisions and interpretations of Team Ataullah Mesbah regarding these Terms and Conditions are final, and we reserve the right to update or modify them at any time without prior notice.
-                    </p>
+      <div className="bg-gray-50 min-h-screen font-sans">
+        <section className="bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100 px-6 py-16 md:px-12 lg:px-24">
+          <div className="max-w-5xl mx-auto space-y-12">
+            {/* Header */}
+            <header className="text-center mb-12" aria-labelledby="terms-title">
+              <h1 id="terms-title" className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">
+                Terms and Conditions
+              </h1>
+              <div className="w-24 h-1 bg-blue-600 mx-auto mb-4 rounded"></div>
+              <p className="text-sm text-gray-400">Last Updated: May 18, 2025</p>
+            </header>
 
-                    <h2 className="text-xl font-semibold mt-8 mb-2">1. Intellectual Property</h2>
-                    <p className="mb-4">
-                        All content including texts, images, videos, logos, and design elements available on this website are the intellectual property of Team Ataullah Mesbah unless otherwise stated. You may not copy, distribute, resell, or use any content without explicit written permission.
-                    </p>
+            {/* Introduction */}
+            <p className="text-lg text-gray-200 leading-relaxed">
+              Welcome to <strong>Ataullah Mesbah</strong>. By accessing or using our website, you agree to comply with these Terms and Conditions. The terms <strong>"we"</strong>, <strong>"our"</strong>, or <strong>"us"</strong> refer to <strong>Ataullah Mesbah</strong>. If you have questions, contact us via{' '}
+              <a
+                href="mailto:info@ataullahmesbah.com"
+                className="text-blue-400 hover:underline"
+                aria-label="Email customer support"
+              >
+                info@ataullahmesbah.com
+              </a>{' '}
+              or{' '}
+              <a
+                href="https://facebook.com/ataullahmesbah10"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:underline"
+                aria-label="Contact via Facebook"
+              >
+                Facebook
+              </a>.
+            </p>
 
-                    <h2 className="text-xl font-semibold mt-8 mb-2">2. Restrictions & Prohibited Activities</h2>
-                    <ul className="list-disc list-inside mb-4 space-y-2">
-                        <li>Publishing, selling, or sharing any content (text, video, password-protected material) from this website for money or for free.</li>
-                        <li>Sharing any email account, login credentials, or passwords with any third party.</li>
-                        <li>Engaging in any data scraping, reverse engineering, or illegal use of website data.</li>
-                    </ul>
+            {/* Terms Sections */}
+            <div className="space-y-10">
+              {/* Intellectual Property */}
+              <article className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-semibold text-white mb-4">1. Intellectual Property</h2>
+                <p className="text-gray-200 leading-relaxed">
+                  All content, including text, images, videos, logos, and design elements, is the intellectual property of Ataullah Mesbah unless otherwise stated. Unauthorized copying, distribution, or use is prohibited without written permission.
+                </p>
+              </article>
 
-                    <h2 className="text-xl font-semibold mt-8 mb-2">3. Legal Action on Sensitive Data Misuse</h2>
-                    <p className="mb-2">Violators may face:</p>
-                    <ul className="list-disc list-inside mb-4 ml-4">
-                        <li>Minimum of 5 years to a maximum of 14 years imprisonment.</li>
-                        <li>A fine ranging from 5 lakh to 50 lakh BDT.</li>
-                    </ul>
+              {/* Restrictions & Prohibited Activities */}
+              <article className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-semibold text-white mb-4">2. Restrictions & Prohibited Activities</h2>
+                <ul className="list-disc list-inside space-y-3 text-gray-300">
+                  <li>Publishing, selling, or sharing website content (text, video, or protected material) for profit or free.</li>
+                  <li>Sharing email accounts, login credentials, or passwords with third parties.</li>
+                  <li>Engaging in data scraping, reverse engineering, or illegal data use.</li>
+                </ul>
+              </article>
 
-                    <h2 className="text-xl font-semibold mt-8 mb-2">4. Account Credentials & Termination</h2>
-                    <p className="mb-4">
-                        Your login credentials (username and password) are strictly personal. Sharing your credentials with others is strictly prohibited. If such sharing is found, Team Ataullah Mesbah reserves the right to terminate your account without prior notice.
-                    </p>
+              {/* Legal Action */}
+              <article className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-semibold text-white mb-4">3. Legal Action on Sensitive Data Misuse</h2>
+                <p className="text-gray-200 mb-4">Violators may face:</p>
+                <ul className="list-disc list-inside space-y-3 text-gray-300">
+                  <li>Imprisonment from 5 to 14 years.</li>
+                  <li>Fines from 5 lakh to 50 lakh BDT.</li>
+                </ul>
+              </article>
 
-                    <h2 className="text-xl font-semibold mt-8 mb-2">5. Liability Disclaimer</h2>
-                    <p className="mb-4">
-                        We make no guarantees that the information on the website is accurate, complete, or up-to-date. We are not liable for any damages arising from the use of this website.
-                    </p>
+              {/* Account Credentials */}
+              <article className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-semibold text-white mb-4">4. Account Credentials & Termination</h2>
+                <p className="text-gray-200 leading-relaxed">
+                  Login credentials are personal and non-transferable. Sharing them is prohibited, and violations may result in account termination without notice.
+                </p>
+              </article>
 
-                    <h2 className="text-xl font-semibold mt-8 mb-2">6. Third-Party Links</h2>
-                    <p className="mb-4">
-                        Our site may include links to third-party websites or services. We do not control and are not responsible for the content or practices of these third-party websites.
-                    </p>
+              {/* Liability Disclaimer */}
+              <article className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-semibold text-white mb-4">5. Liability Disclaimer</h2>
+                <p className="text-gray-200 leading-relaxed">
+                  We do not guarantee the accuracy, completeness, or timeliness of website information. Ataullah Mesbah is not liable for damages arising from website use.
+                </p>
+              </article>
 
-                    <h2 className="text-xl font-semibold mt-8 mb-2">7. Changes to the Terms</h2>
-                    <p className="mb-4">
-                        Team Ataullah Mesbah reserves full authority to modify, change, or update these Terms and Conditions at any time, without notice. Users are responsible for reviewing the Terms regularly.
-                    </p>
+              {/* Third-Party Links */}
+              <article className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-semibold text-white mb-4">6. Third-Party Links</h2>
+                <p className="text-gray-200 leading-relaxed">
+                  Our website may link to third-party sites. We are not responsible for their content or practices.
+                </p>
+              </article>
 
-                    <h2 className="text-xl font-semibold mt-8 mb-2">8. Contact</h2>
-                    <p className="mb-2">If you have any questions or concerns regarding these Terms and Conditions, please reach out via:</p>
-                    <ul className="list-disc list-inside mb-4 ml-4">
-                        <li>Email: info@ataullahmesbah.com</li>
-                        <li>
-                            <a
-                                href="https://facebook.com/ataullahmesbah10"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-400 underline hover:text-blue-600"
-                            >
-                                Contact FB Team Ataullah Mesbah
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+              {/* Changes to Terms */}
+              <article className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-semibold text-white mb-4">7. Changes to the Terms</h2>
+                <p className="text-gray-200 leading-relaxed">
+                  We may update these Terms and Conditions at any time without notice. Users are responsible for reviewing them regularly.
+                </p>
+              </article>
+
+              {/* Order and Delivery Policy */}
+              <article className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-semibold text-white mb-4">8. Order and Delivery Policy</h2>
+                <p className="text-gray-200 leading-relaxed">
+                  Orders are processed within 24–48 hours after confirmation and delivered within 3–7 working days via third-party couriers. Incorrect or unverifiable orders may be rejected.
+                </p>
+              </article>
+
+              {/* Personal Information */}
+              <article className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-semibold text-white mb-4">9. Personal Information for Orders</h2>
+                <p className="text-gray-200 leading-relaxed">
+                  We collect email addresses and phone numbers for order processing, used solely for confirmation, updates, and delivery coordination.
+                </p>
+              </article>
+
+              {/* Payment Methods */}
+              <article className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-semibold text-white mb-4">10. Payment Methods</h2>
+                <p className="text-gray-200 leading-relaxed">
+                  We accept Cash on Delivery (COD) and Online Payments. Orders are processed only after payment confirmation.
+                </p>
+              </article>
+
+              {/* Refund & Return Policy */}
+              <article className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-semibold text-white mb-4">11. Refund & Return Policy</h2>
+                <p className="text-gray-200 leading-relaxed">
+                  For order issues, refer to our{' '}
+                  <a
+                    href="/refund-policy"
+                    className="text-blue-400 hover:underline"
+                    aria-label="View Refund Policy"
+                  >
+                    Refund and Return Policy
+                  </a>.
+                </p>
+              </article>
+
+              {/* Contact */}
+              <article className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h2 className="text-2xl font-semibold text-white mb-4">12. Contact</h2>
+                <p className="text-gray-200 mb-4">For questions about these Terms, contact us:</p>
+                <ul className="list-disc list-inside space-y-3 text-gray-300">
+                  <li>
+                    <span className="font-medium text-gray-200">Email:</span>{' '}
+                    <a
+                      href="mailto:info@ataullahmesbah.com"
+                      className="text-blue-400 hover:underline"
+                      aria-label="Email customer support"
+                    >
+                      info@ataullahmesbah.com
+                    </a>
+                  </li>
+                  <li>
+                    <span className="font-medium text-gray-200">Facebook:</span>{' '}
+                    <a
+                      href="https://facebook.com/ataullahmesbah10"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:underline"
+                      aria-label="Contact via Facebook"
+                    >
+                      Team Ataullah Mesbah
+                    </a>
+                  </li>
+                </ul>
+              </article>
             </div>
 
-        </>
-    );
+            {/* Footer Note */}
+            <footer className="pt-8 border-t border-gray-700 mt-12">
+              <p className="text-sm italic text-gray-400 text-center">
+                Note: We reserve the right to interpret and enforce these Terms and Conditions as final.
+              </p>
+            </footer>
+          </div>
+        </section>
+      </div>
+    </>
+  );
 };
 
 export default TermsAndConditions;
