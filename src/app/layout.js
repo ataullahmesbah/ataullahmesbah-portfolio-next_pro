@@ -18,10 +18,9 @@ export default function RootLayout({ children }) {
       <head>
         {/* Favicon */}
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        {/* Metadata */}
+
+        {/* Viewport */}
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content={metadata.description} />
-        <title>{metadata.title}</title>
 
         {/* Google Ads Script */}
         <Script

@@ -1,77 +1,45 @@
-'use client';
+const schemaData = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Privacy Policy - Ataullah Mesbah",
+  "description": "Learn how Ataullah Mesbah's website collects, uses, and protects your personal information. We value your privacy and ensure transparency with data practices.",
+  "url": "https://ataullahmesbah.com/privacy-policy",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Ataullah Mesbah",
+    "url": "https://ataullahmesbah.com",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "info@ataullahmesbah.com",
+      "contactType": "Customer Support"
+    }
+  },
+  "lastReviewed": "2025-05-18"
+};
 
-import Head from 'next/head';
-
-export default function PrivacyPolicyPage() {
-  const schemaData = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": "Privacy Policy - Ataullah Mesbah",
-    "description": "Learn how Ataullah Mesbah's website collects, uses, and protects your personal information. We value your privacy and ensure transparency with data practices.",
-    "url": "https://ataullahmesbah.com/privacy-policy",
-    "publisher": {
-      "@type": "Organization",
-      "name": "Ataullah Mesbah",
-      "url": "https://ataullahmesbah.com",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "email": "info@ataullahmesbah.com",
-        "contactType": "Customer Support"
-      }
-    },
-    "lastReviewed": "2025-04-16"
-  };
-
+const PrivacyPolicy = () => {
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
-      <Head>
-        <title>Privacy Policy - Ataullah Mesbah</title>
-        <meta
-          name="description"
-          content="Learn how Ataullah Mesbah's website collects, uses, and protects your personal information. We value your privacy and ensure transparency with data practices."
-        />
-        <meta
-          name="keywords"
-          content="privacy policy, Ataullah Mesbah, data protection, user rights, personal information, website privacy"
-        />
-        <meta name="author" content="Ataullah Mesbah" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://ataullahmesbah.com/privacy-policy" />
-        {/* Open Graph */}
-        <meta property="og:title" content="Privacy Policy - Ataullah Mesbah" />
-        <meta
-          property="og:description"
-          content="Understand how Ataullah Mesbah collects, uses, and protects your personal information."
-        />
-        <meta property="og:url" content="https://ataullahmesbah.com/privacy-policy" />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Ataullah Mesbah" />
-        {/* Twitter Cards */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Privacy Policy - Ataullah Mesbah" />
-        <meta
-          name="twitter:description"
-          content="Learn about Ataullah Mesbah's privacy practices and data protection policies."
-        />
-        {/* JSON-LD Schema */}
-        <script type="application/ld+json">{JSON.stringify(schemaData)}</script>
-      </Head>
-
       <section className="bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100 px-6 py-16 md:px-12 lg:px-24">
         <div className="max-w-5xl mx-auto space-y-12">
+          {/* JSON-LD Schema */}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+          />
+
           {/* Header */}
           <header className="text-center mb-12" aria-labelledby="privacy-title">
             <h1 id="privacy-title" className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">
               Privacy Policy
             </h1>
             <div className="w-24 h-1 bg-blue-600 mx-auto mb-4 rounded"></div>
-            <p className="text-sm text-gray-400">Last Updated: April 16, 2025</p>
+            <p className="text-sm text-gray-400">Last Updated: May 18, 2025</p>
           </header>
 
           {/* Introduction */}
           <p className="text-lg text-gray-200 leading-relaxed">
-            Welcome to <strong>Ataullah Mesbah</strong>. This Privacy Policy explains how we collect, use, and protect your personal information when you interact with our website or services. Your privacy is our priority, and we are committed to transparency in our data practices.
+            Welcome to <strong>&quot;Ataullah Mesbah&quot;</strong>. This Privacy Policy explains how we collect, use, and protect your personal information when you interact with our website or services. Your privacy is our priority, and we are committed to transparency in our data practices.
           </p>
 
           {/* Policy Sections */}
@@ -114,7 +82,7 @@ export default function PrivacyPolicyPage() {
                 You can contact us at{' '}
                 <a
                   href="mailto:info@ataullahmesbah.com"
-                  className="text-blue-400 hover:underline"
+                  className="text-purple-600 underline hover:text-purple-700"
                   aria-label="Email customer support"
                 >
                   info@ataullahmesbah.com
@@ -151,7 +119,7 @@ export default function PrivacyPolicyPage() {
               Note: For any privacy-related concerns, please reach out to us at{' '}
               <a
                 href="mailto:info@ataullahmesbah.com"
-                className="text-blue-400 hover:underline"
+                className="text-purple-600 underline hover:text-purple-700"
                 aria-label="Email customer support"
               >
                 info@ataullahmesbah.com
@@ -162,4 +130,29 @@ export default function PrivacyPolicyPage() {
       </section>
     </div>
   );
-}
+};
+
+export const metadata = {
+  title: 'Privacy Policy - Ataullah Mesbah',
+  description: "Learn how Ataullah Mesbah's website collects, uses, and protects your personal information. We value your privacy and ensure transparency with data practices.",
+  keywords: 'privacy policy, Ataullah Mesbah, data protection, user rights, personal information, website privacy',
+  authors: [{ name: 'Ataullah Mesbah' }],
+  robots: 'index, follow',
+  viewport: 'width=device-width, initial-scale=1',
+  openGraph: {
+    title: 'Privacy Policy - Ataullah Mesbah',
+    description: "Understand how Ataullah Mesbah collects, uses, and protects your personal information.",
+    url: 'https://ataullahmesbah.com/privacy-policy',
+    type: 'website',
+    siteName: 'Ataullah Mesbah',
+    images: [{ url: 'https://ataullahmesbah.com/images/og-privacy-policy.jpg' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Privacy Policy - Ataullah Mesbah',
+    description: "Learn about Ataullah Mesbah's privacy practices and data protection policies.",
+    images: ['https://ataullahmesbah.com/images/og-privacy-policy.jpg'],
+  },
+};
+
+export default PrivacyPolicy;

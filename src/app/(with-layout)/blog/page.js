@@ -1,10 +1,8 @@
-// app/blog/page.js
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FiEye, FiArrowRight } from "react-icons/fi";
 import { Suspense } from 'react';
-
 
 // Dynamically import components with loading states
 const FreaturedStory = dynamic(
@@ -222,15 +220,56 @@ async function BlogContent({ page, limit }) {
 
 export const metadata = {
   title: 'Blog - Ataullah Mesbah',
-  description: 'Explore the latest blog posts on AI, quantum computing, and more.',
+  description: 'Explore the latest blog posts on AI, quantum computing, web development, and more by Ataullah Mesbah.',
+  keywords: 'blog, Ataullah Mesbah, AI, quantum computing, web development, technology, insights',
+  authors: [{ name: 'Ataullah Mesbah' }],
+  robots: 'index, follow',
+  viewport: 'width=device-width, initial-scale=1',
+  openGraph: {
+    title: 'Blog - Ataullah Mesbah',
+    description: 'Discover insights on AI, quantum computing, web development, and more through Ataullah Mesbah’s blog posts.',
+    url: 'https://ataullahmesbah.com/blog',
+    type: 'website',
+    siteName: 'Ataullah Mesbah',
+    images: [{ url: 'https://ataullahmesbah.com/images/og-blog.jpg' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Blog - Ataullah Mesbah',
+    description: 'Read the latest blog posts by Ataullah Mesbah on AI, quantum computing, and web development.',
+    images: ['https://ataullahmesbah.com/images/og-blog.jpg'],
+  },
 };
 
 export default function BlogList({ searchParams }) {
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Blog - Ataullah Mesbah",
+    "description": "Explore the latest blog posts on AI, quantum computing, web development, and more by Ataullah Mesbah.",
+    "url": "https://ataullahmesbah.com/blog",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Ataullah Mesbah",
+      "url": "https://ataullahmesbah.com",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "info@ataullahmesbah.com",
+        "contactType": "Customer Support"
+      }
+    },
+    "lastReviewed": "2025-05-18"
+  };
+
   const page = parseInt(searchParams.page) || 1;
   const limit = 6;
 
   return (
     <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white p-4 sm:p-6 md:p-6 lg:p-8 min-h-screen relative">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
       <Suspense fallback={
         <div className="container mx-auto py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
