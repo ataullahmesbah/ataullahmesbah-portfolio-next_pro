@@ -5,6 +5,7 @@ import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { FaCircleCheck } from "react-icons/fa6";
 
+
 export default function CodSuccess() {
     const searchParams = useSearchParams();
     const orderId = searchParams.get('orderId');
