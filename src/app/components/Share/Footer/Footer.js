@@ -71,20 +71,7 @@ const Footer = () => {
                         </p>
                     </div>
 
-                    {/* Newsletter Section */}
-                    <div className="lg:col-span-1">
-                        <h6 className="font-semibold text-white mb-3 amsfonts text-center md:text-left">Stay Updated</h6>
-                        <p className="text-sm text-gray-400 mb-3 text-center md:text-left">
-                            Subscribe to my newsletter for the latest updates and insights.
-                        </p>
-                        <div className="flex justify-center md:justify-start">
-                            <Link href='/letter'>
-                                <button className="text-sm text-white bg-sky-900/30 hover:bg-sky-900/50 p-2 px-4 rounded-md transition-colors duration-200">
-                                    Join Newsletter
-                                </button>
-                            </Link>
-                        </div>
-                    </div>
+                    
 
                     {/* Social Icons */}
                     <div className="lg:col-span-1">
@@ -114,6 +101,45 @@ const Footer = () => {
                         <p className="text-xs text-gray-400 mt-4 text-center md:text-left">
                             Follow me on social media for daily updates and insights.
                         </p>
+                        {/* Newsletter Section */}
+                    <div className="lg:col-span-1 mt-2">
+                        {/* <h6 className="font-semibold text-white mb-3 amsfonts text-center md:text-left">Stay Updated</h6> */}
+                        <p className="text-sm text-gray-400 mb-3 text-center md:text-left">
+                            Subscribe to my newsletter for the latest updates and insights.
+                        </p>
+                        <div className="flex justify-center md:justify-start">
+                            <Link href='/letter'>
+                                <button className="text-sm text-white bg-sky-900/30 hover:bg-sky-900/50 p-2 px-4 rounded-md transition-colors duration-200">
+                                    Join Newsletter
+                                </button>
+                            </Link>
+                        </div>
+                    </div>
+                    </div>
+
+                    {/* Legal */}
+
+                    <div className="lg:col-span-1">
+                        <h6 className="font-semibold text-white mb-3 amsfonts text-center md:text-left">Legal</h6>
+
+                        <ul className="space-y-1">
+                            {[
+                                { href: "/return-policy", label: "Return Policy" },
+                                    { href: "/privacy-policy", label: "Privacy Policy" },
+                                { href: "/terms-of-service", label: "Terms & Conditions" },
+
+                            ].map((link) => (
+                                <li key={link.href} className="text-center md:text-left">
+                                    <Link
+                                        href={link.href}
+                                        className="text-gray-400 hover:text-gray-200 transition-colors duration-200 text-sm"
+                                    >
+                                        {link.label}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+
                     </div>
 
                     {/* Useful Links - Split into two columns */}
@@ -142,9 +168,7 @@ const Footer = () => {
                                 {[
                                     { href: "/featured-story", label: "Feature Story" },
                                     { href: "/content-creation", label: "Content Story" },
-                                    { href: "/privacy-policy", label: "Privacy Policy" },
-                                    { href: "/terms-of-service", label: "Terms & Conditions" },
-                                    { href: "/return-policy", label: "Return Policy" }
+                                    
                                 ].map((link) => (
                                     <li key={link.href} className="text-center md:text-left">
                                         <Link
