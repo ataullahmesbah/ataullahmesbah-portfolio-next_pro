@@ -1,3 +1,4 @@
+'use client';
 import Image from 'next/image';
 import Link from 'next/link';
 import mesbah from '/public/images/mesbah_pro.jpg';

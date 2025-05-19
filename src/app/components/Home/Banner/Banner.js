@@ -1,3 +1,5 @@
+'use client';
+
 import LeftSideBanner from "./LeftSideBanner/LeftSideBanner";
 import RightSideBanner from "./RightSide/RightSide";
 

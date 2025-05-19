@@ -1,3 +1,4 @@
+'use client';
 import Image from 'next/image';
 import SEU from '/public/images/SEU.jpg';
 
