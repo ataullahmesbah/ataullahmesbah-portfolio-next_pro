@@ -61,6 +61,7 @@
     "react-spinners": "^0.14.1",
     "react-toastify": "^10.0.5",
     "recharts": "^2.15.1",
+    "resend": "^4.5.1",
     "short-uuid": "^5.2.0",
     "slick-carousel": "^1.8.1",
     "slugify": "^1.6.6",

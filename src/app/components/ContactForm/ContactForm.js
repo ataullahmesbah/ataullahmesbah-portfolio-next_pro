@@ -56,18 +56,29 @@ const ContactForm = ({ onSuccess }) => {
         toast.info('Submitting your message...');
 
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
-            toast.success('Message sent successfully!');
-            setFormData({
-                firstName: '',
-                lastName: '',
-                email: '',
-                phone: '',
-                message: ''
+            const response = await fetch('/api/contact/contact-form', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
             });
-            if (onSuccess) onSuccess();
+
+            const result = await response.json();
+
+            if (response.ok) {
+                toast.success('Message sent successfully!');
+                setFormData({
+                    firstName: '',
+                    lastName: '',
+                    email: '',
+                    phone: '',
+                    message: ''
+                });
+                if (onSuccess) onSuccess();
+            } else {
+                throw new Error(result.error || 'Failed to send message');
+            }
         } catch (error) {
             toast.error('Failed to send message. Please try again.');
         } finally {
