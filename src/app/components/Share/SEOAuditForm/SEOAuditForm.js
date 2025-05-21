@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { toast, Toaster } from 'react-hot-toast'; // Import react-hot-toast
+import { toast, Toaster } from 'react-hot-toast';
 
 const SEOAuditForm = () => {
     const [formData, setFormData] = useState({
@@ -9,6 +9,8 @@ const SEOAuditForm = () => {
         email: '',
         phone: ''
     });
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -18,26 +20,61 @@ const SEOAuditForm = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Show success toast when form is submitted
-        toast.success('Your SEO audit request has been submitted!');
+        // Validate form
+        if (!formData.websiteName || !formData.email || !formData.phone) {
+            toast.error("Please fill out all required fields.");
+            return;
+        }
 
-        // Log form data (you can send formData to your backend or API here)
-        console.log('Form Data:', formData);
+        setIsSubmitting(true);
+        toast.loading("Submitting your SEO audit request...");
 
-        // Optionally, reset the form after submission
-        setFormData({
-            websiteName: '',
-            email: '',
-            phone: ''
-        });
+        try {
+            const response = await fetch('/api/contact/seo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // Show multiple success toasts
+                const successMessages = [
+                    "Your SEO audit request has been submitted!",
+                    "Thanks for choosing our SEO services.",
+                ];
+
+                successMessages.forEach((message, index) => {
+                    setTimeout(() => {
+                        toast.success(message);
+                    }, index * 1000);
+                });
+
+                // Reset form fields
+                setFormData({
+                    websiteName: '',
+                    email: '',
+                    phone: ''
+                });
+            } else {
+                throw new Error(result.error || 'Failed to send request');
+            }
+        } catch (error) {
+            toast.error(`Failed to send request: ${error.message}`);
+        } finally {
+            setIsSubmitting(false);
+            toast.dismiss(); // Dismiss loading toast
+        }
     };
 
     return (
         <div>
-            {/* Toaster for displaying toast notifications */}
             <Toaster position="top-center" reverseOrder={false} />
 
             <form onSubmit={handleSubmit} className="space-y-6 text-center px-4">
@@ -78,15 +115,16 @@ const SEOAuditForm = () => {
                     />
                 </div>
                 <div className="pt-2">
-                    <div className="grid gap-8 justify-start items-start ">
+                    <div className="grid gap-8 justify-start items-start">
                         <div className="relative group">
                             <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
-
                             <button
                                 type="submit"
-                                className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 justify-center text-center">
+                                disabled={isSubmitting}
+                                className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 justify-center text-center"
+                            >
                                 <p className="text-indigo-400 group-hover:text-gray-100 transition duration-200">
-                                    Get Audit
+                                    {isSubmitting ? 'Submitting...' : 'Get Audit'}
                                 </p>
                             </button>
                         </div>
