@@ -1,68 +1,50 @@
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 
-const SEOServiceDetails = ({ title, services, index }) => (
-    <motion.section 
-        initial={{ opacity: 0, y: 30 }}
+const SEOServiceDetails = ({ title, services }) => (
+  <section className="py-16 bg-gray-900">
+    <div className="max-w-6xl mx-auto px-5 sm:px-6">
+      {/* Section Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: index * 0.1 }}
+        transition={{ duration: 0.6 }}
         viewport={{ once: true }}
-        className="py-12"
-    >
-        <div className="max-w-7xl mx-auto">
-            <div className="mb-12 text-center">
-                <h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-blue-300">
-                    {title}
-                </h2>
-                <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-blue-500 mx-auto mt-4 rounded-full"></div>
-            </div>
+        className="mb-16 text-center"
+      >
+        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+          {title}
+        </h2>
+        <div className="w-24 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 mx-auto" />
+      </motion.div>
+
+      {/* Services List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {services.map((service, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: i * 0.1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            className="p-8 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-purple-500/30 transition-colors duration-300 group"
+          >
+            <h3 className="text-2xl font-semibold text-white mb-4 group-hover:text-purple-300 transition-colors">
+              {service.name}
+            </h3>
+            <p className="text-gray-300 leading-relaxed">
+              {service.description}
+            </p>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {services.map((service, i) => (
-                    <motion.div
-                        key={i}
-                        whileHover={{ y: -5 }}
-                        transition={{ duration: 0.3 }}
-                        className="relative group overflow-hidden rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 shadow-lg"
-                    >
-                        <div className="p-6 flex flex-col md:flex-row gap-6">
-                            <div className="flex-1">
-                                <div className="flex items-center mb-4">
-                                    <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center mr-4">
-                                        <span className="text-purple-400 text-lg font-bold">{i + 1}</span>
-                                    </div>
-                                    <h3 className="text-xl font-bold text-white">{service.name}</h3>
-                                </div>
-                                <p className="text-gray-300 mb-6">{service.description}</p>
-                                <button className="px-5 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
-                                    Learn More
-                                </button>
-                            </div>
-                            
-                            <div className="flex-1 relative h-48 md:h-64 rounded-lg overflow-hidden bg-gray-700">
-                                {service.image ? (
-                                    <Image
-                                        src={service.image}
-                                        alt={service.name}
-                                        fill
-                                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                        onError={(e) => {
-                                            e.target.src = '/fallback-seo-image.jpg'; // Add a fallback image
-                                        }}
-                                    />
-                                ) : (
-                                    <div className="w-full h-full bg-gray-700 flex items-center justify-center">
-                                        <span className="text-gray-400">Image not available</span>
-                                    </div>
-                                )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent"></div>
-                            </div>
-                        </div>
-                    </motion.div>
-                ))}
+            {/* Decorative elements */}
+            <div className="mt-6 flex items-center">
+              <div className="h-px w-8 bg-gradient-to-r from-purple-500 to-transparent mr-3" />
+              <div className="h-px flex-1 bg-gray-700 group-hover:bg-purple-500/30 transition-colors" />
             </div>
-        </div>
-    </motion.section>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  </section>
 );
 
 export default SEOServiceDetails;
