@@ -51,19 +51,7 @@ const SEOService = () => {
     return (
         <div className="min-h-screen bg-gray-900 py-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="text-center mb-16"
-                >
-                    <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400 mb-4">
-                        Our SEO Services
-                    </h1>
-                    <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                        Comprehensive solutions to boost your online visibility and drive organic growth
-                    </p>
-                </motion.div>
+               
 
                 {serviceSections.length === 0 ? (
                     <div className="text-center py-20">

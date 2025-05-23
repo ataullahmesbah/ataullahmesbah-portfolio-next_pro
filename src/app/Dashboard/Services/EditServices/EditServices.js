@@ -1,14 +1,51 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast, Toaster } from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
-const SEOManagement = () => {
+const EditSEOService = ({ params }) => {
+    const id = params?.id; // Safe access to id
+    const router = useRouter();
     const [formData, setFormData] = useState({
         category: '',
         serviceInputs: [{ name: '', description: '', image: null }],
     });
+    const [loading, setLoading] = useState(true);
+
+    // Fetch service data
+    useEffect(() => {
+        if (!id) {
+            toast.error('Invalid service ID');
+            router.push('/admin-dashboard/services/all-existing-services');
+            return;
+        }
+
+        const fetchService = async () => {
+            try {
+                const res = await fetch(`/api/services/seo?id=${id}`, {
+                    cache: 'no-store',
+                });
+                if (!res.ok) throw new Error('Failed to fetch service');
+                const data = await res.json();
+                if (!data) throw new Error('Service not found');
+                setFormData({
+                    category: data.category,
+                    serviceInputs: data.services.map((s) => ({
+                        name: s.name,
+                        description: s.description,
+                        image: null,
+                    })),
+                });
+            } catch (error) {
+                toast.error(`Failed to load service: ${error.message}`);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchService();
+    }, [id, router]);
 
     // Handle form input changes
     const handleInputChange = (e, index) => {
@@ -50,25 +87,37 @@ const SEOManagement = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const form = new FormData();
+        form.append('id', id);
         form.append('category', formData.category);
         form.append('services', JSON.stringify(formData.serviceInputs.map(({ name, description }) => ({ name, description }))));
-        formData.serviceInputs.forEach((service) => {
-            if (service.image) form.append('images', service.image);
+        formData.serviceInputs.forEach((service, index) => {
+            if (service.image) form.append(`images[${index}]`, service.image);
         });
 
         try {
             const res = await fetch('/api/services/seo', {
-                method: 'POST',
+                method: 'PUT',
                 body: form,
             });
             const result = await res.json();
-            if (!res.ok) throw new Error(result.error || 'Failed to save service');
-            toast.success('Service created successfully');
-            setFormData({ category: '', serviceInputs: [{ name: '', description: '', image: null }] });
+            if (!res.ok) throw new Error(result.error || 'Failed to update service');
+            toast.success('Service updated successfully');
+            router.push('/admin-dashboard/services/all-existing-services');
         } catch (error) {
-            toast.error(`Failed to save service: ${error.message}`);
+            toast.error(`Failed to update service: ${error.message}`);
         }
     };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+                <div className="flex flex-col items-center">
+                    <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-4 text-purple-200 text-lg">Loading...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-900 py-12">
@@ -80,17 +129,15 @@ const SEOManagement = () => {
                     transition={{ duration: 0.5 }}
                     className="text-4xl font-bold text-white mb-8 text-center"
                 >
-                    Add SEO Services
+                    Edit SEO Service
                 </motion.h1>
 
-                {/* Add Service Form */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
                     className="bg-gray-800 p-6 rounded-xl shadow-lg"
                 >
-                    <h2 className="text-2xl font-semibold text-gray-100 mb-6">Add New Service</h2>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <label className="block text-gray-200 mb-2">Category</label>
@@ -130,12 +177,11 @@ const SEOManagement = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-200 mb-2">Image</label>
+                                    <label className="block text-gray-200 mb-2">Image (optional)</label>
                                     <input
                                         type="file"
                                         accept="image/*"
                                         onChange={(e) => handleImageChange(e, index)}
-                                        required
                                         className="w-full p-3 bg-gray-700 text-gray-200 border border-gray-600 rounded-lg"
                                     />
                                 </div>
@@ -162,7 +208,7 @@ const SEOManagement = () => {
                                 type="submit"
                                 className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
                             >
-                                Add Service
+                                Update Service
                             </button>
                         </div>
                     </form>
@@ -172,4 +218,4 @@ const SEOManagement = () => {
     );
 };
 
-export default SEOManagement;
+export default EditSEOService;

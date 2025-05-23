@@ -5,12 +5,22 @@ import SEOService from '@/models/SEOService';
 import cloudinary from '@/utils/cloudinary';
 import { NextResponse } from 'next/server';
 
-
-export async function GET() {
+export async function GET(request) {
     try {
         await dbConnect();
-        const services = await SEOService.find().lean(); // Lean for faster queries
-        return NextResponse.json(services, { status: 200 });
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+
+        if (id) {
+            const service = await SEOService.findById(id).lean();
+            if (!service) {
+                return NextResponse.json({ error: 'Service not found' }, { status: 404 });
+            }
+            return NextResponse.json(service, { status: 200 });
+        } else {
+            const services = await SEOService.find().lean();
+            return NextResponse.json(services, { status: 200 });
+        }
     } catch (error) {
         console.error('Error fetching SEO services:', error);
         return NextResponse.json({ error: 'Failed to fetch services' }, { status: 500 });
@@ -22,19 +32,17 @@ export async function POST(request) {
         await dbConnect();
         const formData = await request.formData();
         const category = formData.get('category');
-        const services = JSON.parse(formData.get('services')); // Array of { name, description }
-        const images = formData.getAll('images'); // Array of image files
+        const services = JSON.parse(formData.get('services'));
+        const images = formData.getAll('images');
 
         if (!category || !services || !images || services.length !== images.length) {
             return NextResponse.json({ error: 'Missing or mismatched required fields' }, { status: 400 });
         }
 
-        // Validate services array
         if (!Array.isArray(services) || services.some(s => !s.name || !s.description)) {
             return NextResponse.json({ error: 'Invalid services data' }, { status: 400 });
         }
 
-        // Upload images to Cloudinary in WebP format
         const uploadedImages = await Promise.all(
             images.map(async (image) => {
                 const buffer = Buffer.from(await image.arrayBuffer());
@@ -50,14 +58,12 @@ export async function POST(request) {
             })
         );
 
-        // Create services array with image URLs
         const serviceData = services.map((service, index) => ({
             name: service.name,
             description: service.description,
             image: uploadedImages[index],
         }));
 
-        // Create or update SEO service
         const seoService = await SEOService.findOneAndUpdate(
             { category },
             { $set: { services: serviceData } },
@@ -84,13 +90,16 @@ export async function PUT(request) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        // Validate services array
         if (!Array.isArray(services) || services.some(s => !s.name || !s.description)) {
             return NextResponse.json({ error: 'Invalid services data' }, { status: 400 });
         }
 
-        // Upload new images to Cloudinary (if provided)
-        const uploadedImages = images.length > 0 ? await Promise.all(
+        const existingService = await SEOService.findById(id);
+        if (!existingService) {
+            return NextResponse.json({ error: 'Service not found' }, { status: 404 });
+        }
+
+        const uploadedImages = images.length > 0 && images[0] ? await Promise.all(
             images.map(async (image) => {
                 const buffer = Buffer.from(await image.arrayBuffer());
                 return new Promise((resolve, reject) => {
@@ -105,12 +114,10 @@ export async function PUT(request) {
             })
         ) : null;
 
-        // Create services array, reusing existing images if no new ones provided
-        const existingService = await SEOService.findById(id);
         const serviceData = services.map((service, index) => ({
             name: service.name,
             description: service.description,
-            image: uploadedImages ? uploadedImages[index] : existingService.services[index]?.image || '',
+            image: uploadedImages && uploadedImages[index] ? uploadedImages[index] : existingService.services[index]?.image || '',
         }));
 
         const updatedService = await SEOService.findByIdAndUpdate(

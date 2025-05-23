@@ -1,10 +1,12 @@
-import SEOService from "@/app/Dashboard/Services/SEOService/SEOService";
+import SEOPackage from "@/app/Dashboard/Services/SEOPackages/SEOPackages";
+
+
 
 
 const page = () => {
     return (
         <div>
-            <SEOService />
+            <SEOPackage />
         </div>
     );
 };

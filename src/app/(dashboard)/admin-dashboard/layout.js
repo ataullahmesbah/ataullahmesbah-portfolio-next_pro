@@ -64,7 +64,6 @@ const AdminDashboardLayout = ({ children }) => {
                 { label: 'Newsletter Statistics', link: '/admin-dashboard/newsletter/newsletterstatistics' },
                 { label: 'Subscribe Newsletter Info', link: '/admin-dashboard/newsletter' },
                 { label: 'Subscribers Stats', link: '/admin-dashboard/newsletter/stats' },
-
             ],
         },
         {
@@ -72,7 +71,6 @@ const AdminDashboardLayout = ({ children }) => {
             children: [
                 { label: 'ALL Travel Data', link: '/admin-dashboard/travel/all-travel-data' },
                 { label: 'Travel Add-Update', link: '/admin-dashboard/travel/add-travel-info' },
-
             ],
         },
         {
@@ -80,8 +78,6 @@ const AdminDashboardLayout = ({ children }) => {
             children: [
                 { label: 'All Content', link: '/admin-dashboard/content/all-content' },
                 { label: 'Add Content', link: '/admin-dashboard/content/add-content' },
-
-
             ],
         },
         {
@@ -90,9 +86,6 @@ const AdminDashboardLayout = ({ children }) => {
                 { label: 'ALL Featured Story', link: '/admin-dashboard/story/all-featured-story' },
                 { label: 'Add Featured Story', link: '/admin-dashboard/story/add-featured-story' },
                 { label: 'Statistics', link: '/admin-dashboard/story/statistics' },
-
-
-
             ],
         },
         {
@@ -106,11 +99,6 @@ const AdminDashboardLayout = ({ children }) => {
                 { label: 'Coupon', link: '/admin-dashboard/shop/coupons' },
                 { label: 'Config', link: '/admin-dashboard/shop/config' },
                 { label: 'Shipping Charges', link: '/admin-dashboard/shop/shipping-charges' },
-                
-
-
-
-
             ],
         },
         {
@@ -118,11 +106,15 @@ const AdminDashboardLayout = ({ children }) => {
             children: [
                 { label: 'ALL Award-License', link: '/admin-dashboard/certification/all-certifications' },
                 { label: 'Add Certification', link: '/admin-dashboard/certification/add-certification' },
-
-
-
-
-
+            ],
+        },
+         {
+            label: 'SEO SERVICES',
+            children: [
+                { label: 'All Existing Services', link: '/admin-dashboard/services/all-existing-services' },
+                { label: 'Add SEO Services', link: '/admin-dashboard/services/seo' },
+                { label: 'All SEO Pack', link: '/admin-dashboard/services/seo-packages/all' },
+                { label: 'Add SEO Pack', link: '/admin-dashboard/services/seo-packages/add' },
             ],
         },
     ];

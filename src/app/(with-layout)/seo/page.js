@@ -1,9 +1,10 @@
 import ContactAssistance from "@/app/components/Share/ConatctAssistance/ContactAssistance";
 import SEOAuditForm from "@/app/components/Share/SEOAuditForm/SEOAuditForm";
-import SEOPackage from "@/app/components/Share/SEOPackage/SEOPackage";
-import SEOService from "@/app/components/Share/SEOService/SEOService";
+import SEOPackage from "@/app/Dashboard/Services/SEOPackages/SEOPackages";
+import SEOService from "@/app/Dashboard/Services/SEOService/SEOService";
+import SEOTools from "@/app/Dashboard/Services/SEOTools/SEOTools";
 import Image from "next/image";
-import Link from "next/link";
+
 
 export const metadata = {
     title: 'Search Engine Optimization Services',
@@ -71,22 +72,8 @@ const page = () => {
             </div>
 
 
-            {/* SEO services */}
-            <div className="max-w-7xl mx-auto items-center text-center poppins-regular py-8 px-4 lg:px-8 text-white text-xs md:text-base lg:text-base">
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 justify-center mx-auto">
-                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">E-commerce SEO</div>
-                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">Technical SEO</div>
-                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">Keyword Research</div>
-                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">International SEO</div>
-                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">Local SEO</div>
-                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">On-Page SEO</div>
-                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">Off-Page SEO</div>
-                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">Link Building</div>
-                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">SEO Consulting</div>
-                    <div className="bg-gray-800 hover:bg-gray-900  p-3 rounded-md border-b-blue-400 border-b-4 shadow-blue-400 shadow-md transition-transform transform hover:scale-105 duration-1000">SEO Audit</div>
-                </div>
-            </div>
-
+            {/* TODO Tools SEO */}
+            <SEOTools />
 
             <div>
                 {/* TO DO LIST */}
