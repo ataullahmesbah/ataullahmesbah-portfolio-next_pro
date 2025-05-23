@@ -1,20 +1,21 @@
 import { motion } from 'framer-motion';
 
 const SEOServiceDetails = ({ title, services }) => (
-  <section className="py-16 bg-gray-900">
+  <section className="py-10 bg-gray-900">
     <div className="max-w-6xl mx-auto px-5 sm:px-6">
       {/* Section Header */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.4 }}
         viewport={{ once: true }}
-        className="mb-16 text-center"
+        className="mb-7"
       >
-        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+        <h2 className="text-3xl sm:text-4xl  amsfonts text-white mb-3">
           {title}
         </h2>
-        <div className="w-24 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 mx-auto" />
+        {/* <div className="w-20 h-1 bg-gradient-to-r from-purple-500 to-blue-500" /> */}
+   
       </motion.div>
 
       {/* Services List */}
