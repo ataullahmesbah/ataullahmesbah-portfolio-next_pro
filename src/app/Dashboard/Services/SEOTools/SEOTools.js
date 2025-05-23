@@ -1,5 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 const SEOTools = () => {
     const services = [
@@ -16,6 +17,8 @@ const SEOTools = () => {
     ];
 
     return (
+
+
         <section className="py-10 bg-gray-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.div
@@ -25,7 +28,7 @@ const SEOTools = () => {
                     viewport={{ once: true }}
                     className="text-center mb-12"
                 >
-                   
+
                     <p className="text-lg text-gray-300 max-w-3xl mx-auto">
                         Comprehensive solutions to boost your online visibility and organic growth
                     </p>
@@ -70,6 +73,7 @@ const SEOTools = () => {
                 </div>
             </div>
         </section>
+
     );
 };
 
