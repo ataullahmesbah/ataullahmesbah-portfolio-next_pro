@@ -77,4 +77,4 @@ const SEOTools = () => {
     );
 };
 
-export default SEOTools;
+export default SEOTools; 
