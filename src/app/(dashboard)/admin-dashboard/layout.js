@@ -122,6 +122,8 @@ const AdminDashboardLayout = ({ children }) => {
             children: [
                 { label: 'All Web Services', link: '/admin-dashboard/services/web-devs/all' },
                 { label: 'Add Web Services', link: '/admin-dashboard/services/web-devs/add' },
+                { label: 'All Web Pack', link: '/admin-dashboard/services/web-devs/webpack/all' },
+                { label: 'Add Web Pack', link: '/admin-dashboard/services/web-devs/webpack/add' },
                 
                 
             ],
