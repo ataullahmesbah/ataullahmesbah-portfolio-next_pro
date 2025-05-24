@@ -117,6 +117,15 @@ const AdminDashboardLayout = ({ children }) => {
                 { label: 'Add SEO Pack', link: '/admin-dashboard/services/seo-packages/add' },
             ],
         },
+         {
+            label: 'WEB SERVICES',
+            children: [
+                { label: 'All Web Services', link: '/admin-dashboard/services/web-devs/all' },
+                { label: 'Add Web Services', link: '/admin-dashboard/services/web-devs/add' },
+                
+                
+            ],
+        },
     ];
 
     // Redirect if user is not authenticated or not an admin
