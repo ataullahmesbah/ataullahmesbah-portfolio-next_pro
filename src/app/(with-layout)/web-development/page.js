@@ -3,7 +3,8 @@
 import ContactAssistance from '@/app/components/Share/ConatctAssistance/ContactAssistance';
 import DevelopmentForm from '@/app/components/Share/DevelopmentForm/DevelopmentForm';
 import WebPackage from '@/app/components/Share/WebPackage/WebPackage';
-import WebService from '@/app/components/Share/WebService/WebService';
+import WebService from '@/app/Dashboard/Services/WebDevs/WebService/WebService';
+
 
 import Link from 'next/link';
 
@@ -48,7 +49,7 @@ const page = () => {
                     </div>
                 </div>
 
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 poppins-regular py-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 poppins-regular py-10">
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center pb-10">
                         {/* Service List */}
@@ -77,13 +78,11 @@ const page = () => {
                         <DevelopmentForm />
                     </div>
 
-                    <div>
-                        {/* TO DO List */}
-                    </div>
+                   </div>
 
                     <div>
                         {/* TO DO List */}
-                        <WebService />
+                      <WebService />
                     </div>
 
 
@@ -101,7 +100,7 @@ const page = () => {
                         <ContactAssistance />
                     </div>
                     
-            </div>
+           
         </section>
     );
 };
