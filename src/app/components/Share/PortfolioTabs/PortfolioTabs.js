@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import SEOTabs from '../../Home/SEOTabs/SEOTabs';
 import WebTabs from '../../Home/WebTabs/WebTabs';
 
-import SportsTabs from '../../Home/SportsTabs/SportsTabs';
+
 import { LineWave } from 'react-loader-spinner'; // Import the loader
 import ContentPortfolio from '../PortfolioWorks/ContentPortfolio/ContentPortfolio';
 import TravelPortfolio from '../PortfolioWorks/TravelPortfolio/TravelPortfolio';
@@ -23,8 +23,8 @@ const PortfolioTabs = () => {
                 return <ContentPortfolio />;
             case 'Travel':
                 return <TravelPortfolio />;
-            case 'Sports':
-                return <SportsTabs />;
+            // case 'Sports':
+            //     return <SportsTabs />;
             default:
                 return null;
         }
@@ -44,7 +44,7 @@ const PortfolioTabs = () => {
         <div className="max-w-7xl mx-auto py-10 poppins-regular">
             {/* Tabs Navigation */}
             <div className="flex flex-wrap justify-center mb-4">
-                {['SEO', 'Web Development', 'Content Creator', 'Travel', 'Sports'].map((tab) => (
+                {['SEO', 'Web Development', 'Content Creator', 'Travel'].map((tab) => (
                     <button
                         key={tab}
                         onClick={() => handleTabChange(tab)}

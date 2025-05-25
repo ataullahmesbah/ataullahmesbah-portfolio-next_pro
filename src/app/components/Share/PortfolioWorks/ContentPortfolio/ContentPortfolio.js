@@ -9,6 +9,29 @@ import { FaTimes } from "react-icons/fa";
 const ContentPortfolio = () => {
   const [selectedVideo, setSelectedVideo] = useState(null);
 
+  // Utility function to convert YouTube duration format (PT5M15S → 5:15)
+  const convertDuration = (duration) => {
+    if (!duration) return '0:00';
+
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    const hours = match[1] ? parseInt(match[1]) : 0;
+    const minutes = match[2] ? parseInt(match[2]) : 0;
+    const seconds = match[3] ? parseInt(match[3]) : 0;
+
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // Utility function to format date (2025-03-05 → Mar 5, 2025)
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
+
   const featuredVideos = [
     {
       id: "vNYLJs4G56I",
@@ -18,19 +41,20 @@ const ContentPortfolio = () => {
       duration: "PT10M30S",
       uploadDate: "2025-01-15",
     },
+
     {
-      id: "dQw4w9WgXcQ",
-      title: "Adventure Vlog",
-      description: "An exciting adventure vlog showcasing thrilling experiences and stunning locations.",
-      thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      id: "SL0az0RBXCA",
+      title: "জীবনের টার্নিং পয়েন্ট!",
+      description: "জীবনের টার্নিং পয়েন্ট! | বিয়ে, বাচ্চা, কোর্স আর জব পাওয়া | Real Life Success",
+      thumbnail: "https://i.ytimg.com/vi/SL0az0RBXCA/hqdefault.jpg",
       duration: "PT5M15S",
       uploadDate: "2025-02-10",
     },
     {
-      id: "9bZkp7q19f0",
-      title: "Travel Diaries",
-      description: "Personal travel stories and tips from around the world, inspiring wanderlust.",
-      thumbnail: "https://i.ytimg.com/vi/9bZkp7q19f0/hqdefault.jpg",
+      id: "kz3fnPLwZ30",
+      title: "PAKISTAN 🇵🇰 Islamabad",
+      description: "PAKISTAN 🇵🇰 Islamabad to Nanga Parbat Base Camp | 3 Week Adventure - Ep1",
+      thumbnail: "https://i.ytimg.com/vi/kz3fnPLwZ30/hqdefault.jpg",
       duration: "PT8M45S",
       uploadDate: "2025-03-05",
     },
@@ -91,7 +115,7 @@ const ContentPortfolio = () => {
               className="mt-10"
             >
               <Link
-                href="/contact"
+                href="/content-creation"
                 className="relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg group overflow-hidden"
               >
                 <span className="absolute inset-0 bg-white opacity-10 transform -skew-x-12 group-hover:skew-x-12 transition-transform duration-1000" />
@@ -117,7 +141,7 @@ const ContentPortfolio = () => {
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="grid grid-cols-3 gap-4 sm:gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
           >
             {featuredVideos.map((video, index) => (
               <motion.div
@@ -128,33 +152,50 @@ const ContentPortfolio = () => {
                 whileInView="visible"
                 whileHover="hover"
                 viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-                className="group relative rounded-xl overflow-hidden shadow-lg shadow-blue-500/20 hover:shadow-purple-600/40 transition-all duration-300 cursor-pointer"
+                className="group relative rounded-xl overflow-hidden shadow-lg shadow-blue-500/20 hover:shadow-purple-600/40 transition-all duration-300 cursor-pointer bg-gray-900/50 backdrop-blur-sm border border-gray-700 hover:border-purple-500/30"
                 onClick={() => openVideo(video)}
               >
-                <div className="aspect-w-16 aspect-h-9 bg-gray-800 relative">
+                {/* Thumbnail Container */}
+                <div className="aspect-video bg-gray-800 relative">
                   <Image
                     src={video.thumbnail}
                     alt={`Thumbnail for ${video.title}`}
-                    width={320}
-                    height={180}
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    width={400}
+                    height={225}
+                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500 ease-out"
                     unoptimized
                     onError={(e) => {
                       e.target.src = "/fallback-thumbnail.jpg";
                     }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/20 to-transparent" />
+
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/10 to-transparent" />
+
+                  {/* Play Button */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="w-14 h-14 bg-purple-600 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform">
-                      <svg className="w-6 h-6 text-white" viewBox="0 0 24 24">
+                    <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform shadow-lg shadow-purple-600/30">
+                      <svg className="w-7 h-7 text-white ml-1" viewBox="0 0 24 24">
                         <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
                       </svg>
                     </div>
                   </div>
+
+                  {/* Duration Badge */}
+                  {/* <div className="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                    {convertDuration(video.duration)}
+                  </div> */}
                 </div>
-                <p className="text-white text-sm font-semibold mt-3 px-2 pb-3 line-clamp-2">
-                  {video.title}
-                </p>
+
+                {/* Video Info - Simplified without date and views */}
+                <div className="p-4">
+                  <h3 className="text-white  text-base line-clamp-2">
+                    {video.title}
+                  </h3>
+                </div>
+
+                {/* Hover Effect */}
+                <div className="absolute inset-0 border-2 border-transparent group-hover:border-purple-500/50 rounded-xl pointer-events-none transition-all duration-300" />
               </motion.div>
             ))}
           </motion.div>
