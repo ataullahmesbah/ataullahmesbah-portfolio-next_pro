@@ -1,14 +1,12 @@
 'use client';
-
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { FaCheckCircle } from "react-icons/fa";
+import { useEffect, useState } from 'react';
+import { FaCheckCircle, FaArrowRight } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 const WebTabs = () => {
-    // State to store web development services data
     const [webServices, setWebServices] = useState([]);
 
-    // Fetch web development services data from the JSON file
     useEffect(() => {
         fetch("/webtabs.json")
             .then((response) => response.json())
@@ -17,64 +15,101 @@ const WebTabs = () => {
     }, []);
 
     return (
-        <main className="p-4 poppins-regular">
-            {/* Web Development Section Title and Description */}
-            <div className="text-left mb-8">
-                <h3 className="text-3xl font-bold mb-2 text-gray-300">Web Development Services</h3>
-                <p className="text-gray-300">Build and enhance your online presence with our expert web development services.</p>
-            </div>
+        <section className="py-10  px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="text-center mb-16"
+                >
+                    <h2 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400 mb-4">
+                        Web Development Services
+                    </h2>
+                    <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+                        Professional web solutions tailored for your business growth
+                    </p>
+                    <Link href="/web-development" className="inline-block mt-6 text-purple-300 hover:text-white transition-colors">
+                        <span className="flex items-center">
+                            View all web services <FaArrowRight className="ml-2" />
+                        </span>
+                    </Link>
+                </motion.div>
 
-            {/* Web Services and Right Section Wrapper */}
-            <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
-                {/* Left Section: Web Services */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {webServices.map((service) => (
-                        <div
+                {/* Services Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                    {webServices.map((service, index) => (
+                        <motion.div
                             key={service._id}
-                            className="flex flex-col space-y-4 bg-gray-200 hover:text-blue-600 items-center justify-center shadow-md shadow-blue-500 rounded-lg p-4 text-center hover:shadow-md hover:border-blue-800 hover:shadow-blue-500 transition duration-300 ease-linear transform hover:scale-105"
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            viewport={{ once: true }}
+                            className="bg-gray-800/50 rounded-xl p-8 border border-gray-700 hover:border-purple-500/50 transition-all duration-300 group"
                         >
-                            <Image
-                                className="w-12 h-12"
-                                src={service.image}
-                                alt={service.title}
-                                width={50}
-                                height={50}
-                            />
-                            <h3 className="text-sm text-gray-800 font-semibold">{service.title}</h3>
-                            <p className="text-xs text-gray-600">{service.description}</p>
-                        </div>
+                            <div className="flex items-start mb-6">
+                                <motion.div 
+                                    whileHover={{ rotate: 10 }}
+                                    className="bg-purple-500/10 p-3 rounded-xl mr-4"
+                                >
+                                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center text-white text-lg font-bold">
+                                        {service.title.charAt(0)}
+                                    </div>
+                                </motion.div>
+                                <h3 className="text-xl font-semibold text-white group-hover:text-purple-300 transition-colors">
+                                    {service.title}
+                                </h3>
+                            </div>
+                            <p className="text-gray-300 mb-6">{service.description}</p>
+                            <Link 
+                                href="/web-development" 
+                                className="text-purple-400 hover:text-white flex items-center transition-colors"
+                            >
+                                Learn more <FaArrowRight className="ml-2" />
+                            </Link>
+                        </motion.div>
                     ))}
                 </div>
 
-                {/* Right Section: Benefits of Web Development */}
-                <div className="lg:w-1/2 space-y-6">
-                    <div className="bg-white shadow-lg p-6 rounded-lg text-left">
-                        <h3 className="text-2xl font-bold text-blue-800">
-                            Why Choose Us for Web Development?
+                {/* Benefits Section */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    transition={{ duration: 0.8 }}
+                    viewport={{ once: true }}
+                    className="bg-gray-800/30 rounded-xl p-8 border border-gray-700 backdrop-blur-sm"
+                >
+                    <div className="max-w-4xl mx-auto">
+                        <h3 className="text-2xl font-bold text-white mb-8 text-center">
+                            Why Choose Our Web Development Services?
                         </h3>
-                        <p className="text-gray-700 mt-4">
-                            Our web development services are designed to create a seamless and engaging user experience while meeting your business goals.
-                        </p>
-                        <ul className="list-none pl-0 mt-4 text-gray-700 space-y-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {[
-                                "Custom website development tailored to your business needs",
-                                "SEO-friendly design to improve your online visibility",
-                                "Responsive design for all devices",
-                                "Secure and scalable solutions",
-                                "Continuous support and maintenance"
-                            ].map((item, index) => (
-                                <li key={index} className="flex items-center group">
-                                    <FaCheckCircle className="text-blue-800 mr-2" />
-                                    <span className="group-hover:text-blue-800 transition-colors duration-300">
-                                        {item}
-                                    </span>
-                                </li>
+                                "Custom website development",
+                                "SEO-friendly architecture",
+                                "Mobile-responsive design",
+                                "Secure & scalable solutions",
+                                "24/7 technical support",
+                                "Performance optimization",
+                                "Modern UI/UX design",
+                                "E-commerce integration",
+                                "CMS implementation"
+                            ].map((item, i) => (
+                                <motion.div
+                                    key={i}
+                                    whileHover={{ x: 5 }}
+                                    className="flex items-start"
+                                >
+                                    <FaCheckCircle className="text-purple-400 mt-1 mr-3 flex-shrink-0" />
+                                    <span className="text-gray-300">{item}</span>
+                                </motion.div>
                             ))}
-                        </ul>
+                        </div>
                     </div>
-                </div>
+                </motion.div>
             </div>
-        </main>
+        </section>
     );
 };
 

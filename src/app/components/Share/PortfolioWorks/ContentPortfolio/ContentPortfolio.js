@@ -1,98 +1,208 @@
+'use client';
+
 import Image from "next/image";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import { FaTimes } from "react-icons/fa";
 
 const ContentPortfolio = () => {
-    // Sample YouTube video data
-    const featuredVideos = [
-        {
-            id: "vNYLJs4G56I",
-            title: "Exploring Kashmir"
-        },
-        {
-            id: "dQw4w9WgXcQ",
-            title: "Adventure Vlog"
-        },
-        {
-            id: "9bZkp7q19f0",
-            title: "Travel Diaries"
-        }
-    ];
+  const [selectedVideo, setSelectedVideo] = useState(null);
 
-    return (
-        <section className="py-12 px-4 sm:px-6  border-t border-gray-800">
-            <div className="max-w-6xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                    {/* Left Content - Content Creation Journey */}
-                    <div className="flex flex-col justify-center">
-                        <span className="text-blue-400 font-semibold text-sm tracking-wider uppercase">
-                            Content Creation
-                        </span>
-                        <h2 className="text-3xl sm:text-4xl font-bold text-white mt-2">
-                            My Content <span className="text-blue-500">Journey</span>
-                        </h2>
-                        <p className="text-gray-300 mt-4 leading-relaxed">
-                            Over the years, I&apos;ve embarked on a journey to create meaningful content that inspires, educates, and entertains.
-                            From writing blogs to creating videos, content creation has been my passion.
-                        </p>
-                        <p className="text-gray-300 mt-2 leading-relaxed">
-                            Through storytelling and video production, I aim to connect with people and share ideas that matter.
-                        </p>
+  const featuredVideos = [
+    {
+      id: "vNYLJs4G56I",
+      title: "Exploring Kashmir",
+      description: "A breathtaking journey through the scenic beauty of Kashmir, capturing its culture and landscapes.",
+      thumbnail: "https://i.ytimg.com/vi/vNYLJs4G56I/hqdefault.jpg",
+      duration: "PT10M30S",
+      uploadDate: "2025-01-15",
+    },
+    {
+      id: "dQw4w9WgXcQ",
+      title: "Adventure Vlog",
+      description: "An exciting adventure vlog showcasing thrilling experiences and stunning locations.",
+      thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      duration: "PT5M15S",
+      uploadDate: "2025-02-10",
+    },
+    {
+      id: "9bZkp7q19f0",
+      title: "Travel Diaries",
+      description: "Personal travel stories and tips from around the world, inspiring wanderlust.",
+      thumbnail: "https://i.ytimg.com/vi/9bZkp7q19f0/hqdefault.jpg",
+      duration: "PT8M45S",
+      uploadDate: "2025-03-05",
+    },
+  ];
 
-                        {/* CTA Button */}
-                        {/* Using your existing DynamicButton without modifications */}
-                        <div className="mt-6">
-                            <div className="grid gap-8 justify-start items-start">
-                                <div className="relative group">
-                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
-                                    <button className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600">
-                                        <Link href="/content-creation" className="pl-6 text-indigo-400 group-hover:text-gray-100 transition duration-200">
-                                            Learn More <span className="ml-2">📹</span>
-                                        </Link>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+  const openVideo = (video) => setSelectedVideo(video);
+  const closeVideo = () => setSelectedVideo(null);
+
+  // Animation variants
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: (i) => ({
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { duration: 0.5, delay: i * 0.1, ease: "easeOut" },
+    }),
+    hover: { scale: 1.05, boxShadow: "0 10px 20px rgba(147, 51, 234, 0.4)" },
+  };
+
+  return (
+    <section className="py-16 px-4 sm:px-6 lg:px-8 ">
+      <div className="max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
+        >
+          {/* Left Content - Text Section */}
+          <div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <span className="text-purple-400 font-semibold text-sm uppercase tracking-widest">
+                Content Creation
+              </span>
+              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mt-4 leading-tight">
+                My Creative <span className="bg-gradient-to-r from-purple-600 to-blue-500 text-transparent bg-clip-text">Journey</span>
+              </h2>
+              <div className="h-1 w-24 bg-gradient-to-r from-purple-600 to-blue-500 rounded-full mt-6 mb-8" />
+              <p className="text-gray-300 text-lg leading-relaxed mb-4">
+                Crafting compelling stories through video and writing that inspire audiences and spark meaningful conversations.
+              </p>
+              <p className="text-gray-300 text-lg leading-relaxed">
+                Each piece reflects my passion for authentic storytelling and creative expression, designed to captivate and engage.
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              viewport={{ once: true }}
+              className="mt-10"
+            >
+              <Link
+                href="/contact"
+                className="relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg group overflow-hidden"
+              >
+                <span className="absolute inset-0 bg-white opacity-10 transform -skew-x-12 group-hover:skew-x-12 transition-transform duration-1000" />
+                <span className="relative font-semibold text-lg">
+                  Collaborate With Me
+                </span>
+                <svg className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Link>
+              <p className="text-gray-300 mt-4">
+                Discover more on my{" "}
+                <Link href="/web-development" className="text-purple-400 hover:underline">
+                  web development services
+                </Link>.
+              </p>
+            </motion.div>
+          </div>
+
+          {/* Right Content - Video Grid */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="grid grid-cols-3 gap-4 sm:gap-6"
+          >
+            {featuredVideos.map((video, index) => (
+              <motion.div
+                key={video.id}
+                custom={index}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                whileHover="hover"
+                viewport={{ once: true, margin: "0px 0px -50px 0px" }}
+                className="group relative rounded-xl overflow-hidden shadow-lg shadow-blue-500/20 hover:shadow-purple-600/40 transition-all duration-300 cursor-pointer"
+                onClick={() => openVideo(video)}
+              >
+                <div className="aspect-w-16 aspect-h-9 bg-gray-800 relative">
+                  <Image
+                    src={video.thumbnail}
+                    alt={`Thumbnail for ${video.title}`}
+                    width={320}
+                    height={180}
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    unoptimized
+                    onError={(e) => {
+                      e.target.src = "/fallback-thumbnail.jpg";
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/20 to-transparent" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="w-14 h-14 bg-purple-600 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform">
+                      <svg className="w-6 h-6 text-white" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+                      </svg>
                     </div>
-
-                    {/* Right Content - YouTube Videos Preview */}
-                    <div className="grid grid-cols-3 gap-3 sm:gap-4">
-                        {featuredVideos.map((video, index) => (
-                            <div
-                                key={video.id}
-                                className="group relative rounded-lg overflow-hidden shadow-lg hover:shadow-blue-500/20 transition-all"
-                            >
-                                <div className="aspect-w-16 aspect-h-9 bg-gray-800">
-                                    <Image
-                                        src={`https://img.youtube.com/vi/${video.id}/mqdefault.jpg`}
-                                        alt={video.title}
-                                        width={320}
-                                        height={180}
-                                        className="w-full h-full object-cover"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
-                                            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24">
-                                                <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p className="text-white text-xs sm:text-sm font-medium text-center mt-2 px-1 line-clamp-2">
-                                    {video.title}
-                                </p>
-                                <Link
-                                    href={`/content-creation?video=${video.id}`}
-                                    className="absolute inset-0"
-                                    aria-label={`Watch ${video.title}`}
-                                />
-                            </div>
-                        ))}
-                    </div>
+                  </div>
                 </div>
-            </div>
-        </section>
-    );
+                <p className="text-white text-sm font-semibold mt-3 px-2 pb-3 line-clamp-2">
+                  {video.title}
+                </p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
+
+        {/* Video Modal */}
+        <AnimatePresence>
+          {selectedVideo && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+              onClick={closeVideo}
+            >
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                className="relative w-full max-w-4xl bg-gray-900 rounded-xl overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  onClick={closeVideo}
+                  className="absolute top-4 right-4 text-white hover:text-purple-400 z-10"
+                >
+                  <FaTimes className="w-6 h-6" />
+                </button>
+                <div className="relative w-full" style={{ paddingTop: "56.25%" /* 16:9 Aspect Ratio */ }}>
+                  <iframe
+                    className="absolute top-0 left-0 w-full h-full"
+                    src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=1`}
+                    title={selectedVideo.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold text-white">{selectedVideo.title}</h3>
+                  <p className="text-gray-300 mt-2">{selectedVideo.description}</p>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </section>
+  );
 };
 
 export default ContentPortfolio;

@@ -8,6 +8,10 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'img.youtube.com', // Explicitly allow YouTube thumbnails
+      },
+      {
+        protocol: 'https',
         hostname: '**', // Allows all HTTPS domains
       },
       {
@@ -15,7 +19,7 @@ const nextConfig = {
         hostname: '**', // Allows all HTTP domains (Optional)
       },
     ],
-    domains: ['*'], // Full domain wildcard
+    domains: ['img.youtube.com', '*'], // Full domain wildcard
     unoptimized: true, // Optional if optimization is not needed
   },
   async rewrites() {

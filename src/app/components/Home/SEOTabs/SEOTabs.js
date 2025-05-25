@@ -1,75 +1,92 @@
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { FaCheckCircle } from "react-icons/fa";
+import { motion } from 'framer-motion';
+import { FaCheckCircle, FaArrowRight } from 'react-icons/fa';
+import Link from 'next/link';
+import { useState } from 'react';
 
 const SEOTabs = () => {
-    // State to store SEO services data
-    const [seoServices, setSeoServices] = useState([]);
-
-    // Fetch SEO services data from the JSON file
-    useEffect(() => {
-        fetch("/seotabs.json")
-            .then((response) => response.json())
-            .then((data) => setSeoServices(data))
-            .catch((error) => console.error("Error fetching SEO services:", error));
-    }, []);
+    const [seoServices, setSeoServices] = useState([
+        { id: 1, title: "Off-Page SEO", slug: "/seo" },
+        { id: 2, title: "On-Page SEO", slug: "/seo" },
+        { id: 3, title: "Keyword Research", slug: "/seo" },
+        { id: 4, title: "Technical SEO", slug: "/seo" },
+        { id: 5, title: "Local SEO", slug: "/seo" },
+        { id: 6, title: "Link Building", slug: "/seo" }
+    ]);
 
     return (
-        <main className="p-4 poppins-regular">
-            {/* SEO Section Title and Description */}
-            <div className="text-left mb-8">
-                <h3 className="text-3xl font-bold mb-2 text-gray-200">Search Engine Optimization (SEO)</h3>
-                <p className="text-gray-300">Rank high in search engines and get more visitors with SEO.</p>
-            </div>
+        <main className="max-w-7xl mx-auto px-4 py-12">
+            {/* Header Section */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="mb-12"
+            >
+                <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
+                    Search Engine <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Optimization</span>
+                </h1>
+                <p className="text-lg text-gray-300 max-w-2xl">
+                    Rank higher in search engines and get more qualified visitors with our proven SEO strategies.
+                </p>
+                <div className="w-24 h-1 bg-gradient-to-r from-cyan-500 to-blue-600 mt-4 rounded-full" />
+            </motion.div>
 
-            {/* SEO Services and Right Section Wrapper */}
-            <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
-                {/* Left Section: SEO Services */}
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-8">
-                    {seoServices.map((service) => (
-                        <div
+            {/* Services Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Services Tabs */}
+                <div className="grid grid-cols-2 gap-4">
+                    {seoServices.map((service, index) => (
+                        <motion.div
                             key={service.id}
-                            className="flex flex-col space-y-4 bg-gray-200 hover:text-cyan-600 items-center justify-center shadow-md shadow-red-500 rounded-lg p-4 text-center hover:shadow-md  hover:border-cyan-800  hover:shadow-cyan-500 transition duration-300 ease-linear transform  hover:scale-105"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            whileHover={{ y: -5 }}
                         >
-                            <Image
-                                className="w-12 h-12 "
-                                src={service.image}
-                                alt={service.title}
-                                width={50}
-                                height={50}
-                            />
-                            <h3 className="text-sm text-gray-800 font-semibold">{service.title}</h3>
-                        </div>
+                            <Link href={service.slug} passHref>
+                                <div className="bg-gray-800 hover:bg-gray-700/80 border border-gray-700 hover:border-cyan-400/30 rounded-xl p-6 transition-all duration-300 cursor-pointer h-full">
+                                    <h3 className="text-lg font-semibold text-white mb-2 flex items-center">
+                                        {service.title}
+                                        <FaArrowRight className="ml-2 text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    </h3>
+                                    <div className="w-8 h-0.5 bg-gradient-to-r from-cyan-500 to-transparent mt-2" />
+                                </div>
+                            </Link>
+                        </motion.div>
                     ))}
                 </div>
 
-                {/* Right Section: SEO Knowledge and CRM Work */}
-                <div className="lg:w-1/2 space-y-6">
-                    <div className="bg-white shadow-lg p-6 rounded-lg text-left">
-                        <h3 className="text-2xl font-bold text-sky-800">
-                            Why Choose Me As Your SEO Consultant?
-                        </h3>
-                        <p className="text-gray-700 mt-4">
-                            As a leading SEO consultant, Ataullah Mesbah provides white hat, data-driven SEO and advanced SEO campaigns designed to deliver measurable results, both in organic rankings and ROI.
-                        </p>
-                        <ul className="list-none pl-0 mt-4 text-gray-700 space-y-2">
-                            {[
-                                "Custom-tailored SEO strategies to meet your business needs",
-                                "Proven track record of improving organic search rankings",
-                                "Focus on ethical, white-hat SEO practices",
-                                "Comprehensive SEO audits and competitor analysis",
-                                "Continuous monitoring and reporting to track progress"
-                            ].map((item, index) => (
-                                <li key={index} className="flex items-center group">
-                                    <FaCheckCircle className="text-sky-800 mr-2" />
-                                    <span className="group-hover:text-sky-800 transition-colors duration-300">
-                                        {item}
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </div>
+                {/* Why Choose Me Section */}
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                    className="bg-gradient-to-br from-gray-800 to-gray-900/80 border border-gray-700 rounded-xl p-6 shadow-lg"
+                >
+                    <h3 className="text-2xl font-bold text-white mb-4">
+                        Why Choose My <span className="text-cyan-400">SEO Services</span>?
+                    </h3>
+                    <ul className="space-y-4">
+                        {[
+                            "Custom SEO strategies tailored to your business goals",
+                            "Proven track record of top rankings",
+                            "White-hat techniques only - sustainable results",
+                            "Detailed reporting and transparent communication",
+                            "Continuous optimization based on data"
+                        ].map((item, index) => (
+                            <motion.li 
+                                key={index}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
+                                className="flex items-start text-gray-300"
+                            >
+                                <FaCheckCircle className="text-cyan-400 mt-1 mr-3 flex-shrink-0" />
+                                <span>{item}</span>
+                            </motion.li>
+                        ))}
+                    </ul>
+                </motion.div>
             </div>
         </main>
     );

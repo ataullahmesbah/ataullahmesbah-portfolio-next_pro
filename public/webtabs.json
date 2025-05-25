@@ -2,37 +2,31 @@
     {
         "id": 1,
         "title": "Custom Website Development",
-        "description": "Build a tailored website that fits your unique business needs.",
-        "image": "https://i.ibb.co/RTGYkfd/image.png"
+        "description": "Build a tailored website that fits your unique business needs."
     },
     {
         "_id": "web556554fdgbdhdg",
         "title": "WordPress Website Development",
-        "description": "Create a robust and scalable WordPress website tailored to your business needs.",
-        "image": "https://i.ibb.co/RTGYkfd/image.png"
+        "description": "Create a robust and scalable WordPress website tailored to your business needs."
     },
     {
         "_id": "web556554fdgthyhtg",
         "title": "Node.js Web Development",
-        "description": "Build fast and scalable web applications with Node.js.",
-        "image": "https://i.ibb.co/RTGYkfd/image.png"
+        "description": "Build fast and scalable web applications with Node.js."
     },
     {
         "_id": "web556554fdgbnhtyr",
         "title": "Express.js Development",
-        "description": "Develop efficient server-side applications using Express.js.",
-        "image": "https://i.ibb.co/RTGYkfd/image.png"
+        "description": "Develop efficient server-side applications using Express.js."
     },
     {
         "_id": "web556554fdgsdfhtr",
         "title": "E-commerce Solutions",
-        "description": "Launch a feature-rich online store with our e-commerce solutions.",
-        "image": "https://i.ibb.co/RTGYkfd/image.png"
+        "description": "Launch a feature-rich online store with our e-commerce solutions."
     },
     {
         "_id": "web556554fdgsdfhtg",
         "title": "Website Speed Optimization",
-        "description": "Enhance your website’s speed and performance for better user experience.",
-        "image": "https://i.ibb.co/RTGYkfd/image.png"
+        "description": "Enhance your website’s speed and performance for better user experience."
     }
 ]
