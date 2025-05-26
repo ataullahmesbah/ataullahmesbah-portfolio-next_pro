@@ -14,6 +14,7 @@ import ProjectsTab from "../components/Share/ProjectsTab/ProjectsTab";
 import SideIcons from '../components/SideIcons/SideIcons';
 import NewsletterPage from '../components/Share/NewsletterPage/NewsletterPage';
 import CertificationsAwards from '../components/CertificationsAwards/CertificationsAwards';
+import ShopHighlightSection from '../components/Home/ShopHighlightSection/ShopHighlightSection';
 
 
 
@@ -68,6 +69,7 @@ const HomePage = () => {
             <PortfolioTabs />
             <WhoIsMesbah />
             <ProjectsTab />
+            <ShopHighlightSection />
             <MarketingSection />
             <Testimonials />
             <NewSection />
