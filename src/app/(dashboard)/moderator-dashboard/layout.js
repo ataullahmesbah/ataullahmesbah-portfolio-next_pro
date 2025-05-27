@@ -26,7 +26,7 @@ export default function ModeratorDashboardLayout({ children }) {
       label: 'BLOGS',
       children: [
         { label: 'Add Blogs', link: '/moderator-dashboard/blog/attachblogpost' },
-        { label: 'All Blogs', link: '/moderator-dashboard/blog/blogInfo' },
+        { label: 'All Blogs', link: '/moderator-dashboard/blog/all-blogs' },
       ],
     },
   ]
