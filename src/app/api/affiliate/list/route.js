@@ -1,3 +1,5 @@
+// app/api/affiliate/list/route.js
+
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbMongoose';
 import Affiliate from '@/models/Affiliate';

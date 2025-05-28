@@ -29,6 +29,16 @@ const AdminDashboardLayout = ({ children }) => {
             ],
         },
         {
+            label: 'AFFILIATE',
+            children: [
+                { label: 'Affiliate Dashboard', link: '/admin-dashboard/affiliate/affiliate-dashbaord' },
+                { label: 'Affiliate Page', link: '/admin-dashboard/affiliate/affiliate-page' },
+                { label: 'All List', link: '/admin-dashboard/affiliate/all-affiliate-list' },
+                { label: 'Affiliate Graph', link: '/admin-dashboard/affiliate/affiliate-dashboard-graph' },
+
+            ],
+        },
+        {
             label: 'TESTIMONIALS',
             children: [
                 { label: 'Add Testimonials', link: '/admin-dashboard/addtestimonial' },
@@ -108,7 +118,7 @@ const AdminDashboardLayout = ({ children }) => {
                 { label: 'Add Certification', link: '/admin-dashboard/certification/add-certification' },
             ],
         },
-         {
+        {
             label: 'SEO SERVICES',
             children: [
                 { label: 'All Existing Services', link: '/admin-dashboard/services/all-existing-services' },
@@ -117,15 +127,15 @@ const AdminDashboardLayout = ({ children }) => {
                 { label: 'Add SEO Pack', link: '/admin-dashboard/services/seo-packages/add' },
             ],
         },
-         {
+        {
             label: 'WEB SERVICES',
             children: [
                 { label: 'All Web Services', link: '/admin-dashboard/services/web-devs/all' },
                 { label: 'Add Web Services', link: '/admin-dashboard/services/web-devs/add' },
                 { label: 'All Web Pack', link: '/admin-dashboard/services/web-devs/webpack/all' },
                 { label: 'Add Web Pack', link: '/admin-dashboard/services/web-devs/webpack/add' },
-                
-                
+
+
             ],
         },
     ];

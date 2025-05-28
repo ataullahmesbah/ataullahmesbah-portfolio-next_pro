@@ -1,3 +1,5 @@
+// app/api/affiliate/apply/route.js
+
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import dbConnect from '@/lib/dbMongoose';
