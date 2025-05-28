@@ -8,7 +8,7 @@ import { FaSearch, FaCode, FaPen, FaPlane } from 'react-icons/fa';
 import SEOPortfolio from '../PortfolioWorks/SEOPortfolio/SEOPortfolio';
 import TravelPortfolio from '../PortfolioWorks/TravelPortfolio/TravelPortfolio';
 import ContentPortfolio from '../PortfolioWorks/ContentPortfolio/ContentPortfolio';
-
+import { motion } from 'framer-motion'
 import ProjectsTabs from '../ProjectsTabs/ProjectsTabs';
 
 
@@ -40,10 +40,10 @@ const ProjectsTab = () => {
 
     // Define an array of tabs with labels and icons
     const tabs = [
-        { label: 'SEO', icon: <FaSearch /> },
-        { label: 'Web Development', icon: <FaCode /> },
-        { label: 'Content Creator', icon: <FaPen /> },
-        { label: 'Travel', icon: <FaPlane /> },
+        { label: 'SEO', icon: <FaSearch className="text-lg" /> },
+        { label: 'Web Development', icon: <FaCode className="text-lg" /> },
+        { label: 'Content Creator', icon: <FaPen className="text-lg" /> },
+        { label: 'Travel', icon: <FaPlane className="text-lg" /> },
     ];
 
     const renderContent = () => {
@@ -86,19 +86,50 @@ const ProjectsTab = () => {
             </p>
 
             {/* Tabs Navigation */}
-            <div className="flex flex-wrap justify-center mb-8">
+           {/* // In your JSX replace the tabs navigation with this: */}
+            <div className="flex flex-wrap justify-center mb-8 gap-2 sm:gap-4">
                 {tabs.map((tab) => (
-                    <button
+                    <motion.button
                         key={tab.label}
                         onClick={() => handleTabChange(tab.label)}
-                        className={`flex items-center px-5 py-2 mx-2 my-1 rounded-md transition-colors duration-300 ${activeTab === tab.label
-                            ? 'bg-indigo-950 text-white border-b-2 border-b-indigo-300 shadow-lg'
-                            : 'bg-gray-700 text-gray-200 hover:bg-gray-800 border-t-indigo-300 border-t-2 shadow-lg'
+                        whileHover={{ y: -3 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`relative flex items-center px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-all duration-300 ${activeTab === tab.label
+                                ? 'text-white'
+                                : 'text-gray-300 hover:text-white'
                             }`}
                     >
-                        <span className="mr-2">{tab.icon}</span>
-                        {tab.label}
-                    </button>
+                        {/* Animated background for active tab */}
+                        {activeTab === tab.label && (
+                            <motion.div
+                                layoutId="activeTab"
+                                className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg z-0"
+                                initial={false}
+                                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                            />
+                        )}
+
+                        {/* Inactive tab background */}
+                        {activeTab !== tab.label && (
+                            <div className="absolute inset-0 bg-gray-800 rounded-lg z-0 opacity-80 hover:opacity-100 transition-opacity" />
+                        )}
+
+                        <span className="relative z-10 flex items-center gap-2 text-sm sm:text-base">
+                            <span className="text-indigo-300">
+                                {tab.icon}
+                            </span>
+                            {tab.label}
+                        </span>
+
+                        {/* Glow effect on hover */}
+                        {activeTab !== tab.label && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                whileHover={{ opacity: 1 }}
+                                className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-lg blur-md"
+                            />
+                        )}
+                    </motion.button>
                 ))}
             </div>
 
