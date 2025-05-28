@@ -4,15 +4,23 @@ import { FaCheckCircle, FaArrowRight } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
+// Import your JSON data directly (recommended approach)
+import webServicesData from '/public/webtabs.json';
+
 const WebTabs = () => {
     const [webServices, setWebServices] = useState([]);
 
     useEffect(() => {
-        fetch("/webtabs.json")
-            .then((response) => response.json())
-            .then((data) => setWebServices(data))
-            .catch((error) => console.error("Error fetching web services:", error));
-    }, []);
+        // Option 1: Directly use imported data (fastest)
+        setWebServices(webServicesData);
+         }, []);
+
+    // useEffect(() => {
+    //     fetch("/webtabs.json")
+    //         .then((response) => response.json())
+    //         .then((data) => setWebServices(data))
+    //         .catch((error) => console.error("Error fetching web services:", error));
+    // }, []);
 
     return (
         <section className="py-10  px-4 sm:px-6 lg:px-8">

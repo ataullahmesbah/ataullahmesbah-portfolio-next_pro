@@ -21,13 +21,20 @@ const ProjectsTabs = ({ projects: initialProjects = null }) => {
         }
 
         // Fetch projects from API
+        // Update the fetchProjects function in your useEffect hook
         const fetchProjects = async () => {
             try {
                 setLoading(true);
                 const response = await fetch('/api/projects');
                 if (!response.ok) throw new Error('Failed to fetch projects');
                 const data = await response.json();
-                setProjects(data.slice(0, 3)); // Slice to first 3 projects
+
+                // Sort projects by date (newest first) before slicing
+                const sortedProjects = data.sort((a, b) =>
+                    new Date(b.createdAt) - new Date(a.createdAt)
+                ).slice(0, 3); // Get first 3 newest projects
+
+                setProjects(sortedProjects);
             } catch (err) {
                 console.error('Error fetching projects:', err);
                 setError(err.message);
@@ -106,7 +113,7 @@ const ProjectsTabs = ({ projects: initialProjects = null }) => {
                                     Category: {project.category}
                                 </span>
                                 <Link href={`/projects/${project.slug}`} className="text-purple-400 text-sm hover:text-purple-700 flex gap-2 items-center">
-                                <RiArrowRightDoubleLine /> View Project
+                                    <RiArrowRightDoubleLine /> View Project
                                 </Link>
                             </div>
                         </div>
