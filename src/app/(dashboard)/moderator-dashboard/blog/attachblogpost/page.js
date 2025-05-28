@@ -1,10 +1,11 @@
-import AddBlogPostPage from "@/app/Dashboard/Blogs/AddBlogPost/AddBlogPost";
+
+import AddBlogPostModerator from "@/app/Dashboard/ModeratorDashboard/Blogs/AddBlogs/AddBlogs";
 
 
 const page = () => {
     return (
         <div>
-            <AddBlogPostPage />
+            <AddBlogPostModerator />
         </div>
     );
 };

@@ -1,10 +1,11 @@
-import UpdateBlogPostPage from "@/app/Dashboard/Blogs/EditBlogs/EditBlogs";
+
+import UpdateBlogPostModerator from "@/app/Dashboard/ModeratorDashboard/Blogs/EditBlogs/EditBlogs";
 
 
 const page = ({ params }) => {
     return (
         <div>
-            <UpdateBlogPostPage params={params} />
+            <UpdateBlogPostModerator params={params} />
         </div>
     );
 };

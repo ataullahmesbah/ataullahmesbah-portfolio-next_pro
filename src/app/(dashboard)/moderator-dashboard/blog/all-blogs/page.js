@@ -1,10 +1,11 @@
-import AllBlogs from "@/app/Dashboard/Blogs/AllBlogs/AllBlogs";
+import AllBlogsModerator from "@/app/Dashboard/ModeratorDashboard/Blogs/AllBlogs/AllBlogs";
+
 
 
 const page = () => {
     return (
         <div>
-            <AllBlogs />
+            <AllBlogsModerator />
         </div>
     );
 };
