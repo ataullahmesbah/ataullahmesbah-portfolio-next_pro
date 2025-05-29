@@ -89,7 +89,7 @@ async function BlogContent({ page, limit }) {
           <h2 className="poppins-regular text-lg sm:text-xl font-semibold mb-4 text-gray-200">Categories</h2>
           <ul className="space-y-2">
             {categories.map((category, index) => (
-              <li key={index} className="text-blue-300 hover:text-purple-300 text-sm sm:text-base">
+              <li key={index} className="text-blue-200 hover:text-purple-300 text-sm sm:text-base">
                 <Link
                   href={`/blog/category/${category.toLowerCase().replace(/ /g, '-')}`}
                   prefetch={false}

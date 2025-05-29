@@ -7,7 +7,7 @@ import Image from 'next/image';
 import toast, { Toaster } from 'react-hot-toast';
 import { FiCalendar } from 'react-icons/fi';
 import { useSession } from 'next-auth/react';
-import { FaUser, FaUserTie } from 'react-icons/fa';
+import UserLink from '../../Profile/ProfileLink/UserLink';
 
 export default function FeaturedStory() {
     const [story, setStory] = useState(null);
@@ -90,25 +90,11 @@ export default function FeaturedStory() {
                                 {story.metaDescription.slice(0, 130)}...
                             </p>
                             <div className="flex gap-3 items-center">
-                                <div>
-                                    {/* User Image / Avatar */}
-                                    {session?.user?.image ? (
-                                        <Image
-                                            src={session.user.image}
-                                            alt="User Avatar"
-                                            width={48} // w-12 = 48px
-                                            height={48} // h-12 = 48px
-                                            className="w-11 h-11 rounded-full border-2 border-sky-900 object-cover"
-                                        />
-                                    ) : session?.user?.gender === 'female' ? (
-                                        <FaUserTie className="w-12 h-12 text-gray-500" />
-                                    ) : (
-                                        <FaUser className="w-12 h-12 text-gray-500" />
-                                    )}
-                                </div>
+                                
 
                                 <div className="items-center text-gray-400 text-sm space-y-1">
-                                    <span className="text-white font-medium">{story.author}</span>
+                                    
+                                    <span className="text-white font-medium">By <UserLink author={story.author} /></span>
                                     <span className="mx-2"></span>
                                     <span className="flex items-center">
                                         <FiCalendar className="mr-1" />
