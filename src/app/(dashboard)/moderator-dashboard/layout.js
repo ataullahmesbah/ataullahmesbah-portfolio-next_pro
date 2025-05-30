@@ -29,6 +29,39 @@ export default function ModeratorDashboardLayout({ children }) {
         { label: 'All Blogs', link: '/moderator-dashboard/blog/all-blogs' },
       ],
     },
+    {
+      label: 'CONTENT CREATION',
+      children: [
+        { label: 'All Content', link: '/moderator-dashboard/content-creation/all-content' },
+        { label: 'Attach Content', link: '/moderator-dashboard/content-creation/attach-content' },
+      ],
+    },
+    {
+      label: 'FEATURED STORY',
+      children: [
+        { label: 'All Story', link: '/moderator-dashboard/featured-story/all-story' },
+        { label: 'Attach Story', link: '/moderator-dashboard/featured-story/attach-story' },
+      ],
+    },
+    {
+      label: 'NEWS LETTER',
+      children: [
+        { label: 'All Letter', link: '/moderator-dashboard/newsletter/all-letter' },
+        { label: 'Attach Letter', link: '/moderator-dashboard/newsletter/attach-letter' },
+      ],
+    },
+    {
+      label: 'SHOPPING',
+      children: [
+        { label: 'Orders Management', link: '/moderator-dashboard/shop/orders-management' },
+        { label: 'All Products', link: '/moderator-dashboard/shop/all-products' },
+        { label: 'Add Products', link: '/moderator-dashboard/shop/add-product' },
+        { label: 'Accept Orders', link: '/moderator-dashboard/shop/accept-orders' },
+        { label: 'Reject Orders', link: '/moderator-dashboard/shop/reject-orders' },
+
+
+      ],
+    },
   ]
 
 
