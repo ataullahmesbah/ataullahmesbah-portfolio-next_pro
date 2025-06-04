@@ -45,8 +45,9 @@ export default function ShopClient({ products, structuredData }) {
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
             />
+
             {/* Header with Sort */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6 px-4 sm:px-6">
                 <div>
                     <h1 className="text-3xl font-bold text-white mb-2">Available Products</h1>
                     <p className="text-gray-400">{sortedProducts.length} items</p>
@@ -60,7 +61,7 @@ export default function ShopClient({ products, structuredData }) {
                                 setSortOption(e.target.value);
                                 setCurrentPage(1);
                             }}
-                            className="appearance-none bg-gray-800 text-white border border-gray-700 rounded-full py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="appearance-none bg-gray-800 text-white border border-gray-700 rounded-lg py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         >
                             <option value="newest">Newest</option>
                             <option value="oldest">Oldest</option>
@@ -82,29 +83,29 @@ export default function ShopClient({ products, structuredData }) {
 
             {/* Products Grid */}
             {currentProducts.length === 0 ? (
-                <div className="text-center py-20 bg-gray-800 rounded-xl">
+                <div className="text-center py-20 bg-gray-800/50 rounded-xl max-w-4xl mx-auto">
                     <p className="text-gray-400 mb-6">No products found</p>
                     <button
                         onClick={() => {
                             setSortOption('newest');
                             setCurrentPage(1);
                         }}
-                        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:opacity-90 transition"
                     >
                         Reset Filters
                     </button>
                 </div>
             ) : (
                 <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4 sm:px-6">
                         {currentProducts.map((product) => {
                             const bdtPrice = product.prices.find((p) => p.currency === 'BDT')?.amount;
 
                             return (
-                                <div key={product._id} className="group relative">
+                                <div key={product._id} className="group relative flex flex-col h-full">
                                     <Link
                                         href={`/shop/${product.slug || product._id}`}
-                                        className="block h-full rounded-xl overflow-hidden shadow-lg bg-gray-800 border border-gray-700 hover:border-blue-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                                        className="flex flex-col h-full rounded-xl overflow-hidden bg-gray-800/50 hover:bg-gray-800/70 transition-all duration-300 border border-gray-700/50 hover:border-purple-500/30 shadow-lg hover:shadow-xl hover:shadow-purple-500/10"
                                     >
                                         {/* Product Image */}
                                         <div className="relative aspect-square">
@@ -112,34 +113,37 @@ export default function ShopClient({ products, structuredData }) {
                                                 src={product.mainImage}
                                                 alt={product.title}
                                                 fill
-                                                className="object-cover transition-opacity opacity-0 duration-300"
+                                                className="object-cover transition-opacity opacity-0 duration-300 group-hover:scale-105"
                                                 onLoad={(e) => e.target.classList.remove('opacity-0')}
                                                 loading="lazy"
+                                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                             />
-                                            {/* Stock Status Badge - Top Right */}
+                                            {/* Stock Status Badge - More subtle */}
                                             <div
-                                                className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-semibold ${product.quantity > 0 ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'
-                                                    }`}
+                                                className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-medium ${product.quantity > 0
+                                                    ? 'bg-green-900/60 text-green-200'
+                                                    : 'bg-red-900/60 text-red-200'
+                                                    } backdrop-blur-sm`}
                                             >
-                                                {product.quantity > 0 ? 'In Stock' : 'Stock Out'}
+                                                {product.quantity > 0 ? 'In Stock' : 'Out of Stock'}
                                             </div>
                                         </div>
 
-                                        {/* Product Info - Fixed Height Container */}
-                                        <div className="p-5  flex flex-col" style={{ minHeight: '140px' }}>
-                                            {/* Title - Takes available space */}
-                                            <h3 className="font-medium text-lg text-white mb-2 line-clamp-2 flex-grow">
-                                                {product.title}
-                                            </h3>
+                                        {/* Product Info - Fixed at bottom */}
+                                        <div className="p-5 flex flex-col flex-grow justify-between">
+                                            <div>
+                                                <h3 className="font-medium text-lg text-white line-clamp-2">
+                                                    {product.title}
+                                                </h3>
+                                            </div>
 
-                                            {/* Price & Available - Aligned at bottom */}
-                                            <div className="mt-auto pt-3 flex justify-between items-center">
+                                            <div className="mt-4 flex justify-between items-end">
                                                 <p className="text-xl font-bold text-white">
                                                     ৳{bdtPrice?.toLocaleString() || 'N/A'}
                                                 </p>
                                                 {product.quantity > 0 && (
-                                                    <span className="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded-full">
-                                                        {product.quantity} in stock
+                                                    <span className="text-xs text-gray-300 bg-gray-700/30 px-2 py-1 rounded-full">
+                                                        {product.quantity} available
                                                     </span>
                                                 )}
                                             </div>
@@ -152,12 +156,12 @@ export default function ShopClient({ products, structuredData }) {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                        <div className="mt-16 flex justify-center">
+                        <div className="mt-16 flex justify-center px-4 sm:px-6">
                             <nav className="flex items-center gap-2">
                                 <button
                                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                                     disabled={currentPage === 1}
-                                    className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800 border border-gray-700 disabled:opacity-50 hover:bg-gray-700 transition"
+                                    className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800/50 border border-gray-700/50 disabled:opacity-50 hover:bg-gray-700/50 transition"
                                 >
                                     ←
                                 </button>
@@ -179,8 +183,8 @@ export default function ShopClient({ products, structuredData }) {
                                             key={page}
                                             onClick={() => setCurrentPage(page)}
                                             className={`w-10 h-10 flex items-center justify-center rounded-lg ${currentPage === page
-                                                    ? 'bg-blue-600 text-white'
-                                                    : 'bg-gray-800 border border-gray-700 hover:bg-gray-700'
+                                                ? 'bg-gradient-to-br from-purple-600 to-blue-600 text-white'
+                                                : 'bg-gray-800/50 border border-gray-700/50 hover:bg-gray-700/50'
                                                 } transition`}
                                         >
                                             {page}
@@ -191,7 +195,7 @@ export default function ShopClient({ products, structuredData }) {
                                 <button
                                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800 border border-gray-700 disabled:opacity-50 hover:bg-gray-700 transition"
+                                    className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-800/50 border border-gray-700/50 disabled:opacity-50 hover:bg-gray-700/50 transition"
                                 >
                                     →
                                 </button>
