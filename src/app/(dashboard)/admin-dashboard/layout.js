@@ -29,6 +29,12 @@ const AdminDashboardLayout = ({ children }) => {
             ],
         },
         {
+            label: 'CHAT',
+            children: [
+                { label: 'Chat', link: '/admin-dashboard/chat' }
+            ],
+        },
+        {
             label: 'AFFILIATE',
             children: [
                 { label: 'Affiliate Dashboard', link: '/admin-dashboard/affiliate/affiliate-dashbaord' },
