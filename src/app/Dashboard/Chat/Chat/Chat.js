@@ -1,160 +1,258 @@
+// portfolio/app/(with-layout)/ui/admin/chat/page.jsx
 'use client';
-import { useState, useEffect } from 'react';
-import io from 'socket.io-client';
+import { useState, useEffect, useRef } from 'react';
+import { io } from 'socket.io-client';
 import { motion } from 'framer-motion';
+import { Send, UserCheck, Clock, MessageCircle, User } from 'lucide-react';
 import { getSession } from 'next-auth/react';
-
-let socket;
+import { toast } from 'react-toastify';
 
 export default function AdminChatPanel() {
-    const [chats, setChats] = useState([]);
-    const [activeChat, setActiveChat] = useState(null);
-    const [input, setInput] = useState('');
+  const [chats, setChats] = useState([]);
+  const [activeChatId, setActiveChatId] = useState(null);
+  const [input, setInput] = useState('');
+  const [isConnected, setIsConnected] = useState(false);
+  const socketRef = useRef(null);
+  const messagesEndRef = useRef(null);
 
-    useEffect(() => {
-        const initSocket = async () => {
-            const session = await getSession();
-            if (!session || session.user.role !== 'admin') {
-                window.location.href = '/login';
-                return;
-            }
+  useEffect(() => {
+    const initialize = async () => {
+      const session = await getSession();
+      if (!session || session.user.role !== 'admin') {
+        window.location.href = '/login';
+        return;
+      }
 
-            socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000', {
-                path: '/api/socket/io',
-                transports: ['websocket', 'polling'],
-            });
-
-            socket.on('connect', () => {
-                console.log('Admin connected to Socket.IO server:', socket.id);
-            });
-
-            socket.on('connect_error', (err) => {
-                console.error('Admin Socket.IO connection error:', err.message, err.stack);
-            });
-
-            socket.on('new-chat-request', ({ userId, chatId }) => {
-                setChats((prev) => {
-                    if (!prev.find((chat) => chat.userId === userId)) {
-                        return [...prev, { userId, chatId, status: 'pending', messages: [] }];
-                    }
-                    return prev;
-                });
-                console.log('New chat request received:', userId);
-            });
-
-            socket.on('message', ({ userId, message, sender }) => {
-                setChats((prev) =>
-                    prev.map((chat) =>
-                        chat.userId === userId
-                            ? { ...chat, messages: [...chat.messages, { sender, content: message }] }
-                            : chat
-                    )
-                );
-            });
-
-            socket.on('chat-status', ({ userId, status }) => {
-                setChats((prev) =>
-                    prev.map((chat) => (chat.userId === userId ? { ...chat, status } : chat))
-                );
-            });
-
-            return () => {
-                if (socket) socket.disconnect();
-            };
-        };
-
-        initSocket();
-    }, []);
-
-    const acceptChat = (userId) => {
-        socket.emit('accept-chat', { userId });
-        setActiveChat(userId);
-    };
-
-    const sendMessage = () => {
-        if (input.trim() && activeChat) {
-            socket.emit('admin-message', { userId: activeChat, message: input });
-            setInput('');
+      const fetchInitialChats = async () => {
+        try {
+          const res = await fetch('/api/chats');
+          const data = await res.json();
+          console.log('📋 Initial chats:', data);
+          if (data.success) {
+            setChats(data.chats || []);
+            if (data.chats.length > 0) setActiveChatId(data.chats[0].userId);
+          }
+        } catch (error) {
+          console.error('❌ Fetch chats error:', error);
+          toast.error('Failed to load chats');
         }
+      };
+      fetchInitialChats();
+
+      socketRef.current = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+        path: '/socket.io',
+        transports: ['polling', 'websocket'],
+        query: { isAdmin: true },
+        timeout: 10000,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 2000,
+      });
+
+      socketRef.current.on('connect', () => {
+        setIsConnected(true);
+        console.log(`✅ Admin Socket Connected: ${socketRef.current.id}`);
+      });
+
+      socketRef.current.on('connect_error', (err) => {
+        setIsConnected(false);
+        console.error(`❌ Admin Socket Connect Error: ${err.message}`);
+        toast.error(`Connection failed: ${err.message}`);
+      });
+
+      socketRef.current.on('disconnect', () => {
+        setIsConnected(false);
+        console.log('⚠️ Admin Socket Disconnected');
+        toast.warn('Disconnected from server');
+      });
+
+      socketRef.current.on('new-chat-request', (newChat) => {
+        console.log('📩 New chat request:', newChat);
+        setChats((prev) => [newChat, ...prev.filter((c) => c.userId !== newChat.userId)]);
+        if (!activeChatId) setActiveChatId(newChat.userId);
+      });
+
+      socketRef.current.on('new-message-for-admin', ({ userId, message }) => {
+        console.log(`📩 New message for admin (userId: ${userId}):`, message);
+        setChats((prev) =>
+          prev.map((chat) =>
+            chat.userId === userId ? { ...chat, messages: [...chat.messages, message] } : chat
+          )
+        );
+      });
+
+      socketRef.current.on('chat-status-update', ({ userId, status }) => {
+        console.log(`🔄 Chat status update (userId: ${userId}): ${status}`);
+        setChats((prev) =>
+          prev.map((chat) => (chat.userId === userId ? { ...chat, status } : chat))
+        );
+      });
+
+      socketRef.current.on('error', ({ message }) => {
+        console.error(`❌ Server Error: ${message}`);
+        toast.error(message);
+      });
+
+      return () => {
+        socketRef.current?.disconnect();
+      };
     };
 
-    return (
-        <div className="min-h-screen bg-gray-950 text-white p-8">
-            <h1 className="text-2xl font-bold text-purple-400 mb-4">Admin Chat Panel</h1>
-            <div className="flex gap-4">
-                <div className="w-1/3 bg-gray-900 rounded-lg p-4">
-                    <h2 className="text-lg mb-2 text-purple-400">Chat Requests</h2>
-                    {chats.length === 0 && (
-                        <p className="text-gray-400">No chat requests yet.</p>
-                    )}
-                    {chats.map((chat) => (
-                        <motion.div
-                            key={chat.userId}
-                            whileHover={{ scale: 1.02 }}
-                            className={`p-2 mb-2 rounded-lg cursor-pointer ${chat.status === 'pending' ? 'bg-purple-600' : 'bg-gray-800'
-                                }`}
-                            onClick={() => setActiveChat(chat.userId)}
-                        >
-                            <p className="text-sm">User: {chat.userId.slice(0, 8)}...</p>
-                            <p className="text-sm">Status: {chat.status}</p>
-                            {chat.status === 'pending' && (
-                                <button
-                                    onClick={() => acceptChat(chat.userId)}
-                                    className="mt-2 bg-purple-400 text-white px-2 py-1 rounded text-sm"
-                                >
-                                    Accept
-                                </button>
-                            )}
-                        </motion.div>
-                    ))}
+    initialize();
+  }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chats, activeChatId]);
+
+  const handleAcceptChat = (userId) => {
+    console.log(`✅ Accepting chat for userId: ${userId}`);
+    socketRef.current.emit('accept-chat', { userId });
+    setActiveChatId(userId);
+  };
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (input.trim() && activeChatId && isConnected) {
+      const optimisticMessage = { sender: 'admin', content: input, _id: Date.now(), timestamp: new Date() };
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat.userId === activeChatId ? { ...chat, messages: [...chat.messages, optimisticMessage] } : chat
+        )
+      );
+      socketRef.current.emit('admin-message', { userId: activeChatId, content: input.trim() });
+      setInput('');
+      toast.success('Message sent!');
+    } else if (!isConnected) {
+      toast.error('Not connected to server');
+    }
+  };
+
+  const activeChat = chats.find((c) => c.userId === activeChatId);
+  const pendingChats = chats.filter((c) => c.status === 'pending');
+  const activeChats = chats.filter((c) => c.status === 'active');
+
+  return (
+    <div className="flex h-screen font-sans bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200">
+      <aside className="w-1/3 xl:w-1/4 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col">
+        <header className="p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center flex-shrink-0">
+          <h1 className="text-xl font-bold text-indigo-500">Admin Panel</h1>
+          <div className="flex items-center gap-2 text-xs">
+            <div className={`w-2.5 h-2.5 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+            {isConnected ? 'Connected' : 'Disconnected'}
+          </div>
+        </header>
+        <div className="overflow-y-auto">
+          <div className="p-4">
+            <h2 className="text-sm font-semibold text-gray-500 uppercase flex items-center gap-2 mb-2">
+              <Clock size={14} /> Pending Requests
+            </h2>
+            {pendingChats.length > 0 ? (
+              pendingChats.map((chat) => (
+                <div
+                  key={chat.userId}
+                  onClick={() => setActiveChatId(chat.userId)}
+                  className="p-3 my-2 rounded-lg cursor-pointer bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500 hover:bg-indigo-100 dark:hover:bg-indigo-900/40"
+                >
+                  <p className="font-semibold truncate text-sm">User ID: {chat.userId.substring(0, 8)}...</p>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAcceptChat(chat.userId);
+                    }}
+                    className="text-xs font-bold text-white bg-indigo-500 hover:bg-indigo-600 rounded-full px-3 py-1 mt-2"
+                  >
+                    Accept Chat
+                  </button>
                 </div>
-                <div className="w-2/3 bg-gray-900 rounded-lg p-4 flex flex-col">
-                    {activeChat ? (
-                        <>
-                            <h2 className="text-lg mb-2 text-purple-400">
-                                Chat with User: {activeChat.slice(0, 8)}...
-                            </h2>
-                            <div className="flex-1 overflow-y-auto mb-4">
-                                {chats
-                                    .find((chat) => chat.userId === activeChat)
-                                    ?.messages.map((msg, idx) => (
-                                        <div
-                                            key={idx}
-                                            className={`mb-2 ${msg.sender === 'admin' ? 'text-right' : 'text-left'}`}
-                                        >
-                                            <span
-                                                className={`inline-block p-2 rounded-lg ${msg.sender === 'admin' ? 'bg-purple-600' : 'bg-gray-800'
-                                                    } text-sm`}
-                                            >
-                                                {msg.content}
-                                            </span>
-                                        </div>
-                                    ))}
-                            </div>
-                            <div className="border-t border-gray-800 pt-4 flex items-center gap-2">
-                                <input
-                                    type="text"
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                                    placeholder="Type a message..."
-                                    className="flex-1 bg-gray-800 text-white rounded-lg p-2 outline-none text-sm"
-                                />
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={sendMessage}
-                                    className="bg-purple-600 text-white rounded-lg p-2 text-sm"
-                                >
-                                    Send
-                                </motion.button>
-                            </div>
-                        </>
-                    ) : (
-                        <p className="text-gray-400">Select a chat to start messaging</p>
-                    )}
+              ))
+            ) : (
+              <p className="text-sm text-gray-400 mt-2">No pending requests.</p>
+            )}
+          </div>
+          <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+            <h2 className="text-sm font-semibold text-gray-500 uppercase flex items-center gap-2 mb-2">
+              <UserCheck size={14} /> Active Chats
+            </h2>
+            {activeChats.length > 0 ? (
+              activeChats.map((chat) => (
+                <div
+                  key={chat.userId}
+                  onClick={() => setActiveChatId(chat.userId)}
+                  className={`p-3 my-2 rounded-lg cursor-pointer transition-colors ${activeChatId === chat.userId ? 'bg-gray-200 dark:bg-gray-800' : 'hover:bg-gray-100 dark:hover:bg-gray-800/50'
+                    }`}
+                >
+                  <p className="font-semibold truncate text-sm">User ID: {chat.userId.substring(0, 8)}...</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {chat.messages.slice(-1)[0]?.content || 'No messages yet'}
+                  </p>
                 </div>
-            </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-400 mt-2">No active chats.</p>
+            )}
+          </div>
         </div>
-    );
+      </aside>
+      <main className="w-2/3 xl:w-3/4 h-full flex flex-col bg-gray-50 dark:bg-gray-950/50">
+        {activeChat ? (
+          <>
+            <header className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3 bg-white dark:bg-gray-900 flex-shrink-0">
+              <h2 className="font-bold">
+                Chat with <span className="text-indigo-500">{activeChat.userId.substring(0, 8)}</span>
+              </h2>
+            </header>
+            <div className="flex-1 p-6 overflow-y-auto space-y-4">
+              {activeChat.messages.map((msg, idx) => (
+                <div
+                  key={msg._id || idx}
+                  className={`flex items-end gap-2 ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}
+                >
+                  {msg.sender === 'user' && (
+                    <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                      <User size={16} className="text-gray-500" />
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-[70%] px-4 py-2 rounded-2xl text-sm ${msg.sender === 'admin'
+                        ? 'bg-indigo-500 text-white rounded-br-none'
+                        : 'bg-white dark:bg-gray-800 rounded-bl-none shadow-sm'
+                      }`}
+                  >
+                    {msg.content}
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+            <form
+              onSubmit={handleSendMessage}
+              className="p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex items-center gap-4 flex-shrink-0"
+            >
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="অ্যাডমিন হিসেবে আপনার উত্তর লিখুন..."
+                className="w-full bg-gray-100 dark:bg-gray-800 rounded-lg py-3 px-4 outline-none focus:ring-2 focus:ring-indigo-500"
+                disabled={!isConnected}
+              />
+              <button
+                type="submit"
+                className="bg-indigo-500 text-white rounded-lg p-3 hover:bg-indigo-600 disabled:bg-indigo-300 transition-colors"
+                disabled={!input.trim() || !isConnected}
+              >
+                <Send size={20} />
+              </button>
+            </form>
+          </>
+        ) : (
+          <div className="flex-1 flex flex-col justify-center items-center text-center text-gray-500">
+            <MessageCircle size={64} className="mb-4 text-gray-300 dark:text-gray-700" />
+            <h2 className="text-xl font-semibold">Select a chat</h2>
+            <p>মেসেজিং শুরু করার জন্য তালিকা থেকে একটি চ্যাট নির্বাচন করুন।</p>
+          </div>
+        )}
+      </main>
+    </div>
+  );
 }

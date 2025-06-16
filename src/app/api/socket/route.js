@@ -1,110 +1,168 @@
-import { Server } from 'socket.io';
-import { NextResponse } from 'next/server';
-import Chat from '@/models/Chat';
+// portfolio/app/api/socket/route.js
+import { getServerSession } from 'next-auth/next';
+import Chat from '@/src/models/Chat';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import dbConnect from '@/lib/dbMongoose';
 
+// In-memory store for simulating Socket.IO (for Vercel)
+let clients = new Map(); // { userId: { res, timeout } }
 
-export const dynamic = 'force-dynamic'; // Ensure dynamic rendering
+export async function GET(req) {
+  await dbConnect();
+  const session = await getServerSession(authOptions);
+  const { searchParams } = new URL(req.url);
+  const persistentUserId = searchParams.get('persistentUserId');
+  const isAdmin = searchParams.get('isAdmin') === 'true';
 
-export async function GET(req, context) {
-    try {
-        const socketServer = context.socket.server;
-        if (!socketServer.io) {
-            await dbConnect();
-            console.log('Initializing Socket.IO server');
+  if (!persistentUserId && !isAdmin) {
+    return new Response(JSON.stringify({ error: 'Missing user ID' }), { status: 400 });
+  }
 
-            const io = new Server(socketServer, {
-                path: '/api/socket/io',
-                cors: {
-                    origin: process.env.NEXTAUTH_URL || 'http://localhost:3000',
-                    methods: ['GET', 'POST'],
-                    credentials: true,
-                },
+  // Simulate Socket.IO connection
+  const res = new Response(
+    new ReadableStream({
+      start(controller) {
+        const clientId = isAdmin ? `admin_${Date.now()}` : persistentUserId;
+        clients.set(clientId, { res: controller, timeout: null });
+
+        // Initialize chat for users
+        if (!isAdmin && persistentUserId) {
+          Chat.findOneAndUpdate(
+            { userId: persistentUserId },
+            { $setOnInsert: { userId: persistentUserId } },
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+          )
+            .then((chat) => {
+              controller.enqueue(
+                new TextEncoder().encode(
+                  `data: ${JSON.stringify({ event: 'chat-history', data: chat })}\n\n`
+                )
+              );
+              if (chat.status === 'pending') {
+                // Notify admins
+                clients.forEach((client, id) => {
+                  if (id.startsWith('admin_')) {
+                    client.res.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ event: 'new-chat-request', data: chat })}\n\n`
+                      )
+                    );
+                  }
+                });
+              }
+            })
+            .catch((err) => {
+              controller.enqueue(
+                new TextEncoder().encode(
+                  `data: ${JSON.stringify({ event: 'error', data: { message: 'Failed to initialize chat' } })}\n\n`
+                )
+              );
             });
-
-            io.on('connection', (socket) => {
-                console.log('User connected:', socket.id);
-
-                socket.on('init-chat', async () => {
-                    try {
-                        const chat = await Chat.findOneAndUpdate(
-                            { userId: socket.id },
-                            { $setOnInsert: { userId: socket.id, status: 'pending' } },
-                            { upsert: true, new: true }
-                        );
-                        io.emit('new-chat-request', { userId: socket.id, chatId: chat._id });
-                        console.log('New chat initialized:', chat._id);
-                    } catch (err) {
-                        console.error('Error initializing chat:', err.message);
-                    }
-                });
-
-                socket.on('user-message', async ({ message }) => {
-                    try {
-                        const chat = await Chat.findOne({ userId: socket.id });
-                        if (!chat) return;
-
-                        chat.messages.push({ sender: 'user', content: message });
-                        await chat.save();
-
-                        if (chat.status === 'accepted') {
-                            io.to('admin').emit('message', { userId: socket.id, message, sender: 'user' });
-                        } else {
-                            io.emit('new-chat-request', { userId: socket.id, chatId: chat._id });
-                        }
-                        console.log('User message saved:', message);
-                    } catch (err) {
-                        console.error('Error saving user message:', err.message);
-                    }
-                });
-
-                socket.on('accept-chat', async ({ userId }) => {
-                    try {
-                        const chat = await Chat.findOneAndUpdate(
-                            { userId },
-                            { status: 'accepted' },
-                            { new: true }
-                        );
-                        if (chat) {
-                            socket.join('admin');
-                            io.to(userId).emit('chat-accepted', { messages: chat.messages });
-                            io.to('admin').emit('chat-status', { userId, status: 'accepted' });
-                            console.log('Chat accepted for user:', userId);
-                        }
-                    } catch (err) {
-                        console.error('Error accepting chat:', err.message);
-                    }
-                });
-
-                socket.on('admin-message', async ({ userId, message }) => {
-                    try {
-                        const chat = await Chat.findOne({ userId });
-                        if (!chat) return;
-
-                        chat.messages.push({ sender: 'admin', content: message });
-                        await chat.save();
-
-                        io.to(userId).emit('message', { userId, message, sender: 'admin' });
-                        io.to('admin').emit('message', { userId, message, sender: 'admin' });
-                        console.log('Admin message saved:', message);
-                    } catch (err) {
-                        console.error('Error saving admin message:', err.message);
-                    }
-                });
-
-                socket.on('disconnect', () => {
-                    console.log('User disconnected:', socket.id);
-                });
-            });
-
-            socketServer.io = io;
         }
 
-        return new Response(JSON.stringify({ message: 'Socket.IO server initialized' }), {
-            status: 200,
+        // Keep connection alive
+        const keepAlive = () => {
+          const client = clients.get(clientId);
+          if (client) {
+            client.res.enqueue(new TextEncoder().encode('data: {"event":"ping"}\n\n'));
+            client.timeout = setTimeout(keepAlive, 15000);
+          }
+        };
+        keepAlive();
+
+        // Clean up on close
+        req.signal.addEventListener('abort', () => {
+          const client = clients.get(clientId);
+          if (client) {
+            clearTimeout(client.timeout);
+            clients.delete(clientId);
+          }
+          controller.close();
         });
-    } catch (error) {
-        console.error('Error in /api/socket:', error.message, error.stack);
-        return new Response(JSON.stringify({ error: 'Server error' }), { status: 500 });
+      },
+    }),
+    {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      },
     }
+  );
+
+  return res;
+}
+
+export async function POST(req) {
+  await dbConnect();
+  const { event, data } = await req.json();
+  const { persistentUserId, userId, content } = data || {};
+
+  if (!event) {
+    return new Response(JSON.stringify({ error: 'Missing event' }), { status: 400 });
+  }
+
+  try {
+    if (event === 'user-message' && persistentUserId && content) {
+      const newMessage = { sender: 'user', content, timestamp: new Date() };
+      await Chat.updateOne(
+        { userId: persistentUserId },
+        { $push: { messages: newMessage }, $set: { updatedAt: new Date() } }
+      );
+      clients.forEach((client, id) => {
+        if (id === persistentUserId || id.startsWith('admin_')) {
+          client.res.enqueue(
+            new TextEncoder().encode(
+              `data: ${JSON.stringify({
+                event: id === persistentUserId ? 'new-message' : 'new-message-for-admin',
+                data: id === persistentUserId ? newMessage : { userId: persistentUserId, message: newMessage },
+              })}\n\n`
+            )
+          );
+        }
+      });
+    } else if (event === 'accept-chat' && userId) {
+      const chat = await Chat.findOneAndUpdate(
+        { userId },
+        { status: 'active' },
+        { new: true }
+      );
+      if (chat) {
+        clients.forEach((client, id) => {
+          if (id === userId || id.startsWith('admin_')) {
+            client.res.enqueue(
+              new TextEncoder().encode(
+                `data: ${JSON.stringify({
+                  event: id === userId ? 'chat-accepted' : 'chat-status-update',
+                  data: id === userId ? chat : { userId, status: 'active' },
+                })}\n\n`
+              )
+            );
+          }
+        });
+      }
+    } else if (event === 'admin-message' && userId && content) {
+      const newMessage = { sender: 'admin', content, timestamp: new Date() };
+      await Chat.updateOne(
+        { userId },
+        { $push: { messages: newMessage }, $set: { status: 'active', updatedAt: new Date() } }
+      );
+      clients.forEach((client, id) => {
+        if (id === userId || id.startsWith('admin_')) {
+          client.res.enqueue(
+            new TextEncoder().encode(
+              `data: ${JSON.stringify({
+                event: id === userId ? 'new-message' : 'new-message-for-admin',
+                data: id === userId ? newMessage : { userId, message: newMessage },
+              })}\n\n`
+            )
+          );
+        }
+      });
+    }
+    return new Response(JSON.stringify({ success: true }), { status: 200 });
+  } catch (err) {
+    console.error(`❌ ${event} error:`, err.message);
+    return new Response(JSON.stringify({ error: 'Server error' }), { status: 500 });
+  }
 }
