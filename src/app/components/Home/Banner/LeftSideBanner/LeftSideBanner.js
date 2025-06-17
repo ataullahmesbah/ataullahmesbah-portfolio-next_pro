@@ -1,83 +1,96 @@
 'use client';
+
 import { useTypewriter, Cursor } from 'react-simple-typewriter';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { FaArrowRight, FaCode, FaSearch, FaFeatherAlt, FaPlane } from 'react-icons/fa';
 
 const LeftSideBanner = () => {
-    const [text] = useTypewriter({
-        words: ['Web Developer', 'SEO Expert', 'Travel Lover', 'Tech Enthusiast'],
-        loop: true,
-        typeSpeed: 30,
-        deleteSpeed: 20,
-    });
+  const [typewriterText] = useTypewriter({
+    words: ['High-Performance Web Apps', 'Optimized Digital Presence', 'Engaging Content'],
+    loop: true,
+    typeSpeed: 40,
+    deleteSpeed: 25,
+    delaySpeed: 2000,
+  });
 
-    return (
-        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 space-y-8">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="space-y-2"
-            >
-                <p className="text-lg text-pink-400 font-mono">Hello, This is</p>
-                <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">
-                    Ataullah <span className="text-cyan-400">Mesbah</span>
-                </h1>
-            </motion.div>
+  const containerVariants = {
+    hidden: { opacity: 0, x: -50 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        delayChildren: 0.3,
+        staggerChildren: 0.15,
+      },
+    },
+  };
 
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-xl md:text-2xl text-gray-300"
-            >
-                <span>I am a </span>
-                <span className="text-cyan-400">{text}</span>
-                <Cursor cursorColor="#FF10F0" />
-            </motion.div>
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
 
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="space-y-4 text-gray-400 text-justify"
-            >
-                <p className="leading-relaxed">
-                    Professional web developer with 3+ years of experience specializing in modern JavaScript frameworks like Next.js and React. Expert in SEO optimization and performance tuning to create blazing fast websites.
-                </p>
-                <p className="leading-relaxed">
-                    Passionate about combining technology and creativity to build digital experiences that inspire. When not coding, you will find me exploring new destinations and capturing travel stories.
-                </p>
-            </motion.div>
+  return (
+    <motion.div
+      className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-5 p-4 lg:p-0"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div variants={itemVariants}>
+        <p className="text-sm md:text-base text-gray-400 font-mono mb-1">Network & Connect</p>
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-3 drop-shadow-md">
+          Interconnect your <span className="text-blue-400">digital assets</span> with{' '}
+          <span className="text-purple-400">seamless solutions</span>.
+        </h1>
+      </motion.div>
 
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.6 }}
-                className="flex flex-wrap gap-4 pt-2"
-            >
-                <Link href="/contact" className="relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
-                    <button className="relative px-6 py-3 bg-gray-900 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-colors">
-                        <span className="text-gray-100 font-medium">Get Started</span>
-                        <svg className="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </button>
-                </Link>
+      <motion.div variants={itemVariants} className="text-lg md:text-xl text-gray-300 max-w-xl lg:mx-0 mx-auto">
+        <p className="leading-relaxed">
+          I provide advanced web development, blazing fast SEO, and engaging content creation. Delivering:
+        </p>
+        <ul className="mt-3 space-y-1 list-none p-0 text-left lg:text-left inline-block lg:block text-[0.95rem]">
+          <li className="flex items-center gap-2">
+            <FaCode className="text-blue-400" />
+            <span>{typewriterText}<Cursor cursorColor="#FF10F0" /></span>
+          </li>
+          <li className="flex items-center gap-2">
+            <FaSearch className="text-green-400" />
+            <span>SEO & Performance Optimization</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <FaFeatherAlt className="text-yellow-400" />
+            <span>Content Strategy & Creation</span>
+          </li>
+          <li className="flex items-center gap-2">
+            <FaPlane className="text-purple-400" />
+            <span>Travel & Tech Consulting</span>
+          </li>
+        </ul>
+      </motion.div>
 
-                <Link href="/projects" className="relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
-                    <button className="relative px-6 py-3 bg-gray-900 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-colors">
-                        <span className="text-gray-100 font-medium">View Projects</span>
-                        <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                        </svg>
-                    </button>
-                </Link>
-            </motion.div>
-        </div>
-    );
+      <motion.div variants={itemVariants} className="mt-6">
+        <Link
+          href="/services"
+          className="inline-flex items-center px-6 py-3 border border-gray-600 rounded-lg text-base font-medium text-white bg-gray-800 hover:bg-gray-700 transition-colors duration-300 group"
+        >
+          Learn More
+          <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+        </Link>
+      </motion.div>
+
+      <motion.div variants={itemVariants} className="mt-6 flex flex-wrap justify-center lg:justify-start items-center gap-3 text-gray-500 text-xs">
+        <span>Services utilized:</span>
+        <span className="flex items-center gap-2">
+          <img src="https://img.icons8.com/color/48/000000/google-cloud.png" alt="Google Cloud" className="h-5 w-5 opacity-80" title="Google Cloud" />
+          <img src="https://img.icons8.com/color/48/000000/amazon-web-services.png" alt="AWS" className="h-5 w-5 opacity-80" title="AWS" />
+          <img src="https://img.icons8.com/ios-filled/50/000000/heroku.png" alt="Heroku" className="h-5 w-5 opacity-80" title="Heroku" />
+          <img src="https://img.icons8.com/ios-filled/50/000000/firebase.png" alt="Firebase" className="h-5 w-5 opacity-80" title="Firebase" />
+        </span>
+      </motion.div>
+    </motion.div>
+  );
 };
 
 export default LeftSideBanner;

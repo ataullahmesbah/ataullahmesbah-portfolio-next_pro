@@ -20,7 +20,20 @@ module.exports = {
         },
       },
       animation: {
-        marquee: 'marquee 20s linear infinite',
+        tilt: 'tilt 10s infinite linear',
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite', // For the dashed border
+      },
+      keyframes: {
+        tilt: {
+          '0%, 50%, 100%': { transform: 'rotate(0deg)' },
+          '25%': { transform: 'rotate(0.5deg)' },
+          '75%': { transform: 'rotate(-0.5deg)' },
+        },
+        // Default pulse is fine, or define a slower one if needed
+        pulse: {
+          '0%, 100%': { opacity: 1 },
+          '50%': { opacity: .5 },
+        }
       },
     },
   },
