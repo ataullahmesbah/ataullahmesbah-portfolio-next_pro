@@ -160,3 +160,86 @@ body {
     opacity: 1;
   }
 }
+
+
+
+
+
+/* --- Updated Banner Component Styles --- */
+
+.bannerWrapper {
+  background-color: #0d0d12;
+  color: #ededf0;
+  font-family: 'Inter', sans-serif;
+  padding: 80px 40px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.bannerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 40px;
+}
+
+/* --- Left Section --- */
+.leftSection {
+  flex: 1;
+  max-width: 450px;
+  z-index: 2;
+}
+.subHeading {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #a1a1aa;
+  margin-bottom: 16px;
+}
+.mainHeading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 24px;
+}
+.description {
+  font-size: 1.1rem;
+  color: #a1a1aa;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+.learnMoreLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ededf0;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.learnMoreLink:hover {
+  color: #c4c4c4;
+}
+.replacesSection {
+  margin-top: 60px;
+}
+.replacesText {
+  color: #71717a;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+.replacesIcons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 1.5rem;
+  color: #71717a;
+}
+
+
+
+
+
