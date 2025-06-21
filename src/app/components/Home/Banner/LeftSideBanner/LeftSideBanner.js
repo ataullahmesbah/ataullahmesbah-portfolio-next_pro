@@ -2,50 +2,55 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { FaArrowRight } from 'react-icons/fa';
-import { SiNotion, SiVercel, SiNetlify, SiHeroku } from 'react-icons/si';
 
 const LeftSideBanner = () => {
-  const container = {
+  const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.3 }
+      transition: { staggerChildren: 0.15, delayChildren: 0.3 }
     }
   };
 
-  const item = {
+  const itemVariants = {
     hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100, damping: 10 } }
+    visible: { 
+      y: 0, 
+      opacity: 1, 
+      transition: { type: 'spring', stiffness: 100, damping: 12 } 
+    }
   };
 
   return (
-    <motion.div className="space-y-6 w-full lg:w-2/5" variants={container} initial="hidden" animate="visible">
-      <motion.div variants={item}>
-        <p className="text-sm md:text-base text-blue-400 font-mono mb-2">Network and Connect</p>
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-          Interconnect your <span className="text-blue-400">application</span> seamlessly
-        </h1>
+    <motion.div 
+      className="space-y-8 text-center md:text-left"
+      variants={containerVariants} 
+      initial="hidden" 
+      animate="visible"
+    >
+      <motion.div variants={itemVariants} className="text-sm font-semibold uppercase tracking-widest text-blue-400">
+        Your Infrastructure, Reimagined
       </motion.div>
-      <motion.p variants={item} className="text-lg text-gray-300">
-        Railway provides automated service discovery, blazing fast networking, and support for any protocol, all out of the box.
+
+      <motion.h1 
+        variants={itemVariants} 
+        className="text-4xl md:text-5xl lg:text-[3.5rem] font-bold tracking-tight leading-tight"
+      >
+        Develop, Preview, and <span className="text-blue-400">Ship</span>.
+      </motion.h1>
+
+      <motion.p variants={itemVariants} className="text-lg text-gray-400 max-w-md mx-auto md:mx-0">
+        The ultimate platform for modern web applications. Go from idea to global deployment in minutes.
       </motion.p>
-      <motion.div variants={item}>
+      
+      <motion.div variants={itemVariants}>
         <Link
           href="#"
-          className="inline-flex items-center px-6 py-3 border border-gray-600 rounded-lg text-base font-medium text-white bg-gray-800 hover:bg-gray-700 transition-colors duration-300 group"
+          className="inline-flex items-center px-8 py-3.5 border border-transparent rounded-lg text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all duration-300 group shadow-lg shadow-blue-600/20 transform hover:scale-105"
         >
-          Learn More
-          <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform duration-200" />
+          Start Project
+          <FaArrowRight className="ml-2 transition-transform duration-300 group-hover:translate-x-1" />
         </Link>
-      </motion.div>
-      <motion.div variants={item} className="pt-4">
-        <p className="text-sm text-gray-400 mb-2">Replaces</p>
-        <div className="flex gap-4 text-2xl text-gray-500">
-          <SiNotion />
-          <SiVercel />
-          <SiNetlify />
-          <SiHeroku />
-        </div>
       </motion.div>
     </motion.div>
   );
