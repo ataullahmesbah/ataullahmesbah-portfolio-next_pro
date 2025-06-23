@@ -6,7 +6,7 @@ import RightSideBanner from './RightSideBanner/RightSideBanner';
 const Banner = () => {
     return (
         <motion.div
-            className="relative min-h-screen w-full bg-gray-900 text-white flex items-center justify-center overflow-hidden px-4"
+            className="relative  w-full bg-gray-900 text-white flex items-center justify-center overflow-hidden px-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}

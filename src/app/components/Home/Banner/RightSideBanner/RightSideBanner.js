@@ -1,131 +1,145 @@
 'use client';
-import { motion } from 'framer-motion';
-import React from 'react';
-import { FaPython, FaNodeJs } from 'react-icons/fa';
-import { SiPostgresql } from 'react-icons/si';
-import { HiShieldCheck } from 'react-icons/hi';
-import { FiBarChart2 } from 'react-icons/fi';
+import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import React, { useRef } from 'react';
+import { FaReact, FaPython } from 'react-icons/fa';
+import { SiPostgresql, SiRailway } from 'react-icons/si';
+import { HiShieldCheck, HiChartBar } from 'react-icons/hi';
 
-// --- Sub-Components for Clarity ---
-
-// New "Aurora" Style Service Card
-const ServiceCard = ({ icon, title, position }) => (
+// Service Node Component
+const ServiceNode = ({ icon, title, url, aX, aY, delay }) => (
   <motion.div
-    style={position}
-    className="absolute group p-1 bg-gradient-to-br from-white/20 to-white/0 rounded-xl shadow-2xl transform -translate-x-1/2 -translate-y-1/2"
-    whileHover={{ scale: 1.05, zIndex: 50 }}
-    transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+    style={{ x: aX, y: aY }}
+    className="group relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 bg-gray-900/50 backdrop-blur-md border border-white/15 rounded-lg flex flex-col items-center justify-center gap-1 transition-all duration-300 hover:scale-105 hover:bg-gray-800/60 hover:shadow-[0_0_10px_rgba(59,130,246,0.4)] hover:-rotate-2"
+    initial={{ y: 50, opacity: 0, scale: 0.85, rotate: 3 }}
+    animate={{ y: 0, opacity: 1, scale: 1, rotate: 0 }}
+    transition={{ duration: 0.6, delay, ease: 'easeOut' }}
+    whileHover={{ rotate: -2, transition: { duration: 0.2 } }}
   >
-    <div className="bg-gray-800/80 backdrop-blur-md rounded-[10px] p-4 flex items-center gap-3 w-[200px]">
-      <div className="p-2 bg-gray-900/50 rounded-lg text-2xl text-blue-400">
-        {icon}
-      </div>
-      <span className="font-bold text-gray-200 tracking-wide">{title}</span>
+    <div className="text-2xl sm:text-3xl text-blue-400 group-hover:text-blue-300 transition-colors duration-200">
+      {icon}
     </div>
+    <div className="text-center">
+      <h3 className="font-semibold text-white text-[0.65rem] sm:text-xs md:text-sm">{title}</h3>
+      {url && (
+        <p className="text-[0.5rem] sm:text-[0.65rem] md:text-xs text-gray-300 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          {url.replace(/(https?:\/\/)/, '')}
+        </p>
+      )}
+    </div>
+    {/* Neon pulse effect on hover */}
+    <motion.div
+      className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/15 to-purple-500/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+      style={{ filter: 'blur(8px)' }}
+      animate={{ scale: [1, 1.05, 1], opacity: [0, 0.3, 0] }}
+      transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+    />
   </motion.div>
 );
 
-// Path component with precise styling
-const AnimatedPath = ({ d, stroke, dash, delay, marker }) => (
-  <motion.path
-    d={d}
-    fill="none"
-    stroke={stroke}
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeDasharray={dash}
-    markerEnd={marker}
-    initial={{ pathLength: 0, opacity: 0 }}
-    animate={{ pathLength: 1, opacity: 1 }}
-    transition={{ duration: 2, delay, ease: [0.42, 0, 0.58, 1] }}
-    style={{ animation: 'pulse-line 3s infinite ease-in-out', animationDelay: `${delay}s` }}
-  />
-);
-
-
-// --- Main RightSideBanner Component ---
-
 const RightSideBanner = () => {
-  // A fixed-size container is essential for a predictable SVG coordinate system.
-  const containerWidth = 600;
-  const containerHeight = 400;
+  const ref = useRef(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
 
-  // Pixel-based positions for cards and the central shield.
-  const positions = {
-    ackee: { top: 30, left: 100 },
-    frontend: { top: 30, left: 300 },
-    apiGateway: { top: 30, left: 500 },
-    postgres: { top: 370, left: 100 },
-    backend: { top: 370, left: 500 },
-    shield: { top: 200, left: 300 }
+  const springConfig = { stiffness: 110, damping: 22 };
+  const mX = useSpring(useTransform(x, [-1, 1], [-8, 8]), springConfig);
+  const mY = useSpring(useTransform(y, [-1, 1], [-8, 8]), springConfig);
+
+  const handleMouseMove = (e) => {
+    if (!ref.current) return;
+    const { left, top, width, height } = ref.current.getBoundingClientRect();
+    x.set(((e.clientX - left) / width) * 2 - 1);
+    y.set(((e.clientY - top) / height) * 2 - 1);
   };
 
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  const cardX = (factor) => useSpring(useTransform(mX, (val) => val * factor), springConfig);
+  const cardY = (factor) => useSpring(useTransform(mY, (val) => val * factor), springConfig);
+
   return (
-    <>
-      {/* Custom CSS for Advanced Animations */}
-      <style jsx>{`
-        @keyframes pulse-shield {
-          0%, 100% {
-            filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
-          }
-          50% {
-            filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.8));
-          }
-        }
-        @keyframes pulse-line {
-          0%, 100% { stroke-opacity: 0.7; }
-          50% { stroke-opacity: 1; }
-        }
-        .center-shield {
-          animation: pulse-shield 3s infinite ease-in-out;
-        }
-      `}</style>
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="w-full h-[450px] sm:h-[500px] md:h-[600px] flex items-center justify-center relative overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      {/* Subtle grid background */}
+      <div className="absolute inset-0 opacity-8 bg-[linear-gradient(to_right,#80808010_1px,transparent_1px),linear-gradient(to_bottom,#80808010_1px,transparent_1px)] bg-[size:18px_18px]" />
 
-      <motion.div
-        className="relative flex items-center justify-center"
-        style={{ width: containerWidth, height: containerHeight }}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.7, delay: 0.5, ease: 'easeOut' }}
-      >
-        {/* SVG Container for all the lines and arrows */}
-        <svg className="absolute inset-0 w-full h-full" viewBox={`0 0 ${containerWidth} ${containerHeight}`}>
-          <defs>
-            <linearGradient id="blue-gradient"><stop stopColor="#3b82f6" /><stop offset="100%" stopColor="#60a5fa" /></linearGradient>
-            <linearGradient id="purple-gradient"><stop stopColor="#8b5cf6" /><stop offset="100%" stopColor="#a78bfa" /></linearGradient>
-            <linearGradient id="green-gradient"><stop stopColor="#22c55e" /><stop offset="100%" stopColor="#4ade80" /></linearGradient>
-            <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="url(#green-gradient)" /></marker>
-          </defs>
-          
-          {/* Paths drawn based on your precise instructions */}
-          {/* 1. ackee (100,30) -> shield (300,200) - DOTTED */}
-          <AnimatedPath d="M 100 30 C 150 100, 250 150, 300 200" stroke="url(#blue-gradient)" dash="1 10" delay={0.2} />
-          {/* 2. frontend (300,30) -> shield (300,200) - DASHED */}
-          <AnimatedPath d="M 300 30 V 200" stroke="url(#purple-gradient)" dash="10 10" delay={0.4} />
-          {/* 3. backend (500,370) -> api gateway (500,30) - SOLID */}
-          <AnimatedPath d="M 500 370 V 30" stroke="url(#green-gradient)" dash="none" delay={0.6} marker="url(#arrowhead)" />
-        </svg>
+      <motion.div className="relative w-full h-full max-w-4xl mx-auto" style={{ transformStyle: 'preserve-3d' }}>
+        {/* Central Hub */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+          <ServiceNode
+            icon={<SiRailway />}
+            title="Railway"
+            aX={cardX(0)}
+            aY={cardY(0)}
+            delay={0.1}
+          />
+        </div>
 
-        {/* Central Shield Icon - The focal point */}
-        <motion.div
-            className="absolute center-shield"
-            style={{ 
-                left: positions.shield.left, 
-                top: positions.shield.top,
-                transform: 'translate(-50%, -50%)'
-            }}
-        >
-          <HiShieldCheck className="text-8xl text-blue-400" />
-        </motion.div>
-          
-        {/* Service Cards rendered on top */}
-        <ServiceCard icon={<FiBarChart2 />} title="ackee analytics" position={positions.ackee} />
-        <ServiceCard icon={<FaNodeJs />} title="frontend" position={positions.frontend} />
-        <ServiceCard icon={<HiShieldCheck />} title="api gateway" position={positions.apiGateway} />
-        <ServiceCard icon={<SiPostgresql />} title="postgres" position={positions.postgres} />
-        <ServiceCard icon={<FaPython />} title="backend" position={positions.backend} />
+        {/* Service Nodes - Compact Responsive Layout */}
+        <div className="absolute top-[18%] sm:top-[15%] left-[12%] sm:left-[18%] md:left-[22%] z-10">
+          <ServiceNode
+            icon={<FaReact />}
+            title="Frontend"
+            url="frontend-prod.up.railway.app"
+            aX={cardX(0.7)}
+            aY={cardY(0.7)}
+            delay={0.2}
+          />
+        </div>
+
+        <div className="absolute top-[18%] sm:top-[15%] right-[12%] sm:right-[18%] md:right-[22%] z-10">
+          <ServiceNode
+            icon={<HiChartBar />}
+            title="Analytics"
+            url="ackee-prod.up.railway.app"
+            aX={cardX(0.7)}
+            aY={cardY(0.7)}
+            delay={0.3}
+          />
+        </div>
+
+        <div className="absolute top-[68%] sm:top-[65%] left-[12%] sm:left-[18%] md:left-[22%] z-10">
+          <ServiceNode
+            icon={<HiShieldCheck />}
+            title="Gateway"
+            url="api-prod.up.railway.app"
+            aX={cardX(1)}
+            aY={cardY(1)}
+            delay={0.4}
+          />
+        </div>
+
+        <div className="absolute top-[68%] sm:top-[65%] right-[12%] sm:right-[18%] md:right-[22%] z-10">
+          <ServiceNode
+            icon={<FaPython />}
+            title="Backend"
+            aX={cardX(1)}
+            aY={cardY(1)}
+            delay={0.5}
+          />
+        </div>
+
+        <div className="absolute bottom-[12%] sm:bottom-[10%] left-1/2 transform -translate-x-1/2 z-10">
+          <ServiceNode
+            icon={<SiPostgresql />}
+            title="Database"
+            aX={cardX(0.8)}
+            aY={cardY(0.8)}
+            delay={0.6}
+          />
+        </div>
       </motion.div>
-    </>
+    </motion.div>
   );
 };
 
