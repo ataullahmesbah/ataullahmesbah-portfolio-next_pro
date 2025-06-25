@@ -11,6 +11,7 @@ export default function IPMonitor() {
   const [logs, setLogs] = useState([]);
   const [ipCounts, setIpCounts] = useState([]);
   const [blockedIPs, setBlockedIPs] = useState([]);
+  const [allBlockedIPs, setAllBlockedIPs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,16 +26,15 @@ export default function IPMonitor() {
       setLoading(true);
       try {
         const res = await fetch('/api/admin/ip-logs', {
-          headers: {
-            'Authorization': `Bearer ${session.accessToken}`, // If using token-based auth
-          },
+          headers: { 'Authorization': `Bearer ${session.accessToken}` },
         });
         if (!res.ok) throw new Error('Failed to fetch IP logs');
         const data = await res.json();
-        console.log('Fetched data:', data); // Debug log
+        console.log('Fetched data:', data);
         setLogs(data.logs || []);
         setIpCounts(data.ipCounts || []);
-        setBlockedIPs(data.blockedIPs.map(ip => ip.ip) || []);
+        setBlockedIPs(data.blockedIPs || []);
+        setAllBlockedIPs(data.allBlockedIPs || []);
       } catch (error) {
         console.error('Error fetching IP logs:', error);
         toast.error('Failed to load IP logs');
@@ -45,25 +45,23 @@ export default function IPMonitor() {
     fetchData();
   }, [session, status, router]);
 
-  const handleBlockIP = async (ip) => {
-    const reason = prompt('Enter reason for blocking this IP:');
-    if (!reason) return;
-
+  const handleAction = async (ip, action) => {
+    const reason = action === 'permanent' ? prompt('Enter reason for blocking this IP:') : '';
     try {
       const res = await fetch('/api/admin/ip-logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ip, reason }),
+        body: JSON.stringify({ ip, reason, action }),
       });
       if (res.ok) {
-        toast.success('IP blocked successfully');
-        setBlockedIPs([...blockedIPs, ip]);
+        toast.success(`${action} action performed on IP ${ip}`);
+        setAllBlockedIPs(prev => action === 'unblock' ? prev.filter(i => i !== ip) : [...prev, ip]);
       } else {
-        throw new Error('Failed to block IP');
+        throw new Error('Failed to perform action');
       }
     } catch (error) {
-      console.error('Error blocking IP:', error);
-      toast.error('Failed to block IP');
+      console.error(`Error ${action}ing IP:`, error);
+      toast.error(`Failed to ${action} IP`);
     }
   };
 
@@ -77,28 +75,34 @@ export default function IPMonitor() {
       <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">IP Access Frequency</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {ipCounts.map(({ _id: ip, count, lastAccess }) => (
-            <div key={ip} className="bg-gray-700 p-4 rounded-lg shadow">
-              <p><strong>IP:</strong> {ip}</p>
-              <p><strong>Requests:</strong> {count}</p>
-              <p><strong>Last Access:</strong> {new Date(lastAccess).toLocaleString()}</p>
-              {blockedIPs.includes(ip) ? (
-                <p className="text-red-500 mt-2">Blocked</p>
-              ) : (
-                <button
-                  onClick={() => handleBlockIP(ip)}
-                  className="mt-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-                >
-                  Block IP
-                </button>
-              )}
+          {ipCounts.length === 0 ? (
+            <div className="bg-gray-700 p-4 rounded-lg shadow text-center">
+              No IP access data yet. Visit your site from different IPs to generate data.
             </div>
-          ))}
+          ) : (
+            ipCounts.map(({ _id: ip, count, lastAccess }) => (
+              <div key={ip} className="bg-gray-700 p-4 rounded-lg shadow">
+                <p><strong>IP:</strong> {ip}</p>
+                <p><strong>Requests:</strong> {count}</p>
+                <p><strong>Last Access:</strong> {new Date(lastAccess).toLocaleString()}</p>
+                {allBlockedIPs.includes(ip) ? (
+                  <p className="text-red-500 mt-2">Blocked</p>
+                ) : (
+                  <button
+                    onClick={() => handleAction(ip, 'temporary')}
+                    className="mt-2 bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded mr-2"
+                  >
+                    Temp Block
+                  </button>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
 
       {/* Recent Requests Table */}
-      <div>
+      <div className="mb-8">
         <h2 className="text-2xl font-semibold mb-4">Recent Requests</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full bg-gray-700 rounded-lg">
@@ -115,7 +119,7 @@ export default function IPMonitor() {
               {logs.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="p-3 text-center text-gray-400">
-                    No recent requests found. Make some requests to populate this table.
+                    No recent requests found. Make requests to your site to populate this table.
                   </td>
                 </tr>
               ) : (
@@ -132,6 +136,54 @@ export default function IPMonitor() {
                       ) : 'Anonymous'}
                     </td>
                     <td className="p-3">{new Date(log.timestamp).toLocaleString()}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Blocked IPs List */}
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Blocked IPs</h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-gray-700 rounded-lg">
+            <thead>
+              <tr className="bg-gray-800">
+                <th className="p-3 text-left border-b border-gray-600">IP</th>
+                <th className="p-3 text-left border-b border-gray-600">Reason</th>
+                <th className="p-3 text-left border-b border-gray-600">Blocked At</th>
+                <th className="p-3 text-left border-b border-gray-600">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {allBlockedIPs.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="p-3 text-center text-gray-400">
+                    No blocked IPs yet. Use the actions above to block IPs.
+                  </td>
+                </tr>
+              ) : (
+                blockedIPs.map((ip) => (
+                  <tr key={ip._id} className="border-t border-gray-600">
+                    <td className="p-3">{ip.ip}</td>
+                    <td className="p-3">{ip.reason || 'No reason provided'}</td>
+                    <td className="p-3">{new Date(ip.blockedAt).toLocaleString()}</td>
+                    <td className="p-3">
+                      <button
+                        onClick={() => handleAction(ip.ip, 'unblock')}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded mr-2"
+                      >
+                        Unblock
+                      </button>
+                      <button
+                        onClick={() => handleAction(ip.ip, 'permanent')}
+                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                      >
+                        Permanent Block
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}

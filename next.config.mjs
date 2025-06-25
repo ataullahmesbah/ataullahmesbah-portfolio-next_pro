@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     appDir: true,
-    serverComponentsExternalPackages: ['mongoose'], // Ensure Mongoose is server-side
+    serverComponentsExternalPackages: ['mongoose'],
     serverActions: true,
   },
   images: {
@@ -18,7 +18,7 @@ const nextConfig = {
       },
       {
         protocol: 'http',
-        hostname: '**', // Remove in production for security
+        hostname: '**', // Remove in production
       },
     ],
     domains: ['img.youtube.com', '*'],
