@@ -3,28 +3,27 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     appDir: true,
-    serverComponentsExternalPackages: ['mongoose'], // Add if using Mongoose
-    serverActions: true, // Enable if using Server Actions
+    serverComponentsExternalPackages: ['mongoose'], // Ensure Mongoose is server-side
+    serverActions: true,
   },
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'img.youtube.com', // Explicitly allow YouTube thumbnails
+        hostname: 'img.youtube.com',
       },
       {
         protocol: 'https',
-        hostname: '**', // Allows all HTTPS domains
+        hostname: '**',
       },
       {
         protocol: 'http',
-        hostname: '**', // Allows all HTTP domains (Optional)
+        hostname: '**', // Remove in production for security
       },
     ],
-    domains: ['img.youtube.com', '*'], // Full domain wildcard
-    unoptimized: true, // Optional if optimization is not needed
+    domains: ['img.youtube.com', '*'],
+    unoptimized: true,
   },
-
   webpack: (config, { isServer }) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
@@ -37,6 +36,7 @@ const nextConfig = {
     if (!isServer) {
       config.resolve.alias = {
         ...config.resolve.alias,
+        mongoose: false,
         mongodb: false,
         'mongodb-client-encryption': false,
         aws4: false,
@@ -59,11 +59,66 @@ const nextConfig = {
   async headers() {
     return [
       {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' ws: wss: https://ataullahmesbah.com; frame-ancestors 'none';",
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains; preload',
+          },
+        ],
+      },
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization',
+          },
+        ],
+      },
+      {
         source: '/api/socket/:path*',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: process.env.NEXTAUTH_URL || 'http://localhost:3000' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET,POST' },
-          { key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET,POST',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type',
+          },
         ],
       },
       {
@@ -95,6 +150,15 @@ const nextConfig = {
       },
       {
         source: '/accounts/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
+          },
+        ],
+      },
+      {
+        source: '/admin/ip-monitor/:path*',
         headers: [
           {
             key: 'X-Robots-Tag',
