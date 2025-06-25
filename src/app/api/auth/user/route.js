@@ -1,3 +1,4 @@
+// src/app/api/auth/user/route.js
 import { NextResponse } from 'next/server';
 import User from '@/models/User';
 import dbConnect from '@/lib/dbMongoose';
