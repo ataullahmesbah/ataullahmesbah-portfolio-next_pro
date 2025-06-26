@@ -4,9 +4,8 @@ import dbConnect from '@/lib/dbMongoose';
 import RequestLog from '@/models/RequestLog';
 import BlockedIP from '@/models/BlockedIP';
 
-
-// In-memory storage (shared with middleware)
-import { ipStats } from '@/middleware'; // Adjust path as needed
+// Access ipStats from global scope (shared with middleware)
+const ipStats = globalThis.ipStats || new Map();
 
 export async function GET(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -30,9 +29,11 @@ export async function GET(req) {
 
     // Combine in-memory and DB block statuses
     const allBlockedIPs = blockedIPs.map(ip => ip.ip);
-    ipStats.forEach((data, ip) => {
-      if (data.permanent && !allBlockedIPs.includes(ip)) allBlockedIPs.push(ip);
-    });
+    if (ipStats) {
+      ipStats.forEach((data, ip) => {
+        if (data.permanent && !allBlockedIPs.includes(ip)) allBlockedIPs.push(ip);
+      });
+    }
 
     return NextResponse.json({ logs, blockedIPs, ipCounts, allBlockedIPs });
   } catch (error) {
@@ -54,16 +55,18 @@ export async function POST(req) {
     if (action === 'permanent') {
       const blockedIP = new BlockedIP({ ip, reason, blockedBy: token.id });
       await blockedIP.save();
-      ipStats.get(ip).permanent = true;
+      if (ipStats.get(ip)) ipStats.get(ip).permanent = true;
     } else if (action === 'temporary') {
-      ipStats.get(ip).blockUntil = Date.now() + 30 * 60 * 1000; // 30 minutes
+      if (ipStats.get(ip)) ipStats.get(ip).blockUntil = Date.now() + 30 * 60 * 1000; // 30 minutes
     } else if (action === 'unblock') {
       await BlockedIP.deleteOne({ ip });
       const ipData = ipStats.get(ip);
-      ipData.permanent = false;
-      ipData.blockUntil = 0;
-      ipData.warnings = 0;
-      ipData.routeCounts.clear();
+      if (ipData) {
+        ipData.permanent = false;
+        ipData.blockUntil = 0;
+        ipData.warnings = 0;
+        ipData.routeCounts.clear();
+      }
     }
 
     return NextResponse.json({ message: `${action} action performed on IP ${ip}` }, { status: 200 });

@@ -35,6 +35,12 @@ const AdminDashboardLayout = ({ children }) => {
             ],
         },
         {
+            label: 'MONITOR',
+            children: [
+                { label: 'IP Monitor', link: '/admin-dashboard/ip-monitor' }
+            ],
+        },
+        {
             label: 'AFFILIATE',
             children: [
                 { label: 'Affiliate Dashboard', link: '/admin-dashboard/affiliate/affiliate-dashbaord' },

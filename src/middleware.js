@@ -60,7 +60,7 @@ export async function middleware(req) {
   // Calculate total hits in the last minute
   const now = Date.now();
   ipData.routeCounts.forEach((count, route) => {
-    if (now - WINDOW_MS > ipData.routeCounts.get(route)?.timestamp || !ipData.routeCounts.get(route)?.timestamp) {
+    if (now - WINDOW_MS > (ipData.routeCounts.get(route)?.timestamp || 0)) {
       ipData.routeCounts.set(route, { count: 0, timestamp: now });
     }
   });
