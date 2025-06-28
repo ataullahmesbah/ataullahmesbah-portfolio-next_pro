@@ -1,5 +1,6 @@
-import ShopBanner from '@/app/components/testing';
+
 import ShopClient from '@/app/Dashboard/Shop/ShopClient/ShopClient';
+import ShopHeroSection from '@/app/Dashboard/Shop/ShopHeroSection/ShopHeroSection';
 import { Suspense } from 'react';
 
 export async function generateMetadata() {
@@ -83,7 +84,7 @@ export default async function Shop() {
             }}
         >
             {/* Hero Banner */}
-            <ShopBanner />
+            <ShopHeroSection />
 
 
 

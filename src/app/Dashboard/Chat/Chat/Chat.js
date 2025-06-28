@@ -194,7 +194,7 @@ export default function AdminChatPanel() {
   const activeChats = chats.filter((c) => c.status === 'active');
 
   return (
-    <div className="flex h-screen font-sans bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200">
+    <div className="flex min-h-screen font-sans bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200">
       <aside className="w-1/3 xl:w-1/4 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col">
         <header className="p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center flex-shrink-0">
           <h1 className="text-xl font-bold text-indigo-500">অ্যাডমিন প্যানেল</h1>
