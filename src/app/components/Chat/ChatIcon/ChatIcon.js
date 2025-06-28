@@ -1,7 +1,3 @@
-// portfolio/app/components/ChatIcon.jsx
-
-
-// portfolio/app/components/ChatIcon.jsx
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
@@ -29,9 +25,12 @@ export default function ChatIcon() {
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
   const [persistentUserId, setPersistentUserId] = useState(null);
+  const messageIds = useRef(new Set());
 
   useEffect(() => {
-    setPersistentUserId(getPersistentUserId());
+    const userId = getPersistentUserId();
+    console.log('Persistent User ID:', userId);
+    setPersistentUserId(userId);
   }, []);
 
   useEffect(() => {
@@ -39,46 +38,58 @@ export default function ChatIcon() {
 
     socketRef.current = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       path: '/socket.io',
-      transports: ['polling', 'websocket'],
-      reconnectionAttempts: 5,
-      reconnectionDelay: 2000,
-      timeout: 10000,
+      transports: ['websocket', 'polling'],
+      query: { isAdmin: false, persistentUserId },
+      reconnectionAttempts: 30,
+      reconnectionDelay: 300,
+      timeout: 5000,
     });
 
     socketRef.current.on('connect', () => {
       setIsConnected(true);
       socketRef.current.emit('init-chat', { persistentUserId });
-      console.log(`✅ Socket Connected: ${socketRef.current.id}`);
+      console.log(`✅ Socket Connected: ${socketRef.current.id}, Query:`, socketRef.current.io.opts.query);
     });
 
     socketRef.current.on('connect_error', (err) => {
       setIsConnected(false);
       console.error(`❌ Socket Connect Error: ${err.message}`);
-      toast.error(`Connection failed: ${err.message}`);
+      toast.error(`সংযোগ ব্যর্থ: ${err.message}`);
     });
 
     socketRef.current.on('disconnect', () => {
       setIsConnected(false);
       console.log('⚠️ Socket Disconnected');
-      toast.warn('Disconnected from server');
+      toast.warn('সার্ভার থেকে সংযোগ বিচ্ছিন্ন');
     });
 
     socketRef.current.on('chat-history', (chat) => {
-      console.log('📜 Chat history:', chat);
-      setMessages(chat.messages || []);
+      console.log('📜 Chat history received:', chat);
+      const newMessages = (chat.messages || []).filter(
+        (msg) => msg._id && !messageIds.current.has(msg._id.toString())
+      );
+      newMessages.forEach((msg) => msg._id && messageIds.current.add(msg._id.toString()));
+      setMessages(newMessages);
       setChatStatus(chat.status);
     });
 
     socketRef.current.on('chat-accepted', (chat) => {
       console.log('✅ Chat accepted:', chat);
       setChatStatus('active');
-      setMessages(chat.messages || []);
-      toast.success('Admin has joined the chat!');
+      const newMessages = (chat.messages || []).filter(
+        (msg) => msg._id && !messageIds.current.has(msg._id.toString())
+      );
+      newMessages.forEach((msg) => msg._id && messageIds.current.add(msg._id.toString()));
+      setMessages(newMessages);
+      toast.success('অ্যাডমিন চ্যাটে যুক্ত হয়েছেন!');
     });
 
     socketRef.current.on('new-message', (message) => {
       console.log('📩 New message:', message);
-      setMessages((prev) => [...prev, message]);
+      if (message._id && !messageIds.current.has(message._id.toString())) {
+        messageIds.current.add(message._id.toString());
+        setMessages((prev) => [...prev, message]);
+      }
     });
 
     socketRef.current.on('error', ({ message }) => {
@@ -95,16 +106,42 @@ export default function ChatIcon() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (input.trim() && isConnected) {
-      const optimisticMessage = { sender: 'user', content: input, _id: Date.now(), timestamp: new Date() };
+    if (input.trim()) {
+      const tempId = Date.now().toString();
+      const optimisticMessage = { sender: 'user', content: input, _id: tempId, timestamp: new Date() };
+      messageIds.current.add(tempId);
       setMessages((prev) => [...prev, optimisticMessage]);
-      socketRef.current.emit('user-message', { persistentUserId, content: input.trim() });
+
+      // Send via Socket.IO
+      if (isConnected) {
+        socketRef.current.emit('user-message', { persistentUserId, content: input.trim() });
+      }
+
+      // Save to database via API
+      try {
+        const res = await fetch('/api/chats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: persistentUserId, content: input.trim(), sender: 'user' }),
+        });
+        const data = await res.json();
+        if (!data.success) {
+          console.error('❌ API save error:', data.message);
+          toast.error(`মেসেজ সেভ করতে ব্যর্থ: ${data.message}`);
+        } else {
+          console.log('✅ API save success:', data.chat);
+        }
+      } catch (err) {
+        console.error('❌ API save error:', err.message);
+        toast.error(`মেসেজ সেভ করতে ব্যর্থ: ${err.message}`);
+      }
+
       setInput('');
-      toast.success('Message sent!');
-    } else if (!isConnected) {
-      toast.error('Not connected to server');
+      toast.success('মেসেজ পাঠানো হয়েছে!');
+    } else {
+      toast.error('মেসেজ লিখুন');
     }
   };
 
@@ -128,8 +165,8 @@ export default function ChatIcon() {
                   )}
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-800 dark:text-white">Customer Support</h3>
-                  <p className="text-xs text-gray-500">{isConnected ? 'Online' : 'Connecting...'}</p>
+                  <h3 className="font-bold text-gray-800 dark:text-white">কাস্টমার সাপোর্ট</h3>
+                  <p className="text-xs text-gray-500">{isConnected ? 'অনলাইন' : 'সংযোগ হচ্ছে...'}</p>
                 </div>
               </div>
               <button
@@ -151,10 +188,11 @@ export default function ChatIcon() {
                     </div>
                   )}
                   <div
-                    className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm ${msg.sender === 'user'
+                    className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm ${
+                      msg.sender === 'user'
                         ? 'bg-indigo-500 text-white rounded-br-none'
                         : 'bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-bl-none'
-                      }`}
+                    }`}
                   >
                     {msg.content}
                   </div>
