@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/route';
-import dbConnect from '@/lib/dbMongoose';
 import Chat from '@/models/Chat';
+import dbConnect from '@/lib/dbMongoose';
 
 
 export async function GET(req) {
@@ -12,12 +12,12 @@ export async function GET(req) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'admin') {
-      console.error('❌ Unauthorized access to /api/chats GET');
+      console.error('❌ Unauthorized access to /api/chats GET', { session });
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 
     const chats = await Chat.find({}).sort({ updatedAt: -1 });
-    console.log('📋 Chats fetched:', chats.length);
+    console.log('📋 Chats fetched:', chats.length, { chatIds: chats.map(c => c.userId) });
     return NextResponse.json({ success: true, chats });
   } catch (error) {
     console.error('❌ GET /api/chats error:', error.message, error.stack);
@@ -52,7 +52,7 @@ export async function POST(req) {
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
 
-    console.log(`📩 New message saved for userId: ${userId}, sender: ${sender}`);
+    console.log(`📩 New message saved for userId: ${userId}, sender: ${sender}, chatId: ${chat._id}`);
     return NextResponse.json({ success: true, chat });
   } catch (error) {
     console.error('❌ POST /api/chats error:', error.message, error.stack);

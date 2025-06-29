@@ -17,7 +17,9 @@ export default function AdminChatPanel() {
 
   const fetchInitialChats = async () => {
     try {
-      const res = await fetch('/api/chats');
+      const res = await fetch('/api/chats', {
+        headers: { 'Cache-Control': 'no-cache' },
+      });
       const data = await res.json();
       console.log('📋 Initial chats:', data);
       if (data.success) {
@@ -66,15 +68,15 @@ export default function AdminChatPanel() {
 
       await fetchInitialChats();
 
-      pollingInterval = setInterval(fetchInitialChats, 1500); // Reduced to 1.5 seconds
+      pollingInterval = setInterval(fetchInitialChats, 1000); // 1 second polling
 
       socketRef.current = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
         path: '/socket.io',
         transports: ['websocket', 'polling'],
         query: { isAdmin: true },
-        timeout: 5000,
-        reconnectionAttempts: 30,
-        reconnectionDelay: 300,
+        timeout: 3000,
+        reconnectionAttempts: 50,
+        reconnectionDelay: 200,
       });
 
       socketRef.current.on('connect', () => {
@@ -93,6 +95,10 @@ export default function AdminChatPanel() {
         setIsConnected(false);
         console.log('⚠️ Admin Socket Disconnected');
         toast.warn('সার্ভার থেকে সংযোগ বিচ্ছিন্ন');
+      });
+
+      socketRef.current.on('admin-room-status', (data) => {
+        console.log('🟢 Admin room status:', data);
       });
 
       socketRef.current.on('new-chat-request', (newChat) => {
@@ -161,10 +167,9 @@ export default function AdminChatPanel() {
           chat.userId === activeChatId ? { ...chat, messages: [...chat.messages, optimisticMessage] } : chat
         )
       );
-      socketRef.current.emit('admin-message', { userId: activeChatId, content: input.trim() });
 
-      // Fallback: Save to database via API
       try {
+        // Save to database via API first
         const res = await fetch('/api/chats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -172,20 +177,39 @@ export default function AdminChatPanel() {
         });
         const data = await res.json();
         if (!data.success) {
-          console.error('❌ API save error:', data.message);
+          console.error('❌ API save error:', data.message, data.error);
           toast.error(`মেসেজ সেভ করতে ব্যর্থ: ${data.message}`);
-        } else {
-          console.log('✅ API save success:', data.chat);
+          setChats((prev) =>
+            prev.map((chat) =>
+              chat.userId === activeChatId
+                ? { ...chat, messages: chat.messages.filter((msg) => msg._id !== tempId) }
+                : chat
+            )
+          );
+          messageIds.current.delete(tempId);
+          return;
         }
+        console.log('✅ API save success:', data.chat);
+
+        // Send via Socket.IO only if API save is successful
+        socketRef.current.emit('admin-message', { userId: activeChatId, content: input.trim() });
+        toast.success('মেসেজ পাঠানো হয়েছে!');
       } catch (err) {
-        console.error('❌ API save error:', err.message);
+        console.error('❌ API save error:', err.message, err.stack);
         toast.error(`মেসেজ সেভ করতে ব্যর্থ: ${err.message}`);
+        setChats((prev) =>
+          prev.map((chat) =>
+            chat.userId === activeChatId
+              ? { ...chat, messages: chat.messages.filter((msg) => msg._id !== tempId) }
+              : chat
+          )
+        );
+        messageIds.current.delete(tempId);
       }
 
       setInput('');
-      toast.success('মেসেজ পাঠানো হয়েছে!');
-    } else if (!isConnected) {
-      toast.error('সার্ভারের সাথে সংযোগ নেই');
+    } else {
+      toast.error(isConnected ? 'মেসেজ লিখুন' : 'সার্ভারের সাথে সংযোগ নেই');
     }
   };
 
@@ -194,7 +218,7 @@ export default function AdminChatPanel() {
   const activeChats = chats.filter((c) => c.status === 'active');
 
   return (
-    <div className="flex min-h-screen font-sans bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200">
+    <div className="flex h-screen font-sans bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-200">
       <aside className="w-1/3 xl:w-1/4 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col">
         <header className="p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center flex-shrink-0">
           <h1 className="text-xl font-bold text-indigo-500">অ্যাডমিন প্যানেল</h1>
@@ -261,7 +285,7 @@ export default function AdminChatPanel() {
           <>
             <header className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3 bg-white dark:bg-gray-900 flex-shrink-0">
               <h2 className="font-bold">
-                চ্যাট করুন <span className="text-indigo-500">{activeChat.userId.substring(0, 8)}</span> এর সাথে
+                চ্যা�ট করুন <span className="text-indigo-500">{activeChat.userId.substring(0, 8)}</span> এর সাথে
               </h2>
             </header>
             <div className="flex-1 p-6 overflow-y-auto space-y-4">

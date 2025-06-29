@@ -29,7 +29,7 @@ export default function ChatIcon() {
 
   useEffect(() => {
     const userId = getPersistentUserId();
-    console.log('Persistent User ID:', userId);
+    console.log('🟢 Persistent User ID:', userId);
     setPersistentUserId(userId);
   }, []);
 
@@ -40,9 +40,9 @@ export default function ChatIcon() {
       path: '/socket.io',
       transports: ['websocket', 'polling'],
       query: { isAdmin: false, persistentUserId },
-      reconnectionAttempts: 30,
-      reconnectionDelay: 300,
-      timeout: 5000,
+      reconnectionAttempts: 50,
+      reconnectionDelay: 200,
+      timeout: 3000,
     });
 
     socketRef.current.on('connect', () => {
@@ -108,19 +108,14 @@ export default function ChatIcon() {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (input.trim()) {
+    if (input.trim() && isConnected) {
       const tempId = Date.now().toString();
       const optimisticMessage = { sender: 'user', content: input, _id: tempId, timestamp: new Date() };
       messageIds.current.add(tempId);
       setMessages((prev) => [...prev, optimisticMessage]);
 
-      // Send via Socket.IO
-      if (isConnected) {
-        socketRef.current.emit('user-message', { persistentUserId, content: input.trim() });
-      }
-
-      // Save to database via API
       try {
+        // Save to database via API first
         const res = await fetch('/api/chats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -128,20 +123,27 @@ export default function ChatIcon() {
         });
         const data = await res.json();
         if (!data.success) {
-          console.error('❌ API save error:', data.message);
+          console.error('❌ API save error:', data.message, data.error);
           toast.error(`মেসেজ সেভ করতে ব্যর্থ: ${data.message}`);
-        } else {
-          console.log('✅ API save success:', data.chat);
+          setMessages((prev) => prev.filter((msg) => msg._id !== tempId));
+          messageIds.current.delete(tempId);
+          return;
         }
+        console.log('✅ API save success:', data.chat);
+
+        // Send via Socket.IO only if API save is successful
+        socketRef.current.emit('user-message', { persistentUserId, content: input.trim() });
+        toast.success('মেসেজ পাঠানো হয়েছে!');
       } catch (err) {
-        console.error('❌ API save error:', err.message);
+        console.error('❌ API save error:', err.message, err.stack);
         toast.error(`মেসেজ সেভ করতে ব্যর্থ: ${err.message}`);
+        setMessages((prev) => prev.filter((msg) => msg._id !== tempId));
+        messageIds.current.delete(tempId);
       }
 
       setInput('');
-      toast.success('মেসেজ পাঠানো হয়েছে!');
     } else {
-      toast.error('মেসেজ লিখুন');
+      toast.error(isConnected ? 'মেসেজ লিখুন' : 'সার্ভারের সাথে সংযোগ নেই');
     }
   };
 
