@@ -121,6 +121,7 @@ const AdminDashboardLayout = ({ children }) => {
                 { label: 'Coupon', link: '/admin-dashboard/shop/coupons' },
                 { label: 'Config', link: '/admin-dashboard/shop/config' },
                 { label: 'Shipping Charges', link: '/admin-dashboard/shop/shipping-charges' },
+                { label: 'Shop Banner', link: '/admin-dashboard/shop/shop-banner' },
             ],
         },
         {
