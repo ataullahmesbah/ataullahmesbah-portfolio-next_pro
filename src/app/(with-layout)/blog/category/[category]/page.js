@@ -4,7 +4,7 @@ import { GoDotFill, GoArrowLeft } from "react-icons/go"; // Added GoArrowLeft
 
 export async function generateMetadata({ params }) {
   return {
-    title: `${params.category.replace(/-/g, ' ')} Blogs - My Website`,
+    title: `${params.category.replace(/-/g, ' ')} Blogs - Ataullah Mesbah`,
     description: `Explore the latest blogs in the ${params.category.replace(/-/g, ' ')} category.`,
   };
 }
@@ -99,7 +99,7 @@ export default async function CategoryPage({ params, searchParams }) {
                   <Link href={`/blog/${blog.slug}`} className="hover:underline">
                     <h2 className="text-xl font-semibold text-black">{blog.title}</h2>
                   </Link>
-                  <p className="mt-2 text-gray-500 line-clamp-2">{blog.shortDescription}</p>
+                  <p className="mt-2 text-gray-500 line-clamp-2">{blog.metaDescription}</p>
                 </div>
 
                 <div className="mt-4 md:mt-0">
