@@ -1,4 +1,5 @@
 import BlogContent from '@/app/components/Blog/BlogDetails/BlogDetails';
+import CommentBox from '@/app/components/CommentBox/CommentBox';
 import Loader from '@/app/components/Loader/Loader';
 import { Suspense } from 'react';
 
@@ -60,7 +61,10 @@ export default async function BlogDetail({ params }) {
         <div className="bg-white min-h-screen">
             <Suspense fallback={<Loader />}>
                 <BlogContent blog={blog} />
+                <CommentBox blogId={blog._id} />
             </Suspense>
+
+
         </div>
     );
 }
