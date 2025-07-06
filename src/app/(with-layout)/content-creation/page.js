@@ -32,12 +32,12 @@ export default async function ContentCreationPage() {
         console.error("Error fetching content:", error);
     }
 
-    const youtubeVideos = content.filter(v => v.platform === 'YouTube').slice(0, 6);
+    const youtubeVideos = content.filter(v => v.platform === 'YouTube');
 
     return (
         <ClientContentCreation
             youtubeVideos={youtubeVideos}
-            youtubeCount={content.filter(v => v.platform === 'YouTube').length}
+            youtubeCount={youtubeVideos.length}
         />
     );
 }
