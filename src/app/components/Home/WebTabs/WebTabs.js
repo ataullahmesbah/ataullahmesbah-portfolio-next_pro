@@ -15,12 +15,7 @@ const WebTabs = () => {
         setWebServices(webServicesData);
          }, []);
 
-    // useEffect(() => {
-    //     fetch("/webtabs.json")
-    //         .then((response) => response.json())
-    //         .then((data) => setWebServices(data))
-    //         .catch((error) => console.error("Error fetching web services:", error));
-    // }, []);
+    
 
     return (
         <section className="py-10  px-4 sm:px-6 lg:px-8">
@@ -54,7 +49,7 @@ const WebTabs = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: index * 0.1 }}
                             viewport={{ once: true }}
-                            className="bg-gray-800/50 rounded-xl p-8 border border-gray-700 hover:border-purple-500/50 transition-all duration-300 group"
+                            className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-purple-500/50 transition-all duration-300 group"
                         >
                             <div className="flex items-start mb-6">
                                 <motion.div 

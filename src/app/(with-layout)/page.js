@@ -48,38 +48,32 @@ export const metadata = {
     robots: 'index, follow',
 };
 
-const HomePage = () => {
-    // const { data: session, status } = useSession();
-
-    // console.log('Session:', session?.user?.name); 
-
-    return (
+const HomePage = () => /* const { data: session, status } = useSession();*/ /* console.log('Session:', session?.user?.name); */ (
 
 
 
-        <main
-            className="min-h-screen"
-            style={{
-                background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
-            }}
-        >
-            <Banner />
-            <Sponser />
-            <AboutUs />
-            <PortfolioTabs />
-            <WhoIsMesbah />
-            <ProjectsTab />
-            <ShopHighlightSection />
-            <MarketingSection />
-            <Testimonials />
-            <NewSection />
-            <CertificationsAwards />
-            <NewsletterPage />
-            <ContactAssistance />
-            <SideIcons />
-        </main>
+    <main
+        className="min-h-screen"
+        style={{
+            background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
+        }}
+    >
+        <Banner />
+        <Sponser />
+        <AboutUs />
+        <PortfolioTabs />
+        <WhoIsMesbah />
+        <ProjectsTab />
+        <ShopHighlightSection />
+        <MarketingSection />
+        <Testimonials />
+        <NewSection />
+        <CertificationsAwards />
+        <NewsletterPage />
+        <ContactAssistance />
+        <SideIcons />
+    </main>
 
-    );
-};
+);
 
 export default HomePage;    

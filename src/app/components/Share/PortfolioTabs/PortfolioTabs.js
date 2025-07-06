@@ -1,83 +1,96 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import SEOTabs from '../../Home/SEOTabs/SEOTabs';
 import WebTabs from '../../Home/WebTabs/WebTabs';
-
-
-import { LineWave } from 'react-loader-spinner'; // Import the loader
+import { motion, AnimatePresence } from 'framer-motion';
+import { LineWave } from 'react-loader-spinner';
 import ContentPortfolio from '../PortfolioWorks/ContentPortfolio/ContentPortfolio';
 import TravelPortfolio from '../PortfolioWorks/TravelPortfolio/TravelPortfolio';
 
 const PortfolioTabs = () => {
     const [activeTab, setActiveTab] = useState('SEO');
-    const [loading, setLoading] = useState(false); // State to manage loader
+    const [loading, setLoading] = useState(false);
+
+    const tabs = [
+        { id: 'SEO', label: 'SEO' },
+        { id: 'Web', label: 'Web Dev' },
+        { id: 'Content', label: 'Content' },
+        { id: 'Travel', label: 'Travel' }
+    ];
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'SEO':
-                return <SEOTabs />;
-            case 'Web Development':
-                return <WebTabs />;
-            case 'Content Creator':
-                return <ContentPortfolio />;
-            case 'Travel':
-                return <TravelPortfolio />;
-            // case 'Sports':
-            //     return <SportsTabs />;
-            default:
-                return null;
+            case 'SEO': return <SEOTabs />;
+            case 'Web': return <WebTabs />;
+            case 'Content': return <ContentPortfolio />;
+            case 'Travel': return <TravelPortfolio />;
+            default: return null;
         }
     };
 
-    // Handle tab switching and loader
     const handleTabChange = (tab) => {
-        setLoading(true); // Show loader
+        setLoading(true);
         setActiveTab(tab);
-        // Simulate loading effect with a small delay
-        setTimeout(() => {
-            setLoading(false); // Hide loader after content is ready
-        }, 1000); // Adjust duration as needed
+        setTimeout(() => setLoading(false), 500);
     };
 
     return (
-        <div className="max-w-7xl mx-auto py-10 poppins-regular">
+        <div className="max-w-7xl mx-auto py-6 md:py-10 poppins-regular px-4">
             {/* Tabs Navigation */}
-            <div className="flex flex-wrap justify-center mb-4">
-                {['SEO', 'Web Development', 'Content Creator', 'Travel'].map((tab) => (
+            <div className="flex flex-wrap justify-center mb-6 gap-2 md:gap-4">
+                {tabs.map((tab) => (
                     <button
-                        key={tab}
-                        onClick={() => handleTabChange(tab)}
-                        className={`px-6 py-2 mx-2 my-1 rounded-md transition-colors duration-300 ${activeTab === tab ? 'bg-black text-indigo-400 hover:text-gray-100 transition duration-200 border-b border-b-pink-400 shadow-md shadow-pink-400' : 'bg-gray-800 border-b border-gray-500  text-gray-200 shadow-md  shadow-purple-600'
-                            }`}
+                        key={tab.id}
+                        onClick={() => handleTabChange(tab.id)}
+                        className={`relative px-4 py-2 mx-1 rounded-md transition-all duration-300 text-sm md:text-base ${
+                            activeTab === tab.id 
+                                ? 'bg-black text-indigo-300 border-b-2 border-pink-400 shadow-md shadow-pink-400/50' 
+                                : 'bg-gray-800 text-gray-300 hover:bg-gray-700/80 border-b border-gray-600'
+                        }`}
                     >
-                        {tab}
+                        {tab.label}
+                        {activeTab === tab.id && (
+                            <motion.div 
+                                layoutId="activeTabIndicator"
+                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-pink-400"
+                                transition={{ duration: 0.3 }}
+                            />
+                        )}
                     </button>
                 ))}
             </div>
 
-            {/* Tab Content or Loader */}
-            <div className="p-3">
-                {loading ? (
-                    // Show the loader while content is loading
-                    <div className="flex justify-center items-center h-60">
-                        <LineWave
-                            visible={true}
-                            height="100"
-                            width="100"
-                            color="#4fa94d"
-                            ariaLabel="line-wave-loading"
-                            wrapperStyle={{}}
-                            wrapperClass=""
-                            firstLineColor="green"
-                            middleLineColor="sky"
-                            lastLineColor="red"
-                        />
-                    </div>
-                ) : (
-                    // Render the tab content once loading is finished
-                    renderContent()
-                )}
+            {/* Tab Content */}
+            <div className="p-2 md:p-4 min-h-[400px]">
+                <AnimatePresence mode="wait">
+                    {loading ? (
+                        <motion.div
+                            key="loader"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="flex justify-center items-center h-60"
+                        >
+                            <LineWave
+                                height="80"
+                                width="80"
+                                color="#ec4899"
+                                ariaLabel="loading"
+                            />
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key={activeTab}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            {renderContent()}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );
