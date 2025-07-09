@@ -132,7 +132,7 @@ export default function CodSuccess() {
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="/shop" className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow transition text-sm">🛍️ Continue Shopping</a>
-                    <a href="/orders" className="px-6 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg shadow transition text-sm">📦 View My Orders</a>
+                    <a href="/shop/track/orders" className="px-6 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg shadow transition text-sm">📦 View My Orders</a>
                 </div>
             </div>
         </div>
