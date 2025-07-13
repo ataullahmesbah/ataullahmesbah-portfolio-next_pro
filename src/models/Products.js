@@ -13,6 +13,7 @@ const productSchema = new mongoose.Schema({
   mainImage: { type: String, required: true },
   additionalImages: [{ type: String }],
   description: { type: String, required: true },
+  product_code: { type: String, required: true },
   descriptions: [{ type: String }],
   bulletPoints: [{ type: String }],
   productType: { type: String, required: true, enum: ['Own', 'Affiliate'] },

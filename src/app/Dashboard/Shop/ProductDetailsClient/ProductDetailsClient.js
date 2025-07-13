@@ -335,6 +335,12 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                             </div>
                         )}
 
+                        <div>
+                            <p className="text-xs text-gray-200">
+                               Product Code: {product.product_code || 'N/A'}
+                            </p>
+                        </div>
+
                         {/* Product Details */}
                         <div className="space-y-4 pt-4 border-t border-gray-700">
                             {product.description && (

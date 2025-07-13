@@ -53,7 +53,7 @@ export async function POST(request) {
         console.log('Received formData quantity:', formData.get('quantity')); // Debug log
 
         // Validate required fields
-        const requiredFields = ['title', 'bdtPrice', 'description', 'mainImage', 'productType', 'quantity'];
+        const requiredFields = ['title', 'bdtPrice', 'description', 'mainImage', 'productType', 'quantity', 'product_code'];
         const missingFields = requiredFields.filter((field) => !formData.get(field) && formData.get(field) !== '');
         if (missingFields.length > 0) {
             return Response.json(
@@ -227,6 +227,7 @@ export async function POST(request) {
             mainImage: mainImageResult.secure_url,
             additionalImages,
             description: formData.get('description'),
+            product_code: formData.get('product_code'),
             descriptions,
             bulletPoints,
             productType: formData.get('productType'),

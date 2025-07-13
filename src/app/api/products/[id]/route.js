@@ -69,6 +69,7 @@ export async function PUT(request, { params }) {
         const usdExchangeRate = formData.get('usdExchangeRate') ? parseFloat(formData.get('usdExchangeRate')) : null;
         const eurExchangeRate = formData.get('eurExchangeRate') ? parseFloat(formData.get('eurExchangeRate')) : null;
         const description = formData.get('description');
+        const product_code = formData.get('product_code');
         const descriptions = formData.get('descriptions')?.split('|||')?.filter((desc) => desc.trim()) || [];
         const bulletPoints = formData.get('bulletPoints')?.split(',').map((point) => point.trim()).filter(Boolean) || [];
         const productType = formData.get('productType');
@@ -84,7 +85,7 @@ export async function PUT(request, { params }) {
         const quantity = parseInt(formData.get('quantity')); // Added quantity
 
         // Validate required fields
-        if (!title || !bdtPrice || !description || (!categoryId && !newCategory) || (!mainImage && !existingMainImage) || isNaN(quantity) || quantity < 0) {
+        if (!title || !bdtPrice || !description || !product_code || (!categoryId && !newCategory) || (!mainImage && !existingMainImage) || isNaN(quantity) || quantity < 0) {
             return Response.json({ error: 'Missing required fields or invalid quantity' }, { status: 400 });
         }
 
@@ -161,6 +162,7 @@ export async function PUT(request, { params }) {
                 additionalImages: additionalImageUrls,
                 owner: session.user.name,
                 quantity, // Added quantity
+                product_code,
             },
             { new: true, runValidators: true }
         );

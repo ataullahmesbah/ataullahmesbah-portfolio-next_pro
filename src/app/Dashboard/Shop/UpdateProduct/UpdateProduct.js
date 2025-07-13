@@ -29,6 +29,7 @@ export default function UpdateProduct() {
         additionalImages: [],
         existingAdditionalImages: [],
         quantity: '',
+        product_code: '',
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,6 +65,7 @@ export default function UpdateProduct() {
                     usdExchangeRate: usdPriceObj?.exchangeRate || '',
                     eurExchangeRate: eurPriceObj?.exchangeRate || '',
                     description: product.description || '',
+                    product_code: product.product_code || '',
                     descriptions: product.descriptions.length > 0 ? product.descriptions : [''],
                     bulletPoints: product.bulletPoints.join(', ') || '',
                     productType: product.productType || 'Own',
@@ -112,6 +114,7 @@ export default function UpdateProduct() {
             newErrors.eurExchangeRate = 'EUR exchange rate must be a positive number';
         }
         if (!formData.description.trim()) newErrors.description = 'Primary description is required';
+        if (!formData.product_code.trim()) newErrors.product_code = 'Product Code is required';
         if (formData.productType === 'Affiliate' && !formData.affiliateLink.trim()) {
             newErrors.affiliateLink = 'Affiliate link is required';
         } else if (formData.affiliateLink && !/^https?:\/\/.+/.test(formData.affiliateLink)) {
@@ -158,6 +161,7 @@ export default function UpdateProduct() {
         if (formData.usdExchangeRate) data.append('usdExchangeRate', formData.usdExchangeRate);
         if (formData.eurExchangeRate) data.append('eurExchangeRate', formData.eurExchangeRate);
         data.append('description', formData.description);
+        data.append('product_code', formData.product_code);
         data.append('descriptions', formData.descriptions.filter((desc) => desc.trim()).join('|||'));
         data.append('bulletPoints', formData.bulletPoints);
         data.append('productType', formData.productType);
@@ -298,18 +302,33 @@ export default function UpdateProduct() {
                             {errors.title && <p className="mt-1 text-sm text-red-500">{errors.title}</p>}
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Quantity*</label>
-                            <input
-                                type="number"
-                                value={formData.quantity}
-                                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.quantity ? 'border-red-500' : 'border-gray-300'}`}
-                                placeholder="Enter quantity"
-                                min="0"
-                                step="1"
-                            />
-                            {errors.quantity && <p className="mt-1 text-sm text-red-500">{errors.quantity}</p>}
+                        {/* Quantity - Product Code */}
+                        <div className='flex gap-4 items-center'>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Quantity*</label>
+                                <input
+                                    type="number"
+                                    value={formData.quantity}
+                                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                                    className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.quantity ? 'border-red-500' : 'border-gray-300'}`}
+                                    placeholder="Enter quantity"
+                                    min="0"
+                                    step="1"
+                                />
+                                {errors.quantity && <p className="mt-1 text-sm text-red-500">{errors.quantity}</p>}
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Product Code*</label>
+                                <input
+                                    type="text"
+                                    value={formData.product_code}
+                                    onChange={(e) => setFormData({ ...formData, product_code: e.target.value })}
+                                    className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.product_code ? 'border-red-500' : 'border-gray-300'}`}
+                                    placeholder="Enter product code (e.g. ATM12345)"
+                                />
+                                {errors.product_code && <p className="mt-1 text-sm text-red-500">{errors.product_code}</p>}
+                            </div>
                         </div>
 
                         <div>
