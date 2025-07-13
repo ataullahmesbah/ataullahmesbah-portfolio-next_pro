@@ -14,7 +14,22 @@ const projectSchema = new mongoose.Schema({
     slug: { type: String, unique: true },
     subtitle: { type: String, required: true },
     description: { type: String, required: true },
-    
+
+    // Add these new fields for the project link
+    projectLink: {
+        type: String,
+        validate: {
+            validator: function (v) {
+                // Simple URL validation (optional)
+                return !v || /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(v);
+            },
+            message: props => `${props.value} is not a valid URL!`
+        }
+    },
+    projectLinkText: {
+        type: String,
+        default: "Visit Project Site"
+    },
     contentShort: {
         type: String,
         required: true,

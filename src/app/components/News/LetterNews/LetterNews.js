@@ -84,8 +84,8 @@ const NewsLetter = () => {
                     <p className="font-thin text-sm sm:text-base md:text-xl text-gray-300">
                         Unlock the secrets to SEO success, business growth, and digital mastery with newsletters that deliver actionable insights every month.
                     </p>
-                    <p className="font-thin text-sm sm:text-base md:text-xl text-gray-300">
-                        Stay ahead of the curve with expert tips, case studies, and innovative ideas tailored for entrepreneurs, marketers, and visionaries.
+                    <p className="font-thin text-sm sm:text-base md:text-base text-gray-300">
+                        Embark on a journey through time as we uncover hidden gems of ancient civilizations, legendary explorers' routes, and forgotten architectural marvels that shaped our world.
                     </p>
                 </div>
 
@@ -120,10 +120,10 @@ const NewsLetter = () => {
                 <div className="max-w-3xl mx-auto text-center justify-center py-12 space-y-10 px-2">
 
                     <p className="text-left text-gray-200 font-thin text-xl italic">
-                        Experience the value of tailored, expert-driven content that empowers your journey. Each letter delivers impactful strategies for your business, SEO, and personal growth.
+                        Experience the power of cutting-edge tech insights, from AI-driven development to scalable cloud architectures. Each newsletter unlocks expert strategies for engineers, developers, and tech leaders to build the future.
                     </p>
                     <p className="text-left text-gray-200 font-thin text-xl italic">
-                        From mastering search engine rankings to discovering innovative business hacks, our newsletters provide you with tools to thrive in a competitive landscape. Each letter is crafted with care to inspire and inform.
+                        From uncharted wilderness to legendary expeditions, our letters bring you gripping tales of adventure. Discover hidden trails, survival tactics, and the spirit of exploration that pushes human limits.
                     </p>
 
                     <DynamicButton

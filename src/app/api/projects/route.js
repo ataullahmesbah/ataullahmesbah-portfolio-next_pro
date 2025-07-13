@@ -55,6 +55,9 @@ export async function POST(request) {
         const galleryFiles = formData.getAll('gallery');
         const galleryNames = formData.getAll('galleryNames');
         const galleryAlts = formData.getAll('galleryAlts');
+        // Add these lines to get the link fields
+        const projectLink = formData.get('projectLink');
+        const projectLinkText = formData.get('projectLinkText') || 'Visit Project Site';
 
         // Validate required fields
         if (!title || !subtitle || !description || !contentShort || !category || !metaDescription || !imageAlt || !mainImageFile) {
@@ -150,19 +153,23 @@ export async function POST(request) {
             supportSystem,
             metaDescription: trimmedMetaDescription,
             views: 0,
+            projectLink: projectLink || undefined, // Will be omitted if empty
+            projectLinkText: projectLinkText,
         };
 
-        console.log("Project data before saving (including contentShort):", projectData); // Added debug log
+        console.log("Saving project with data:", projectData); // Debug log
 
         const project = new Project(projectData);
-
-        console.log("Project instance before saving:", project); // Debug log
-
         await project.save();
-        console.log("Project saved successfully:", project);
+
+        console.log("Saved project:", project); // Verify link was saved
         return NextResponse.json({ message: "Project created successfully", project }, { status: 201 });
     } catch (error) {
-        console.error("Error creating project:", error);
-        return NextResponse.json({ error: "Failed to create project", message: error.message, stack: error.stack }, { status: 500 });
+        console.error("Error details:", error);
+        return NextResponse.json({
+            error: "Failed to create project",
+            message: error.message,
+            stack: error.stack
+        }, { status: 500 });
     }
 }

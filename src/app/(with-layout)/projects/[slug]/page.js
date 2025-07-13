@@ -327,6 +327,52 @@ const ProjectDetailsPage = async ({ params }) => {
                             </section>
                         )}
 
+
+                        {/* Link */}
+
+                        {project.projectLink && (
+                            <section className="mt-8">
+                                <h2 className="text-xl font-bold text-white mb-4">Project Link</h2>
+                                <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700 hover:border-purple-500 transition-colors duration-200">
+                                    <a
+                                        href={project.projectLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-2 group"
+                                    >
+                                        <span className="text-purple-400 group-hover:text-purple-300 transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                                            </svg>
+                                        </span>
+                                        <span className="text-white group-hover:text-purple-300 transition-colors">
+                                            {project.projectLinkText || 'Visit Project Site'}
+                                        </span>
+                                        <span className="ml-auto text-gray-400 group-hover:text-purple-300 transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <line x1="7" y1="17" x2="17" y2="7"></line>
+                                                <polyline points="7 7 17 7 17 17"></polyline>
+                                            </svg>
+                                        </span>
+                                    </a>
+                                    <p className="mt-2 text-sm text-gray-400 break-all">
+                                        {project.projectLink}
+                                    </p>
+                                </div>
+                            </section>
+                        )}
+
+                        {!project.projectLink && (
+                            <section className="mt-8">
+                                <h2 className="text-xl font-bold text-white mb-4">Project Link</h2>
+                                <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
+                                    <p className="text-gray-400 italic">No project link available</p>
+                                </div>
+                            </section>
+                        )}
+
+
                         {/* Support System */}
                         {project.supportSystem && (
                             <section>

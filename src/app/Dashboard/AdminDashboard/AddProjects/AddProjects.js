@@ -25,6 +25,8 @@ const AddProjectPage = () => {
         gallery: [],
         galleryNames: [],
         galleryAlts: [],
+        projectLink: '', // Add this
+        projectLinkText: 'Visit Project Site', // Add this with default value
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -103,7 +105,8 @@ const AddProjectPage = () => {
         data.append('subtitle', formData.subtitle);
         data.append('description', formData.description);
         data.append('contentShort', formData.contentShort);
-
+        data.append('projectLink', formData.projectLink);
+        data.append('projectLinkText', formData.projectLinkText || 'Visit Project Site');
         formData.contentSections.forEach((section) => {
             data.append('contentSections', section.content);
             data.append('tags', section.tag);
@@ -202,6 +205,30 @@ const AddProjectPage = () => {
                             {formData.contentShort.length}/250 characters
                         </p>
                     </div>
+
+                    <div>
+                        <label className="block text-gray-300">Project Link (optional)</label>
+                        <input
+                            type="url"
+                            name="projectLink"
+                            value={formData.projectLink}
+                            onChange={handleInputChange}
+                            className="w-full p-2 rounded-lg bg-gray-700 text-white"
+                            placeholder="https://example.com"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-gray-300">Link Display Text (optional)</label>
+                        <input
+                            type="text"
+                            name="projectLinkText"
+                            value={formData.projectLinkText}
+                            onChange={handleInputChange}
+                            className="w-full p-2 rounded-lg bg-gray-700 text-white"
+                            placeholder="Visit Project Site"
+                        />
+                    </div>
+
                     <div>
                         <label className="block text-gray-300">Description</label>
                         <textarea
