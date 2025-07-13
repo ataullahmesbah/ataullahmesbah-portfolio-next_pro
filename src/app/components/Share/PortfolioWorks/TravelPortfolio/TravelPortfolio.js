@@ -1,6 +1,7 @@
 import Image from 'next/image';
-import tr3 from '/public/images/travel/campgreen.jpg';
+import tr3 from '/public/images/travel/ks23.jpg';
 import tr1 from '/public/images/travel/tr1.webp';
+import tr2 from '/public/images/travel/iconic_ksm.jpg';
 
 const TravelPortfolio = () => {
     return (
@@ -58,7 +59,7 @@ const TravelPortfolio = () => {
                             height={200}
                         />
                         <Image
-                            src={tr1} // Replace with your image path
+                            src={tr2} // Replace with your image path
                             alt="Travel Image 2"
                             className="rounded-lg rounded-ee-3xl"
                             width={300}
