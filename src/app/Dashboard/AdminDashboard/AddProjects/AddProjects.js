@@ -38,6 +38,10 @@ const AddProjectPage = () => {
         if (name === 'contentShort' && value.length > 250) {
             return;
         }
+        if (name === 'projectLink' && value && !/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(value)) {
+            toast.error('Please enter a valid URL for Project Link');
+            return;
+        }
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 

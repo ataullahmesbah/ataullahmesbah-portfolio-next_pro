@@ -31,6 +31,8 @@ const ManageProjectsPage = () => {
         gallery: [],
         galleryNames: [],
         galleryAlts: [],
+        projectLink: '', // Add this
+        projectLinkText: 'Visit Project Site', // Add this
     });
 
     useEffect(() => {
@@ -143,6 +145,8 @@ const ManageProjectsPage = () => {
             gallery: [],
             galleryNames: [],
             galleryAlts: [],
+            projectLink: project.projectLink || '', // Add this
+            projectLinkText: project.projectLinkText || 'Visit Project Site', // Add this
         });
     };
 
@@ -155,6 +159,8 @@ const ManageProjectsPage = () => {
         data.append('subtitle', formData.subtitle);
         data.append('description', formData.description);
         data.append('contentShort', formData.contentShort); // Updated to contentShort
+        data.append('projectLink', formData.projectLink); // Add this
+        data.append('projectLinkText', formData.projectLinkText || 'Visit Project Site'); // Add this
 
         // Append content sections as a JSON string
         data.append('content', JSON.stringify(formData.contentSections.map(section => ({
@@ -220,6 +226,8 @@ const ManageProjectsPage = () => {
                 gallery: [],
                 galleryNames: [],
                 galleryAlts: [],
+                projectLink: '', // Add this
+                projectLinkText: 'Visit Project Site', // Add this
             });
             setEditingProject(null);
         } catch (err) {
@@ -336,6 +344,31 @@ const ManageProjectsPage = () => {
                                 {formData.contentShort.length}/250 characters
                             </p>
                         </div>
+
+                        {/* Link */}
+                        <div>
+                            <label className="block text-gray-300 font-medium mb-1">Project Link (optional)</label>
+                            <input
+                                type="url"
+                                name="projectLink"
+                                value={formData.projectLink}
+                                onChange={handleInputChange}
+                                className="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="https://example.com"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-gray-300 font-medium mb-1">Link Display Text (optional)</label>
+                            <input
+                                type="text"
+                                name="projectLinkText"
+                                value={formData.projectLinkText}
+                                onChange={handleInputChange}
+                                className="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Visit Project Site"
+                            />
+                        </div>
+
                         <div>
                             <label className="block text-gray-300 font-medium mb-1">Description</label>
                             <textarea
@@ -589,6 +622,8 @@ const ManageProjectsPage = () => {
                                         gallery: [],
                                         galleryNames: [],
                                         galleryAlts: [],
+                                        projectLink: '', // Add this
+                                        projectLinkText: 'Visit Project Site', // Add this
                                     });
                                 }}
                                 className="w-full px-4 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition shadow-md"
@@ -613,6 +648,7 @@ const ManageProjectsPage = () => {
                                     <th className="p-4 text-sm font-semibold rounded-tl-lg">Serial</th>
                                     <th className="p-4 text-sm font-semibold">Title</th>
                                     <th className="p-4 text-sm font-semibold">Category</th>
+                                    
                                     <th className="p-4 text-sm font-semibold">Views</th>
                                     <th className="p-4 text-sm font-semibold rounded-tr-lg">Actions</th>
                                 </tr>
@@ -626,6 +662,8 @@ const ManageProjectsPage = () => {
                                         <td className="p-4 text-gray-300 text-sm">{index + 1}</td>
                                         <td className="p-4 text-base text-white font-medium">{project.title}</td>
                                         <td className="p-4 text-gray-300 text-sm">{project.category}</td>
+                                       
+                                       
                                         <td className="p-4 text-gray-300 text-sm">
                                             {(project.views || 0).toLocaleString()}
                                         </td>

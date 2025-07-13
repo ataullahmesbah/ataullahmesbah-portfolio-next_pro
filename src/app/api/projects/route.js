@@ -153,8 +153,8 @@ export async function POST(request) {
             supportSystem,
             metaDescription: trimmedMetaDescription,
             views: 0,
-            projectLink: projectLink || undefined, // Will be omitted if empty
-            projectLinkText: projectLinkText,
+            projectLink: projectLink || undefined, // This is correct
+            projectLinkText: projectLinkText || 'Visit Project Site' // Ensure default is set
         };
 
         console.log("Saving project with data:", projectData); // Debug log

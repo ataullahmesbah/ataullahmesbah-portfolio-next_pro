@@ -48,10 +48,13 @@ export async function PUT(request, { params }) {
         const galleryFiles = formData.getAll('gallery');
         const galleryNames = formData.getAll('galleryNames');
         const galleryAlts = formData.getAll('galleryAlts');
-          // Add these new fields
+        // Add these new fields
         const projectLink = formData.get('projectLink');
         const projectLinkText = formData.get('projectLinkText') || 'Visit Project Site';
 
+        // Add logging here
+        console.log("Received projectLink for PUT:", projectLink);
+        console.log("Received projectLinkText for PUT:", projectLinkText);
 
         const project = await Project.findById(id);
         if (!project) {
@@ -75,7 +78,6 @@ export async function PUT(request, { params }) {
         project.views = project.views || 0;
         project.updatedAt = Date.now();
 
-        // Add these lines for the new fields
         project.projectLink = projectLink || project.projectLink;
         project.projectLinkText = projectLinkText || project.projectLinkText;
 
