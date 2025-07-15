@@ -37,7 +37,11 @@ const ProjectsPage = ({ projects: initialProjects = null }) => {
                 const response = await fetch('/api/projects');
                 if (!response.ok) throw new Error('Failed to fetch projects');
                 const data = await response.json();
-                setProjects(data);
+                // Sort projects by createdAt date (newest first)
+                const sortedProjects = data.sort((a, b) =>
+                    new Date(b.createdAt) - new Date(a.createdAt)
+                );
+                setProjects(sortedProjects);
             } catch (err) {
                 console.error('Error fetching projects:', err);
                 setError(err.message);
