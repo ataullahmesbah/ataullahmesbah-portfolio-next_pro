@@ -5,7 +5,9 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Head from 'next/head';
-import { FaArrowRight } from 'react-icons/fa'; // Import right arrow icon
+import { FaArrowRight, FaChevronDown, FaTimes } from 'react-icons/fa'; // Import right arrow icon
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 const ProjectsPage = ({ projects: initialProjects = null }) => {
     const [projects, setProjects] = useState(initialProjects || []);
@@ -13,6 +15,15 @@ const ProjectsPage = ({ projects: initialProjects = null }) => {
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const projectsPerPage = 6; // Number of projects per page
+    const [expandedProject, setExpandedProject] = useState(null);
+
+    useEffect(() => {
+        AOS.init({
+            duration: 800,
+            once: true,
+            easing: 'ease-out-quad'
+        });
+    }, []);
 
     useEffect(() => {
         if (initialProjects) {
@@ -74,47 +85,77 @@ const ProjectsPage = ({ projects: initialProjects = null }) => {
                 <meta name="keywords" content="projects, portfolio, marketing, ecommerce, travel, blog, personal portfolio" />
                 <meta name="robots" content="index, follow" />
             </Head>
-            <h1 className="text-3xl sm:text-5xl font-extrabold text-white mb-6 text-center tracking-tight">
-                Our Projects
+            <h1 className="text-3xl sm:text-4xl amsfonts text-white mb-6 text-center tracking-tight">
+                Professional Website Templates for any project
             </h1>
             <p className="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
                 Discover our diverse portfolio of projects, showcasing expertise in marketing, ecommerce, travel, blogs, and personal portfolios.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                {currentProjects.map((project) => (
+
+            <div className="max-w-5xl mx-auto space-y-6">
+                {currentProjects.map((project, index) => (
                     <div
                         key={project._id}
                         className="relative group bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700/50 transition-all duration-300 hover:shadow-xl hover:border-gray-600"
+                        data-aos="fade-up"
+                        data-aos-delay={index * 100}
                     >
-                        {/* Project Image */}
-                        <div className="relative h-56 sm:h-64 w-full">
-                            <Image
-                                src={project.mainImage}
-                                alt={project.imageAlt}
-                                layout="fill"
-                                objectFit="cover"
-                                className="w-full h-full"
-                            />
-                        </div>
-                        {/* Project Details */}
-                        <div className="p-6">
-                            <h2 className="text-xl sm:text-2xl font-semibold text-white mb-3 line-clamp-1">
-                                {project.title}
-                            </h2>
-                            <p className="text-gray-400 text-sm sm:text-base line-clamp-2 mb-4">
-                                {project.description}
-                            </p>
-                            <div className="flex justify-between items-center">
-                                <span className="text-gray-500 text-xs sm:text-sm">
-                                    Category: {project.category}
-                                </span>
-                                <Link
-                                    href={`/projects/${project.slug}`}
-                                    className="flex items-center text-indigo-400 hover:text-indigo-300 transition duration-200"
-                                >
-                                    View Project
-                                    <FaArrowRight className="ml-2 w-4 h-4" />
-                                </Link>
+                        <div className="flex flex-col lg:flex-row h-full">
+                            {/* Project Image - Left Side (Full Height) */}
+                            <div className="lg:w-1/2 relative h-64 lg:h-auto">
+                                <Image
+                                    src={project.mainImage}
+                                    alt={project.imageAlt}
+                                    fill
+                                    className="object-cover w-full h-full"
+                                    quality={100}
+                                    priority={index < 2}
+                                />
+                            </div>
+
+                            {/* Project Content - Right Side */}
+                            <div className="lg:w-1/2 p-6 flex flex-col">
+                                <div className="flex-grow">
+                                    {/* Title */}
+                                    <h2 className="text-xl amsfonts text-white mb-3">
+                                        {project.title}
+                                    </h2>
+                                    {/* Description with responsive character limit */}
+                                    <p className="text-gray-400 text-sm mb-4">
+                                        {typeof window !== 'undefined' && window.innerWidth < 768
+                                            ? project.description.length > 120
+                                                ? `${project.description.substring(0, 120)}...`
+                                                : project.description
+                                            : project.description.length > 420
+                                                ? `${project.description.substring(0, 420)}...`
+                                                : project.description
+                                        }
+                                    </p>
+                                </div>
+
+                                {/* Footer with Category and Button */}
+                                <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-700/50">
+                                    {/* Category in purple pill */}
+                                    <div className="flex flex-wrap gap-2">
+                                        {project.categories?.map((category) => (
+                                            <span
+                                                key={category}
+                                                className="px-3 py-1 bg-purple-900/60 text-purple-100 rounded-full text-xs"
+                                            >
+                                                {category}
+                                            </span>
+                                        ))}
+                                    </div>
+
+                                    {/* View Project Button */}
+                                    <Link
+                                        href={`/projects/${project.slug}`}
+                                        className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm transition duration-200 group"
+                                    >
+                                        View
+                                        <FaArrowRight className="ml-2 w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                                    </Link>
+                                </div>
                             </div>
                         </div>
                     </div>

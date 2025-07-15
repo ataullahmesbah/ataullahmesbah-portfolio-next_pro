@@ -4,6 +4,7 @@ import React from 'react';
 import ContactForm from '@/app/components/ContactForm/ContactForm';
 import { FaFacebook, FaTwitter, FaLinkedin, FaMedium, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import LocationMap from '../LocationMap/LocationMap';
 
 const ContactPage = () => {
     const contactItems = [
@@ -24,9 +25,9 @@ const ContactPage = () => {
         {
             icon: <FaMapMarkerAlt className="text-2xl" />,
             title: "Location",
-            content: "Dublin, Ireland",
+            content: "Dhaka, Bangladesh",
             color: "green",
-            link: "https://maps.google.com/?q=Dublin,Ireland"
+            link: "https://maps.google.com/?q=Dhaka,Bangladesh"
         }
     ];
 
@@ -150,28 +151,8 @@ const ContactPage = () => {
                 </div>
 
                 {/* Location Map - Professional Style */}
-                <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700 shadow-xl mt-10">
-                    <div className="p-6">
-                        <h3 className="text-xl md:text-2xl font-bold text-white mb-2">My Office Location</h3>
-                        <p className="text-gray-400 mb-4">Based in the heart of Dublin’s tech district</p>
-                        <div className="relative h-64 md:h-80 w-full rounded-lg overflow-hidden">
-                            <iframe
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d152515.98633810444!2d-6.385786963179615!3d53.324238066857994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48670e80ea27ac2f%3A0xa00c7a9973171a0!2sDublin!5e0!3m2!1sen!2sie!4v1620000000000!5m2!1sen!2sie"
-                                width="100%"
-                                height="100%"
-                                style={{ border: 0 }}
-                                allowFullScreen
-                                loading="lazy"
-                                className="filter grayscale hover:grayscale-0 transition-all duration-500"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none"></div>
-                        </div>
-                        <div className="mt-4 flex items-center text-gray-300">
-                            <FaMapMarkerAlt className="text-green-400 mr-2" />
-                            <span>Silicon Docks, Dublin, Ireland</span>
-                        </div>
-                    </div>
-                </div>
+
+                <LocationMap />
             </div>
         </div>
     );

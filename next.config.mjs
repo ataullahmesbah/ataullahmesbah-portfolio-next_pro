@@ -21,7 +21,7 @@ const nextConfig = {
         hostname: '**', // Remove in production
       },
     ],
-    domains: ['img.youtube.com', '*'],
+    domains: ['img.youtube.com', '*', 'maps.googleapis.com'],
     unoptimized: true,
   },
   webpack: (config, { isServer }) => {
@@ -77,10 +77,21 @@ const nextConfig = {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
           },
+         
+
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' ws: wss: https://ataullahmesbah.com; frame-src 'self' https://www.youtube.com https://youtube.com; frame-ancestors 'none';",
+            value: `
+              default-src 'self';
+              script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://maps.gstatic.com;
+              style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://maps.googleapis.com;
+              img-src 'self' data: https: https://*.googleapis.com https://*.gstatic.com;
+              connect-src 'self' ws: wss: https://ataullahmesbah.com https://maps.googleapis.com;
+              frame-src 'self' https://www.youtube.com https://youtube.com https://www.google.com https://maps.google.com;
+              frame-ancestors 'none';
+            `.replace(/\s+/g, ' ').trim()
           },
+
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains; preload',

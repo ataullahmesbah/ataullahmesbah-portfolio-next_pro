@@ -269,3 +269,22 @@ body {
 
 /* CHAT ICON Design END */
 
+/* AOS */
+/* Custom scroll animation */
+[data-aos] {
+  transition-property: transform, opacity;
+}
+
+/* Smooth scrolling behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Smooth purple background transition */
+.bg-purple-900\/60 {
+  transition: background-color 0.3s ease;
+}
+.bg-purple-900\/60:hover {
+  background-color: rgba(76, 29, 149, 0.8);
+}
+

@@ -46,7 +46,7 @@ const LetterReview = () => {
                                             <FaStar key={i} className="text-yellow-400" />
                                         ))}
                                     </div>
-                                    <h4 className="font-semibold text-white text-center">
+                                    <h4 className=" text-white text-center">
                                         {testimonial.name}
                                     </h4>
                                     <p className="text-gray-400 text-sm text-center">
