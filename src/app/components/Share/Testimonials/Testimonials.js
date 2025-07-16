@@ -19,7 +19,7 @@ const Testimonials = () => {
     useEffect(() => {
         const fetchReviews = async () => {
             try {
-                const response = await fetch("/api/testimonials");
+                const response = await fetch("/api/testimonials", { next: { revalidate: 3600 } });
                 if (!response.ok) throw new Error("Failed to fetch data");
                 const data = await response.json();
 
@@ -82,11 +82,11 @@ const Testimonials = () => {
                             spaceBetween={30}
                             breakpoints={{
                                 640: { slidesPerView: 1 },
-                                768: { 
+                                768: {
                                     slidesPerView: 2,
                                     spaceBetween: 20
                                 },
-                                1024: { 
+                                1024: {
                                     slidesPerView: 3,
                                     spaceBetween: 30
                                 },
@@ -110,10 +110,11 @@ const Testimonials = () => {
                                                     {review.image ? (
                                                         <Image
                                                             src={review.image}
-                                                            alt={review.user_name}
+                                                            alt={review.user_name || "Client"}
                                                             width={48}
                                                             height={48}
                                                             className="rounded-full w-12 h-12 border-2 border-sky-400/30 object-cover"
+                                                            loading="lazy"
                                                         />
                                                     ) : (
                                                         <div className="rounded-full w-12 h-12 border-2 border-sky-400/30 flex items-center justify-center bg-gray-700">

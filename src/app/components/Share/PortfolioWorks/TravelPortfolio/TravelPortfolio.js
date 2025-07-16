@@ -57,6 +57,7 @@ const TravelPortfolio = () => {
                             className="rounded-lg rounded-ss-3xl"
                             width={300}
                             height={200}
+                            loading="lazy"
                         />
                         <Image
                             src={tr2} // Replace with your image path
@@ -64,6 +65,7 @@ const TravelPortfolio = () => {
                             className="rounded-lg rounded-ee-3xl"
                             width={300}
                             height={200}
+                            loading="lazy"
                         />
                     </div>
 
@@ -75,6 +77,7 @@ const TravelPortfolio = () => {
                             className="rounded-lg rounded-ee-3xl"
                             width={400}
                             height={600}
+                            loading="lazy"
                         />
                     </div>
                 </div>

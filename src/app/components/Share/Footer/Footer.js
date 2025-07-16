@@ -149,8 +149,9 @@ const Footer = () => {
                             <ul className="space-y-1">
                                 {[
                                     { href: "/blog", label: "Blog" },
+                                    
+                                    { href: "/about", label: "About" },
                                     { href: "/projects", label: "Projects" },
-                                    { href: "/about", label: "About AMZ" },
                                     { href: "/newsletter", label: "Newsletter" },
                                     { href: "/mesbahoffwego", label: "Travel Story" }
                                 ].map((link) => (

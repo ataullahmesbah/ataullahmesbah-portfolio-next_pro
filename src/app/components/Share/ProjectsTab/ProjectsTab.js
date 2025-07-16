@@ -40,19 +40,21 @@ const ProjectsTab = () => {
 
     // Define an array of tabs with labels and icons
     const tabs = [
-        { label: 'SEO', icon: <FaSearch className="text-lg" /> },
         { label: 'Web Development', icon: <FaCode className="text-lg" /> },
+        { label: 'SEO', icon: <FaSearch className="text-lg" /> },
         { label: 'Content Creator', icon: <FaPen className="text-lg" /> },
         { label: 'Travel', icon: <FaPlane className="text-lg" /> },
     ];
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'SEO':
-                return <SEOPortfolio />;
             case 'Web Development':
                 // Pass only the first 3 projects to ProjectsPage
                 return <ProjectsTabs />;
+
+            case 'SEO':
+                return <SEOPortfolio />;
+
             case 'Content Creator':
                 return <ContentPortfolio />;
             case 'Travel':
@@ -86,7 +88,7 @@ const ProjectsTab = () => {
             </p>
 
             {/* Tabs Navigation */}
-           {/* // In your JSX replace the tabs navigation with this: */}
+            {/* // In your JSX replace the tabs navigation with this: */}
             <div className="flex flex-wrap justify-center mb-8 gap-2 sm:gap-4">
                 {tabs.map((tab) => (
                     <motion.button
@@ -95,8 +97,8 @@ const ProjectsTab = () => {
                         whileHover={{ y: -3 }}
                         whileTap={{ scale: 0.95 }}
                         className={`relative flex items-center px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-all duration-300 ${activeTab === tab.label
-                                ? 'text-white'
-                                : 'text-gray-300 hover:text-white'
+                            ? 'text-white'
+                            : 'text-gray-300 hover:text-white'
                             }`}
                     >
                         {/* Animated background for active tab */}
