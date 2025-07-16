@@ -279,7 +279,7 @@ export default function EditFeaturedStory() {
                                 <p className="text-gray-400 text-sm mt-1">{formData.shortDescription.length}/300 characters</p>
                             </div>
                             <div>
-                                <label className="block text-white mb-2" htmlFor="mainImage">Main Image</label>
+                                <label className="block text-white mb-2" htmlFor="mainImage">Main Image (800*450 Px)</label>
                                 <input
                                     type="file"
                                     id="mainImage"

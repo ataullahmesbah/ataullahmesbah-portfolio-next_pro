@@ -34,7 +34,7 @@ const RefundPolicy = () => {
               Return Policy
             </h1>
             <div className="w-24 h-1 bg-blue-600 mx-auto mb-4 rounded"></div>
-            <p className="text-sm text-gray-400">Last Updated: May 18, 2025</p>
+            <p className="text-sm text-gray-400">Last Updated: July 17, 2025</p>
           </header>
 
           {/* Introduction */}
@@ -58,10 +58,19 @@ const RefundPolicy = () => {
             {/* Exchange Policy */}
             <article className="bg-gray-800 p-6 rounded-lg shadow-lg">
               <h2 className="text-2xl font-semibold text-white mb-4">2. Exchange Policy</h2>
-              <p className="text-gray-200 leading-relaxed">
-                Received the wrong product? We’ll exchange it at no extra cost. Ensure the item is in its original condition and meets the eligibility criteria above.
-              </p>
+              <div className="space-y-3">
+                <p className="text-gray-200 leading-relaxed">
+                  Received the wrong product? We’ll exchange it at no extra cost. Ensure the item is in its original condition and meets the eligibility criteria above.
+                </p>
+                <p>To claim a missing or damaged product, you must record an unboxing video during the unboxing process as proof. Claims for missing products will not be accepted without an unboxing video.</p>
+                <p>If you receive a defective or incorrect product, you must claim for an exchange within 2 days (48 hours) of receiving the product (working days only). In such cases, we will collect the product and deliver a replacement to you without any additional delivery charges.</p>
+                <p>Please note that claims made after 2 days will not be accepted under any circumstances.</p>
+              </div>
             </article>
+
+
+
+
 
             {/* Refund Policy */}
             <article className="bg-gray-800 p-6 rounded-lg shadow-lg">

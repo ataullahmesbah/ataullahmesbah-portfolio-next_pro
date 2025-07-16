@@ -269,7 +269,7 @@ export default function CreateFeaturedStory() {
 
                             <div>
                                 <label className="block text-white mb-2" htmlFor="mainImage">
-                                    Main Image*
+                                    Main Image* (800*450 Px)
                                 </label>
                                 <input
                                     type="file"

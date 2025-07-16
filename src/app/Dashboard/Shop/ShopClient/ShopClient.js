@@ -121,8 +121,8 @@ export default function ShopClient({ products, structuredData }) {
                                             {/* Stock Status Badge - More subtle */}
                                             <div
                                                 className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-medium ${product.quantity > 0
-                                                    ? 'bg-green-900/60 text-green-200'
-                                                    : 'bg-red-900/60 text-red-200'
+                                                    ? 'bg-green-900/80 text-green-200'
+                                                    : 'bg-red-700/90 text-red-200'
                                                     } backdrop-blur-sm`}
                                             >
                                                 {product.quantity > 0 ? 'In Stock' : 'Out of Stock'}
@@ -132,13 +132,13 @@ export default function ShopClient({ products, structuredData }) {
                                         {/* Product Info - Fixed at bottom */}
                                         <div className="p-5 flex flex-col flex-grow justify-between">
                                             <div>
-                                                <h3 className="font-medium text-lg text-white line-clamp-2">
+                                                <h3 className="amsfonts text-base text-white line-clamp-2">
                                                     {product.title}
                                                 </h3>
                                             </div>
 
                                             <div className="mt-4 flex justify-between items-end">
-                                                <p className="text-xl font-bold text-white">
+                                                <p className="text-lg amsfonts text-white">
                                                     ৳{bdtPrice?.toLocaleString() || 'N/A'}
                                                 </p>
                                                 {product.quantity > 0 && (
