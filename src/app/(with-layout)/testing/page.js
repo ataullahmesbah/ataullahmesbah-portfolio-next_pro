@@ -1,11 +1,10 @@
-import FeaturedStory from '@/app/components/Share/FreaturedStory/FreaturedStory';
-import WebPackage from '@/app/Dashboard/Services/WebDevs/WebPackage/WebPackage';
-import React from 'react';
+import FAQSection from "../faq/page";
+
 
 const page = () => {
   return (
     <div>
-      <FeaturedStory />
+      <FAQSection />
     </div>
   );
 };

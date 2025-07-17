@@ -45,7 +45,7 @@ const page = () => {
 };
 
 export const metadata = {
-    title: 'Letter - Ataullah Mesbah',
+    title: 'Letter | Ataullah Mesbah',
     description: "Subscribe to Ataullah Mesbah's newsletter for the latest updates, insights, and exclusive content. Stay connected with our community.",
     keywords: 'newsletter, Ataullah Mesbah, updates, insights, subscription, exclusive content',
     authors: [{ name: 'Ataullah Mesbah' }],

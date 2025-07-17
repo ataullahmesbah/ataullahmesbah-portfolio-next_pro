@@ -219,7 +219,7 @@ async function BlogContent({ page, limit }) {
 }
 
 export const metadata = {
-  title: 'Blog - Ataullah Mesbah',
+  title: 'Blog | Ataullah Mesbah',
   description: 'Explore the latest blog posts on AI, quantum computing, web development, and more by Ataullah Mesbah.',
   keywords: 'blog, Ataullah Mesbah, AI, quantum computing, web development, technology, insights',
   authors: [{ name: 'Ataullah Mesbah' }],
