@@ -15,6 +15,8 @@ import SideIcons from '../components/SideIcons/SideIcons';
 import NewsletterPage from '../components/Share/NewsletterPage/NewsletterPage';
 import CertificationsAwards from '../components/CertificationsAwards/CertificationsAwards';
 import ShopHighlightSection from '../components/Home/ShopHighlightSection/ShopHighlightSection';
+import FAQPage from './faq/page';
+import FAQSection from '../components/Share/FAQSection/FAQSection';
 
 
 
@@ -48,7 +50,7 @@ export const metadata = {
     robots: 'index, follow',
 };
 
-const HomePage = () => /* const { data: session, status } = useSession();*/ /* console.log('Session:', session?.user?.name); */ (
+const HomePage = () => /* const { data: session, status } = useSession();*/ /* console.log('Session:', session?.user?.name); */(
 
 
 
@@ -71,6 +73,8 @@ const HomePage = () => /* const { data: session, status } = useSession();*/ /* c
         <CertificationsAwards />
         <NewsletterPage />
         <ContactAssistance />
+        <FAQSection />
+
         <SideIcons />
     </main>
 

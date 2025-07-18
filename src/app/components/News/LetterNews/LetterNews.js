@@ -7,6 +7,7 @@ import Head from "next/head";
 import LetterReview from "@/app/components/Share/LetterReview/LetterReview";
 import NewsletterPage from "@/app/components/Share/NewsletterPage/NewsletterPage";
 import LatestNewsLetter from "../NewsLetterPage/NewsLetterPage";
+import FAQSection from "../../Share/FAQSection/FAQSection";
 
 
 {/* This is my newsletter platform */ }
@@ -85,7 +86,7 @@ const NewsLetter = () => {
                         Unlock the secrets to SEO success, business growth, and digital mastery with newsletters that deliver actionable insights every month.
                     </p>
                     <p className="font-thin text-sm sm:text-base md:text-base text-gray-300">
-                        Embark on a journey through time as we uncover hidden gems of ancient civilizations, legendary explorers' routes, and forgotten architectural marvels that shaped our world.
+                        Embark on a journey through time as we uncover hidden gems of ancient civilizations, legendary explorers routes, and forgotten architectural marvels that shaped our world.
                     </p>
                 </div>
 
@@ -201,6 +202,9 @@ const NewsLetter = () => {
             {/* "Client Says" */}
 
             <LetterReview />
+
+            {/* FAQ's */}
+            <FAQSection />
 
 
         </div>

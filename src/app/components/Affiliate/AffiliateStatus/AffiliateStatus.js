@@ -125,12 +125,12 @@ export default function AffiliateStatus({ affiliate }) {
                                         )}
                                     </button>
                                 </div>
-                                <a
+                                {/* <a
                                     href={`/dashboard/affiliate`}
                                     className="px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
                                 >
                                     <FiExternalLink /> Dashboard
-                                </a>
+                                </a> */}
                             </div>
                             <p className="text-gray-400 text-sm mt-2">
                                 Earn <span className="text-purple-400 font-medium">8% commission</span> on every sale made through your link

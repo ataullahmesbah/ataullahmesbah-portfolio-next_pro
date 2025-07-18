@@ -1,10 +1,11 @@
-import FAQSection from "../faq/page";
+
+
 
 
 const page = () => {
   return (
     <div>
-      <FAQSection />
+      This Test Page
     </div>
   );
 };
