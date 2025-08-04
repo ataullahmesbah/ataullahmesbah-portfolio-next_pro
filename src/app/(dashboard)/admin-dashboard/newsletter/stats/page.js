@@ -196,7 +196,7 @@ const NewsletterStats = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-4 md:p-8 rounded-2xl">
             <Toaster position="top-center" />
-            <h1 className="text-3xl font-normal mb-10 text-center tracking-tight">Newsletter Subscribers Analytics Dashboard</h1>
+            <h1 className="text-3xl font-normal mb-10 text-center tracking-tight italic">Newsletter Subscribers Analytics Dashboard</h1>
 
             {loading ? (
                 <div className="flex justify-center items-center h-64">

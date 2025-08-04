@@ -1,9 +1,13 @@
 'use client';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { FaBell } from 'react-icons/fa6';
+import { FaBell, FaBellConcierge } from 'react-icons/fa6';
 import { useEffect, useState } from 'react';
 import { FaSun, FaCloudSun, FaMoon, FaStar } from 'react-icons/fa';
+import BlogStatistics from '@/app/Dashboard/AdminDashboard/BlogStatistics/BlogStatistics';
+import NewsletterStats from '../admin-dashboard/newsletter/stats/page';
+import NewsletterStatisticsPage from '../admin-dashboard/newsletter/newsletterstatistics/page';
+
 
 export default function ModeratorDashboardPage() {
   const { data: session, status } = useSession();
@@ -69,11 +73,24 @@ export default function ModeratorDashboardPage() {
             <p>Hello, our wonderful friend! May your day be filled with laughter, love, and all things amazing!</p>
           </div>
         </div>
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
 
-          This is Moderator Page Content !!!
 
+        <div className="flex gap-4 items-center text-white px-5 ">
+          <FaBellConcierge />
+          <p>This is Moderator Page Content !!!</p>
+        </div>
+
+
+
+
+
+
+
+        <div className="">
+          <BlogStatistics />
+          <NewsletterStats />
+          <NewsletterStatisticsPage />
         </div>
 
 

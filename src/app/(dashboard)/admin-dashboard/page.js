@@ -12,6 +12,7 @@ import NewsletterStats from './newsletter/stats/page';
 import NewsletterStatisticsPage from './newsletter/newsletterstatistics/page';
 import { useEffect, useState } from 'react';
 import { FaSun, FaCloudSun, FaMoon, FaStar } from 'react-icons/fa';
+import TravelStatistics from '@/app/Dashboard/TravelPage/TravelStatistics/TravelStatistics';
 
 
 
@@ -88,6 +89,8 @@ export default function AdminDashboardPage() {
                 <NewsletterStats />
                 <NewsletterStatisticsPage />
                 {/* <Statistics /> */}
+
+                <TravelStatistics />
 
 
                 <div>

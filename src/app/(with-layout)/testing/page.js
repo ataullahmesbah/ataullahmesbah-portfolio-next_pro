@@ -1,3 +1,4 @@
+import TravelStatistics from "@/app/Dashboard/TravelPage/TravelStatistics/TravelStatistics";
 
 
 
@@ -5,7 +6,7 @@
 const page = () => {
   return (
     <div>
-      This Test Page
+      <TravelStatistics />
     </div>
   );
 };
