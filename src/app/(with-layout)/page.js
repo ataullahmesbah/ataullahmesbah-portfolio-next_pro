@@ -1,22 +1,5 @@
+import HomePageContent from "../components/HomePageContent/HomePageContent";
 
-import { useSession } from 'next-auth/react';
-import Head from "next/head";
-import Banner from "../components/Home/Banner/Banner";
-import WhoIsMesbah from "../components/Home/WhoIsMesbah/WhoIsMesbah";
-import AboutUs from "../components/Home/AboutUs/AboutUs";
-import Testimonials from "../components/Share/Testimonials/Testimonials";
-import PortfolioTabs from "../components/Share/PortfolioTabs/PortfolioTabs";
-import ContactAssistance from "../components/Share/ConatctAssistance/ContactAssistance";
-import Sponser from "../components/Sponser/Sponser";
-import MarketingSection from "../components/Share/MarketingSection/MarketingSection";
-import NewSection from "../components/Home/NewSection/NewSection";
-import ProjectsTab from "../components/Share/ProjectsTab/ProjectsTab";
-import SideIcons from '../components/SideIcons/SideIcons';
-import NewsletterPage from '../components/Share/NewsletterPage/NewsletterPage';
-import CertificationsAwards from '../components/CertificationsAwards/CertificationsAwards';
-import ShopHighlightSection from '../components/Home/ShopHighlightSection/ShopHighlightSection';
-import FAQPage from './faq/page';
-import FAQSection from '../components/Share/FAQSection/FAQSection';
 
 
 
@@ -54,28 +37,8 @@ const HomePage = () => /* const { data: session, status } = useSession();*/ /* c
 
 
 
-    <main
-        className="min-h-screen"
-        style={{
-            background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
-        }}
-    >
-        <Banner />
-        <Sponser />
-        <AboutUs />
-        <PortfolioTabs />
-        <WhoIsMesbah />
-        <ProjectsTab />
-        <ShopHighlightSection />
-        <MarketingSection />
-        <Testimonials />
-        <NewSection />
-        <CertificationsAwards />
-        <NewsletterPage />
-        <ContactAssistance />
-        <FAQSection />
-
-        <SideIcons />
+    <main>
+        <HomePageContent />
     </main>
 
 );
