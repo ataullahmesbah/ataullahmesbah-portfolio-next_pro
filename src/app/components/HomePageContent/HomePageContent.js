@@ -1,8 +1,5 @@
 'use client';
 
-
-import { useState, useEffect } from 'react';
-import MesbahCustomLoader from "../MesbahCustomLoader/MesbahCustomLoader";
 import Banner from "../Home/Banner/Banner";
 import WhoIsMesbah from "../Home/WhoIsMesbah/WhoIsMesbah";
 import AboutUs from "../Home/AboutUs/AboutUs";
@@ -22,16 +19,7 @@ import Sponser from '../Sponser/Sponser';
 
 
 export default function HomePageContent() {
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 3000);
-        return () => clearTimeout(timer);
-    }, []);
-
-    if (isLoading) {
-        return <MesbahCustomLoader />;
-    }
+   
 
     return (
 
