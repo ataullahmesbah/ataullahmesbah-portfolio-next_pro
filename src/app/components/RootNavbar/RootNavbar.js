@@ -15,7 +15,7 @@ const RootNavbar = () => {
             <div className="flex justify-center sm:justify-start items-center gap-2">
                 <FaAddressCard className="text-lg" />
                 <h3 className="  text-xs">
-                    3 Muirfield Cresent, E14 9SZ, Bangladesh
+                    Dhaka, Bangladesh
                 </h3>
             </div>
 

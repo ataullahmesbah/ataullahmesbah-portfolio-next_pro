@@ -1,14 +1,57 @@
 'use client';
 import Image from 'next/image';
 import SEU from '/public/images/SEU.jpg';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
+
+// Bam dik theke ashar jonno animation variant
+const fadeInFromLeft = {
+    initial: { opacity: 0, x: -100 },
+    animate: {
+        opacity: 1,
+        x: 0,
+        transition: {
+            duration: 0.8,
+            ease: [0.6, -0.05, 0.01, 0.99],
+        },
+    },
+};
+
+// Dan dik theke ashar jonno animation variant
+const fadeInFromRight = {
+    initial: { opacity: 0, x: 100 },
+    animate: {
+        opacity: 1,
+        x: 0,
+        transition: {
+            duration: 0.8,
+            ease: [0.6, -0.05, 0.01, 0.99],
+        },
+    },
+};
 
 const WhoIsMesbah = () => {
+    // Bam o dan pasher content-er jonno ref
+    const leftContentRef = useRef(null);
+    const rightContentRef = useRef(null);
+
+    // useInView hook diye check kora hocche kon ongsho-ti screen-e esheche
+    const isLeftInView = useInView(leftContentRef, { once: true, amount: 0.2 });
+    const isRightInView = useInView(rightContentRef, { once: true, amount: 0.2 });
+
     return (
-        <section className="py-16 bg-gray-900 border-t border-gray-800">
+        <section className="py-16 bg-gray-900 border-t border-gray-800 overflow-x-hidden"> {/* overflow-x-hidden added */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
+
                     {/* Content Section - Left Side */}
-                    <div className="lg:w-1/2 space-y-8">
+                    <motion.div
+                        ref={leftContentRef}
+                        variants={fadeInFromLeft}
+                        initial="initial"
+                        animate={isLeftInView ? 'animate' : 'initial'}
+                        className="lg:w-1/2 space-y-8"
+                    >
                         <div className="space-y-4">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-0.5 bg-gradient-to-r from-purple-500 to-sky-500"></div>
@@ -50,10 +93,16 @@ const WhoIsMesbah = () => {
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Image Section - Right Side */}
-                    <div className="lg:w-1/2 mt-10 lg:mt-0">
+                    <motion.div
+                        ref={rightContentRef}
+                        variants={fadeInFromRight}
+                        initial="initial"
+                        animate={isRightInView ? 'animate' : 'initial'}
+                        className="lg:w-1/2 mt-10 lg:mt-0"
+                    >
                         <div className="relative rounded-lg overflow-hidden aspect-square max-w-md mx-auto">
                             <Image
                                 src={SEU}
@@ -70,7 +119,7 @@ const WhoIsMesbah = () => {
                                 </span>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                 </div>
             </div>
         </section>

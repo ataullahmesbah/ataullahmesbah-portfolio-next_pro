@@ -17,29 +17,62 @@ const Testimonials = () => {
     const [totalReviews, setTotalReviews] = useState(0);
 
     useEffect(() => {
-        const fetchReviews = async () => {
+        const fetchAndCacheReviews = async () => {
+            const cacheKey = 'testimonialsCache';
+            const cachedData = localStorage.getItem(cacheKey);
+            const now = new Date().getTime();
+            const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+
+            // Helper function to process and set review data
+            const processReviews = (data) => {
+                if (Array.isArray(data)) {
+                    setReviews(data);
+                    setTotalReviews(data.length);
+                    const totalRatingSum = data.reduce((sum, review) => sum + (review.rating || 0), 0);
+                    setAverageRating(data.length > 0 ? totalRatingSum / data.length : 0);
+                }
+            };
+
+            if (cachedData) {
+                const { timestamp, data } = JSON.parse(cachedData);
+                // Check if cache is still valid (less than 1 hour old)
+                if (now - timestamp < oneHour) {
+                    console.log("Loading reviews from cache.");
+                    processReviews(data);
+                    setLoading(false);
+                    return; // Exit if cache is valid
+                }
+            }
+
+            // If cache is invalid or doesn't exist, fetch from API
+            console.log("Fetching new reviews from API.");
             try {
                 const response = await fetch("/api/testimonials", { next: { revalidate: 3600 } });
                 if (!response.ok) throw new Error("Failed to fetch data");
                 const data = await response.json();
 
-                if (Array.isArray(data)) {
-                    setReviews(data);
-                    setTotalReviews(data.length);
-                    const totalRatingSum = data.reduce((sum, review) => sum + (review.rating || 0), 0);
-                    setAverageRating(totalRatingSum / data.length);
-                } else {
-                    console.error("API did not return an array");
-                    setReviews([]);
-                }
+                processReviews(data);
+
+                // Update localStorage with new data and timestamp
+                const cachePayload = {
+                    timestamp: now,
+                    data: data,
+                };
+                localStorage.setItem(cacheKey, JSON.stringify(cachePayload));
+
             } catch (error) {
                 console.error("Error fetching reviews:", error);
+                // If API fails, try to use stale cache if it exists
+                if (cachedData) {
+                    const { data } = JSON.parse(cachedData);
+                    processReviews(data);
+                }
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchReviews();
+        fetchAndCacheReviews();
     }, []);
 
     if (loading) return (

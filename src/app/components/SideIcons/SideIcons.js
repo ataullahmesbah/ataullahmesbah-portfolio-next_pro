@@ -3,31 +3,30 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 // Apni jodi 'lucide-react' install kore thaken, tahole ei icon-gulo bebohar korun.
-// Noile, 'react-icons/fa' theke icon import korben.
-import { Share2, X, Linkedin, Github, Twitter, Instagram } from 'lucide-react';
+import { Share2, X, Linkedin, Github, Twitter, Youtube } from 'lucide-react';
 
 // Social media links ebong icon-gulo ekta array-te rakha hoyeche
 // jate poriborton kora shohoj hoy.
 const socialLinks = [
   {
-    href: 'https://linkedin.com',
+    href: 'https://www.linkedin.com/in/ataullah-mesbah',
     label: 'LinkedIn',
     Icon: Linkedin,
   },
   {
-    href: 'https://github.com',
+    href: 'https://github.com/ataullahmesbah',
     label: 'GitHub',
     Icon: Github,
   },
   {
-    href: 'https://twitter.com',
+    href: 'https://x.com/ataullah_mesbah',
     label: 'Twitter',
     Icon: Twitter,
   },
   {
-    href: 'https://instagram.com',
-    label: 'Instagram',
-    Icon: Instagram,
+    href: 'https://www.youtube.com/@ataullah.mesbah',
+    label: 'YouTube',
+    Icon: Youtube,
   },
 ];
 
@@ -114,14 +113,11 @@ export default function SideIcons() {
                 target="_blank"
                 rel="noopener noreferrer"
                 variants={itemVariants}
-                className="group relative"
+                className="p-1" // Added padding for a better click area
                 aria-label={link.label}
               >
                 <link.Icon className="text-white h-6 w-6 hover:text-gray-400 transition-colors duration-300" />
-                {/* Tooltip */}
-                <div className="absolute top-1/2 -translate-y-1/2 right-full mr-3 px-2 py-1 bg-gray-700 text-white text-xs font-bold rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
-                  {link.label}
-                </div>
+                {/* Tooltip code has been removed from here */}
               </motion.a>
             ))}
           </motion.div>

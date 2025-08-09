@@ -170,6 +170,7 @@ const Footer = () => {
                                     { href: "/featured-story", label: "Feature Story" },
                                     { href: "/content-creation", label: "Content Story" },
                                     { href: "/faq", label: "Need Help?" },
+                                    { href: "/contact", label: "Contact" },
 
                                 ].map((link) => (
                                     <li key={link.href} className="text-center md:text-left">
