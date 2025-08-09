@@ -1,245 +1,67 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import { io } from 'socket.io-client';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Send, MessageSquare, X, User, Shield } from 'lucide-react';
-import { v4 as uuidv4 } from 'uuid';
-import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
+import { useState } from 'react';
 
-// Function to get or create a persistent user ID from localStorage
-const getPersistentUserId = () => {
-  if (typeof window === 'undefined') return null;
-  let userId = localStorage.getItem('chatUserId');
-  if (!userId) {
-    userId = uuidv4();
-    localStorage.setItem('chatUserId', userId);
-  }
-  return userId;
-};
+// একটি নতুন এবং উন্নত WhatsApp আইকন (SVG)
+const WhatsAppIcon = () => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 90 90"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M90 43.84c0 24.21-19.78 43.84-44.18 43.84-7.4 0-14.48-1.85-20.7-5.14l-22.06 7.35 7.52-21.5c-3.6-6.5-5.6-13.8-5.6-21.56C5.08 19.64 24.86 0 49.26 0 73.66 0 90 19.64 90 43.84zM45.82 7.5c-20.34 0-36.88 16.54-36.88 36.88 0 8.06 2.6 15.53 7.2 21.5l-4.8 13.68 13.9-4.62c5.73 4.12 12.5 6.5 19.78 6.5 20.34 0 36.88-16.54 36.88-36.88S66.16 7.5 45.82 7.5zm-8.63 50.12c-1.34.74-3.03.6-4.9-.52-1.87-1.12-3.4-2.5-4.5-3.95-1.1-1.45-2.3-3.24-2.3-5.62 0-2.38.8-4.43 2.27-6.13 1.47-1.7 3.3-2.63 5.4-2.63 2.1 0 3.9.94 5.25 2.82l-1.93 1.2c-1-1.33-2.2-2-3.3-2-1.1 0-2.25.6-3.14 1.87-.9 1.25-1.34 2.74-1.34 4.38 0 1.64.44 3.14 1.3 4.43.88 1.3 2.12 2.3 3.63 3.04 1.5.74 2.9.82 4.02.22l1.73 1.04c-.1.1-.34.22-.72.3zM62.3 57.62c-1.34.74-3.03.6-4.9-.52-1.87-1.12-3.4-2.5-4.5-3.95-1.1-1.45-2.3-3.24-2.3-5.62 0-2.38.8-4.43 2.27-6.13 1.47-1.7 3.3-2.63 5.4-2.63 2.1 0 3.9.94 5.25 2.82l-1.93 1.2c-1-1.33-2.2-2-3.3-2-1.1 0-2.25.6-3.14 1.87-.9 1.25-1.34 2.74-1.34 4.38 0 1.64.44 3.14 1.3 4.43.88 1.3 2.12 2.3 3.63 3.04 1.5.74 2.9.82 4.02.22l1.73 1.04c-.1.1-.34.22-.72.3z" />
+  </svg>
+);
 
 export default function ChatIcon() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([]);
-  const [isConnected, setIsConnected] = useState(false);
-  const [chatStatus, setChatStatus] = useState('pending');
-  const socketRef = useRef(null);
-  const messagesEndRef = useRef(null);
-  const persistentUserId = useRef(getPersistentUserId());
-  const messageIds = useRef(new Set());
+  const [isHovered, setIsHovered] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      if (!socketRef.current) {
-        socketRef.current = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
-          path: '/socket.io',
-          transports: ['websocket', 'polling'],
-          query: { persistentUserId: persistentUserId.current },
-          reconnectionAttempts: 5,
-          reconnectionDelay: 1000,
-        });
+  // আপনার WhatsApp নম্বরটি এখানে দিন (কান্ট্রি কোডসহ, কিন্তু '+' ছাড়া)
+  const YOUR_PHONE_NUMBER = '8801627346245';
 
-        socketRef.current.on('connect', () => {
-          setIsConnected(true);
-          socketRef.current.emit('init-chat', { persistentUserId: persistentUserId.current });
-          console.log(`✅ Socket Connected: ${socketRef.current.id}`);
-        });
+  // ব্যবহারকারীকে দেখানোর জন্য একটি পূর্ব-নির্ধারিত মেসেজ
+  const PRE_FILLED_MESSAGE = 'Hello, I would like to know more about your services.';
 
-        socketRef.current.on('disconnect', () => {
-          setIsConnected(false);
-          console.log('⚠️ Socket Disconnected');
-          toast.warn('সার্ভার থেকে সংযোগ বিচ্ছিন্ন');
-        });
+  // WhatsApp URL তৈরি করা
+  const whatsappUrl = `https://wa.me/${YOUR_PHONE_NUMBER}?text=${encodeURIComponent(PRE_FILLED_MESSAGE)}`;
 
-        socketRef.current.on('chat-history', (chat) => {
-          console.log('📜 Chat history received:', chat);
-          const newMessages = (chat.messages || []).filter(
-            (msg) => msg._id && !messageIds.current.has(msg._id.toString())
-          );
-          newMessages.forEach((msg) => messageIds.current.add(msg._id.toString()));
-          setMessages(newMessages);
-          setChatStatus(chat.status);
-        });
-
-        socketRef.current.on('new-message', (message) => {
-          console.log('📩 New message:', message);
-          if (message._id && !messageIds.current.has(message._id.toString())) {
-            messageIds.current.add(message._id.toString());
-            setMessages((prev) => [...prev, message]);
-          }
-        });
-
-        socketRef.current.on('chat-accepted', (chat) => {
-          console.log('✅ Chat accepted:', chat);
-          setChatStatus('active');
-          toast.success('অ্যাডমিন চ্যাটে যুক্ত হয়েছেন!');
-        });
-
-        socketRef.current.on('error', ({ message }) => {
-          console.error(`❌ Server Error: ${message}`);
-          toast.error(message);
-        });
-      }
-    } else {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
-        setIsConnected(false);
-      }
-    }
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
-      }
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (input.trim() && isConnected) {
-      const tempId = Date.now().toString();
-      const optimisticMessage = { sender: 'user', content: input, _id: tempId, timestamp: new Date() };
-      messageIds.current.add(tempId);
-      setMessages((prev) => [...prev, optimisticMessage]);
-
-      try {
-        // Save to database via API first
-        const res = await fetch('/api/chats', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: persistentUserId.current, content: input.trim(), sender: 'user' }),
-        });
-        const data = await res.json();
-        if (!data.success) {
-          console.error('❌ API save error:', data.message, data.error);
-          toast.error(`মেসেজ সেভ করতে ব্যর্থ: ${data.message}`);
-          setMessages((prev) => prev.filter((msg) => msg._id !== tempId));
-          messageIds.current.delete(tempId);
-          return;
-        }
-        console.log('✅ API save success:', data.chat);
-
-        // Send via Socket.IO only if API save is successful
-        socketRef.current.emit('user-message', { persistentUserId: persistentUserId.current, content: input.trim() });
-        toast.success('মেসেজ পাঠানো হয়েছে!');
-      } catch (err) {
-        console.error('❌ API save error:', err.message, err.stack);
-        toast.error(`মেসেজ সেভ করতে ব্যর্থ: ${err.message}`);
-        setMessages((prev) => prev.filter((msg) => msg._id !== tempId));
-        messageIds.current.delete(tempId);
-      }
-
-      setInput('');
-    } else {
-      toast.error(isConnected ? 'দয়া করে একটি মেসেজ লিখুন' : 'সার্ভারের সাথে সংযোগ নেই');
-    }
+  const handleWhatsAppRedirect = () => {
+    // নতুন ট্যাবে WhatsApp চ্যাট খুলবে
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 font-sans">
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="w-[95vw] max-w-[400px] h-[80vh] max-h-[600px] sm:w-96 sm:max-w-[450px] sm:h-[500px] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col border border-gray-200 dark:border-gray-700"
-          >
-            <header className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="relative">
-                  <Shield className="text-indigo-500 w-5 h-5 sm:w-6 sm:h-6" />
-                  {isConnected && (
-                    <div className="absolute -top-0.5 -right-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-green-500 rounded-full border border-white dark:border-gray-900"></div>
-                  )}
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm sm:text-base text-gray-800 dark:text-white">কাস্টমার সাপোর্ট</h3>
-                  <p className="text-[10px] sm:text-xs text-gray-500">{isConnected ? 'অনলাইন' : 'সংযোগ হচ্ছে...'}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-gray-400 hover:text-gray-800 dark:hover:text-white p-1 sm:p-2 rounded-full"
-              >
-                <X size={16} className="sm:w-5 sm:h-5" />
-              </button>
-            </header>
-
-            <main className="flex-1 p-3 sm:p-4 overflow-y-auto space-y-3 sm:space-y-4 custom-scrollbar">
-              {messages.map((msg, idx) => (
-                <div
-                  key={msg._id || idx}
-                  className={`flex items-end gap-2 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  {msg.sender === 'admin' && (
-                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                      <Shield size={12} className="sm:w-4 sm:h-4 text-gray-500" />
-                    </div>
-                  )}
-                  <div
-                    className={`max-w-[80%] sm:max-w-[75%] px-3 py-2 sm:px-4 sm:py-2 rounded-2xl text-xs sm:text-sm ${msg.sender === 'user'
-                        ? 'bg-indigo-500 text-white rounded-br-none'
-                        : 'bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-bl-none'
-                      }`}
-                  >
-                    {msg.content}
-                  </div>
-                  {msg.sender === 'user' && (
-                    <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                      <User size={12} className="sm:w-4 sm:h-4 text-gray-500" />
-                    </div>
-                  )}
-                </div>
-              ))}
-              {chatStatus === 'pending' && messages.length > 0 && (
-                <div className="text-center text-[10px] sm:text-xs text-gray-400 py-2">
-                  একজন অ্যাডমিন দ্রুত আপনার সাথে যুক্ত হবেন।
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </main>
-
-            <form
-              onSubmit={handleSendMessage}
-              className="p-3 sm:p-4 border-t border-gray-200 dark:border-gray-800 flex items-center gap-2 flex-shrink-0"
-            >
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="আপনার মেসেজ লিখুন..."
-                className="w-full bg-gray-100 dark:bg-gray-800 rounded-full py-2 px-3 sm:px-4 text-xs sm:text-sm text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
-                disabled={!isConnected}
-              />
-              <button
-                type="submit"
-                className="bg-indigo-500 text-white rounded-full p-2 sm:p-2.5 hover:bg-indigo-600 disabled:bg-indigo-300 disabled:cursor-not-allowed transition-colors"
-                disabled={!input.trim() || !isConnected}
-              >
-                <Send size={14} className="sm:w-5 sm:h-5" />
-              </button>
-            </form>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      {!isOpen && (
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setIsOpen(true)}
-          className="bg-indigo-500 text-white rounded-full p-3 sm:p-4 shadow-lg hover:bg-indigo-600 transition-colors"
-        >
-          <MessageSquare size={20} className="sm:w-7 sm:h-7" />
-        </motion.button>
-      )}
+    <div
+      className="fixed bottom-6 right-6 z-50 group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Tooltip */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 10 }}
+        transition={{ duration: 0.2 }}
+        className="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-gray-800 text-white text-xs font-semibold rounded-md shadow-lg whitespace-nowrap"
+      >
+        Chat on WhatsApp
+      </motion.div>
+      
+      {/* WhatsApp Button */}
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={handleWhatsAppRedirect}
+        className="relative bg-gradient-to-br from-green-500 to-teal-500 text-white rounded-full p-3 shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center"
+        aria-label="Chat on WhatsApp"
+      >
+        {/* Pulse Animation */}
+        <div className="absolute inset-0 bg-green-400 rounded-full animate-pulse opacity-50"></div>
+        <div className="relative">
+          <WhatsAppIcon />
+        </div>
+      </motion.button>
     </div>
   );
-}   
+}

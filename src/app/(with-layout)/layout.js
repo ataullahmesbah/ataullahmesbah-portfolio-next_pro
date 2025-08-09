@@ -8,7 +8,7 @@ import ChatIcon from "../components/Chat/ChatIcon/ChatIcon";
 export default function RootLayout({ children }) {
     return (
         <Providers>
-            <TrackAffiliateVisits>
+            {/* <TrackAffiliateVisits /> */}
                 <div>
                     <RootNavbar />
                     <Navbar />
@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
                     <ChatIcon />
                     <Footer />
                 </div>
-            </TrackAffiliateVisits>
+           
         </Providers>
     );
 }
