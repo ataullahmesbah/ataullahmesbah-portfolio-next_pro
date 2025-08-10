@@ -15,11 +15,33 @@ import ContactAssistance from "../Share/ConatctAssistance/ContactAssistance";
 import FAQSection from "../Share/FAQSection/FAQSection";
 import SideIcons from "../SideIcons/SideIcons";
 import Sponser from '../Sponser/Sponser';
+import MesbahCustomLoader from "../MesbahCustomLoader/MesbahCustomLoader";
+import { useEffect, useState } from "react";
 
 
 
 export default function HomePageContent() {
-   
+
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Wait until all images & resources are loaded
+        const handleLoad = () => setLoading(false);
+
+        if (document.readyState === "complete") {
+            // If already loaded
+            setLoading(false);
+        } else {
+            window.addEventListener("load", handleLoad);
+            return () => window.removeEventListener("load", handleLoad);
+        }
+    }, []);
+
+    if (loading) {
+        return <MesbahCustomLoader />;
+    }
+
+
 
     return (
 
