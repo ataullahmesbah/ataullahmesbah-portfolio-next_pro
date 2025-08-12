@@ -7,10 +7,15 @@ import Link from 'next/link';
 
 import { FaTwitter, FaFacebook, FaLinkedin, FaLightbulb, FaFolder, FaGift } from 'react-icons/fa';
 import NewsletterForm from '../NewsletterForm/NewsletterForm';
+import useAOS from '../../hooks/useAOS';
 
 const NewsletterPage = () => {
+    useAOS({ duration: 1000 });
+
     return (
-        <div className="bg-gray-900 py-16 poppins-regular">
+        <div
+            data-aos="fade-up"
+            className="bg-gray-900 py-16 poppins-regular">
             {/* Header */}
             <header className="text-center mb-12">
                 <div className="container max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">

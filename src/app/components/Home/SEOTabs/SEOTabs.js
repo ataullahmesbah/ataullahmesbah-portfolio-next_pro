@@ -23,12 +23,12 @@ const SEOTabs = () => {
                 className="mb-12"
             >
                 <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
-                    Search Engine <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Optimization</span>
+                    Search Engine <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-600">Optimization</span>
                 </h1>
                 <p className="text-lg text-gray-300 max-w-2xl">
                     Rank higher in search engines and get more qualified visitors with our proven SEO strategies.
                 </p>
-                <div className="w-24 h-1 bg-gradient-to-r from-cyan-500 to-blue-600 mt-4 rounded-full" />
+                <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-purple-600 mt-4 rounded-full" />
             </motion.div>
 
             {/* Services Grid */}
@@ -44,12 +44,12 @@ const SEOTabs = () => {
                             whileHover={{ y: -5 }}
                         >
                             <Link href={service.slug} passHref>
-                                <div className="bg-gray-800 hover:bg-gray-700/80 border border-gray-700 hover:border-cyan-400/30 rounded-xl p-6 transition-all duration-300 cursor-pointer h-full">
+                                <div className="bg-gray-800 hover:bg-gray-700/80 border border-gray-700 hover:border-purple-400/30 rounded-xl p-6 transition-all duration-300 cursor-pointer h-full">
                                     <h3 className="text-lg font-semibold text-white mb-2 flex items-center">
                                         {service.title}
-                                        <FaArrowRight className="ml-2 text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <FaArrowRight className="ml-2 text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </h3>
-                                    <div className="w-8 h-0.5 bg-gradient-to-r from-cyan-500 to-transparent mt-2" />
+                                    <div className="w-8 h-0.5 bg-gradient-to-r from-purple-500 to-transparent mt-2" />
                                 </div>
                             </Link>
                         </motion.div>
@@ -64,7 +64,7 @@ const SEOTabs = () => {
                     className="bg-gradient-to-br from-gray-800 to-gray-900/80 border border-gray-700 rounded-xl p-6 shadow-lg"
                 >
                     <h3 className="text-2xl font-bold text-white mb-4">
-                        Why Choose My <span className="text-cyan-400">SEO Services</span>?
+                        Why Choose My <span className="text-purple-400">SEO Services</span>?
                     </h3>
                     <ul className="space-y-4">
                         {[
@@ -74,14 +74,14 @@ const SEOTabs = () => {
                             "Detailed reporting and transparent communication",
                             "Continuous optimization based on data"
                         ].map((item, index) => (
-                            <motion.li 
+                            <motion.li
                                 key={index}
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
                                 className="flex items-start text-gray-300"
                             >
-                                <FaCheckCircle className="text-cyan-400 mt-1 mr-3 flex-shrink-0" />
+                                <FaCheckCircle className="text-purple-400 mt-1 mr-3 flex-shrink-0" />
                                 <span>{item}</span>
                             </motion.li>
                         ))}

@@ -13,8 +13,8 @@ const PortfolioTabs = () => {
     const [loading, setLoading] = useState(false);
 
     const tabs = [
-        { id: 'SEO', label: 'SEO' },
-        { id: 'Web', label: 'Web Dev' },
+        { id: 'SEO', label: 'SEO Work' },
+        { id: 'Web', label: 'Web Projects' },
         { id: 'Content', label: 'Content' },
         { id: 'Travel', label: 'Travel' }
     ];
@@ -32,37 +32,50 @@ const PortfolioTabs = () => {
     const handleTabChange = (tab) => {
         setLoading(true);
         setActiveTab(tab);
-        setTimeout(() => setLoading(false), 500);
+        setTimeout(() => setLoading(false), 300);
     };
 
     return (
-        <div className="max-w-7xl mx-auto py-6 md:py-10 poppins-regular px-4">
-            {/* Tabs Navigation */}
-            <div className="flex flex-wrap justify-center mb-6 gap-2 md:gap-4">
-                {tabs.map((tab) => (
-                    <button
-                        key={tab.id}
-                        onClick={() => handleTabChange(tab.id)}
-                        className={`relative px-4 py-2 mx-1 rounded-md transition-all duration-300 text-sm md:text-base ${
-                            activeTab === tab.id 
-                                ? 'bg-black text-indigo-300 border-b-2 border-pink-400 shadow-md shadow-pink-400/50' 
-                                : 'bg-gray-800 text-gray-300 hover:bg-gray-700/80 border-b border-gray-600'
-                        }`}
-                    >
-                        {tab.label}
-                        {activeTab === tab.id && (
-                            <motion.div 
-                                layoutId="activeTabIndicator"
-                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-pink-400"
-                                transition={{ duration: 0.3 }}
-                            />
-                        )}
-                    </button>
-                ))}
+        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            {/* Tabs Navigation - Fully Responsive Dark Purple Theme */}
+            <div className="w-full mb-8">
+                <div className="relative">
+                    {/* Tabs container with wrapping and centered alignment */}
+                    <div className="flex flex-wrap justify-center space-x-1 space-y-1 sm:bg-gray-800 sm:rounded-lg w-max max-w-full mx-auto">
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => handleTabChange(tab.id)}
+                                className={`relative px-3 py-2 text-sm font-medium transition-all duration-200 rounded-md flex-shrink-0 sm:px-4 ${
+                                    activeTab === tab.id
+                                        ? 'bg-gray-700 text-white'
+                                        : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                                }`}
+                                style={{
+                                    minWidth: 'max-content',
+                                }}
+                            >
+                                {tab.label}
+                                {activeTab === tab.id && (
+                                    <motion.div
+                                        layoutId="activeTabIndicator"
+                                        className="absolute bottom-0 left-2 right-2 h-[2px] bg-gradient-to-r from-purple-500 to-purple-700 rounded-t-full"
+                                        transition={{ duration: 0.25 }}
+                                    />
+                                )}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Optional: Mobile indicator (only shows on small screens if needed) */}
+                    <div className="lg:hidden mt-2 text-center">
+                        <span className="inline-block h-1 w-8 bg-purple-600 rounded-full" />
+                    </div>
+                </div>
             </div>
 
-            {/* Tab Content */}
-            <div className="p-2 md:p-4 min-h-[400px]">
+            {/* Tab Content - Dark Container */}
+            <div className="min-h-[500px] p-4 sm:p-6">
                 <AnimatePresence mode="wait">
                     {loading ? (
                         <motion.div
@@ -70,12 +83,12 @@ const PortfolioTabs = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="flex justify-center items-center h-60"
+                            className="flex justify-center items-center h-64"
                         >
                             <LineWave
                                 height="80"
                                 width="80"
-                                color="#ec4899"
+                                color="#8B5CF6"
                                 ariaLabel="loading"
                             />
                         </motion.div>
@@ -85,7 +98,7 @@ const PortfolioTabs = () => {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.3 }}
+                            transition={{ duration: 0.2 }}
                         >
                             {renderContent()}
                         </motion.div>
@@ -94,6 +107,6 @@ const PortfolioTabs = () => {
             </div>
         </div>
     );
-}
+};
 
 export default PortfolioTabs;

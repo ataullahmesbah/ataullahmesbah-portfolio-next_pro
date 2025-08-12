@@ -1,48 +1,7 @@
 
+//app/letter/page.js
 
 import NewsLetter from "@/app/components/News/LetterNews/LetterNews";
-import Head from "next/head";
-
-const schemaData = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": "Letter - Ataullah Mesbah",
-    "description": "Subscribe to Ataullah Mesbah's newsletter for the latest updates, insights, and exclusive content. Stay connected with our community.",
-    "url": "https://ataullahmesbah.com/letter",
-    "publisher": {
-        "@type": "Organization",
-        "name": "Ataullah Mesbah",
-        "url": "https://ataullahmesbah.com",
-        "contactPoint": {
-            "@type": "ContactPoint",
-            "email": "info@ataullahmesbah.com",
-            "contactType": "Customer Support"
-        }
-    },
-    "lastReviewed": "2025-05-18"
-};
-
-const page = () => {
-    return (
-        <div className="">
-
-            {/* JSON-LD Schema */}
-            <Head>
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
-                />
-            </Head>
-
-            {/* Newsletter Component */}
-            <div>
-                <NewsLetter />
-
-            </div>
-
-        </div>
-    );
-};
 
 export const metadata = {
     title: 'Letter | Ataullah Mesbah',
@@ -67,4 +26,10 @@ export const metadata = {
     },
 };
 
+const page = () => {
+    return <NewsLetter />;
+};
+
 export default page;
+
+
