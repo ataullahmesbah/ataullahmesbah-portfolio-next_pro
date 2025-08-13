@@ -18,7 +18,7 @@ const ADMIN_ONLY_API_ROUTES = [
   '/api/admin/users',
   '/api/auth/user',
   '/api/users',
-  '/api/auth/register',
+  // '/api/auth/register',
 ];
 
 export async function middleware(req) {

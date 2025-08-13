@@ -1,3 +1,5 @@
+//src/app/api/auth/register/route.js
+
 import { NextResponse } from 'next/server';
 import { generateOTP, sendOTP } from '@/lib/otpUtils';
 import User from '@/models/User';

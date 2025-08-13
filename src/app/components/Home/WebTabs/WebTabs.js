@@ -56,11 +56,11 @@ const WebTabs = () => {
                                     whileHover={{ rotate: 10 }}
                                     className="bg-purple-500/10 p-3 rounded-xl mr-4"
                                 >
-                                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center text-white text-lg font-bold">
+                                    <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center text-white text-lg font-bold">
                                         {service.title.charAt(0)}
                                     </div>
                                 </motion.div>
-                                <h3 className="text-xl font-semibold text-white group-hover:text-purple-300 transition-colors">
+                                <h3 className="text-lg font-semibold text-white group-hover:text-purple-300 transition-colors">
                                     {service.title}
                                 </h3>
                             </div>

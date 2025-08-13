@@ -18,8 +18,6 @@ import Sponser from '../Sponser/Sponser';
 import MesbahCustomLoader from "../MesbahCustomLoader/MesbahCustomLoader";
 import { useEffect, useState } from "react";
 
-
-
 export default function HomePageContent() {
 
     const [loading, setLoading] = useState(true);

@@ -1,7 +1,7 @@
 import Image from 'next/image';
-import tr3 from '/public/images/travel/ks23.jpg';
+import tr3 from '/public/images/travel/ks3.webp';
 import tr1 from '/public/images/travel/tr1.webp';
-import tr2 from '/public/images/travel/iconic_ksm.jpg';
+import tr2 from '/public/images/travel/ic_ks.webp';
 
 const TravelPortfolio = () => {
     return (

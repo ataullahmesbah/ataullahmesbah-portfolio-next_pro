@@ -7,10 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LineWave } from 'react-loader-spinner';
 import ContentPortfolio from '../PortfolioWorks/ContentPortfolio/ContentPortfolio';
 import TravelPortfolio from '../PortfolioWorks/TravelPortfolio/TravelPortfolio';
+import useAOS from '../../hooks/useAOS';
 
 const PortfolioTabs = () => {
     const [activeTab, setActiveTab] = useState('SEO');
     const [loading, setLoading] = useState(false);
+    useAOS({ duration: 1000 });
 
     const tabs = [
         { id: 'SEO', label: 'SEO Work' },
@@ -36,7 +38,9 @@ const PortfolioTabs = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div
+            data-aos="fade-up"
+            className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             {/* Tabs Navigation - Fully Responsive Dark Purple Theme */}
             <div className="w-full mb-8">
                 <div className="relative">
@@ -46,11 +50,10 @@ const PortfolioTabs = () => {
                             <button
                                 key={tab.id}
                                 onClick={() => handleTabChange(tab.id)}
-                                className={`relative px-3 py-2 text-sm font-medium transition-all duration-200 rounded-md flex-shrink-0 sm:px-4 ${
-                                    activeTab === tab.id
+                                className={`relative px-3 py-2 text-sm font-medium transition-all duration-200 rounded-md flex-shrink-0 sm:px-4 ${activeTab === tab.id
                                         ? 'bg-gray-700 text-white'
                                         : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
-                                }`}
+                                    }`}
                                 style={{
                                     minWidth: 'max-content',
                                 }}
