@@ -45,7 +45,7 @@ const SEOTabs = () => {
                         >
                             <Link href={service.slug} passHref>
                                 <div className="bg-gray-800 hover:bg-gray-700/80 border border-gray-700 hover:border-purple-400/30 rounded-xl p-6 transition-all duration-300 cursor-pointer h-full">
-                                    <h3 className="text-lg font-semibold text-white mb-2 flex items-center">
+                                    <h3 className="text-base font-semibold text-white mb-2 flex items-center">
                                         {service.title}
                                         <FaArrowRight className="ml-2 text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </h3>

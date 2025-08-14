@@ -15,16 +15,17 @@ const PortfolioTabs = () => {
     useAOS({ duration: 1000 });
 
     const tabs = [
-        { id: 'SEO', label: 'SEO Work' },
         { id: 'Web', label: 'Web Projects' },
+        { id: 'SEO', label: 'SEO Work' },
         { id: 'Content', label: 'Content' },
         { id: 'Travel', label: 'Travel' }
     ];
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'SEO': return <SEOTabs />;
+            
             case 'Web': return <WebTabs />;
+            case 'SEO': return <SEOTabs />;
             case 'Content': return <ContentPortfolio />;
             case 'Travel': return <TravelPortfolio />;
             default: return null;
