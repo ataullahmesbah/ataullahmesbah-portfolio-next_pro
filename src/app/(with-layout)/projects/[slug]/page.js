@@ -182,19 +182,30 @@ const ProjectDetailsPage = async ({ params }) => {
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
             />
 
-            {/* Breadcrumbs with Back Button */}
+            {/* Responsive Breadcrumbs with Back Button */}
             <div className="sticky top-0 z-10 bg-gray-900/80 backdrop-blur-sm py-3 px-4">
-                <div className="flex items-center justify-between">
-                    <nav className="flex items-center text-gray-300 space-x-2 text-sm">
-                        <Link href="/" className="hover:text-white transition-colors">Home</Link>
-                        <span>›</span>
-                        <Link href="/projects" className="hover:text-white transition-colors">Projects</Link>
-                        <span>›</span>
-                        <span className="text-white">{project.title}</span>
+                <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2">
+                    {/* Breadcrumbs - will truncate long text */}
+                    <nav className="flex items-center text-gray-300 text-sm min-w-0">
+                        <Link href="/" className="hover:text-white transition-colors whitespace-nowrap">Home</Link>
+                        <span className="mx-2">›</span>
+                        <Link href="/projects" className="hover:text-white transition-colors whitespace-nowrap">Projects</Link>
+                        <span className="mx-2">›</span>
+                        <span
+                            className="text-white truncate max-w-[120px] xs:max-w-[180px] sm:max-w-[240px] md:max-w-[320px]"
+                            title={project.title}
+                        >
+                            {project.title}
+                        </span>
                     </nav>
-                    <Link href="/projects" className="flex items-center text-gray-300 hover:text-white transition-colors">
+
+                    {/* Back Button - remains fully visible */}
+                    <Link
+                        href="/projects"
+                        className="flex items-center text-gray-300 hover:text-white transition-colors whitespace-nowrap text-sm"
+                    >
                         <svg
-                            className="w-5 h-5 mr-2"
+                            className="w-5 h-5 mr-1"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -207,15 +218,17 @@ const ProjectDetailsPage = async ({ params }) => {
                                 d="M15 19l-7-7 7-7"
                             />
                         </svg>
-                        Back to Projects
+                        <span className="hidden xs:inline">Back to Projects</span>
+                        <span className="xs:hidden">Back</span>
                     </Link>
                 </div>
             </div>
 
             <main className="container max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 poppins-regular">
-                {/* Hero Section */}
-                <div className="mb-12">
-                    <div className="relative aspect-video rounded-xl overflow-hidden mb-8">
+                {/* Hero Section - Improved */}
+                <div className="mb-12 space-y-6">
+                    {/* Main Image */}
+                    <div className="relative aspect-video rounded-xl overflow-hidden mb-6">
                         <Image
                             src={project.mainImage}
                             alt={project.imageAlt}
@@ -226,37 +239,44 @@ const ProjectDetailsPage = async ({ params }) => {
                         />
                     </div>
 
-                    <div className="space-y-4">
-                        <div className="flex flex-wrap gap-4 items-center">
-                            <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm">
-                                {project.category}
-                            </span>
-                            <span className="text-gray-400 text-sm">
-                                {(project.views || 0).toLocaleString()} views
-                            </span>
-                        </div>
+                    {/* Project Meta */}
+                    <div className="flex flex-wrap gap-3 items-center">
+                        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm font-medium">
+                            {project.category}
+                        </span>
+                        <span className="text-gray-400 text-sm">
+                            {(project.views || 0).toLocaleString()} views
+                        </span>
+                    </div>
 
-                        <h1 className="text-xl sm:text-3xl font-semibold text-white leading-tight">
+                    {/* Title and Description */}
+                    <div className="space-y-4">
+                        <h1 className="text-3xl sm:text-4xl font-bold text-white leading-tight tracking-tight">
                             {project.title}
                         </h1>
-                        <p className="text-white">{project.metaDescription}</p>
-                        {/* Subtitle & Short Description */}
-                        <h2 className="text-xl sm:text-2xl text-gray-300">
-                            {project.subtitle}
-                        </h2>
-                        <p className="text-white">{project.contentShort}</p>
+
+                        {project.subtitle && (
+                            <h2 className="text-xl sm:text-2xl text-gray-300 font-medium">
+                                {project.subtitle}
+                            </h2>
+                        )}
+
+                        {(project.metaDescription || project.contentShort) && (
+                            <p className="text-lg text-gray-300 leading-relaxed">
+                                {project.metaDescription || project.contentShort}
+                            </p>
+                        )}
                     </div>
                 </div>
 
                 {/* Project Content */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Main Content */}
-                    <div className="lg:col-span-2 space-y-12">
+                    <div className="lg:col-span-2 space-y-10">
                         {/* Description */}
-                        <section>
-                            <h2 className="text-2xl font-bold text-white mb-6">Project Overview</h2>
+                        <section className="space-y-6">
+                            <h2 className="text-3xl font-bold text-white mb-2">Project Overview</h2>
                             <div className="prose prose-invert max-w-none">
-                                <p className="text-gray-300 leading-relaxed">
+                                <p className="text-gray-300 text-lg leading-relaxed">
                                     {project.description}
                                 </p>
                             </div>
@@ -264,26 +284,48 @@ const ProjectDetailsPage = async ({ params }) => {
 
                         {/* Content Sections */}
                         {project.content && project.content.length > 0 && (
-                            <section>
-                                <h2 className="text-2xl font-bold text-white mb-6">Project Details</h2>
+                            <section className="space-y-8">
+                                <h2 className="text-3xl font-bold text-white mb-4">Project Details</h2>
                                 <div className="space-y-8">
-                                    {project.content.map((section, index) => renderContentSection(section, index))}
+                                    {project.content.map((section, index) => (
+                                        <section key={index} className="space-y-4">
+                                            {React.createElement(
+                                                section.tag === 'h1' && index > 0 ? 'h2' : section.tag || 'p',
+                                                {
+                                                    className: `${section.tag?.startsWith('h')
+                                                            ? 'text-2xl font-bold text-white'
+                                                            : 'text-gray-300 text-lg leading-relaxed'
+                                                        }`
+                                                },
+                                                section.content
+                                            )}
+                                            {section.bulletPoints && section.bulletPoints.length > 0 && (
+                                                <ul className="space-y-3 pl-5">
+                                                    {section.bulletPoints.map((point, idx) => (
+                                                        <li key={idx} className="relative text-gray-300 text-lg before:content-['•'] before:absolute before:-left-5 before:text-blue-400">
+                                                            {point}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </section>
+                                    ))}
                                 </div>
                             </section>
                         )}
 
                         {/* Key Features */}
                         {project.keyPoints && project.keyPoints.length > 0 && (
-                            <section>
-                                <h2 className="text-xl font-bold text-white mb-6">Key Features</h2>
+                            <section className="space-y-6">
+                                <h2 className="text-3xl font-bold text-white">Key Features</h2>
                                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {project.keyPoints.map((point, idx) => (
-                                        <li key={idx} className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-                                            <div className="flex items-start">
-                                                <svg className="w-5 h-5 text-blue-400 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <li key={idx} className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">
+                                            <div className="flex items-start gap-3">
+                                                <svg className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                                                 </svg>
-                                                <span className="text-gray-300">{point}</span>
+                                                <span className="text-gray-300 text-lg">{point}</span>
                                             </div>
                                         </li>
                                     ))}
@@ -302,6 +344,9 @@ const ProjectDetailsPage = async ({ params }) => {
                             </div>
                         </section>
                     </div>
+
+
+                    {/* Right Side */}
 
                     {/* Sidebar */}
                     <div className="space-y-8">

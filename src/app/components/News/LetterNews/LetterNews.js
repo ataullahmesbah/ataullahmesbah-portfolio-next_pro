@@ -170,7 +170,7 @@ const NewsLetter = () => {
 
             {/* section - 4 */}
             <section
-                data-aos="flip-down"
+                data-aos="flip-left"
                 className="bg-black text-white py-16 px-4 sm:px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-12">
