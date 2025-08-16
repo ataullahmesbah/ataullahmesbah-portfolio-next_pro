@@ -87,7 +87,7 @@ const NewsLetter = () => {
 
                                     <button className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 justify-center text-center">
 
-                                        <a href='/' className="pl-6 text-indigo-400 group-hover:text-gray-100 transition font-semibold duration-200 text-xl">Join For Just $5</a>
+                                        <a href='/contact' className="pl-6 text-indigo-400 group-hover:text-gray-100 transition font-semibold duration-200 text-xl">Join For Just $5</a>
                                     </button>
                                 </div>
                             </div>
