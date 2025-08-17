@@ -85,8 +85,8 @@ const Testimonials = () => {
         <section className="py-16 bg-gradient-to-b from-gray-900 to-gray-950 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-purple-400 mb-2">
-                        Client Testimonials
+                    <h2 className="poppins-regular text-3xl text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-purple-400 mb-2 ">
+                        Clients Feedback
                     </h2>
                     <p className="text-gray-400 max-w-2xl mx-auto">
                         What people say about working with me

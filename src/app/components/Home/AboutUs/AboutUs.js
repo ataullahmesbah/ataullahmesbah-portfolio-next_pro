@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import useAOS from '../../hooks/useAOS';
 
 const firstVideo = {
     id: "vNYLJs4G56I",
@@ -15,6 +16,7 @@ const AboutUs = () => {
     const [animatedText, setAnimatedText] = useState('');
     const fullText = "About Ataullah Mesbah";
     const videoRef = useRef(null);
+    useAOS({ duration: 1000 });
 
     useEffect(() => {
         // Typing animation for title
@@ -57,6 +59,8 @@ const AboutUs = () => {
         setShowVideo(false);
     };
 
+
+
     return (
         <section id="about" className="py-16 bg-gradient-to-b from-gray-900 to-gray-950">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -64,12 +68,11 @@ const AboutUs = () => {
 
                     {/* Left Side: YouTube Video Player - Now larger */}
                     <div
-                        className="w-full lg:w-[48%] animate-on-scroll"
-                        style={{
-                            transform: 'translateX(-50px)',
-                            opacity: 0,
-                            transition: 'all 0.8s ease-out'
-                        }}
+
+                        data-aos="fade-up"
+                        data-aos-delay="100"
+                        className="w-full lg:w-[48%] "
+
                     >
                         <div
                             className={`relative rounded-xl overflow-hidden shadow-lg shadow-purple-600/30 ${showVideo ? 'shadow-2xl shadow-purple-500/30' : 'cursor-pointer hover:shadow-xl hover:shadow-purple-500/30'} transition-all duration-300 aspect-video w-full max-w-[650px] mx-auto`}

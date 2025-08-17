@@ -13,7 +13,7 @@ import ProjectsTabs from '../ProjectsTabs/ProjectsTabs';
 
 
 const ProjectsTab = () => {
-    const [activeTab, setActiveTab] = useState('SEO');
+    const [activeTab, setActiveTab] = useState('Web Development');
     const [loading, setLoading] = useState(false);
     const [projects, setProjects] = useState([]);
     const [error, setError] = useState(null);

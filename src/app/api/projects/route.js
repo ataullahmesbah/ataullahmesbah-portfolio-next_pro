@@ -5,30 +5,53 @@ import cloudinary from "@/utils/cloudinary";
 import { NextResponse } from "next/server";
 
 
-// GET: Fetch all projects or by slug
 export async function GET(request) {
     await dbConnect();
 
     try {
         const { searchParams } = new URL(request.url);
         const slug = searchParams.get('slug');
+        const limit = searchParams.get('limit');
+        const minimal = searchParams.get('minimal');
 
+        // Single project by slug
         if (slug) {
-            const project = await Project.findOne({ slug }).lean();
+            const project = await Project.findOne({ slug })
+                .select(minimal ? 'title subtitle description category mainImage imageAlt slug' : '-__v')
+                .lean();
+
             if (!project) {
                 return NextResponse.json({ error: "Project not found" }, { status: 404 });
             }
-            await Project.updateOne({ slug }, { $inc: { views: 1 } });
-            return NextResponse.json({ project }, { status: 200 });
+
+            // Update views without waiting
+            Project.updateOne({ slug }, { $inc: { views: 1 } }).exec();
+            return NextResponse.json({ project });
         }
 
-        const projects = await Project.find({}).lean();
-        return NextResponse.json(projects, { status: 200 });
+        // Multiple projects with limit
+        const query = Project.find({}).sort({ createdAt: -1 });
+
+        if (limit) {
+            query.limit(parseInt(limit));
+        }
+
+        if (minimal) {
+            query.select('title subtitle description category mainImage imageAlt slug');
+        }
+
+        const projects = await query.lean();
+        return NextResponse.json(projects);
+
     } catch (error) {
-        console.error("Error fetching projects:", error);
-        return NextResponse.json({ error: "Failed to fetch projects", message: error.message }, { status: 500 });
+        console.error("API Error:", error);
+        return NextResponse.json(
+            { error: "Failed to fetch projects", message: error.message },
+            { status: 500 }
+        );
     }
 }
+
 
 // POST: Create a new project (Admin only)
 export async function POST(request) {

@@ -274,7 +274,9 @@ const ProjectDetailsPage = async ({ params }) => {
                     <div className="lg:col-span-2 space-y-10">
                         {/* Description */}
                         <section className="space-y-6">
-                            <h2 className="text-3xl font-bold text-white mb-2">Project Overview</h2>
+
+                    
+                            <h2 className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-500 mb-2">Project Overview</h2>
                             <div className="prose prose-invert max-w-none">
                                 <p className="text-gray-300 text-lg leading-relaxed">
                                     {project.description}
@@ -284,17 +286,19 @@ const ProjectDetailsPage = async ({ params }) => {
 
                         {/* Content Sections */}
                         {project.content && project.content.length > 0 && (
-                            <section className="space-y-8">
-                                <h2 className="text-3xl font-bold text-white mb-4">Project Details</h2>
-                                <div className="space-y-8">
+                            <section className="space-y-6">
+                                <h2 className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-500 mb-2">Project Details</h2>
+
+                        
+                                <div className="space-y-4">
                                     {project.content.map((section, index) => (
                                         <section key={index} className="space-y-4">
                                             {React.createElement(
                                                 section.tag === 'h1' && index > 0 ? 'h2' : section.tag || 'p',
                                                 {
                                                     className: `${section.tag?.startsWith('h')
-                                                            ? 'text-2xl font-bold text-white'
-                                                            : 'text-gray-300 text-lg leading-relaxed'
+                                                            ? 'text-xl font-semibold text-white'
+                                                            : 'text-gray-200 text-base leading-relaxed'
                                                         }`
                                                 },
                                                 section.content
@@ -302,7 +306,7 @@ const ProjectDetailsPage = async ({ params }) => {
                                             {section.bulletPoints && section.bulletPoints.length > 0 && (
                                                 <ul className="space-y-3 pl-5">
                                                     {section.bulletPoints.map((point, idx) => (
-                                                        <li key={idx} className="relative text-gray-300 text-lg before:content-['•'] before:absolute before:-left-5 before:text-blue-400">
+                                                        <li key={idx} className="relative text-gray-300 text-base before:content-['•'] before:absolute before:-left-5 before:text-purple-400">
                                                             {point}
                                                         </li>
                                                     ))}
@@ -317,7 +321,10 @@ const ProjectDetailsPage = async ({ params }) => {
                         {/* Key Features */}
                         {project.keyPoints && project.keyPoints.length > 0 && (
                             <section className="space-y-6">
-                                <h2 className="text-3xl font-bold text-white">Key Features</h2>
+                                
+
+                                 <h2 className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-500 mb-2">Key Features</h2>
+
                                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {project.keyPoints.map((point, idx) => (
                                         <li key={idx} className="bg-gray-800/50 p-5 rounded-lg border border-gray-700">

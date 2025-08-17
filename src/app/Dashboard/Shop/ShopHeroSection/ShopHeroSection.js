@@ -2,6 +2,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from "next/image";
 
 const ShopHeroSection = () => {
   const [slides, setSlides] = useState([]);
@@ -11,7 +12,7 @@ const ShopHeroSection = () => {
   useEffect(() => {
     // Set initial width
     setWindowWidth(window.innerWidth);
-    
+
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
     };
@@ -30,15 +31,15 @@ const ShopHeroSection = () => {
           const formattedSlides = data.data.map(slide => ({
             title: slide.title || "Default Title",
             subtitle: slide.subtitle || "Default Subtitle",
-            highlights: Array.isArray(slide.highlights) ? 
-              slide.highlights.filter(Boolean) : 
+            highlights: Array.isArray(slide.highlights) ?
+              slide.highlights.filter(Boolean) :
               ["Feature 1", "Feature 2", "Feature 3"],
             cta: slide.cta || "Shop Now",
             bg: slide.bg || "bg-gradient-to-br from-gray-900 via-purple-900/70 to-gray-900",
             textColor: slide.textColor || "text-white",
             badgeColor: slide.badgeColor || "from-purple-600 to-indigo-600",
-            features: Array.isArray(slide.features) ? 
-              slide.features.filter(f => f?.icon && f?.text) : 
+            features: Array.isArray(slide.features) ?
+              slide.features.filter(f => f?.icon && f?.text) :
               [{ icon: "🌟", text: "Premium" }, { icon: "🚀", text: "Fast" }],
             image: slide.image || "/default-banner.jpg",
             link: slide.link || "/shop"
@@ -89,12 +90,19 @@ const ShopHeroSection = () => {
           >
             {/* Background Image */}
             <div className="absolute inset-0 overflow-hidden">
-              <img
-                src={slides[currentSlide].image}
-                alt={slides[currentSlide].title}
-                className="w-full h-full object-cover object-center"
-                loading="eager"
-              />
+              <div className="relative w-full h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px]">
+                <Image
+                  src={slides[currentSlide].image}
+                  alt={slides[currentSlide].title}
+                  fill
+                  priority
+                  sizes="(max-width: 640px) 100vw,
+             (max-width: 1024px) 100vw,
+             100vw"
+                  className="object-cover object-center"
+                />
+              </div>
+
               <div className={`absolute inset-0 ${slides[currentSlide].bg} mix-blend-multiply`}></div>
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent"></div>
             </div>
@@ -130,7 +138,7 @@ const ShopHeroSection = () => {
                   transition={{ delay: 0.2, duration: 0.7 }}
                   className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold ${slides[currentSlide].textColor} leading-tight`}
                 >
-                  {isSmallTablet 
+                  {isSmallTablet
                     ? slides[currentSlide].title.split(' ').slice(0, 3).join(' ') + (slides[currentSlide].title.split(' ').length > 3 ? '...' : '')
                     : slides[currentSlide].title}
                 </motion.h1>
@@ -143,7 +151,7 @@ const ShopHeroSection = () => {
                     transition={{ delay: 0.4, duration: 0.7 }}
                     className={`text-sm sm:text-base md:text-lg ${slides[currentSlide].textColor}/90 max-w-2xl mx-auto lg:mx-0 leading-relaxed`}
                   >
-                    {isLargeTablet 
+                    {isLargeTablet
                       ? slides[currentSlide].subtitle.split(' ').slice(0, 8).join(' ') + '...'
                       : slides[currentSlide].subtitle}
                   </motion.p>
@@ -177,7 +185,7 @@ const ShopHeroSection = () => {
                 >
                   <Link href={slides[currentSlide].link} className="inline-block">
                     <button className={`px-4 py-1 sm:px-6 sm:py-2 md:px-8 md:py-3 lg:px-10 lg:py-4 bg-white text-gray-900 font-bold rounded-lg hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl text-xs sm:text-sm md:text-base lg:text-lg ${slides[currentSlide].textColor === 'text-white' ? 'hover:shadow-white/20' : 'hover:shadow-gray-500/20'}`}>
-                      {isSmallTablet 
+                      {isSmallTablet
                         ? slides[currentSlide].cta.split(' ')[0]
                         : slides[currentSlide].cta} →
                     </button>
