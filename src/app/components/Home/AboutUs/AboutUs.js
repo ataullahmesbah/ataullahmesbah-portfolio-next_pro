@@ -110,7 +110,7 @@ const AboutUs = () => {
                                     {/* Play Icon */}
                                     <div className="absolute inset-0 flex items-center justify-center">
                                         <svg
-                                            className="w-14 h-14 text-white/90 drop-shadow-lg hover:scale-110 transition-transform"
+                                            className="w-14 h-14 text-blue-300/60 drop-shadow-lg hover:scale-110 transition-transform"
                                             viewBox="0 0 24 24"
                                         >
                                             <path
