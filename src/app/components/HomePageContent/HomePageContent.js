@@ -58,7 +58,7 @@ export default function HomePageContent() {
             <MarketingSection />
             <Testimonials />
             <NewSection />
-            <CertificationsAwards />
+            {/* <CertificationsAwards /> */}
             <NewsletterPage />
             <ContactAssistance />
             <FAQSection />

@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import Sponser from "@/app/components/Sponser/Sponser";
 import Testimonials from "@/app/components/Share/Testimonials/Testimonials";
 import Link from "next/link";
-import { FaArrowAltCircleRight, FaGlobe, FaPenFancy, FaCode } from "react-icons/fa";
+import { FaGlobe, FaPenFancy, FaCode } from "react-icons/fa";
 import Image from "next/image";
 import SEU from '/public/images/SEU.jpg';
 import AnimatedHero from "@/app/components/Animation/AnimatedHero/AnimatedHero";
@@ -11,21 +11,23 @@ import AnimatedCard from "@/app/components/Animation/AnimatedCard/AnimatedCard";
 import Loading from '@/app/components/Share/SampleLoader/SamplerLoader';
 
 
+
 export const metadata = {
     title: "About Ataullah Mesbah | Full Stack Developer & Digital Strategist",
     description: "Professional profile of Ataullah Mesbah - Full Stack Developer, SEO Specialist, and Digital Strategist with 6+ years of experience.",
     keywords: [
         "Full Stack Developer",
+        "GEO Specialist",
         "SEO Specialist",
         "Digital Strategist",
         "Next.js Developer",
         "Web Development",
-        "SEO Expert Bangladesh"
+        "SEO and GEO Expert Bangladesh"
     ],
     openGraph: {
         title: "About Ataullah Mesbah | Full Stack Developer & Digital Strategist",
         description: "Professional profile of Ataullah Mesbah with 6+ years of digital experience",
-        url: "https://yourdomain.com/about",
+        url: "https://ataullahmesbah.com/about",
         type: "profile",
         images: [
             {
@@ -39,17 +41,19 @@ export const metadata = {
 };
 
 const AboutPage = () => {
+
+
     const jsonLd = {
         '@context': 'https://schema.org',
         '@type': 'Person',
         name: 'Ataullah Mesbah',
         jobTitle: 'Full Stack Developer & Digital Strategist',
         description: '6+ years experience in web development and digital marketing',
-        url: 'https://yourdomain.com/about',
+        url: 'https://ataullahmesbah.com/about',
         sameAs: [
             'https://linkedin.com/in/ataullah-mesbah',
-            'https://github.com/yourusername',
-            'https://twitter.com/yourhandle'
+            'https://x.com/ataullah_mesbah',
+            'https://www.youtube.com/@ataullah.mesbah'
         ],
         alumniOf: {
             '@type': 'EducationalOrganization',
@@ -59,9 +63,11 @@ const AboutPage = () => {
         hasOccupation: {
             '@type': 'Occupation',
             name: 'Web Developer',
-            description: 'Specializing in React, Next.js, and SEO optimization'
+            description: 'Specializing in React, Next.js, SEO and GEO AI optimization'
         }
     };
+
+
 
     return (
         <main className="bg-gray-900 text-gray-100 min-h-screen overflow-x-hidden border-b border-b-gray-800">
@@ -81,7 +87,9 @@ const AboutPage = () => {
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Profile Card - Enhanced Design */}
                     <div className="lg:col-span-2 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 lg:p-10 border border-gray-700/50 shadow-lg hover:shadow-sky-500/10 transition-shadow duration-300">
-                        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+                        <div
+
+                            className="flex flex-col md:flex-row gap-6 md:gap-8">
                             <div className="flex-shrink-0 mx-auto md:mx-0">
                                 <div className="w-36 h-36 md:w-40 md:h-40 rounded-xl overflow-hidden border-2 border-sky-400/20 relative">
                                     <Image
@@ -141,6 +149,87 @@ const AboutPage = () => {
 
             {/* Journey Sections */}
             <div id="journey" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-24">
+
+                {/* AI Search Evolution Section */}
+                <section className="relative">
+                    <div className="absolute -left-8 top-0 h-full w-1 bg-gradient-to-b from-blue-400 to-purple-600 rounded-full hidden md:block"></div>
+
+                    <div className="flex flex-col md:flex-row gap-8">
+                        <div className="md:w-1/3">
+                            <div className="p-4 bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-xl inline-flex items-center justify-center mb-4">
+                                <div className="relative">
+                                    <FaGlobe className="text-blue-400 text-2xl" />
+                                    <svg className="absolute -top-1 -right-1 w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <h2 className="text-2xl font-bold mb-2">AI Search Evolution</h2>
+                            <p className="text-gray-400">GEO & SGE Specialist</p>
+                        </div>
+                        <AnimatedCard delay={0.1}>
+                            <h3 className="text-xl font-semibold mb-4 text-blue-300">Mastering Generative Search</h3>
+                            <div className="space-y-4 text-gray-300">
+                                <p>
+                                    Transitioned from traditional SEO to pioneering <span className="text-blue-300">Generative Engine Optimization (GEO)</span>
+                                    for Google’s Search Generative Experience and AI-powered search platforms.
+                                </p>
+                                <p>
+                                    Developed frameworks optimizing for <span className="text-blue-300">conversational queries and semantic understanding</span>,
+                                    delivering <span className="text-blue-300">40-60% higher engagement</span> in SGE environments.
+                                </p>
+                                <p>
+                                    Implementing <span className="text-blue-300">AI-native content strategies</span> that perform across generative platforms
+                                    with focus on entity-based optimization and answer-focused content.
+                                </p>
+                            </div>
+                        </AnimatedCard>
+                    </div>
+                </section>
+
+
+
+
+                {/* Full-Stack Development Journey */}
+                <section className="relative">
+                    <div className="absolute -left-8 top-0 h-full w-1 bg-gradient-to-b from-purple-400 to-amber-500 rounded-full hidden md:block"></div>
+
+                    <div className="flex flex-col md:flex-row gap-8">
+                        <div className="md:w-1/3">
+                            <div className="p-4 bg-gradient-to-br from-purple-900/30 to-blue-900/30 rounded-xl inline-flex items-center justify-center mb-4">
+                                <div className="relative">
+                                    <FaCode className="text-purple-400 text-2xl" />
+                                    <svg className="absolute -top-1 -right-1 w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 01-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <h2 className="text-2xl font-bold mb-2">Web Development</h2>
+                            <p className="text-gray-400">Next.js & React Specialist</p>
+                        </div>
+                        <AnimatedCard delay={0.2}>
+                            <h3 className="text-xl font-semibold mb-4 text-purple-300">Building Scalable Digital Solutions</h3>
+                            <div className="space-y-4 text-gray-300">
+                                <p>
+                                    Specializing in <span className="text-purple-300">Next.js full-stack applications</span> with seamless API integration,
+                                    database management, and dynamic content delivery. Build performant solutions with
+                                    <span className="text-purple-300"> 95+ Lighthouse scores</span> and optimal SEO architecture.
+                                </p>
+                                <p>
+                                    Expertise in creating <span className="text-purple-300">fully responsive, CMS-driven websites</span> with real-time
+                                    data fetching, authentication systems, and server-side rendering. Develop custom
+                                    backend solutions with MongoDB, PostgreSQL, and RESTful/GraphQL APIs.
+                                </p>
+                                <p>
+                                    Passionate about <span className="text-purple-300">clean code architecture</span>, reusable component libraries,
+                                    and optimizing development workflows for rapid deployment and scalability
+                                    across various digital platforms.
+                                </p>
+                            </div>
+                        </AnimatedCard>
+                    </div>
+                </section>
+
                 {/* SEO Journey */}
                 <section className="relative">
                     <div className="absolute -left-8 top-0 h-full w-1 bg-gradient-to-b from-sky-400 to-purple-600 rounded-full hidden md:block"></div>
@@ -170,34 +259,7 @@ const AboutPage = () => {
                     </div>
                 </section>
 
-                {/* Development Journey */}
-                <section className="relative">
-                    <div className="absolute -left-8 top-0 h-full w-1 bg-gradient-to-b from-purple-400 to-amber-500 rounded-full hidden md:block"></div>
 
-                    <div className="flex flex-col md:flex-row gap-8">
-                        <div className="md:w-1/3">
-                            <div className="p-4 bg-purple-900/30 rounded-xl inline-flex items-center justify-center mb-4">
-                                <FaCode className="text-purple-400 text-2xl" />
-                            </div>
-                            <h2 className="text-2xl font-bold mb-2">Web Development</h2>
-                            <p className="text-gray-400">React & Next.js Specialist</p>
-                        </div>
-                        <AnimatedCard delay={0.2}>
-                            <h3 className="text-xl font-semibold mb-4 text-purple-300">Building Digital Foundations</h3>
-                            <div className="space-y-4 text-gray-300">
-                                <p>
-                                    Transitioned from WordPress to mastering the JavaScript ecosystem, now specializing in <span className="text-purple-300">performance-optimized React applications</span> with SEO baked into their architecture.
-                                </p>
-                                <p>
-                                    My development philosophy emphasizes <span className="text-purple-300">clean code, accessibility, and maintainability</span>. Recent projects include e-commerce platforms with 95+ Lighthouse scores and headless CMS implementations.
-                                </p>
-                                <p>
-                                    Contributor to open-source projects and creator of reusable component libraries that accelerate development workflows.
-                                </p>
-                            </div>
-                        </AnimatedCard>
-                    </div>
-                </section>
 
                 {/* Creative Journey */}
                 <section className="relative">

@@ -64,7 +64,7 @@ const AnimatedHero = () => {
                     variants={fadeIn}
                     className="text-lg md:text-xl max-w-3xl mx-auto text-gray-300/90 mb-8 md:mb-12 leading-relaxed"
                 >
-                    Full Stack Developer | SEO Specialist | Digital Strategist | Travel Storyteller
+                    Full Stack Developer | GEO & SGE Specialist | SEO Specialist | Travel Storyteller
                     <span className="block text-sm text-gray-500 mt-2">
                         Building performant, scalable web experiences with measurable business impact
                     </span>

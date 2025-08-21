@@ -107,13 +107,15 @@ const Footer = () => {
                             <p className="text-sm text-gray-400 mb-3 text-center md:text-left">
                                 Subscribe to my newsletter for the latest updates and insights.
                             </p>
+
                             <div className="flex justify-center md:justify-start">
                                 <Link href='/letter'>
-                                    <button className="text-sm text-white bg-sky-900/30 hover:bg-sky-900/50 p-2 px-4 rounded-md transition-colors duration-200">
+                                    <button className="text-sm text-gray-200 border border-gray-800 bg-purple-800/10 p-2 px-4 rounded-md transition-colors duration-200">
                                         Join Newsletter
                                     </button>
                                 </Link>
                             </div>
+
                         </div>
                     </div>
 

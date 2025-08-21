@@ -170,9 +170,11 @@ const NewsLetter = () => {
 
             {/* section - 4 */}
             <section
-                data-aos="flip-left"
+                
                 className="bg-black text-white py-16 px-4 sm:px-6">
-                <div className="max-w-7xl mx-auto">
+                <div
+                data-aos="fade-up"
+                className="max-w-7xl mx-auto">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl md:text-4xl font-bold mb-4">
                             Our <span className="text-blue-400">Process</span>
