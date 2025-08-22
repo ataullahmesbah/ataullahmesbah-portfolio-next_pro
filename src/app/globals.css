@@ -320,3 +320,16 @@ html {
 html {
   scroll-behavior: smooth;
 }
+
+
+/* Shop Banner CTA BTN Animation Start */
+.animate-tilt {
+  transform: translateZ(0);
+  transition: transform 0.2s ease-out;
+}
+
+.group:hover .animate-tilt {
+  transform: rotate(2deg) scale(1.05);
+}
+
+/* Shop Banner CTA BTN Animation End */

@@ -59,7 +59,7 @@ export async function POST(request) {
               fetch_format: 'webp',
               quality: 'auto',
               width: 1920,
-              height: 1080,
+              height: 700,
               crop: 'fill',
             },
             (error, result) => {
@@ -123,7 +123,7 @@ export async function PUT(request) {
               fetch_format: 'webp',
               quality: 'auto',
               width: 1920,
-              height: 1080,
+              height: 700,
               crop: 'fill',
             },
             (error, result) => {

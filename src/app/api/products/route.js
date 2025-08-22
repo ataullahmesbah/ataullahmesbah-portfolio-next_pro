@@ -163,7 +163,14 @@ export async function POST(request) {
         const mainImageBuffer = Buffer.from(mainImageArrayBuffer);
         const mainImageResult = await new Promise((resolve, reject) => {
             cloudinary.uploader.upload_stream(
-                { folder: 'products', format: 'webp' },
+                {
+                    folder: 'products',
+                    format: 'webp',
+                    width: 800,
+                    height: 800,
+                    crop: 'fill',
+                    quality: 'auto'
+                },
                 (error, result) => (error ? reject(error) : resolve(result))
             ).end(mainImageBuffer);
         });
@@ -183,7 +190,14 @@ export async function POST(request) {
                 const buffer = Buffer.from(arrayBuffer);
                 return new Promise((resolve, reject) => {
                     cloudinary.uploader.upload_stream(
-                        { folder: 'products/additional', format: 'webp' },
+                        {
+                            folder: 'products/additional',
+                            format: 'webp',
+                            width: 800,
+                            height: 800,
+                            crop: 'fill',
+                            quality: 'auto'
+                        },
                         (error, result) => (error ? reject(error) : resolve(result.secure_url))
                     ).end(buffer);
                 });

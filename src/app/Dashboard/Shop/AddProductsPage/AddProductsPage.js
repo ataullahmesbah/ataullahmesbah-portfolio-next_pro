@@ -511,7 +511,7 @@ export default function AddProduct() {
                     {/* Images */}
                     <div className="space-y-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Main Image*</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Main Image* (800*800 px)</label>
                             <input
                                 type="file"
                                 accept="image/*"
@@ -535,7 +535,7 @@ export default function AddProduct() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Additional Images (max 5)</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Additional Images (max 5) - (800*800 px)</label>
                             {formData.additionalImages.map((img, index) => (
                                 <div key={index} className="flex items-center mb-4">
                                     <input

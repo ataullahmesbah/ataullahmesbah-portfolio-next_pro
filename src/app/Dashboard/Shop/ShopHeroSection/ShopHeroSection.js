@@ -177,6 +177,7 @@ const ShopHeroSection = () => {
                 )}
 
                 {/* CTA Button */}
+                {/* CTA Button */}
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -184,11 +185,14 @@ const ShopHeroSection = () => {
                   className="pt-1 sm:pt-2 md:pt-4"
                 >
                   <Link href={slides[currentSlide].link} className="inline-block">
-                    <button className={`px-4 py-1 sm:px-6 sm:py-2 md:px-8 md:py-3 lg:px-10 lg:py-4 bg-white text-gray-900 font-bold rounded-lg hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl text-xs sm:text-sm md:text-base lg:text-lg ${slides[currentSlide].textColor === 'text-white' ? 'hover:shadow-white/20' : 'hover:shadow-gray-500/20'}`}>
-                      {isSmallTablet
-                        ? slides[currentSlide].cta.split(' ')[0]
-                        : slides[currentSlide].cta} →
-                    </button>
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
+                      <button className={`relative px-7 py-4 rounded-lg leading-none flex items-center justify-center text-center font-semibold transition-all duration-300 ${slides[currentSlide].textColor === 'text-white' ? 'bg-black text-white' : 'bg-gray-900 text-white'}`}>
+                        {isSmallTablet
+                          ? slides[currentSlide].cta.split(' ')[0]
+                          : slides[currentSlide].cta} &rarr;
+                      </button>
+                    </div>
                   </Link>
                 </motion.div>
               </div>

@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const ShopBannerAdmin = () => {
   const [banners, setBanners] = useState([]);
@@ -415,15 +416,17 @@ const ShopBannerAdmin = () => {
                             file:hover:bg-purple-800"
                           disabled={uploading}
                         />
-                        <p className="mt-1 text-xs text-gray-400">
-                          Recommended: WebP, 1920×1080px, max 5MB
+                        <p className="mt-1 text-xs text-red-400">
+                          Recommended: WebP, 1920×700px, max 5MB
                         </p>
                       </div>
                       {imagePreview && (
                         <div className="w-16 h-16 rounded-lg overflow-hidden border border-gray-600">
-                          <img
+                          <Image
                             src={imagePreview}
                             alt="Preview"
+                            width={30}
+                            height={20}
                             className="w-full h-full object-cover"
                           />
                         </div>
