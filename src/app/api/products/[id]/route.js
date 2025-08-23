@@ -1,4 +1,7 @@
 
+
+//app/api/products/[id]/route.js
+
 import Product from '@/models/Products';
 import { getServerSession } from 'next-auth/next';
 import Category from '@/models/Category';

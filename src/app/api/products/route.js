@@ -1,4 +1,7 @@
 
+//app/api/products/route.js
+
+
 import cloudinary from '@/utils/cloudinary';
 import { authOptions } from '../auth/[...nextauth]/route';
 import dbConnect from '@/lib/dbMongoose';
