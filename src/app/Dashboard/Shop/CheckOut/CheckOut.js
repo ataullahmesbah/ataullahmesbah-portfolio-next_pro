@@ -32,6 +32,9 @@ export default function Checkout() {
     const [shippingCharges, setShippingCharges] = useState({ 'Dhaka-Chattogram': 0, 'Others': 0 });
     const [userId, setUserId] = useState('mock-user-id');
     const [appliedCoupon, setAppliedCoupon] = useState(null);
+    const [validatingCart, setValidatingCart] = useState(false);
+
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -65,6 +68,55 @@ export default function Checkout() {
         fetchData();
     }, []);
 
+
+    // Add this function to your checkout component
+    const validateCart = async () => {
+        setValidatingCart(true);
+        try {
+            const response = await axios.post('/api/products/cart/validate', {
+                cartItems: cart.map(item => ({
+                    productId: item._id,
+                    quantity: item.quantity
+                }))
+            });
+
+            const { isValid, results } = response.data;
+
+            if (!isValid) {
+                // Update cart with corrected quantities
+                const updatedCart = cart.map(item => {
+                    const validation = results.find(r => r.productId === item._id);
+                    if (!validation.valid && validation.availableQuantity !== undefined) {
+                        return { ...item, quantity: validation.availableQuantity };
+                    }
+                    return item;
+                });
+
+                setCart(updatedCart);
+                localStorage.setItem('cart', JSON.stringify(updatedCart));
+                window.dispatchEvent(new Event('cartUpdated'));
+
+                // Show error messages
+                results.forEach(result => {
+                    if (!result.valid && result.message) {
+                        toast.error(result.message);
+                    }
+                });
+
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Cart validation error:', error);
+            toast.error('Failed to validate cart items');
+            return false;
+        } finally {
+            setValidatingCart(false);
+        }
+    };
+
+
     const getBDTPrice = (item) => {
         if (!item || !item.price || !item.currency) return 0;
         if (item.currency === 'BDT') return item.price;
@@ -88,43 +140,67 @@ export default function Checkout() {
         setCustomerInfo((prev) => ({ ...prev, phone }));
     };
 
-    const handleQuantityChange = (productId, newQuantity) => {
+
+    const handleQuantityChange = async (productId, newQuantity) => {
         if (newQuantity < 1 || !productId) return;
-        const updatedCart = cart.map(item =>
-            item._id === productId ? { ...item, quantity: newQuantity } : item
-        );
-        setCart(updatedCart);
-        localStorage.setItem('cart', JSON.stringify(updatedCart));
-        window.dispatchEvent(new Event('cartUpdated'));
-        if (appliedCoupon) {
-            if (appliedCoupon.type === 'product') {
-                const cartItem = updatedCart.find(item => item._id === appliedCoupon.productId);
-                if (cartItem) {
-                    const discountAmount = (getBDTPrice(cartItem) * appliedCoupon.discountPercentage) / 100;
-                    setDiscount(Number.isFinite(discountAmount) ? discountAmount : 0);
-                } else {
-                    setDiscount(0);
-                    setAppliedCoupon(null);
-                    setCouponCode('');
-                    setCouponError('Coupon no longer applicable.');
-                    toast.error('Coupon no longer applicable.');
-                }
-            } else if (appliedCoupon.type === 'global') {
-                const subtotal = updatedCart.reduce((sum, item) => sum + getBDTPrice(item) * (item.quantity || 1), 0);
-                if (subtotal >= appliedCoupon.minCartTotal) {
-                    setDiscount(Number.isFinite(appliedCoupon.discountAmount) ? appliedCoupon.discountAmount : 0);
-                } else {
-                    setDiscount(0);
-                    setAppliedCoupon(null);
-                    setCouponCode('');
-                    setCouponError(`Cart total must be at least ৳${appliedCoupon.minCartTotal}`);
-                    toast.error(`Cart total must be at least ৳${appliedCoupon.minCartTotal}`);
+
+        try {
+            // Validate with backend before changing quantity
+            const response = await axios.get(`/api/products/${productId}`);
+            const product = response.data;
+
+            if (newQuantity > product.quantity) {
+                toast.error(`Only ${product.quantity} units available`);
+                return;
+            }
+
+            if (newQuantity > 3) {
+                toast.error('Maximum 3 units per product');
+                return;
+            }
+
+            const updatedCart = cart.map(item =>
+                item._id === productId ? { ...item, quantity: newQuantity } : item
+            );
+            setCart(updatedCart);
+            localStorage.setItem('cart', JSON.stringify(updatedCart));
+            window.dispatchEvent(new Event('cartUpdated'));
+
+
+            if (appliedCoupon) {
+                if (appliedCoupon.type === 'product') {
+                    const cartItem = updatedCart.find(item => item._id === appliedCoupon.productId);
+                    if (cartItem) {
+                        const discountAmount = (getBDTPrice(cartItem) * appliedCoupon.discountPercentage) / 100;
+                        setDiscount(Number.isFinite(discountAmount) ? discountAmount : 0);
+                    } else {
+                        setDiscount(0);
+                        setAppliedCoupon(null);
+                        setCouponCode('');
+                        setCouponError('Coupon no longer applicable.');
+                        toast.error('Coupon no longer applicable.');
+                    }
+                } else if (appliedCoupon.type === 'global') {
+                    const subtotal = updatedCart.reduce((sum, item) => sum + getBDTPrice(item) * (item.quantity || 1), 0);
+                    if (subtotal >= appliedCoupon.minCartTotal) {
+                        setDiscount(Number.isFinite(appliedCoupon.discountAmount) ? appliedCoupon.discountAmount : 0);
+                    } else {
+                        setDiscount(0);
+                        setAppliedCoupon(null);
+                        setCouponCode('');
+                        setCouponError(`Cart total must be at least ৳${appliedCoupon.minCartTotal}`);
+                        toast.error(`Cart total must be at least ৳${appliedCoupon.minCartTotal}`);
+                    }
                 }
             }
+        } catch (error) {
+            console.error('Error validating product stock:', error);
+            toast.error('Error checking product availability');
         }
     };
 
     const subtotal = cart.reduce((sum, item) => sum + getBDTPrice(item) * (item.quantity || 1), 0);
+
 
     const handleCouponApply = async () => {
         setCouponError('');
@@ -185,16 +261,25 @@ export default function Checkout() {
         }
     };
 
+
     const generateOrderId = () => {
         return 'ORDER_' + Math.random().toString(36).substr(2, 9).toUpperCase();
     };
 
     const payableAmount = subtotal - discount + (paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' ? (Number.isFinite(shippingCharge) ? shippingCharge : 0) : 0);
 
+    // Then update your handleCheckout function to call validateCart first
     const handleCheckout = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
+
+        // Validate cart with backend first
+        const isCartValid = await validateCart();
+        if (!isCartValid) {
+            setLoading(false);
+            return;
+        }
 
         if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.address) {
             setError('Please fill in all required fields.');
@@ -311,6 +396,7 @@ export default function Checkout() {
         }
     };
 
+
     return (
         <div className="min-h-screen bg-gray-900 text-gray-200 py-8 px-4 sm:px-6 lg:px-8 border-b border-b-gray-800">
             <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#333', color: '#fff' } }} />
@@ -325,7 +411,6 @@ export default function Checkout() {
                         {error}
                     </div>
                 )}
-
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Left Column - Billing Details */}
                     <div className="bg-gray-800 rounded-lg p-6">
@@ -461,7 +546,19 @@ export default function Checkout() {
                         {/* Order Items */}
                         <div className="bg-gray-800 rounded-lg p-6">
                             <h2 className="text-xl font-medium mb-4">Your Order</h2>
-                            
+
+                            {validatingCart && (
+                                <div className="text-center py-4">
+                                    <div className="inline-flex items-center">
+                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Validating cart...
+                                    </div>
+                                </div>
+                            )}
+
                             {cart.length === 0 ? (
                                 <p className="text-gray-400">Your cart is empty</p>
                             ) : (
@@ -481,11 +578,11 @@ export default function Checkout() {
                                                 <p className="text-gray-400 text-xs">
                                                     ৳{(getBDTPrice(item) || 0).toLocaleString()} × {item.quantity || 1}
                                                 </p>
-                                                {/* <div className="flex items-center mt-1">
+                                                <div className="flex items-center mt-1">
                                                     <button
                                                         onClick={() => handleQuantityChange(item._id, (item.quantity || 1) - 1)}
                                                         className="px-2 py-1 bg-gray-700 text-white rounded-l hover:bg-gray-600"
-                                                        disabled={(item.quantity || 1) <= 1}
+                                                        disabled={(item.quantity || 1) <= 1 || validatingCart}
                                                     >
                                                         -
                                                     </button>
@@ -493,10 +590,11 @@ export default function Checkout() {
                                                     <button
                                                         onClick={() => handleQuantityChange(item._id, (item.quantity || 1) + 1)}
                                                         className="px-2 py-1 bg-gray-700 text-white rounded-r hover:bg-gray-600"
+                                                        disabled={validatingCart}
                                                     >
                                                         +
                                                     </button>
-                                                </div> */}
+                                                </div>
                                             </div>
                                             <div className="text-sm">
                                                 ৳{((getBDTPrice(item) || 0) * (item.quantity || 1)).toLocaleString()}

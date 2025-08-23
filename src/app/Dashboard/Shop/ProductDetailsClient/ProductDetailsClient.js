@@ -41,56 +41,69 @@ export default function ProductDetailsClient({ product, latestProducts }) {
         },
     };
 
-    const handleAddToCart = () => {
+    const handleAddToCart = async () => {
         if (product.quantity <= 0 || product.productType === 'Affiliate') {
             toast.error('This product cannot be added to cart');
             return;
         }
 
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const existingItem = cart.find((item) => item._id === product._id);
-        let newQuantity = quantity;
+        // Validate with backend before adding to cart
+        try {
+            const response = await axios.get(`/api/products/${product._id}`);
+            const currentProduct = response.data;
 
-        if (existingItem) {
-            newQuantity = existingItem.quantity + quantity;
-            if (newQuantity > 3) {
-                toast.error('Cannot add more than 3 units of this product');
+            if (quantity > currentProduct.quantity) {
+                toast.error(`Only ${currentProduct.quantity} units available`);
+                setQuantity(Math.min(quantity, currentProduct.quantity));
                 return;
             }
-            if (newQuantity > product.quantity) {
-                toast.error('Selected quantity exceeds available stock');
-                return;
-            }
-            cart.splice(cart.indexOf(existingItem), 1);
-            cart.push({ ...existingItem, quantity: newQuantity });
-            toast.success('Cart updated successfully');
-        } else {
+
             if (quantity > 3) {
                 toast.error('Cannot add more than 3 units of this product');
+                setQuantity(Math.min(quantity, 3));
                 return;
             }
-            if (quantity > product.quantity) {
-                toast.error('Selected quantity exceeds available stock');
-                return;
+
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const existingItem = cart.find((item) => item._id === product._id);
+            let newQuantity = quantity;
+
+            if (existingItem) {
+                newQuantity = existingItem.quantity + quantity;
+                if (newQuantity > 3) {
+                    toast.error('Cannot add more than 3 units of this product');
+                    return;
+                }
+                if (newQuantity > currentProduct.quantity) {
+                    toast.error('Selected quantity exceeds available stock');
+                    return;
+                }
+                cart.splice(cart.indexOf(existingItem), 1);
+                cart.push({ ...existingItem, quantity: newQuantity });
+                toast.success('Cart updated successfully');
+            } else {
+                const priceObj = product.prices.find((p) => p.currency === 'BDT') || product.prices[0];
+                const priceInBDT = priceObj.currency === 'BDT' ? priceObj.amount : priceObj.amount * (conversionRates[priceObj.currency] || 1);
+                cart.push({
+                    _id: product._id,
+                    title: product.title,
+                    quantity,
+                    price: priceInBDT,
+                    mainImage: product.mainImage,
+                    currency: 'BDT',
+                });
+                toast.success('Added to cart successfully');
             }
-            const priceObj = product.prices.find((p) => p.currency === 'BDT') || product.prices[0];
-            const priceInBDT = priceObj.currency === 'BDT' ? priceObj.amount : priceObj.amount * (conversionRates[priceObj.currency] || 1);
-            cart.push({
-                _id: product._id,
-                title: product.title,
-                quantity,
-                price: priceInBDT,
-                mainImage: product.mainImage,
-                currency: 'BDT',
-            });
-            toast.success('Added to cart successfully');
+            localStorage.setItem('cart', JSON.stringify(cart));
+            window.dispatchEvent(new Event('cartUpdated'));
+            setIsCartOpen(true);
+        } catch (error) {
+            console.error('Error validating product stock:', error);
+            toast.error('Error checking product availability');
         }
-        localStorage.setItem('cart', JSON.stringify(cart));
-        window.dispatchEvent(new Event('cartUpdated'));
-        setIsCartOpen(true);
     };
 
-    const handleBuyNow = () => {
+    const handleBuyNow = async () => {
         if (product.quantity <= 0 && product.productType !== 'Affiliate') {
             toast.error('This product is out of stock');
             return;
@@ -102,50 +115,55 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             return;
         }
 
-        if (quantity > 3) {
-            toast.error('Maximum 3 units per order');
-            return;
-        }
+        // Validate with backend before proceeding
+        try {
+            const response = await axios.get(`/api/products/${product._id}`);
+            const currentProduct = response.data;
 
-        if (quantity > product.quantity) {
-            toast.error(`Only ${product.quantity} units available`);
-            return;
-        }
-
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const existingItem = cart.find((item) => item._id === product._id);
-        let updatedCart = [...cart];
-
-        if (existingItem) {
-            const newQuantity = existingItem.quantity + quantity;
-            if (newQuantity > 3) {
-                toast.error('Cannot add more than 3 units of this product');
+            if (quantity > 3) {
+                toast.error('Maximum 3 units per order');
                 return;
             }
-            if (newQuantity > product.quantity) {
-                toast.error('Selected quantity exceeds available stock');
+
+            if (quantity > currentProduct.quantity) {
+                toast.error(`Only ${currentProduct.quantity} units available`);
+                setQuantity(Math.min(quantity, currentProduct.quantity));
                 return;
             }
-            updatedCart = updatedCart.filter((item) => item._id !== product._id);
-            updatedCart.push({ ...existingItem, quantity: newQuantity });
-        } else {
+
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+            // For Buy Now, we want to replace the cart with just this product
+            // Remove any existing instance of this product first
+            const filteredCart = cart.filter((item) => item._id !== product._id);
+
+            // Add the product with the selected quantity
             const priceObj = product.prices.find((p) => p.currency === 'BDT') || product.prices[0];
             const priceInBDT = priceObj.currency === 'BDT' ? priceObj.amount : priceObj.amount * (conversionRates[priceObj.currency] || 1);
-            updatedCart.push({
-                _id: product._id,
-                title: product.title,
-                quantity,
-                price: priceInBDT,
-                mainImage: product.mainImage,
-                currency: 'BDT',
-            });
-        }
 
-        localStorage.setItem('cart', JSON.stringify(updatedCart));
-        window.dispatchEvent(new Event('cartUpdated'));
-        toast.success('Proceeding to checkout');
-        router.push('/checkout');
+            const updatedCart = [
+                ...filteredCart,
+                {
+                    _id: product._id,
+                    title: product.title,
+                    quantity: quantity, // Use the selected quantity, don't add to existing
+                    price: priceInBDT,
+                    mainImage: product.mainImage,
+                    currency: 'BDT',
+                }
+            ];
+
+            localStorage.setItem('cart', JSON.stringify(updatedCart));
+            window.dispatchEvent(new Event('cartUpdated'));
+            toast.success('Proceeding to checkout');
+            router.push('/checkout');
+        } catch (error) {
+            console.error('Error validating product stock:', error);
+            toast.error('Error checking product availability');
+        }
     };
+
+    // Cart End
 
     const getPriceInBDT = (price, curr) => {
         return price * (conversionRates[curr] || 1);
@@ -337,7 +355,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
 
                         <div>
                             <p className="text-xs text-gray-200">
-                               Product Code: {product.product_code || 'N/A'}
+                                Product Code: {product.product_code || 'N/A'}
                             </p>
                         </div>
 
