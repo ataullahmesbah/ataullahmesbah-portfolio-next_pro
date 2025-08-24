@@ -1,3 +1,5 @@
+//api/products/orders/route.js
+
 import { NextResponse } from 'next/server';
 import Order from '@/models/Order';
 import Coupon from '@/models/Coupon';
