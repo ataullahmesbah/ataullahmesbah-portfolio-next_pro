@@ -6,9 +6,12 @@ import { useRouter } from 'next/navigation';
 import CartSlider from '../CartSlider/CartSlider';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
+import { CiDeliveryTruck } from "react-icons/ci";
+
 
 export default function ProductDetailsClient({ product, latestProducts }) {
     const [selectedImage, setSelectedImage] = useState(product.mainImage);
+    const [selectedImageAlt, setSelectedImageAlt] = useState(product.mainImageAlt || product.title);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currency, setCurrency] = useState('BDT');
     const [quantity, setQuantity] = useState(1);
@@ -18,36 +21,69 @@ export default function ProductDetailsClient({ product, latestProducts }) {
 
     // Fetch conversion rates
     useEffect(() => {
-        axios.get('/api/products/conversion-rates')
-            .then(response => {
+        axios
+            .get('/api/products/conversion-rates')
+            .then((response) => {
                 setConversionRates(response.data);
             })
-            .catch(err => {
+            .catch((err) => {
                 console.error('Error fetching conversion rates:', err);
+                toast.error('Failed to load currency conversion rates');
             });
     }, []);
 
+    // Structured data with full schema
     const structuredData = {
         '@context': 'https://schema.org',
         '@type': 'Product',
         name: product.title,
-        image: product.mainImage,
+        image: [product.mainImage, ...product.additionalImages.map((img) => img.url)],
         description: product.description,
+        brand: { '@type': 'Brand', name: product.brand || 'Ataullah Mesbah' },
+        sku: product.product_code,
         offers: {
             '@type': 'Offer',
             priceCurrency: 'BDT',
             price: product.prices.find((p) => p.currency === 'BDT')?.amount || 0,
-            availability: product.quantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            availability: `https://schema.org/${product.availability || 'InStock'}`,
+            url: `${process.env.NEXTAUTH_URL}/shop/${product.slug}`,
         },
+        aggregateRating: product.aggregateRating?.ratingValue
+            ? {
+                '@type': 'AggregateRating',
+                ratingValue: product.aggregateRating.ratingValue,
+                reviewCount: product.aggregateRating.reviewCount || 0,
+            }
+            : undefined,
+        additionalProperty: product.specifications?.map((spec) => ({
+            '@type': 'PropertyValue',
+            name: spec.name,
+            value: spec.value,
+        })),
     };
 
+    // FAQPage schema
+    const faqStructuredData = product.faqs?.length > 0
+        ? {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: product.faqs.map((faq) => ({
+                '@type': 'Question',
+                name: faq.question,
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: faq.answer,
+                },
+            })),
+        }
+        : null;
+
     const handleAddToCart = async () => {
-        if (product.quantity <= 0 || product.productType === 'Affiliate') {
+        if (product.availability !== 'InStock' || product.quantity <= 0 || product.productType === 'Affiliate') {
             toast.error('This product cannot be added to cart');
             return;
         }
 
-        // Validate with backend before adding to cart
         try {
             const response = await axios.get(`/api/products/${product._id}`);
             const currentProduct = response.data;
@@ -60,7 +96,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
 
             if (quantity > 3) {
                 toast.error('Cannot add more than 3 units of this product');
-                setQuantity(Math.min(quantity, 3));
+                setQuantity(3);
                 return;
             }
 
@@ -90,6 +126,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                     quantity,
                     price: priceInBDT,
                     mainImage: product.mainImage,
+                    mainImageAlt: product.mainImageAlt,
                     currency: 'BDT',
                 });
                 toast.success('Added to cart successfully');
@@ -104,7 +141,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
     };
 
     const handleBuyNow = async () => {
-        if (product.quantity <= 0 && product.productType !== 'Affiliate') {
+        if (product.availability !== 'InStock' || product.quantity <= 0) {
             toast.error('This product is out of stock');
             return;
         }
@@ -115,13 +152,13 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             return;
         }
 
-        // Validate with backend before proceeding
         try {
             const response = await axios.get(`/api/products/${product._id}`);
             const currentProduct = response.data;
 
             if (quantity > 3) {
                 toast.error('Maximum 3 units per order');
+                setQuantity(3);
                 return;
             }
 
@@ -132,12 +169,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             }
 
             const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-
-            // For Buy Now, we want to replace the cart with just this product
-            // Remove any existing instance of this product first
             const filteredCart = cart.filter((item) => item._id !== product._id);
-
-            // Add the product with the selected quantity
             const priceObj = product.prices.find((p) => p.currency === 'BDT') || product.prices[0];
             const priceInBDT = priceObj.currency === 'BDT' ? priceObj.amount : priceObj.amount * (conversionRates[priceObj.currency] || 1);
 
@@ -146,11 +178,12 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                 {
                     _id: product._id,
                     title: product.title,
-                    quantity: quantity, // Use the selected quantity, don't add to existing
+                    quantity,
                     price: priceInBDT,
                     mainImage: product.mainImage,
+                    mainImageAlt: product.mainImageAlt,
                     currency: 'BDT',
-                }
+                },
             ];
 
             localStorage.setItem('cart', JSON.stringify(updatedCart));
@@ -162,8 +195,6 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             toast.error('Error checking product availability');
         }
     };
-
-    // Cart End
 
     const getPriceInBDT = (price, curr) => {
         return price * (conversionRates[curr] || 1);
@@ -182,7 +213,16 @@ export default function ProductDetailsClient({ product, latestProducts }) {
 
     return (
         <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+            />
+            {faqStructuredData && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
+                />
+            )}
 
             {/* Breadcrumb Navigation */}
             <nav className="flex mb-6" aria-label="Breadcrumb">
@@ -194,30 +234,29 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                     </li>
                     <li>
                         <div className="flex items-center">
-                            <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
+                            <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                             </svg>
-                            <Link href="/shop" className="ml-1 text-sm font-medium text-gray-400 hover:text-white md:ml-2">
+                            <Link href="/shop" className="ml-1 text-sm font-medium text-gray-400 hover:text-white">
                                 Shop
                             </Link>
                         </div>
                     </li>
                     <li aria-current="page">
                         <div className="flex items-center">
-                            <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"></path>
+                            <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                             </svg>
-                            <span className="ml-1 text-sm font-medium text-white md:ml-2">{product.title}</span>
+                            <span className="ml-1 text-sm font-medium text-white">{product.title}</span>
                         </div>
                     </li>
                 </ol>
             </nav>
 
             {/* Main Product Section */}
-            <div className="bg-gray-800 rounded-xl overflow-hidden">
+            <div className="bg-gray-800 rounded-xl overflow-hidden shadow-lg">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-8">
                     {/* Image Gallery */}
-
                     <div className="space-y-3">
                         <div
                             className="relative w-full max-w-md mx-auto rounded-md overflow-hidden bg-gray-800 shadow-sm cursor-zoom-in"
@@ -225,37 +264,39 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                         >
                             <Image
                                 src={selectedImage}
-                                alt={product.title}
+                                alt={selectedImageAlt}
                                 width={448}
                                 height={448}
                                 className="object-contain bg-gray-800"
                                 priority
                                 sizes="(max-width: 640px) 100vw, 448px"
                             />
-                            {product.quantity <= 0 && (
+                            {product.availability !== 'InStock' && (
                                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                                     <span className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-semibold">
-                                        Out of Stock
+                                        {product.availability === 'OutOfStock' ? 'Out of Stock' : 'Pre-Order'}
                                     </span>
                                 </div>
                             )}
                         </div>
-
-                        {product.additionalImages.length > 0 && (
+                        {(product.additionalImages.length > 0 || product.mainImage) && (
                             <div className="w-full max-w-md mx-auto">
                                 <div className="grid grid-cols-5 gap-2">
-                                    {[product.mainImage, ...product.additionalImages].map((img, index) => (
+                                    {[
+                                        { url: product.mainImage, alt: product.mainImageAlt || product.title },
+                                        ...product.additionalImages,
+                                    ].map((img, index) => (
                                         <div
                                             key={index}
-                                            className={`relative aspect-square rounded-md overflow-hidden cursor-pointer transition-transform duration-200 ${selectedImage === img
-                                                ? 'ring-2 ring-purple-500'
-                                                : 'hover:ring-2 hover:ring-purple-300 hover:scale-105'
-                                                } animate-fade-in`}
-                                            onClick={() => setSelectedImage(img)}
+                                            className={`relative aspect-square rounded-md overflow-hidden cursor-pointer transition-transform duration-200 ${selectedImage === img.url ? 'ring-2 ring-purple-500' : 'hover:ring-2 hover:ring-purple-300 hover:scale-105'}`}
+                                            onClick={() => {
+                                                setSelectedImage(img.url);
+                                                setSelectedImageAlt(img.alt);
+                                            }}
                                         >
                                             <Image
-                                                src={img}
-                                                alt={`${product.title} thumbnail ${index + 1}`}
+                                                src={img.url}
+                                                alt={img.alt || `${product.title} thumbnail ${index + 1}`}
                                                 width={80}
                                                 height={80}
                                                 className="object-cover"
@@ -272,14 +313,24 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                     <div className="space-y-6">
                         <div>
                             <h1 className="text-2xl font-bold text-white">{product.title}</h1>
+                            {product.brand && (
+                                <p className="text-sm text-gray-400 mt-1">Brand: {product.brand}</p>
+                            )}
                             {product.category && (
                                 <span className="inline-block mt-2 px-3 py-1 bg-purple-900/30 text-purple-300 rounded-full text-xs">
                                     {product.category.name}
                                 </span>
                             )}
+                            {product.aggregateRating?.ratingValue && (
+                                <div className="mt-2 flex items-center">
+                                    <span className="text-yellow-400">{'★'.repeat(Math.round(product.aggregateRating.ratingValue))}</span>
+                                    <span className="ml-2 text-sm text-gray-400">
+                                        ({product.aggregateRating.ratingValue} from {product.aggregateRating.reviewCount || 0} reviews)
+                                    </span>
+                                </div>
+                            )}
                         </div>
 
-                        {/* Price Section */}
                         <div className="bg-purple-900/20 p-4 rounded-lg w-full">
                             <div className="flex flex-wrap items-center gap-4">
                                 <select
@@ -293,25 +344,16 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                         </option>
                                     ))}
                                 </select>
-                                <span className="text-2xl font-bold text-white">
-                                    {getPriceDisplay()}
-                                </span>
-                                {product.originalPrice && (
-                                    <span className="text-sm text-gray-400 line-through">
-                                        {currency === 'BDT' ? '৳' : '$'}
-                                        {new Intl.NumberFormat().format(product.originalPrice)}
-                                    </span>
-                                )}
+                                <span className="text-2xl font-bold text-white">{getPriceDisplay()}</span>
                             </div>
                         </div>
 
-                        {/* Quantity Selector */}
                         <div className="flex items-center gap-4">
                             <label className="text-sm font-medium text-gray-300">Quantity:</label>
                             <select
                                 value={quantity}
                                 onChange={(e) => setQuantity(Number(e.target.value))}
-                                disabled={product.quantity <= 0 || product.productType === 'Affiliate'}
+                                disabled={product.availability !== 'InStock' || product.productType === 'Affiliate'}
                                 className="bg-gray-700 text-white px-3 py-1 rounded-md text-sm"
                             >
                                 {[...Array(Math.min(product.quantity || 3, 3))].map((_, i) => (
@@ -322,21 +364,31 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                             </select>
                         </div>
 
-                        {/* Action Buttons */}
-                        {product.quantity <= 0 && product.productType !== 'Affiliate' ? (
+                        {product.availability !== 'InStock' && product.productType !== 'Affiliate' ? (
                             <div className="p-3 bg-red-900/20 text-red-300 rounded-md text-sm">
-                                Currently Out of Stock
+                                {product.availability === 'OutOfStock' ? 'Currently Out of Stock' : 'Available for Pre-Order'}
                             </div>
                         ) : (
                             <div className="flex flex-wrap gap-4">
                                 {product.productType !== 'Affiliate' && (
                                     <button
                                         onClick={handleAddToCart}
-                                        disabled={product.quantity <= 0}
+                                        disabled={product.availability !== 'InStock'}
                                         className="px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 rounded-md font-medium text-white transition-all flex items-center gap-2 disabled:opacity-50"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-5 w-5"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                                            />
                                         </svg>
                                         Add to Cart
                                     </button>
@@ -345,36 +397,72 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                     onClick={handleBuyNow}
                                     className="px-6 py-2 bg-gradient-to-r from-purple-700 to-purple-800 hover:from-purple-800 hover:to-purple-900 rounded-md font-medium text-white transition-all flex items-center gap-2"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-5 w-5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                                        />
                                     </svg>
-                                    Buy Now
+                                    {product.productType === 'Affiliate' ? 'Buy on Affiliate Site' : 'Buy Now'}
                                 </button>
                             </div>
                         )}
 
                         <div>
+
+
+                            <div className="text-xs flex items-center gap-2 text-gray-200">
+                                <p className='text-lg text-gray-100'>
+                                    <CiDeliveryTruck />
+                                </p>
+                                <p className="">
+
+                                    Delivery time: 3 - 4 business days</p>
+                            </div>
+
+
+                            <p className="text-xs text-gray-200">Product Code: {product.product_code || 'N/A'}</p>
                             <p className="text-xs text-gray-200">
-                                Product Code: {product.product_code || 'N/A'}
+                                Availability:{' '}
+                                {product.availability === 'InStock'
+                                    ? `In Stock (${product.quantity} available)`
+                                    : product.availability}
                             </p>
                         </div>
 
                         {/* Product Details */}
-                        <div className="space-y-4 pt-4 border-t border-gray-700">
+                        <div className="space-y-6 pt-4 border-t border-gray-700">
+                            {product.shortDescription && (
+                                <div>
+                                    <h3 className="text-lg font-semibold text-white mb-2">Quick Overview</h3>
+                                    <p className="text-gray-300 text-sm">{product.shortDescription}</p>
+                                </div>
+                            )}
                             {product.description && (
                                 <div>
                                     <h3 className="text-lg font-semibold text-white mb-2">Description</h3>
                                     <p className="text-gray-300 text-sm">{product.description}</p>
                                 </div>
                             )}
-                            {product.descriptions && (
+                            {product.descriptions?.length > 0 && (
                                 <div>
-                                    <h3 className="text-lg font-semibold text-white mb-2">Additional Description</h3>
-                                    <p className="text-gray-300 text-sm">{product.descriptions}</p>
+                                    <h3 className="text-lg font-semibold text-white mb-2">Additional Information</h3>
+                                    {product.descriptions.map((desc, index) => (
+                                        <p key={index} className="text-gray-300 text-sm mb-2">
+                                            {desc}
+                                        </p>
+                                    ))}
                                 </div>
                             )}
-
-                            {product.bulletPoints.length > 0 && (
+                            {product.bulletPoints?.length > 0 && (
                                 <div>
                                     <h3 className="text-lg font-semibold text-white mb-2">Key Features</h3>
                                     <ul className="space-y-2 text-gray-300 text-sm">
@@ -385,6 +473,34 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                             </li>
                                         ))}
                                     </ul>
+                                </div>
+                            )}
+                            {product.specifications?.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-semibold text-white mb-2">Specifications</h3>
+                                    <table className="w-full text-sm text-gray-300">
+                                        <tbody>
+                                            {product.specifications.map((spec, index) => (
+                                                <tr key={index} className="border-b border-gray-700">
+                                                    <td className="py-2 pr-4 font-medium">{spec.name}</td>
+                                                    <td className="py-2">{spec.value}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                            {product.faqs?.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-semibold text-white mb-2">Frequently Asked Questions</h3>
+                                    <div className="space-y-4">
+                                        {product.faqs.map((faq, index) => (
+                                            <div key={index}>
+                                                <h4 className="text-sm font-medium text-white">{faq.question}</h4>
+                                                <p className="text-gray-300 text-sm">{faq.answer}</p>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -400,21 +516,21 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                         {latestProducts.slice(0, 5).map((item) => (
                             <Link
                                 key={item._id}
-                                href={`/shop/${item.slug || item._id}`}
+                                href={`/shop/${item.slug}`}
                                 className="group bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-purple-500 transition-colors flex flex-col h-full"
                             >
                                 <div className="relative aspect-square flex-1">
                                     <Image
                                         src={item.mainImage}
-                                        alt={item.title}
+                                        alt={item.mainImageAlt || item.title}
                                         fill
                                         className="object-cover"
                                         sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
                                     />
-                                    {item.quantity <= 0 && (
+                                    {item.availability !== 'InStock' && (
                                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                                             <span className="bg-red-600 text-white px-2 py-1 rounded-md text-xs font-medium">
-                                                Out of Stock
+                                                {item.availability === 'OutOfStock' ? 'Out of Stock' : 'Pre-Order'}
                                             </span>
                                         </div>
                                     )}
@@ -422,7 +538,11 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                 <div className="p-3 mt-auto">
                                     <h3 className="text-sm font-medium text-white line-clamp-2">{item.title}</h3>
                                     <p className="text-purple-400 font-semibold mt-1 text-sm">
-                                        ৳{getPriceInBDT(item.prices.find((p) => p.currency === 'BDT')?.amount || item.prices[0].amount, item.prices[0].currency).toLocaleString()}
+                                        ৳
+                                        {getPriceInBDT(
+                                            item.prices.find((p) => p.currency === 'BDT')?.amount || item.prices[0].amount,
+                                            item.prices[0].currency
+                                        ).toLocaleString()}
                                     </p>
                                 </div>
                             </Link>
@@ -447,16 +567,16 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                         <div className="relative aspect-square w-full">
                             <Image
                                 src={selectedImage}
-                                alt={product.title}
+                                alt={selectedImageAlt}
                                 fill
                                 className="object-contain"
+                                sizes="100vw"
                             />
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Cart Slider */}
             <CartSlider isOpen={isCartOpen} setIsOpen={setIsCartOpen} conversionRates={conversionRates} />
         </div>
     );

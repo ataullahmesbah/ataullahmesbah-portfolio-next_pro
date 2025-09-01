@@ -5,38 +5,67 @@ import ProductDetailsClient from '@/app/Dashboard/Shop/ProductDetailsClient/Prod
 
 export async function generateMetadata({ params }) {
   const { slug } = params;
-  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products/slug/${slug}`, { cache: 'no-store' });
-  if (!res.ok) {
+  try {
+    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products/slug/${slug}`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) {
+      return {
+        title: 'Product Not Found - Ataullah Mesbah',
+        description: 'The requested product could not be found.',
+        robots: 'noindex, nofollow',
+      };
+    }
+    const product = await res.json();
+
     return {
-      title: 'Product Not Found - Ataullah Mesbah',
-      description: 'The requested product could not be found.',
+      title: product.metaTitle || `${product.title} - Ataullah Mesbah`,
+      description: product.metaDescription || product.shortDescription || product.description.substring(0, 160),
+      keywords: product.keywords.length > 0 ? product.keywords.join(', ') : `${product.title}, ${product.category?.name || ''}, Ataullah Mesbah`,
+      alternates: {
+        canonical: `${process.env.NEXTAUTH_URL}/shop/${slug}`,
+      },
+      openGraph: {
+        title: product.metaTitle || `${product.title} - Ataullah Mesbah`,
+        description: product.metaDescription || product.shortDescription || product.description.substring(0, 160),
+        url: `${process.env.NEXTAUTH_URL}/shop/${slug}`,
+        type: 'website',
+        images: [
+          {
+            url: product.mainImage,
+            width: 800,
+            height: 800,
+            alt: product.mainImageAlt || product.title,
+          },
+          ...product.additionalImages.map((img) => ({
+            url: img.url,
+            width: 800,
+            height: 800,
+            alt: img.alt || `${product.title} additional image`,
+          })),
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: product.metaTitle || `${product.title} - Ataullah Mesbah`,
+        description: product.metaDescription || product.shortDescription || product.description.substring(0, 160),
+        images: [product.mainImage, ...product.additionalImages.map((img) => img.url)],
+      },
+    };
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return {
+      title: 'Error - Ataullah Mesbah',
+      description: 'An error occurred while fetching product details.',
+      robots: 'noindex, nofollow',
     };
   }
-  const product = await res.json();
-  const description = product.description.substring(0, 160);
-
-  return {
-    title: `${product.title} - Ataullah Mesbah`,
-    description,
-    keywords: `${product.title}, ${product.category?.name || ''}, product, Ataullah Mesbah`,
-    openGraph: {
-      title: `${product.title} - Ataullah Mesbah`,
-      description,
-      url: `${process.env.NEXTAUTH_URL}/shop/${slug}`,
-      type: 'website',
-      images: [{ url: product.mainImage, width: 400, height: 400, alt: product.title }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${product.title} - Ataullah Mesbah`,
-      description,
-      images: [product.mainImage],
-    },
-  };
 }
 
 async function getProduct(slug) {
-  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products/slug/${slug}`, { cache: 'no-store' });
+  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products/slug/${slug}`, {
+    cache: 'no-store',
+  });
   if (!res.ok) {
     throw new Error('Failed to fetch product');
   }
@@ -44,14 +73,13 @@ async function getProduct(slug) {
 }
 
 async function getLatestProducts() {
-  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products`, {
+  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products?sort=createdAt&order=desc&limit=5`, {
     next: { tags: ['products'], revalidate: 60 },
   });
   if (!res.ok) {
     throw new Error('Failed to fetch products');
   }
-  const products = await res.json();
-  return products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+  return res.json();
 }
 
 export default async function ProductDetails({ params }) {
@@ -72,7 +100,7 @@ export default async function ProductDetails({ params }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-800 text-white">
+    <div className="min-h-screen bg-gray-900 text-white">
       <Suspense fallback={<LoadingSkeleton />}>
         <ProductDetailsClient product={product} latestProducts={latestProducts} />
       </Suspense>

@@ -18,6 +18,7 @@ export default function UpdateProduct() {
         usdExchangeRate: '',
         eurExchangeRate: '',
         description: '',
+        shortDescription: '',
         descriptions: [''],
         bulletPoints: '',
         productType: 'Own',
@@ -25,11 +26,21 @@ export default function UpdateProduct() {
         category: '',
         newCategory: '',
         mainImage: null,
+        mainImageAlt: '',
         existingMainImage: '',
         additionalImages: [],
-        existingAdditionalImages: [],
+        additionalAlts: [], // For new images
+        existingAdditionalImages: [], // Array of { url, alt }
         quantity: '',
         product_code: '',
+        brand: '',
+        availability: 'InStock',
+        metaTitle: '',
+        metaDescription: '',
+        keywords: '',
+        faqs: [],
+        specifications: [],
+        aggregateRating: { ratingValue: '', reviewCount: '' },
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,6 +76,7 @@ export default function UpdateProduct() {
                     usdExchangeRate: usdPriceObj?.exchangeRate || '',
                     eurExchangeRate: eurPriceObj?.exchangeRate || '',
                     description: product.description || '',
+                    shortDescription: product.shortDescription || '',
                     product_code: product.product_code || '',
                     descriptions: product.descriptions.length > 0 ? product.descriptions : [''],
                     bulletPoints: product.bulletPoints.join(', ') || '',
@@ -73,10 +85,23 @@ export default function UpdateProduct() {
                     category: product.category?._id || '',
                     newCategory: '',
                     mainImage: null,
+                    mainImageAlt: product.mainImageAlt || '',
                     existingMainImage: product.mainImage || '',
                     additionalImages: [],
+                    additionalAlts: [],
                     existingAdditionalImages: product.additionalImages || [],
                     quantity: product.quantity || '',
+                    brand: product.brand || '',
+                    availability: product.availability || 'InStock',
+                    metaTitle: product.metaTitle || '',
+                    metaDescription: product.metaDescription || '',
+                    keywords: product.keywords.join(', ') || '',
+                    faqs: product.faqs || [],
+                    specifications: product.specifications || [],
+                    aggregateRating: {
+                        ratingValue: product.aggregateRating?.ratingValue || '',
+                        reviewCount: product.aggregateRating?.reviewCount || '',
+                    },
                 });
 
                 setImagePreviews({
@@ -129,9 +154,13 @@ export default function UpdateProduct() {
         if (!formData.mainImage && !formData.existingMainImage) {
             newErrors.mainImage = 'Main image is required';
         }
+        if (!formData.mainImageAlt.trim()) newErrors.mainImageAlt = 'Main image ALT text is required';
         if (!formData.quantity || isNaN(formData.quantity) || parseInt(formData.quantity) < 0) {
             newErrors.quantity = 'Quantity must be a non-negative integer';
         }
+        if (!formData.brand.trim()) newErrors.brand = 'Brand is required';
+        if (!formData.metaTitle.trim() || formData.metaTitle.length > 60) newErrors.metaTitle = 'Meta Title is required (max 60 chars)';
+        if (!formData.metaDescription.trim() || formData.metaDescription.length > 160) newErrors.metaDescription = 'Meta Description is required (max 160 chars)';
         return newErrors;
     };
 
@@ -161,6 +190,7 @@ export default function UpdateProduct() {
         if (formData.usdExchangeRate) data.append('usdExchangeRate', formData.usdExchangeRate);
         if (formData.eurExchangeRate) data.append('eurExchangeRate', formData.eurExchangeRate);
         data.append('description', formData.description);
+        data.append('shortDescription', formData.shortDescription);
         data.append('product_code', formData.product_code);
         data.append('descriptions', formData.descriptions.filter((desc) => desc.trim()).join('|||'));
         data.append('bulletPoints', formData.bulletPoints);
@@ -169,12 +199,31 @@ export default function UpdateProduct() {
         if (formData.category && formData.category !== 'new') data.append('category', formData.category);
         if (formData.newCategory) data.append('newCategory', formData.newCategory);
         if (formData.mainImage) data.append('mainImage', formData.mainImage);
+        data.append('mainImageAlt', formData.mainImageAlt);
         data.append('existingMainImage', formData.existingMainImage);
-        formData.additionalImages.forEach((img) => {
+        formData.additionalImages.forEach((img, index) => {
             if (img) data.append('additionalImages', img);
+        });
+        formData.additionalAlts.forEach((alt) => {
+            if (alt) data.append('additionalAlts', alt);
         });
         data.append('existingAdditionalImages', JSON.stringify(formData.existingAdditionalImages));
         data.append('quantity', formData.quantity);
+        data.append('brand', formData.brand);
+        data.append('availability', formData.availability);
+        data.append('metaTitle', formData.metaTitle);
+        data.append('metaDescription', formData.metaDescription);
+        data.append('keywords', formData.keywords);
+        data.append('faqs', JSON.stringify(formData.faqs));
+        data.append('specifications', JSON.stringify(formData.specifications));
+        data.append('aggregateRating.ratingValue', formData.aggregateRating.ratingValue);
+        data.append('aggregateRating.reviewCount', formData.aggregateRating.reviewCount);
+
+        // Debug FormData
+        console.log('FormData entries:');
+        for (let [key, value] of data.entries()) {
+            console.log(`${key}:`, value instanceof File ? value.name : value);
+        }
 
         try {
             const res = await fetch(`/api/products/${productId}`, {
@@ -210,17 +259,55 @@ export default function UpdateProduct() {
         setFormData({ ...formData, descriptions: newDescriptions.length ? newDescriptions : [''] });
     };
 
+    const handleFaqChange = (index, field, value) => {
+        const newFaqs = [...formData.faqs];
+        newFaqs[index][field] = value;
+        setFormData({ ...formData, faqs: newFaqs });
+    };
+
+    const addFaq = () => {
+        setFormData({ ...formData, faqs: [...formData.faqs, { question: '', answer: '' }] });
+    };
+
+    const removeFaq = (index) => {
+        const newFaqs = formData.faqs.filter((_, i) => i !== index);
+        setFormData({ ...formData, faqs: newFaqs });
+    };
+
+    const handleSpecChange = (index, field, value) => {
+        const newSpecs = [...formData.specifications];
+        newSpecs[index][field] = value;
+        setFormData({ ...formData, specifications: newSpecs });
+    };
+
+    const addSpec = () => {
+        setFormData({ ...formData, specifications: [...formData.specifications, { name: '', value: '' }] });
+    };
+
+    const removeSpec = (index) => {
+        const newSpecs = formData.specifications.filter((_, i) => i !== index);
+        setFormData({ ...formData, specifications: newSpecs });
+    };
+
     const addImageInput = () => {
         if (formData.additionalImages.length + formData.existingAdditionalImages.length < 5) {
-            setFormData({ ...formData, additionalImages: [...formData.additionalImages, null] });
-            setImagePreviews({ ...imagePreviews, additionalImages: [...imagePreviews.additionalImages, null] });
+            setFormData({
+                ...formData,
+                additionalImages: [...formData.additionalImages, null],
+                additionalAlts: [...formData.additionalAlts, ''],
+            });
+            setImagePreviews({
+                ...imagePreviews,
+                additionalImages: [...imagePreviews.additionalImages, null],
+            });
         }
     };
 
     const removeImageInput = (index) => {
         const newImages = formData.additionalImages.filter((_, i) => i !== index);
+        const newAlts = formData.additionalAlts.filter((_, i) => i !== index);
         const newPreviews = imagePreviews.additionalImages.filter((_, i) => i !== index);
-        setFormData({ ...formData, additionalImages: newImages });
+        setFormData({ ...formData, additionalImages: newImages, additionalAlts: newAlts });
         setImagePreviews({ ...imagePreviews, additionalImages: newPreviews });
         if (additionalImageInputRefs.current[index]) {
             additionalImageInputRefs.current[index].value = null;
@@ -270,6 +357,18 @@ export default function UpdateProduct() {
         }
     };
 
+    const handleAdditionalAltChange = (index, value) => {
+        const newAlts = [...formData.additionalAlts];
+        newAlts[index] = value;
+        setFormData({ ...formData, additionalAlts: newAlts });
+    };
+
+    const handleExistingAltChange = (index, value) => {
+        const newExistingImages = [...formData.existingAdditionalImages];
+        newExistingImages[index].alt = value;
+        setFormData({ ...formData, existingAdditionalImages: newExistingImages });
+    };
+
     return (
         <div className="min-h-screen bg-gray-100 p-4 md:p-8">
             <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
@@ -302,8 +401,32 @@ export default function UpdateProduct() {
                             {errors.title && <p className="mt-1 text-sm text-red-500">{errors.title}</p>}
                         </div>
 
-                        {/* Quantity - Product Code */}
-                        <div className='flex gap-4 items-center'>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Brand*</label>
+                            <input
+                                type="text"
+                                value={formData.brand}
+                                onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.brand ? 'border-red-500' : 'border-gray-300'}`}
+                                placeholder="Enter brand name"
+                            />
+                            {errors.brand && <p className="mt-1 text-sm text-red-500">{errors.brand}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Availability</label>
+                            <select
+                                value={formData.availability}
+                                onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
+                                className="w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-gray-300"
+                            >
+                                <option value="InStock">In Stock</option>
+                                <option value="OutOfStock">Out of Stock</option>
+                                <option value="PreOrder">Pre-Order</option>
+                            </select>
+                        </div>
+
+                        <div className="flex gap-4 items-center">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Quantity*</label>
                                 <input
@@ -463,6 +586,18 @@ export default function UpdateProduct() {
                         </div>
 
                         <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Short Description (max 160 chars)</label>
+                            <textarea
+                                value={formData.shortDescription}
+                                onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
+                                rows={2}
+                                maxLength={160}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Short summary for snippets"
+                            />
+                        </div>
+
+                        <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Additional Descriptions</label>
                             {formData.descriptions.map((desc, index) => (
                                 <div key={index} className="flex items-center mb-2">
@@ -515,6 +650,142 @@ export default function UpdateProduct() {
                                 </div>
                             </div>
                         </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Keywords (comma-separated)</label>
+                            <input
+                                type="text"
+                                value={formData.keywords}
+                                onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="keyword1, keyword2, keyword3"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Meta Title* (max 60 chars)</label>
+                            <input
+                                type="text"
+                                value={formData.metaTitle}
+                                onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value })}
+                                maxLength={60}
+                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.metaTitle ? 'border-red-500' : 'border-gray-300'}`}
+                                placeholder="Enter meta title"
+                            />
+                            {errors.metaTitle && <p className="mt-1 text-sm text-red-500">{errors.metaTitle}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Meta Description* (max 160 chars)</label>
+                            <textarea
+                                value={formData.metaDescription}
+                                onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
+                                rows={3}
+                                maxLength={160}
+                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.metaDescription ? 'border-red-500' : 'border-gray-300'}`}
+                                placeholder="Enter meta description"
+                            />
+                            {errors.metaDescription && <p className="mt-1 text-sm text-red-500">{errors.metaDescription}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">FAQs</label>
+                            {formData.faqs.map((faq, index) => (
+                                <div key={index} className="mb-4 border p-4 rounded-lg">
+                                    <input
+                                        type="text"
+                                        value={faq.question}
+                                        onChange={(e) => handleFaqChange(index, 'question', e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg mb-2"
+                                        placeholder="Question"
+                                    />
+                                    <textarea
+                                        value={faq.answer}
+                                        onChange={(e) => handleFaqChange(index, 'answer', e.target.value)}
+                                        rows={2}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                                        placeholder="Answer"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeFaq(index)}
+                                        className="mt-2 text-red-500 hover:text-red-700 text-sm"
+                                    >
+                                        Remove FAQ
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={addFaq}
+                                className="text-blue-500 hover:text-blue-700 text-sm font-medium"
+                            >
+                                + Add FAQ
+                            </button>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Specifications</label>
+                            {formData.specifications.map((spec, index) => (
+                                <div key={index} className="flex items-center mb-2">
+                                    <input
+                                        type="text"
+                                        value={spec.name}
+                                        onChange={(e) => handleSpecChange(index, 'name', e.target.value)}
+                                        className="w-1/2 px-4 py-3 border border-gray-300 rounded-lg mr-2"
+                                        placeholder="Spec Name (e.g. Weight)"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={spec.value}
+                                        onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
+                                        className="w-1/2 px-4 py-3 border border-gray-300 rounded-lg"
+                                        placeholder="Value (e.g. 200g)"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => removeSpec(index)}
+                                        className="ml-2 text-red-500 hover:text-red-700"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={addSpec}
+                                className="text-blue-500 hover:text-blue-700 text-sm font-medium"
+                            >
+                                + Add Specification
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Initial Rating Value (1-5)</label>
+                                <input
+                                    type="number"
+                                    value={formData.aggregateRating.ratingValue}
+                                    onChange={(e) => setFormData({ ...formData, aggregateRating: { ...formData.aggregateRating, ratingValue: e.target.value } })}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                                    placeholder="e.g. 4.5"
+                                    min="1"
+                                    max="5"
+                                    step="0.1"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Initial Review Count</label>
+                                <input
+                                    type="number"
+                                    value={formData.aggregateRating.reviewCount}
+                                    onChange={(e) => setFormData({ ...formData, aggregateRating: { ...formData.aggregateRating, reviewCount: e.target.value } })}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                                    placeholder="e.g. 0"
+                                    min="0"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Product Type */}
@@ -563,7 +834,7 @@ export default function UpdateProduct() {
                     {/* Images */}
                     <div className="space-y-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Main Image*</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Main Image* (800*800 px)</label>
                             <input
                                 type="file"
                                 accept="image/*"
@@ -584,44 +855,65 @@ export default function UpdateProduct() {
                                     />
                                 </div>
                             )}
+                            <label className="block text-sm font-medium text-gray-700 mt-4 mb-2">Main Image ALT Text*</label>
+                            <input
+                                type="text"
+                                value={formData.mainImageAlt}
+                                onChange={(e) => setFormData({ ...formData, mainImageAlt: e.target.value })}
+                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.mainImageAlt ? 'border-red-500' : 'border-gray-300'}`}
+                                placeholder="Enter ALT text for main image"
+                            />
+                            {errors.mainImageAlt && <p className="mt-1 text-sm text-red-500">{errors.mainImageAlt}</p>}
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Additional Images (max 5)</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Additional Images (max 5) - (800*800 px)</label>
                             {formData.existingAdditionalImages.map((img, index) => (
-                                <div key={`existing-${index}`} className="flex items-center mb-4">
-                                    <Image
-                                        src={img}
-                                        alt={`Existing additional image ${index + 1}`}
-                                        width={100}
-                                        height={100}
-                                        className="rounded-lg object-cover mr-4"
+                                <div key={`existing-${index}`} className="mb-4">
+                                    <div className="flex items-center">
+                                        <Image
+                                            src={img.url}
+                                            alt={img.alt || `Existing additional image ${index + 1}`}
+                                            width={100}
+                                            height={100}
+                                            className="rounded-lg object-cover mr-4"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeExistingImage(index)}
+                                            className="text-red-500 hover:text-red-700"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                    <label className="block text-sm font-medium text-gray-700 mt-2 mb-1">ALT Text for Existing Image {index + 1}</label>
+                                    <input
+                                        type="text"
+                                        value={img.alt}
+                                        onChange={(e) => handleExistingAltChange(index, e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder={`Enter ALT text for existing image ${index + 1}`}
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={() => removeExistingImage(index)}
-                                        className="text-red-500 hover:text-red-700"
-                                    >
-                                        Remove
-                                    </button>
                                 </div>
                             ))}
                             {formData.additionalImages.map((img, index) => (
-                                <div key={index} className="flex items-center mb-4">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        ref={(el) => (additionalImageInputRefs.current[index] = el)}
-                                        onChange={(e) => handleAdditionalImageChange(index, e)}
-                                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => removeImageInput(index)}
-                                        className="ml-2 text-red-500 hover:text-red-700"
-                                    >
-                                        Remove
-                                    </button>
+                                <div key={index} className="mb-4">
+                                    <div className="flex items-center">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            ref={(el) => (additionalImageInputRefs.current[index] = el)}
+                                            onChange={(e) => handleAdditionalImageChange(index, e)}
+                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImageInput(index)}
+                                            className="ml-2 text-red-500 hover:text-red-700"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
                                     {errors[`additionalImage${index}`] && (
                                         <p className="mt-1 text-sm text-red-500">{errors[`additionalImage${index}`]}</p>
                                     )}
@@ -636,6 +928,14 @@ export default function UpdateProduct() {
                                             />
                                         </div>
                                     )}
+                                    <label className="block text-sm font-medium text-gray-700 mt-2 mb-1">ALT Text for New Image {index + 1}</label>
+                                    <input
+                                        type="text"
+                                        value={formData.additionalAlts[index]}
+                                        onChange={(e) => handleAdditionalAltChange(index, e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder={`Enter ALT text for additional image ${index + 1}`}
+                                    />
                                 </div>
                             ))}
                             {formData.additionalImages.length + formData.existingAdditionalImages.length < 5 && (

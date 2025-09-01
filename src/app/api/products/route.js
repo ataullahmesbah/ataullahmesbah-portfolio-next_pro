@@ -11,7 +11,6 @@ import Category from '@/models/Category';
 import mongoose from 'mongoose';
 
 
-
 // Sort function for additional images by lastModified date
 const ascendingSort = (a, b) => {
     if (a instanceof File && b instanceof File) {
@@ -20,28 +19,41 @@ const ascendingSort = (a, b) => {
     return 0;
 };
 
+
+
 export async function GET(request) {
     await dbConnect();
     const { searchParams } = new URL(request.url);
+    const type = searchParams.get('type');
+    const sort = searchParams.get('sort');
+    const order = searchParams.get('order');
+    const limit = parseInt(searchParams.get('limit')) || 0;
 
-    // Handle fetching categories
-    if (searchParams.get('type') === 'categories') {
+    if (type === 'categories') {
         try {
             const categories = await Category.find({}).lean();
             return Response.json(categories, { status: 200 });
         } catch (error) {
-            return Response.json({ error: 'Failed to fetch categories' }, { status: 500 });
+            return Response.json({ error: `Failed to fetch categories: ${error.message}` }, { status: 500 });
         }
     }
 
-    // Handle fetching products
     try {
-        const products = await Product.find({}).populate('category').lean();
+        let query = Product.find({}).populate('category').lean();
+        if (sort && order) {
+            query = query.sort({ [sort]: order === 'desc' ? -1 : 1 });
+        }
+        if (limit > 0) {
+            query = query.limit(limit);
+        }
+        const products = await query;
         return Response.json(products, { status: 200 });
     } catch (error) {
-        return Response.json({ error: 'Failed to fetch products' }, { status: 500 });
+        return Response.json({ error: `Failed to fetch products: ${error.message}` }, { status: 500 });
     }
 }
+
+
 
 export async function POST(request) {
     await dbConnect();
@@ -53,10 +65,10 @@ export async function POST(request) {
 
     try {
         const formData = await request.formData();
-        console.log('Received formData quantity:', formData.get('quantity')); // Debug log
+        console.log('Received formData keys:', [...formData.keys()]); // Debug log
 
         // Validate required fields
-        const requiredFields = ['title', 'bdtPrice', 'description', 'mainImage', 'productType', 'quantity', 'product_code'];
+        const requiredFields = ['title', 'bdtPrice', 'description', 'mainImage', 'productType', 'quantity', 'product_code', 'brand', 'metaTitle', 'metaDescription', 'mainImageAlt'];
         const missingFields = requiredFields.filter((field) => !formData.get(field) && formData.get(field) !== '');
         if (missingFields.length > 0) {
             return Response.json(
@@ -84,7 +96,6 @@ export async function POST(request) {
         // Validate quantity
         const quantityRaw = formData.get('quantity');
         const quantity = parseInt(quantityRaw, 10);
-        console.log('Parsed quantity:', quantity); // Debug log
         if (isNaN(quantity) || quantity < 0) {
             return Response.json(
                 { error: `Quantity must be a non-negative integer, received: ${quantityRaw}` },
@@ -178,11 +189,14 @@ export async function POST(request) {
             ).end(mainImageBuffer);
         });
 
-        // Upload additional images (max 5)
+        // Upload additional images (max 5) and pair with ALT texts
         let additionalImagesFiles = formData.getAll('additionalImages').filter((file) => file instanceof File && file.size > 0);
-        additionalImagesFiles = additionalImagesFiles.sort(ascendingSort);
+        const additionalAlts = formData.getAll('additionalAlts') || [];
+        console.log('additionalImagesFiles:', additionalImagesFiles.map(f => f.name)); // Debug log
+        console.log('additionalAlts:', additionalAlts); // Debug log
+
         const additionalImages = await Promise.all(
-            additionalImagesFiles.slice(0, 5).map(async (file) => {
+            additionalImagesFiles.slice(0, 5).map(async (file, index) => {
                 if (!file.type.startsWith('image/')) {
                     throw new Error(`Additional image ${file.name} must be an image file`);
                 }
@@ -191,7 +205,7 @@ export async function POST(request) {
                 }
                 const arrayBuffer = await file.arrayBuffer();
                 const buffer = Buffer.from(arrayBuffer);
-                return new Promise((resolve, reject) => {
+                const result = await new Promise((resolve, reject) => {
                     cloudinary.uploader.upload_stream(
                         {
                             folder: 'products/additional',
@@ -201,11 +215,16 @@ export async function POST(request) {
                             crop: 'fill',
                             quality: 'auto'
                         },
-                        (error, result) => (error ? reject(error) : resolve(result.secure_url))
+                        (error, result) => (error ? reject(error) : resolve(result))
                     ).end(buffer);
                 });
+                return {
+                    url: result.secure_url,
+                    alt: additionalAlts[index] || `Additional image ${index + 1} for ${formData.get('title')}`,
+                };
             })
         );
+        console.log('Processed additionalImages:', additionalImages); // Debug log
 
         // Process bullet points
         const bulletPoints = formData.get('bulletPoints')
@@ -223,13 +242,40 @@ export async function POST(request) {
                 .filter((desc) => desc.length > 0)
             : [];
 
+        // Process keywords
+        const keywords = formData.get('keywords')
+            ? formData.get('keywords')
+                .split(',')
+                .map((kw) => kw.trim())
+                .filter((kw) => kw.length > 0)
+            : [];
+
+        // Process FAQs
+        let faqs = [];
+        if (formData.get('faqs')) {
+            try {
+                faqs = JSON.parse(formData.get('faqs'));
+            } catch {
+                return Response.json({ error: 'Invalid FAQs format' }, { status: 400 });
+            }
+        }
+
+        // Process specifications
+        let specifications = [];
+        if (formData.get('specifications')) {
+            try {
+                specifications = JSON.parse(formData.get('specifications'));
+            } catch {
+                return Response.json({ error: 'Invalid specifications format' }, { status: 400 });
+            }
+        }
+
         // Generate slug from title
         let slug = formData.get('title')
             .trim()
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/(^-|-$)/g, '');
-        // Ensure slug uniqueness
         let slugCount = 0;
         let uniqueSlug = slug;
         while (await Product.findOne({ slug: uniqueSlug })) {
@@ -237,24 +283,63 @@ export async function POST(request) {
             uniqueSlug = `${slug}-${slugCount}`;
         }
 
+        // Auto-generate schemaMarkup
+        const schemaMarkup = {
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: formData.get('title'),
+            image: mainImageResult.secure_url,
+            description: formData.get('description'),
+            brand: {
+                '@type': 'Brand',
+                name: formData.get('brand'),
+            },
+            offers: {
+                '@type': 'Offer',
+                priceCurrency: 'BDT',
+                price: bdtPrice,
+                availability: formData.get('availability') || 'https://schema.org/InStock',
+            },
+            aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: formData.get('aggregateRating.ratingValue') || 0,
+                reviewCount: formData.get('aggregateRating.reviewCount') || 0,
+            },
+        };
+
         const product = new Product({
             title: formData.get('title'),
             slug: uniqueSlug,
             prices,
             mainImage: mainImageResult.secure_url,
-            additionalImages,
+            mainImageAlt: formData.get('mainImageAlt'),
+            additionalImages, // This should be an array of { url, alt } objects
             description: formData.get('description'),
+            shortDescription: formData.get('shortDescription'),
             product_code: formData.get('product_code'),
             descriptions,
             bulletPoints,
             productType: formData.get('productType'),
             affiliateLink: formData.get('productType') === 'Affiliate' ? formData.get('affiliateLink') : undefined,
             owner: session.user.name,
+            brand: formData.get('brand'),
             category: categoryId,
             quantity,
+            availability: formData.get('availability') || 'InStock',
+            metaTitle: formData.get('metaTitle'),
+            metaDescription: formData.get('metaDescription'),
+            keywords,
+            faqs,
+            reviews: [],
+            aggregateRating: {
+                ratingValue: parseFloat(formData.get('aggregateRating.ratingValue')) || 0,
+                reviewCount: parseInt(formData.get('aggregateRating.reviewCount')) || 0,
+            },
+            specifications,
+            schemaMarkup,
         });
 
-        console.log('Product to save:', product); // Debug log
+        console.log('Product to save:', JSON.stringify(product, null, 2)); // Debug log
         await product.save();
         return Response.json(product, { status: 201 });
     } catch (error) {
