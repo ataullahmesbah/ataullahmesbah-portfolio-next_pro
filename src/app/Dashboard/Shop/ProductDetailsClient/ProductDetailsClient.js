@@ -9,6 +9,7 @@ import { toast } from 'react-hot-toast';
 import { CiDeliveryTruck } from "react-icons/ci";
 
 
+
 export default function ProductDetailsClient({ product, latestProducts }) {
     const [selectedImage, setSelectedImage] = useState(product.mainImage);
     const [selectedImageAlt, setSelectedImageAlt] = useState(product.mainImageAlt || product.title);
@@ -17,7 +18,19 @@ export default function ProductDetailsClient({ product, latestProducts }) {
     const [quantity, setQuantity] = useState(1);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [conversionRates, setConversionRates] = useState({ USD: 123, EUR: 135, BDT: 1 });
+    const [activeTab, setActiveTab] = useState(null); // Track active drawer tab
+    const [isMobile, setIsMobile] = useState(false); // Track if device is mobile
     const router = useRouter();
+
+    // Detect mobile device
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768); // md breakpoint in Tailwind
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // Fetch conversion rates
     useEffect(() => {
@@ -211,6 +224,85 @@ export default function ProductDetailsClient({ product, latestProducts }) {
         }).format(currency === 'BDT' ? total : total / (conversionRates[currency] || 1))}`;
     };
 
+    // Define tabs for product details
+    const tabs = [
+        {
+            id: 'product-details',
+            label: 'Product Details',
+            content: (
+                <div className="space-y-6">
+                    {product.shortDescription && (
+                        <div>
+                            <h4 className="text-md amsfonts text-white mb-2">Quick Overview</h4>
+                            <p className="text-gray-300 text-sm">{product.shortDescription}</p>
+                        </div>
+                    )}
+                    {product.description && (
+                        <div>
+                            <h4 className="text-md amsfonts text-white mb-2">Description</h4>
+                            <p className="text-gray-300 text-sm">{product.description}</p>
+                        </div>
+                    )}
+                    {product.descriptions?.length > 0 && (
+                        <div>
+                            <h4 className="text-md amsfonts text-white mb-2">Additional Information</h4>
+                            {product.descriptions.map((desc, index) => (
+                                <p key={index} className="text-gray-300 text-sm mb-2">
+                                    {desc}
+                                </p>
+                            ))}
+                        </div>
+                    )}
+                    {product.bulletPoints?.length > 0 && (
+                        <div>
+                            <h4 className="text-md amsfonts text-white mb-2">Key Features</h4>
+                            <ul className="space-y-2 text-gray-300 text-sm">
+                                {product.bulletPoints.map((point, index) => (
+                                    <li key={index} className="flex items-start">
+                                        <svg className="w-4 h-4 text-purple-400 mr-2 mt-1 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" fillRule="evenodd" />
+                                        </svg>
+                                        {point}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </div>
+            ),
+        },
+        product.specifications?.length > 0 && {
+            id: 'specifications',
+            label: 'Product Specifications',
+            content: (
+                <table className="w-full text-sm text-gray-300">
+                    <tbody>
+                        {product.specifications.map((spec, index) => (
+                            <tr key={index} className="border-b border-gray-700">
+                                <td className="py-2 pr-4 font-medium">{spec.name}</td>
+                                <td className="py-2">{spec.value}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            ),
+        },
+        product.faqs?.length > 0 && {
+            id: 'faqs',
+            label: 'FAQs',
+            content: (
+                <div className="space-y-4">
+                    {product.faqs.map((faq, index) => (
+                        <div key={index}>
+                            <h4 className="text-sm font-medium text-purple-300 bg-gray-700 p-2 rounded-md">{faq.question}</h4>
+                            <p className="text-gray-300 text-sm mt-1">{faq.answer}</p>
+                        </div>
+                    ))}
+                </div>
+            ),
+        },
+    ].filter(Boolean); // Remove falsy values
+
     return (
         <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <script
@@ -254,7 +346,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             </nav>
 
             {/* Main Product Section */}
-            <div className="bg-gray-800 rounded-xl overflow-hidden shadow-lg">
+            <div className="">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-8">
                     {/* Image Gallery */}
                     <div className="space-y-3">
@@ -417,8 +509,6 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                         )}
 
                         <div>
-
-
                             <div className="text-xs flex items-center gap-2 text-gray-200">
                                 <p className='text-lg text-gray-100'>
                                     <CiDeliveryTruck />
@@ -427,7 +517,6 @@ export default function ProductDetailsClient({ product, latestProducts }) {
 
                                     Delivery time: 3 - 4 business days</p>
                             </div>
-
 
                             <p className="text-xs text-gray-200">Product Code: {product.product_code || 'N/A'}</p>
                             <p className="text-xs text-gray-200">
@@ -438,75 +527,64 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                             </p>
                         </div>
 
-                        {/* Product Details */}
-                        <div className="space-y-6 pt-4 border-t border-gray-700">
-                            {product.shortDescription && (
-                                <div>
-                                    <h3 className="text-lg font-semibold text-white mb-2">Quick Overview</h3>
-                                    <p className="text-gray-300 text-sm">{product.shortDescription}</p>
-                                </div>
-                            )}
-                            {product.description && (
-                                <div>
-                                    <h3 className="text-lg font-semibold text-white mb-2">Description</h3>
-                                    <p className="text-gray-300 text-sm">{product.description}</p>
-                                </div>
-                            )}
-                            {product.descriptions?.length > 0 && (
-                                <div>
-                                    <h3 className="text-lg font-semibold text-white mb-2">Additional Information</h3>
-                                    {product.descriptions.map((desc, index) => (
-                                        <p key={index} className="text-gray-300 text-sm mb-2">
-                                            {desc}
-                                        </p>
+                        {/* Product Details Tabs - Vertical List */}
+                        {tabs.length > 0 && (
+                            <div className="pt-4 border-t border-gray-700">
+                                <div className="flex flex-col gap-2">
+                                    {tabs.map((tab) => (
+                                        <button
+                                            key={tab.id}
+                                            onClick={() => setActiveTab(tab.id)}
+                                            className={`flex justify-between items-center px-4 py-2 rounded-md text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-purple-500 hover:text-white`}
+                                            aria-controls={`drawer-${tab.id}`}
+                                            aria-expanded={activeTab === tab.id}
+                                        >
+                                            {tab.label}
+                                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
                                     ))}
                                 </div>
-                            )}
-                            {product.bulletPoints?.length > 0 && (
-                                <div>
-                                    <h3 className="text-lg font-semibold text-white mb-2">Key Features</h3>
-                                    <ul className="space-y-2 text-gray-300 text-sm">
-                                        {product.bulletPoints.map((point, index) => (
-                                            <li key={index} className="flex items-start">
-                                                <span className="text-purple-400 mr-2">•</span>
-                                                {point}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-                            {product.specifications?.length > 0 && (
-                                <div>
-                                    <h3 className="text-lg font-semibold text-white mb-2">Specifications</h3>
-                                    <table className="w-full text-sm text-gray-300">
-                                        <tbody>
-                                            {product.specifications.map((spec, index) => (
-                                                <tr key={index} className="border-b border-gray-700">
-                                                    <td className="py-2 pr-4 font-medium">{spec.name}</td>
-                                                    <td className="py-2">{spec.value}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                            {product.faqs?.length > 0 && (
-                                <div>
-                                    <h3 className="text-lg font-semibold text-white mb-2">Frequently Asked Questions</h3>
-                                    <div className="space-y-4">
-                                        {product.faqs.map((faq, index) => (
-                                            <div key={index}>
-                                                <h4 className="text-sm font-medium text-white">{faq.question}</h4>
-                                                <p className="text-gray-300 text-sm">{faq.answer}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
+
+            {/* Drawer for Product Details */}
+            {activeTab && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 z-40 md:bg-transparent md:right-0 md:top-0 md:bottom-0 md:w-1/3 md:min-w-[300px] md:max-w-[400px]"
+                    onClick={() => !isMobile ? setActiveTab(null) : null} // Close on outside click only on non-mobile
+                >
+                    <div
+                        className={`fixed bottom-0 left-0 right-0 bg-gray-800 p-6 rounded-t-xl md:rounded-none md:right-0 md:top-0 md:bottom-0 md:w-1/3 md:min-w-[300px] md:max-w-[400px] transform transition-transform duration-300 ease-in-out ${activeTab ? 'translate-y-0 md:translate-x-0' : 'translate-y-full md:translate-x-full'
+                            }`}
+                        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside drawer
+                        role="dialog"
+                        aria-labelledby={`drawer-title-${activeTab}`}
+                    >
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 id={`drawer-title-${activeTab}`} className="text-lg amsfonts uppercase text-white">
+                                {tabs.find((tab) => tab.id === activeTab)?.label}
+                            </h3>
+                            <button
+                                onClick={() => setActiveTab(null)}
+                                className="text-gray-400 hover:text-white focus:outline-none"
+                                aria-label="Close drawer"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="max-h-[90vh] overflow-y-auto"> {/* Increased max-h for mobile */}
+                            {tabs.find((tab) => tab.id === activeTab)?.content}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* More Products Section */}
             {latestProducts.length > 0 && (
