@@ -1,14 +1,21 @@
+// src/app/blog/[slug]/page.js
+
+
 import BlogContent from '@/app/components/Blog/BlogDetails/BlogDetails';
 import CommentBox from '@/app/components/CommentBox/CommentBox';
 import Loader from '@/app/components/Loader/Loader';
 import { Suspense } from 'react';
 
 
+
+
+
+
 async function getBlogBySlug(slug) {
     const res = await fetch(`${process.env.NEXTAUTH_URL}/api/blog/${slug}`, {
         cache: 'no-store',
         headers: {
-            'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+            'Cache-Control': 'public, max-age=3600',
         },
     });
 
@@ -22,7 +29,8 @@ async function getBlogBySlug(slug) {
 export async function generateMetadata({ params }) {
     const blog = await getBlogBySlug(params.slug);
 
-    return {
+    // Structured Data জন্য metadata
+    const metadata = {
         title: blog.metaTitle || blog.title,
         description: blog.metaDescription || blog.shortDescriptions.join(' '),
         keywords: blog.tags.join(', '),
@@ -52,6 +60,16 @@ export async function generateMetadata({ params }) {
             images: [blog.mainImage],
         },
     };
+
+    // GEO targeting জন্য metadata যোগ করুন
+    if (blog.geoLocation && blog.geoLocation.targetCountry) {
+        metadata.alternates.languages = {
+            'x-default': `${process.env.NEXTAUTH_URL}/blog/${params.slug}`,
+            [blog.language || 'en']: `${process.env.NEXTAUTH_URL}/blog/${params.slug}`,
+        };
+    }
+
+    return metadata;
 }
 
 export default async function BlogDetail({ params }) {
@@ -63,8 +81,6 @@ export default async function BlogDetail({ params }) {
                 <BlogContent blog={blog} />
                 <CommentBox blogId={blog._id} />
             </Suspense>
-
-
         </div>
     );
 }

@@ -31,6 +31,9 @@ export async function GET(request, { params }) {
 }
 
 
+
+
+
 export async function PUT(req, { params }) {
   await dbConnect();
   const { slug } = params;
@@ -63,6 +66,20 @@ export async function PUT(req, { params }) {
     blog.keyPoints = JSON.parse(formData.get('keyPoints') || '[]');
     blog.tags = JSON.parse(formData.get('tags') || '[]');
     blog.categories = JSON.parse(formData.get('categories') || '[]');
+
+    // SEO ফিল্ডগুলো আপডেট করুন
+    blog.structuredData = formData.get('structuredData') || '';
+    blog.faqs = JSON.parse(formData.get('faqs') || '[]');
+    blog.lsiKeywords = JSON.parse(formData.get('lsiKeywords') || '[]');
+    blog.semanticRelatedTerms = JSON.parse(formData.get('semanticRelatedTerms') || '[]');
+    blog.geoLocation = JSON.parse(formData.get('geoLocation') || '{}');
+    blog.language = formData.get('language') || 'en';
+    blog.sgeOptimized = formData.get('sgeOptimized') === 'true';
+    blog.conversationalPhrases = JSON.parse(formData.get('conversationalPhrases') || '[]');
+    blog.directAnswers = JSON.parse(formData.get('directAnswers') || '[]');
+    blog.expertAuthor = formData.get('expertAuthor') === 'true';
+    blog.authorCredentials = formData.get('authorCredentials') || '';
+    blog.citations = JSON.parse(formData.get('citations') || '[]');
 
     // Handle main image update
     const mainImageFile = formData.get('mainImage');
@@ -118,6 +135,15 @@ export async function PUT(req, { params }) {
             }
             throw new Error('Image file is missing for image content section');
           }
+        } else if (item.type === 'link') {
+          // লিঙ্ক কনটেন্ট প্রসেসিং
+          return {
+            type: 'link',
+            data: item.data,
+            tag: 'a',
+            href: item.href,
+            target: item.target || '_blank'
+          };
         } else {
           // Text content
           return {

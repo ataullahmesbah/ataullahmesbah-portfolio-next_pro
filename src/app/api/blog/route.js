@@ -38,6 +38,8 @@ export async function GET(request) {
 }
 
 
+
+
 export async function POST(req) {
     await dbConnect();
     try {
@@ -76,6 +78,7 @@ export async function POST(req) {
         const processedContent = await Promise.all(
             content.map(async (item) => {
                 if (item.type === 'image') {
+                    // Image processing logic
                     const imageFile = contentImages[imageIndex];
                     imageIndex++;
                     if (imageFile && imageFile.size > 0) {
@@ -95,27 +98,44 @@ export async function POST(req) {
                         };
                     }
                     throw new Error('Image file missing for image content section');
+                } else if (item.type === 'link') {
+                    // Link processing logic
+                    if (!item.data?.trim() || !item.href?.trim()) {
+                        throw new Error('Link content and href cannot be empty');
+                    }
+                    return {
+                        type: 'link',
+                        data: item.data,
+                        tag: 'a',
+                        href: item.href,
+                        target: item.target || '_blank'
+                    };
                 } else {
+                    // Text processing logic - convert markdown links to proper format
                     if (!item.data?.trim()) {
                         throw new Error('Text content cannot be empty');
                     }
+
+                    // Convert markdown-style links to proper format for storage
+                    const textWithProcessedLinks = item.data;
+
                     return {
                         type: 'text',
-                        data: item.data,
+                        data: textWithProcessedLinks,
                         tag: item.tag || 'p',
                         bulletPoints: item.bulletPoints || []
                     };
                 }
             })
         );
-
         // Calculate read time
         const wordCount = processedContent
             .filter(item => item.type === 'text')
             .reduce((count, item) => count + item.data.split(/\s+/).length, 0);
         const readTime = Math.max(1, Math.ceil(wordCount / 200));
 
-        // Create new blog
+
+        // Create new blog with all SEO fields
         const newBlog = new Blog({
             title: formData.get('title'),
             slug: formData.get('slug'),
@@ -130,6 +150,18 @@ export async function POST(req) {
             tags: JSON.parse(formData.get('tags') || '[]'),
             categories: JSON.parse(formData.get('categories') || '[]'),
             readTime,
+            // SEO fields
+            faqs: JSON.parse(formData.get('faqs') || '[]'),
+            lsiKeywords: JSON.parse(formData.get('lsiKeywords') || '[]'),
+            semanticRelatedTerms: JSON.parse(formData.get('semanticRelatedTerms') || '[]'),
+            geoLocation: JSON.parse(formData.get('geoLocation') || '{}'),
+            language: formData.get('language') || 'en',
+            sgeOptimized: formData.get('sgeOptimized') === 'true',
+            conversationalPhrases: JSON.parse(formData.get('conversationalPhrases') || '[]'),
+            directAnswers: JSON.parse(formData.get('directAnswers') || '[]'),
+            expertAuthor: formData.get('expertAuthor') === 'true',
+            authorCredentials: formData.get('authorCredentials') || '',
+            citations: JSON.parse(formData.get('citations') || '[]'),
         });
 
         await newBlog.save();
@@ -145,6 +177,8 @@ export async function POST(req) {
         );
     }
 }
+
+
 
 
 export async function DELETE(request) {

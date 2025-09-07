@@ -13,6 +13,7 @@ const CONTENT_TYPES = [
     { value: 'text-h6', label: 'Heading 6 (h6)' },
     { value: 'text-p', label: 'Paragraph (p)' },
     { value: 'image', label: 'Image' },
+    { value: 'link', label: 'Hyperlink' },
 ];
 
 const UpdateBlogPostPage = () => {
@@ -38,11 +39,27 @@ const UpdateBlogPostPage = () => {
             bulletPoints: [],
             alt: '',
             image: null,
-            existingImageUrl: ''
+            existingImageUrl: '',
+            href: '',
+            target: '_blank'
         }],
         keyPoints: [],
         tags: [],
+        // SEO fields
+        structuredData: '',
+        faqs: [{ question: '', answer: '' }],
+        lsiKeywords: [],
+        semanticRelatedTerms: [],
+        geoLocation: { targetCountry: '', targetCity: '' },
+        language: 'en',
+        sgeOptimized: false,
+        conversationalPhrases: [],
+        directAnswers: [{ question: '', answer: '' }],
+        expertAuthor: false,
+        authorCredentials: '',
+        citations: [{ source: '', link: '' }],
     });
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -73,15 +90,31 @@ const UpdateBlogPostPage = () => {
                     mainImage: null,
                     imageAlt: blog.mainImage ? 'Existing Image' : '',
                     contentSections: blog.content.map(item => ({
-                        contentType: item.type === 'image' ? 'image' : `text-${item.tag || 'p'}`,
-                        data: item.type === 'text' ? item.data : '',
+                        contentType: item.type === 'image' ? 'image' :
+                            item.type === 'link' ? 'link' : `text-${item.tag || 'p'}`,
+                        data: item.data || '',
                         bulletPoints: item.bulletPoints || [],
-                        alt: item.type === 'image' ? item.alt || '' : '',
+                        alt: item.alt || '',
                         image: null,
-                        existingImageUrl: item.type === 'image' ? item.data : ''
+                        existingImageUrl: item.type === 'image' ? item.data : '',
+                        href: item.href || '',
+                        target: item.target || '_blank'
                     })),
                     keyPoints: blog.keyPoints || [],
                     tags: blog.tags || [],
+                    // SEO fields
+                    structuredData: blog.structuredData || '',
+                    faqs: blog.faqs || [{ question: '', answer: '' }],
+                    lsiKeywords: blog.lsiKeywords || [],
+                    semanticRelatedTerms: blog.semanticRelatedTerms || [],
+                    geoLocation: blog.geoLocation || { targetCountry: '', targetCity: '' },
+                    language: blog.language || 'en',
+                    sgeOptimized: blog.sgeOptimized || false,
+                    conversationalPhrases: blog.conversationalPhrases || [],
+                    directAnswers: blog.directAnswers || [{ question: '', answer: '' }],
+                    expertAuthor: blog.expertAuthor || false,
+                    authorCredentials: blog.authorCredentials || '',
+                    citations: blog.citations || [{ source: '', link: '' }],
                 });
 
                 if (blog.mainImage) {
@@ -149,7 +182,6 @@ const UpdateBlogPostPage = () => {
         setFormData({ ...formData, shortDescriptions: updatedDescriptions });
     };
 
-
     const handleContentSectionChange = (index, field, value) => {
         const updatedSections = [...formData.contentSections];
 
@@ -161,9 +193,18 @@ const UpdateBlogPostPage = () => {
                 updatedSections[index].bulletPoints = [];
                 updatedSections[index].image = null;
                 updatedSections[index].alt = '';
-            } else {
+                updatedSections[index].href = '';
+                updatedSections[index].target = '_blank';
+            } else if (value === 'image') {
                 updatedSections[index].data = '';
                 updatedSections[index].bulletPoints = [];
+                updatedSections[index].href = '';
+                updatedSections[index].target = '_blank';
+            } else if (value === 'link') {
+                updatedSections[index].data = '';
+                updatedSections[index].bulletPoints = [];
+                updatedSections[index].image = null;
+                updatedSections[index].alt = '';
             }
         } else if (field === 'bulletPoints') {
             const points = value.split(',').map(p => p.trim()).filter(p => p);
@@ -190,26 +231,24 @@ const UpdateBlogPostPage = () => {
         }
     };
 
-
     const addContentSection = () => {
         setFormData({
             ...formData,
             contentSections: [
                 ...formData.contentSections,
                 {
-                    contentType: 'text-p', // Make sure this matches your CONTENT_TYPES
+                    contentType: 'text-p',
                     data: '',
                     bulletPoints: [],
                     alt: '',
                     image: null,
-                    existingImageUrl: ''
+                    existingImageUrl: '',
+                    href: '',
+                    target: '_blank'
                 }
             ],
         });
     };
-
-
-
 
     const removeContentSection = (index) => {
         const updatedSections = formData.contentSections.filter((_, i) => i !== index);
@@ -236,6 +275,52 @@ const UpdateBlogPostPage = () => {
         setFormData({ ...formData, tags: [...formData.tags, ''] });
     };
 
+    // SEO field handlers
+    const handleFAQChange = (index, field, value) => {
+        const updatedFAQs = [...formData.faqs];
+        updatedFAQs[index][field] = value;
+        setFormData({ ...formData, faqs: updatedFAQs });
+    };
+
+    const addFAQ = () => {
+        setFormData({ ...formData, faqs: [...formData.faqs, { question: '', answer: '' }] });
+    };
+
+    const removeFAQ = (index) => {
+        const updatedFAQs = formData.faqs.filter((_, i) => i !== index);
+        setFormData({ ...formData, faqs: updatedFAQs });
+    };
+
+    const handleDirectAnswerChange = (index, field, value) => {
+        const updatedDirectAnswers = [...formData.directAnswers];
+        updatedDirectAnswers[index][field] = value;
+        setFormData({ ...formData, directAnswers: updatedDirectAnswers });
+    };
+
+    const addDirectAnswer = () => {
+        setFormData({ ...formData, directAnswers: [...formData.directAnswers, { question: '', answer: '' }] });
+    };
+
+    const removeDirectAnswer = (index) => {
+        const updatedDirectAnswers = formData.directAnswers.filter((_, i) => i !== index);
+        setFormData({ ...formData, directAnswers: updatedDirectAnswers });
+    };
+
+    const handleCitationChange = (index, field, value) => {
+        const updatedCitations = [...formData.citations];
+        updatedCitations[index][field] = value;
+        setFormData({ ...formData, citations: updatedCitations });
+    };
+
+    const addCitation = () => {
+        setFormData({ ...formData, citations: [...formData.citations, { source: '', link: '' }] });
+    };
+
+    const removeCitation = (index) => {
+        const updatedCitations = formData.citations.filter((_, i) => i !== index);
+        setFormData({ ...formData, citations: updatedCitations });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -254,47 +339,75 @@ const UpdateBlogPostPage = () => {
                 formDataToSend.append('mainImage', formData.mainImage);
             }
 
-            // Process content sections
+            // Process content sections for API
             const contentSections = formData.contentSections.map(section => {
                 if (section.contentType === 'image') {
                     if (section.image) {
-                        // New image upload
                         formDataToSend.append('contentImages', section.image);
                         return {
                             type: 'image',
-                            data: 'new-upload', // Marker for new upload
+                            data: section.image.name,
                             alt: section.alt || '',
                             tag: 'image'
                         };
                     } else if (section.existingImageUrl) {
-                        // Existing image
                         return {
                             type: 'image',
-                            data: section.existingImageUrl, // Keep existing URL
+                            data: section.existingImageUrl,
                             alt: section.alt || '',
                             tag: 'image'
                         };
                     }
-                    throw new Error('Image file is required for new image sections');
+                    throw new Error('Image file is required for image sections');
+                } else if (section.contentType === 'link') {
+                    // Link section processing
+                    if (!section.data.trim() || !section.href.trim()) {
+                        throw new Error('Link text and URL are required for link sections');
+                    }
+                    return {
+                        type: 'link',
+                        data: section.data,
+                        tag: 'a',
+                        href: section.href,
+                        target: section.target || '_blank'
+                    };
                 } else {
-                    // Text content
+                    // Text section processing
                     const [_, tag] = section.contentType.split('-');
                     if (!section.data.trim()) {
-                        throw new Error('Text content cannot be empty');
+                        throw new Error('Content cannot be empty for text sections');
                     }
                     return {
                         type: 'text',
                         data: section.data,
-                        tag: tag || 'p',
+                        tag: tag,
                         bulletPoints: section.bulletPoints || []
                     };
                 }
-            }).filter(section => section); // Remove any undefined sections
+            }).filter(section => section);
+
+            if (contentSections.length === 0) {
+                throw new Error('At least one valid content section is required');
+            }
 
             formDataToSend.append('content', JSON.stringify(contentSections));
             formDataToSend.append('keyPoints', JSON.stringify(formData.keyPoints.filter(p => p.trim())));
             formDataToSend.append('tags', JSON.stringify(formData.tags.filter(t => t.trim())));
             formDataToSend.append('categories', JSON.stringify([formData.category].filter(c => c.trim())));
+
+            // SEO fields
+            formDataToSend.append('structuredData', formData.structuredData);
+            formDataToSend.append('faqs', JSON.stringify(formData.faqs));
+            formDataToSend.append('lsiKeywords', JSON.stringify(formData.lsiKeywords));
+            formDataToSend.append('semanticRelatedTerms', JSON.stringify(formData.semanticRelatedTerms));
+            formDataToSend.append('geoLocation', JSON.stringify(formData.geoLocation));
+            formDataToSend.append('language', formData.language);
+            formDataToSend.append('sgeOptimized', formData.sgeOptimized);
+            formDataToSend.append('conversationalPhrases', JSON.stringify(formData.conversationalPhrases));
+            formDataToSend.append('directAnswers', JSON.stringify(formData.directAnswers));
+            formDataToSend.append('expertAuthor', formData.expertAuthor);
+            formDataToSend.append('authorCredentials', formData.authorCredentials);
+            formDataToSend.append('citations', JSON.stringify(formData.citations));
 
             const response = await fetch(`/api/blog/${slug}`, {
                 method: 'PUT',
@@ -414,6 +527,12 @@ const UpdateBlogPostPage = () => {
                             <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center">
                                 <input type="file" name="mainImage" onChange={handleFileChange} className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700" accept="image/*" />
                                 <p className="mt-2 text-xs text-gray-500">Upload a new image to replace (WebP, 1200x630px recommended)</p>
+                                {mainImagePreview && (
+                                    <div className="mt-4">
+                                        <p className="text-xs text-gray-400 mb-1">Current Image:</p>
+                                        <img src={mainImagePreview} alt="Current main" className="h-32 object-contain mx-auto" />
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div>
@@ -422,9 +541,6 @@ const UpdateBlogPostPage = () => {
                         </div>
                     </div>
 
-
-
-                    {/* Updated Content Sections rendering */}
                     {/* Content Sections */}
                     <div className="space-y-6">
                         <label className="block text-gray-300 text-sm font-medium">Content Sections</label>
@@ -446,7 +562,7 @@ const UpdateBlogPostPage = () => {
                                 <div className="mb-4">
                                     <label className="block text-gray-300 mb-2 text-sm">Content Type *</label>
                                     <select
-                                        value={section.contentType || 'text-p'} // Fallback to 'text-p'
+                                        value={section.contentType}
                                         onChange={(e) => handleContentSectionChange(index, 'contentType', e.target.value)}
                                         className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                     >
@@ -456,8 +572,8 @@ const UpdateBlogPostPage = () => {
                                     </select>
                                 </div>
 
-                                {/* Safely render text or image content based on type */}
-                                {section.contentType && section.contentType.startsWith('text-') && (
+                                {/* Text Content */}
+                                {section.contentType.startsWith('text-') && (
                                     <>
                                         <div className="mb-4">
                                             <label className="block text-gray-300 mb-2 text-sm">Content *</label>
@@ -465,10 +581,14 @@ const UpdateBlogPostPage = () => {
                                                 value={section.data}
                                                 onChange={(e) => handleContentSectionChange(index, 'data', e.target.value)}
                                                 className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                                placeholder="Enter your content here"
+                                                placeholder="Enter your content here. Use [link text](URL) format for hyperlinks."
                                                 rows="4"
                                                 required
                                             />
+                                        </div>
+                                        <div className="mb-4 text-sm text-gray-400">
+                                            <p>Hyperlink Format: [link text](URL)</p>
+                                            <p>Example: [Stanford University](https://stanford.edu)</p>
                                         </div>
 
                                         <div className="mb-4">
@@ -494,7 +614,8 @@ const UpdateBlogPostPage = () => {
                                     </>
                                 )}
 
-                                {section.contentType && section.contentType === 'image' && (
+                                {/* Image Content */}
+                                {section.contentType === 'image' && (
                                     <>
                                         <div className="mb-4">
                                             <label className="block text-gray-300 mb-2 text-sm">Image *</label>
@@ -531,6 +652,61 @@ const UpdateBlogPostPage = () => {
                                         </div>
                                     </>
                                 )}
+
+                                {/* Link Content */}
+                                {section.contentType === 'link' && (
+                                    <>
+                                        <div className="mb-4">
+                                            <label className="block text-gray-300 mb-2 text-sm">Link Text *</label>
+                                            <input
+                                                type="text"
+                                                value={section.data}
+                                                onChange={(e) => handleContentSectionChange(index, 'data', e.target.value)}
+                                                className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                placeholder="Enter link text"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="mb-4">
+                                            <label className="block text-gray-300 mb-2 text-sm">URL *</label>
+                                            <input
+                                                type="url"
+                                                value={section.href}
+                                                onChange={(e) => handleContentSectionChange(index, 'href', e.target.value)}
+                                                className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                placeholder="https://example.com"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="mb-4">
+                                            <label className="block text-gray-300 mb-2 text-sm">Link Target</label>
+                                            <select
+                                                value={section.target}
+                                                onChange={(e) => handleContentSectionChange(index, 'target', e.target.value)}
+                                                className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            >
+                                                <option value="_blank">Open in new tab (_blank)</option>
+                                                <option value="_self">Open in same tab (_self)</option>
+                                                <option value="_parent">Open in parent frame (_parent)</option>
+                                                <option value="_top">Open in full body of the window (_top)</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="mb-4 p-3 bg-gray-900 rounded-lg">
+                                            <h4 className="text-sm font-medium text-gray-300 mb-2">Link Preview:</h4>
+                                            <a
+                                                href={section.href || '#'}
+                                                target={section.target}
+                                                rel="noopener noreferrer"
+                                                className="text-purple-400 hover:text-purple-300 underline"
+                                            >
+                                                {section.data || 'Link text'}
+                                            </a>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         ))}
 
@@ -561,6 +737,212 @@ const UpdateBlogPostPage = () => {
                         ))}
                         <button type="button" onClick={addTag} className="flex items-center text-purple-400 hover:text-purple-300 text-sm"><span className="mr-1">+</span> Add Tag</button>
                     </div>
+
+                    {/* SEO Optimization Section */}
+                    <div className="bg-gray-800/50 rounded-xl p-5 border border-gray-700">
+                        <h2 className="text-xl font-bold text-gray-300 mb-4">SEO Optimization</h2>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label className="block text-gray-300 mb-2 text-sm font-medium">Language</label>
+                                <select
+                                    name="language"
+                                    value={formData.language}
+                                    onChange={(e) => setFormData({ ...formData, language: e.target.value })}
+                                    className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                >
+                                    <option value="en">English</option>
+                                    <option value="bn">Bengali</option>
+                                    <option value="hi">Hindi</option>
+                                </select>
+                            </div>
+
+                            <div className="flex items-center mt-6">
+                                <input
+                                    type="checkbox"
+                                    id="sgeOptimized"
+                                    name="sgeOptimized"
+                                    checked={formData.sgeOptimized}
+                                    onChange={(e) => setFormData({ ...formData, sgeOptimized: e.target.checked })}
+                                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-700 rounded"
+                                />
+                                <label htmlFor="sgeOptimized" className="ml-2 block text-sm text-gray-300">
+                                    SGE Optimized
+                                </label>
+                            </div>
+
+                            <div className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    id="expertAuthor"
+                                    name="expertAuthor"
+                                    checked={formData.expertAuthor}
+                                    onChange={(e) => setFormData({ ...formData, expertAuthor: e.target.checked })}
+                                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-700 rounded"
+                                />
+                                <label htmlFor="expertAuthor" className="ml-2 block text-sm text-gray-300">
+                                    Expert Author
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* GEO Targeting */}
+                        <div className="mb-6">
+                            <h3 className="text-lg font-medium text-gray-300 mb-3">GEO Targeting</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-gray-300 mb-2 text-sm">Target Country</label>
+                                    <input
+                                        type="text"
+                                        value={formData.geoLocation.targetCountry}
+                                        onChange={(e) => setFormData({
+                                            ...formData,
+                                            geoLocation: { ...formData.geoLocation, targetCountry: e.target.value }
+                                        })}
+                                        className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        placeholder="e.g., Bangladesh"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-300 mb-2 text-sm">Target City</label>
+                                    <input
+                                        type="text"
+                                        value={formData.geoLocation.targetCity}
+                                        onChange={(e) => setFormData({
+                                            ...formData,
+                                            geoLocation: { ...formData.geoLocation, targetCity: e.target.value }
+                                        })}
+                                        className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        placeholder="e.g., Dhaka"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* LSI Keywords */}
+                        <div className="mb-6">
+                            <h3 className="text-lg font-medium text-gray-300 mb-3">LSI Keywords</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {formData.lsiKeywords.map((keyword, index) => (
+                                    <span key={index} className="bg-purple-900 text-purple-200 px-3 py-1 rounded-full text-sm">
+                                        {keyword}
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const updated = [...formData.lsiKeywords];
+                                                updated.splice(index, 1);
+                                                setFormData({ ...formData, lsiKeywords: updated });
+                                            }}
+                                            className="ml-2 text-red-400 hover:text-red-300"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                ))}
+                                <input
+                                    type="text"
+                                    placeholder="Add LSI keyword"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && e.target.value.trim()) {
+                                            e.preventDefault();
+                                            setFormData({
+                                                ...formData,
+                                                lsiKeywords: [...formData.lsiKeywords, e.target.value.trim()]
+                                            });
+                                            e.target.value = '';
+                                        }
+                                    }}
+                                    className="p-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                            </div>
+                        </div>
+
+                        {/* FAQs Section */}
+                        <div className="mb-6">
+                            <h3 className="text-lg font-medium text-gray-300 mb-3">FAQs</h3>
+                            {formData.faqs.map((faq, index) => (
+                                <div key={index} className="mb-4 p-4 bg-gray-900 rounded-lg">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h4 className="text-gray-300">FAQ {index + 1}</h4>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const updated = [...formData.faqs];
+                                                updated.splice(index, 1);
+                                                setFormData({ ...formData, faqs: updated });
+                                            }}
+                                            className="text-red-500 hover:text-red-400 text-sm"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="block text-gray-300 mb-1 text-sm">Question</label>
+                                        <input
+                                            type="text"
+                                            value={faq.question}
+                                            onChange={(e) => {
+                                                const updated = [...formData.faqs];
+                                                updated[index].question = e.target.value;
+                                                setFormData({ ...formData, faqs: updated });
+                                            }}
+                                            className="w-full p-2 bg-gray-800 text-white rounded border border-gray-700 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-gray-300 mb-1 text-sm">Answer</label>
+                                        <textarea
+                                            value={faq.answer}
+                                            onChange={(e) => {
+                                                const updated = [...formData.faqs];
+                                                updated[index].answer = e.target.value;
+                                                setFormData({ ...formData, faqs: updated });
+                                            }}
+                                            className="w-full p-2 bg-gray-800 text-white rounded border border-gray-700 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                            rows="2"
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={() => setFormData({
+                                    ...formData,
+                                    faqs: [...formData.faqs, { question: '', answer: '' }]
+                                })}
+                                className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+                            >
+                                <span className="mr-1">+</span> Add FAQ
+                            </button>
+                        </div>
+
+                        {/* Author Credentials Section */}
+                        <div className="mb-6">
+                            <h3 className="text-lg font-medium text-gray-300 mb-3">Author Credentials</h3>
+                            <textarea
+                                value={formData.authorCredentials}
+                                onChange={(e) => setFormData({ ...formData, authorCredentials: e.target.value })}
+                                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                placeholder="Example: Dr. John Doe is a renowned cardiologist with 15 years of experience. He holds an MD from Harvard Medical School and is a fellow of the American College of Cardiology. Dr. Doe has published over 50 research papers..."
+                                rows="4"
+                            />
+                            <p className="text-sm text-gray-400 mt-2">
+                                Author credentials help establish E-A-T (Expertise, Authoritativeness, Trustworthiness) which is important for SEO.
+                            </p>
+                        </div>
+
+                        {/* Structured Data Information */}
+                        <div className="mb-6 p-4 bg-gray-900 rounded-lg">
+                            <h3 className="text-lg font-medium text-gray-300 mb-2">Structured Data Information</h3>
+                            <p className="text-sm text-gray-400">
+                                Structured data (JSON-LD) will be automatically generated from your blog content and displayed on the blog detail page.
+                                This helps search engines understand your content better and may result in rich search results.
+                            </p>
+                        </div>
+                    </div>
+
+
+
                     <div className="pt-4">
                         <button type="submit" disabled={isSubmitting} className={`w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg font-medium text-white hover:from-purple-700 hover:to-blue-700 transition-all duration-300 flex items-center justify-center ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}>
                             {isSubmitting ? (
