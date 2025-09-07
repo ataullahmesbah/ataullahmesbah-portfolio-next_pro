@@ -931,6 +931,8 @@ const UpdateBlogPostPage = () => {
                             </p>
                         </div>
 
+                        {/* DATA */}
+
                         {/* Structured Data Information */}
                         <div className="mb-6 p-4 bg-gray-900 rounded-lg">
                             <h3 className="text-lg font-medium text-gray-300 mb-2">Structured Data Information</h3>
