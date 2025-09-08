@@ -15,11 +15,13 @@ export async function GET(request, { params }) {
       { new: true }
     );
     if (!blog) {
+      console.error('Blog not found for slug:', params.slug);
       return new Response(JSON.stringify({ error: 'Blog not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0' },
       });
     }
+    console.log('Fetched blog:', blog);
     return new Response(JSON.stringify(blog), {
       headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0' },
     });
@@ -50,66 +52,42 @@ export async function PUT(req, { params }) {
       );
     }
 
+    // Validate required fields
+    const requiredFields = ['title', 'metaTitle', 'metaDescription', 'author'];
+    const missingFields = requiredFields.filter(field => !formData.get(field));
+    if (missingFields.length > 0) {
+      console.error('Missing required fields:', missingFields);
+      return NextResponse.json(
+        { success: false, error: `Missing required fields: ${missingFields.join(', ')}` },
+        { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
+      );
+    }
+
     // Update basic fields
-    if (formData.has('title')) blog.title = formData.get('title');
-    if (formData.has('metaTitle')) blog.metaTitle = formData.get('metaTitle');
-    if (formData.has('metaDescription')) blog.metaDescription = formData.get('metaDescription');
+    blog.title = formData.get('title');
+    blog.metaTitle = formData.get('metaTitle');
+    blog.metaDescription = formData.get('metaDescription');
+    blog.author = formData.get('author');
+    console.log('Updated basic fields:', { title: blog.title, metaTitle: blog.metaTitle, metaDescription: blog.metaDescription, author: blog.author });
 
-    if (formData.has('shortDescriptions')) {
-      try {
-        blog.shortDescriptions = JSON.parse(formData.get('shortDescriptions') || '[]');
-        console.log('Parsed shortDescriptions:', blog.shortDescriptions);
-      } catch (error) {
-        console.error('Error parsing shortDescriptions:', error);
-        return NextResponse.json(
-          { success: false, error: 'Invalid shortDescriptions format' },
-          { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
-        );
+    // Handle JSON fields
+    const jsonFields = ['shortDescriptions', 'keyPoints', 'tags', 'categories', 'faqs', 'lsiKeywords', 'semanticRelatedTerms', 'geoLocation', 'conversationalPhrases', 'directAnswers', 'citations'];
+    for (const field of jsonFields) {
+      if (formData.has(field)) {
+        try {
+          blog[field] = JSON.parse(formData.get(field) || '[]');
+          console.log(`Parsed ${field}:`, blog[field]);
+        } catch (error) {
+          console.error(`Error parsing ${field}:`, error);
+          return NextResponse.json(
+            { success: false, error: `Invalid ${field} format` },
+            { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
+          );
+        }
       }
     }
 
-    if (formData.has('author')) blog.author = formData.get('author');
-
-    if (formData.has('keyPoints')) {
-      try {
-        blog.keyPoints = JSON.parse(formData.get('keyPoints') || '[]');
-        console.log('Parsed keyPoints:', blog.keyPoints);
-      } catch (error) {
-        console.error('Error parsing keyPoints:', error);
-        return NextResponse.json(
-          { success: false, error: 'Invalid keyPoints format' },
-          { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
-        );
-      }
-    }
-
-    if (formData.has('tags')) {
-      try {
-        blog.tags = JSON.parse(formData.get('tags') || '[]');
-        console.log('Parsed tags:', blog.tags);
-      } catch (error) {
-        console.error('Error parsing tags:', error);
-        return NextResponse.json(
-          { success: false, error: 'Invalid tags format' },
-          { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
-        );
-      }
-    }
-
-    if (formData.has('categories')) {
-      try {
-        blog.categories = JSON.parse(formData.get('categories') || '[]');
-        console.log('Parsed categories:', blog.categories);
-      } catch (error) {
-        console.error('Error parsing categories:', error);
-        return NextResponse.json(
-          { success: false, error: 'Invalid categories format' },
-          { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
-        );
-      }
-    }
-
-    // Handle main image update
+    // Handle main image
     const mainImageFile = formData.get('mainImage');
     if (mainImageFile && mainImageFile.size > 0) {
       console.log('Uploading new main image:', mainImageFile.name);
@@ -122,6 +100,7 @@ export async function PUT(req, { params }) {
         ).end(buffer);
       });
       blog.mainImage = result.secure_url;
+      console.log('Updated mainImage:', blog.mainImage);
     }
 
     // Process content sections
@@ -174,15 +153,12 @@ export async function PUT(req, { params }) {
                   tag: 'image'
                 };
               }
-              console.warn('No new image provided, keeping existing:', item.data);
-              return {
-                type: 'image',
-                data: item.data,
-                alt: item.alt || '',
-                tag: 'image'
-              };
+              throw new Error('Image file missing for image content section');
             }
           } else if (item.type === 'link') {
+            if (!item.data?.trim() || !item.href?.trim()) {
+              throw new Error('Link content and href cannot be empty');
+            }
             return {
               type: 'link',
               data: item.data,
@@ -191,6 +167,9 @@ export async function PUT(req, { params }) {
               target: item.target || '_blank'
             };
           } else {
+            if (!item.data?.trim()) {
+              throw new Error('Text content cannot be empty');
+            }
             return {
               type: 'text',
               data: item.data,
@@ -208,97 +187,14 @@ export async function PUT(req, { params }) {
       .filter(item => item.type === 'text')
       .reduce((count, item) => count + item.data.split(/\s+/).length, 0);
     blog.readTime = Math.max(1, Math.ceil(wordCount / 200));
+    console.log('Calculated readTime:', blog.readTime);
 
-    // Update SEO fields
+    // Update other fields
     if (formData.has('structuredData')) blog.structuredData = formData.get('structuredData');
-    if (formData.has('faqs')) {
-      try {
-        blog.faqs = JSON.parse(formData.get('faqs') || '[]');
-        console.log('Parsed faqs:', blog.faqs);
-      } catch (error) {
-        console.error('Error parsing faqs:', error);
-        return NextResponse.json(
-          { success: false, error: 'Invalid faqs format' },
-          { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
-        );
-      }
-    }
-    if (formData.has('lsiKeywords')) {
-      try {
-        blog.lsiKeywords = JSON.parse(formData.get('lsiKeywords') || '[]');
-        console.log('Parsed lsiKeywords:', blog.lsiKeywords);
-      } catch (error) {
-        console.error('Error parsing lsiKeywords:', error);
-        return NextResponse.json(
-          { success: false, error: 'Invalid lsiKeywords format' },
-          { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
-        );
-      }
-    }
-    if (formData.has('semanticRelatedTerms')) {
-      try {
-        blog.semanticRelatedTerms = JSON.parse(formData.get('semanticRelatedTerms') || '[]');
-        console.log('Parsed semanticRelatedTerms:', blog.semanticRelatedTerms);
-      } catch (error) {
-        console.error('Error parsing semanticRelatedTerms:', error);
-        return NextResponse.json(
-          { success: false, error: 'Invalid semanticRelatedTerms format' },
-          { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
-        );
-      }
-    }
-    if (formData.has('geoLocation')) {
-      try {
-        blog.geoLocation = JSON.parse(formData.get('geoLocation') || '{}');
-        console.log('Parsed geoLocation:', blog.geoLocation);
-      } catch (error) {
-        console.error('Error parsing geoLocation:', error);
-        return NextResponse.json(
-          { success: false, error: 'Invalid geoLocation format' },
-          { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
-        );
-      }
-    }
     if (formData.has('language')) blog.language = formData.get('language');
     if (formData.has('sgeOptimized')) blog.sgeOptimized = formData.get('sgeOptimized') === 'true';
-    if (formData.has('conversationalPhrases')) {
-      try {
-        blog.conversationalPhrases = JSON.parse(formData.get('conversationalPhrases') || '[]');
-        console.log('Parsed conversationalPhrases:', blog.conversationalPhrases);
-      } catch (error) {
-        console.error('Error parsing conversationalPhrases:', error);
-        return NextResponse.json(
-          { success: false, error: 'Invalid conversationalPhrases format' },
-          { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
-        );
-      }
-    }
-    if (formData.has('directAnswers')) {
-      try {
-        blog.directAnswers = JSON.parse(formData.get('directAnswers') || '[]');
-        console.log('Parsed directAnswers:', blog.directAnswers);
-      } catch (error) {
-        console.error('Error parsing directAnswers:', error);
-        return NextResponse.json(
-          { success: false, error: 'Invalid directAnswers format' },
-          { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
-        );
-      }
-    }
     if (formData.has('expertAuthor')) blog.expertAuthor = formData.get('expertAuthor') === 'true';
     if (formData.has('authorCredentials')) blog.authorCredentials = formData.get('authorCredentials');
-    if (formData.has('citations')) {
-      try {
-        blog.citations = JSON.parse(formData.get('citations') || '[]');
-        console.log('Parsed citations:', blog.citations);
-      } catch (error) {
-        console.error('Error parsing citations:', error);
-        return NextResponse.json(
-          { success: false, error: 'Invalid citations format' },
-          { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
-        );
-      }
-    }
 
     try {
       await blog.save();

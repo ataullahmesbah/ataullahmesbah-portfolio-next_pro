@@ -67,94 +67,113 @@ const UpdateBlogPostPage = () => {
     const [error, setError] = useState(null);
     const [mainImagePreview, setMainImagePreview] = useState('');
 
-    useEffect(() => {
-        if (!slug) {
-            setError('No slug provided');
-            setLoading(false);
-            return;
+    // Fetch blog data
+   useEffect(() => {
+  if (!slug || status === 'loading') {
+    setLoading(true);
+    return;
+  }
+
+  let isMounted = true;
+
+  const fetchBlog = async () => {
+    try {
+      const res = await fetch(`/api/blog/${slug}`, {
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to fetch blog: ${res.statusText}`);
+      }
+
+      const blog = await res.json();
+      console.log('Fetched blog data:', blog);
+
+      if (isMounted) {
+        setFormData({
+          title: blog.title || '',
+          slug: blog.slug || '',
+          metaTitle: blog.metaTitle || '',
+          category: blog.categories?.[0] || '',
+          categories: blog.categories || [],
+          author: blog.author || session?.user?.name || '',
+          metaDescription: blog.metaDescription || '',
+          shortDescriptions: blog.shortDescriptions?.length ? blog.shortDescriptions : [''],
+          mainImage: null,
+          imageAlt: blog.imageAlt || '',
+          contentSections: blog.content?.length ? blog.content.map(item => ({
+            contentType: item.type === 'image' ? 'image' :
+                         item.type === 'link' ? 'link' : `text-${item.tag || 'p'}`,
+            data: item.data || '',
+            bulletPoints: item.bulletPoints || [],
+            alt: item.alt || '',
+            image: null,
+            existingImageUrl: item.type === 'image' ? item.data : '',
+            href: item.href || '',
+            target: item.target || '_blank'
+          })) : [{
+            contentType: 'text-p',
+            data: '',
+            bulletPoints: [],
+            alt: '',
+            image: null,
+            existingImageUrl: '',
+            href: '',
+            target: '_blank'
+          }],
+          keyPoints: blog.keyPoints || [],
+          tags: blog.tags || [],
+          structuredData: blog.structuredData || '',
+          faqs: blog.faqs?.length ? blog.faqs : [{ question: '', answer: '' }],
+          lsiKeywords: blog.lsiKeywords || [],
+          semanticRelatedTerms: blog.semanticRelatedTerms || [],
+          geoLocation: blog.geoLocation || { targetCountry: '', targetCity: '' },
+          language: blog.language || 'en',
+          sgeOptimized: blog.sgeOptimized || false,
+          conversationalPhrases: blog.conversationalPhrases || [],
+          directAnswers: blog.directAnswers?.length ? blog.directAnswers : [{ question: '', answer: '' }],
+          expertAuthor: blog.expertAuthor || false,
+          authorCredentials: blog.authorCredentials || '',
+          citations: blog.citations?.length ? blog.citations : [{ source: '', link: '' }],
+        });
+
+        if (blog.mainImage) {
+          setMainImagePreview(blog.mainImage);
         }
+      }
+    } catch (error) {
+      console.error('Error fetching blog:', error);
+      if (isMounted) {
+        setError(error.message);
+        toast.error('Failed to load blog data');
+      }
+    } finally {
+      if (isMounted) {
+        setLoading(false);
+      }
+    }
+  };
 
-        const fetchBlog = async () => {
-            try {
-                const res = await fetch(`/api/blog/${slug}`, {
-                    cache: 'no-store',
-                    headers: { 'Content-Type': 'application/json' }
-                });
+  fetchBlog();
 
-                if (!res.ok) throw new Error('Failed to fetch blog');
-                const blog = await res.json();
-                console.log('Fetched blog data:', blog);
+  return () => {
+    isMounted = false;
+  };
+}, [slug, status]);
 
-                setFormData({
-                    title: blog.title || '',
-                    slug: blog.slug || '',
-                    metaTitle: blog.metaTitle || '',
-                    category: blog.categories?.[0] || '',
-                    categories: blog.categories || [],
-                    author: blog.author || session?.user?.name || '',
-                    metaDescription: blog.metaDescription || '',
-                    shortDescriptions: blog.shortDescriptions?.length ? blog.shortDescriptions : [''],
-                    mainImage: null,
-                    imageAlt: blog.imageAlt || '',
-                    contentSections: blog.content?.length ? blog.content.map(item => ({
-                        contentType: item.type === 'image' ? 'image' :
-                            item.type === 'link' ? 'link' : `text-${item.tag || 'p'}`,
-                        data: item.data || '',
-                        bulletPoints: item.bulletPoints || [],
-                        alt: item.alt || '',
-                        image: null,
-                        existingImageUrl: item.type === 'image' ? item.data : '',
-                        href: item.href || '',
-                        target: item.target || '_blank'
-                    })) : [{
-                        contentType: 'text-p',
-                        data: '',
-                        bulletPoints: [],
-                        alt: '',
-                        image: null,
-                        existingImageUrl: '',
-                        href: '',
-                        target: '_blank'
-                    }],
-                    keyPoints: blog.keyPoints || [],
-                    tags: blog.tags || [],
-                    structuredData: blog.structuredData || '',
-                    faqs: blog.faqs?.length ? blog.faqs : [{ question: '', answer: '' }],
-                    lsiKeywords: blog.lsiKeywords || [],
-                    semanticRelatedTerms: blog.semanticRelatedTerms || [],
-                    geoLocation: blog.geoLocation || { targetCountry: '', targetCity: '' },
-                    language: blog.language || 'en',
-                    sgeOptimized: blog.sgeOptimized || false,
-                    conversationalPhrases: blog.conversationalPhrases || [],
-                    directAnswers: blog.directAnswers?.length ? blog.directAnswers : [{ question: '', answer: '' }],
-                    expertAuthor: blog.expertAuthor || false,
-                    authorCredentials: blog.authorCredentials || '',
-                    citations: blog.citations?.length ? blog.citations : [{ source: '', link: '' }],
-                });
 
-                if (blog.mainImage) {
-                    setMainImagePreview(blog.mainImage);
-                }
-            } catch (error) {
-                console.error('Error fetching blog:', error);
-                setError(error.message);
-                toast.error('Failed to load blog data');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchBlog();
-    }, [slug, session]);
-
+    // Update author based on session
     useEffect(() => {
         if (session?.user?.name) {
             setFormData(prev => ({ ...prev, author: session.user.name }));
         }
     }, [session]);
 
+    // Handle input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
+        console.log(`Input change - ${name}: ${value}`);
         if (name === 'title') {
             setFormData(prev => ({
                 ...prev,
@@ -167,6 +186,7 @@ const UpdateBlogPostPage = () => {
         }
     };
 
+    // Handle short description changes
     const handleShortDescriptionChange = (index, value) => {
         setFormData(prev => {
             const updatedDescriptions = [...prev.shortDescriptions];
@@ -189,15 +209,33 @@ const UpdateBlogPostPage = () => {
         });
     };
 
+    // Handle content section changes
     const handleContentSectionChange = (index, field, value) => {
         setFormData(prev => {
             const updatedSections = [...prev.contentSections];
-            updatedSections[index] = { ...updatedSections[index], [field]: value };
+            if (field === 'contentType') {
+                updatedSections[index] = {
+                    ...updatedSections[index],
+                    contentType: value,
+                    data: '',
+                    bulletPoints: [],
+                    alt: '',
+                    image: null,
+                    existingImageUrl: '',
+                    href: '',
+                    target: '_blank'
+                };
+            } else if (field === 'bulletPoints') {
+                updatedSections[index].bulletPoints = value.split(',').map(p => p.trim()).filter(p => p);
+            } else {
+                updatedSections[index][field] = value;
+            }
             console.log(`Updated content section ${index}:`, updatedSections[index]);
             return { ...prev, contentSections: updatedSections };
         });
     };
 
+    // Handle file changes
     const handleFileChange = (e, index = null) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -241,6 +279,7 @@ const UpdateBlogPostPage = () => {
         });
     };
 
+    // Handle key points
     const handleKeyPointsChange = (index, value) => {
         setFormData(prev => {
             const updatedKeyPoints = [...prev.keyPoints];
@@ -253,6 +292,7 @@ const UpdateBlogPostPage = () => {
         setFormData(prev => ({ ...prev, keyPoints: [...prev.keyPoints, ''] }));
     };
 
+    // Handle tags
     const handleTagsChange = (index, value) => {
         setFormData(prev => {
             const updatedTags = [...prev.tags];
@@ -265,6 +305,7 @@ const UpdateBlogPostPage = () => {
         setFormData(prev => ({ ...prev, tags: [...prev.tags, ''] }));
     };
 
+    // Handle FAQs
     const handleFAQChange = (index, field, value) => {
         setFormData(prev => {
             const updatedFAQs = [...prev.faqs];
@@ -287,11 +328,69 @@ const UpdateBlogPostPage = () => {
         });
     };
 
+    // Handle direct answers
+    const handleDirectAnswerChange = (index, field, value) => {
+        setFormData(prev => {
+            const updatedDirectAnswers = [...prev.directAnswers];
+            updatedDirectAnswers[index] = { ...updatedDirectAnswers[index], [field]: value };
+            return { ...prev, directAnswers: updatedDirectAnswers };
+        });
+    };
+
+    const addDirectAnswer = () => {
+        setFormData(prev => ({
+            ...prev,
+            directAnswers: [...prev.directAnswers, { question: '', answer: '' }]
+        }));
+    };
+
+    const removeDirectAnswer = (index) => {
+        setFormData(prev => {
+            const updatedDirectAnswers = prev.directAnswers.filter((_, i) => i !== index);
+            return { ...prev, directAnswers: updatedDirectAnswers };
+        });
+    };
+
+    // Handle citations
+    const handleCitationChange = (index, field, value) => {
+        setFormData(prev => {
+            const updatedCitations = [...prev.citations];
+            updatedCitations[index] = { ...updatedCitations[index], [field]: value };
+            return { ...prev, citations: updatedCitations };
+        });
+    };
+
+    const addCitation = () => {
+        setFormData(prev => ({
+            ...prev,
+            citations: [...prev.citations, { source: '', link: '' }]
+        }));
+    };
+
+    const removeCitation = (index) => {
+        setFormData(prev => {
+            const updatedCitations = prev.citations.filter((_, i) => i !== index);
+            return { ...prev, citations: updatedCitations };
+        });
+    };
+
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
 
         try {
+            // Validation
+            if (!formData.title.trim()) {
+                throw new Error('Title is required');
+            }
+            if (!formData.metaTitle.trim()) {
+                throw new Error('Meta title is required');
+            }
+            if (!formData.metaDescription.trim()) {
+                throw new Error('Meta description is required');
+            }
+
             const formDataToSend = new FormData();
             formDataToSend.append('title', formData.title);
             formDataToSend.append('slug', formData.slug);
@@ -305,7 +404,8 @@ const UpdateBlogPostPage = () => {
                 formDataToSend.append('mainImage', formData.mainImage);
             }
 
-            const contentSections = formData.contentSections.map(section => {
+            // Process content sections
+            const contentSections = formData.contentSections.map((section, index) => {
                 if (section.contentType === 'image') {
                     if (section.image) {
                         formDataToSend.append('contentImages', section.image);
@@ -323,7 +423,7 @@ const UpdateBlogPostPage = () => {
                             tag: 'image'
                         };
                     }
-                    throw new Error('Image file is required for image sections');
+                    throw new Error('Image file or existing URL is required for image sections');
                 } else if (section.contentType === 'link') {
                     if (!section.data.trim() || !section.href.trim()) {
                         throw new Error('Link text and URL are required for link sections');
@@ -336,7 +436,7 @@ const UpdateBlogPostPage = () => {
                         target: section.target || '_blank'
                     };
                 } else {
-                    const [_, tag] = section.contentType.split('-');
+                    const tag = section.contentType.split('-')[1] || 'p';
                     if (!section.data.trim()) {
                         throw new Error('Content cannot be empty for text sections');
                     }
@@ -476,10 +576,16 @@ const UpdateBlogPostPage = () => {
                                 name="category"
                                 value={formData.category}
                                 onChange={handleChange}
+                                list="categorySuggestions"
                                 className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="Select or enter new category"
                                 required
                             />
+                            <datalist id="categorySuggestions">
+                                {formData.categories.map((cat, index) => (
+                                    <option key={index} value={cat} />
+                                ))}
+                            </datalist>
                         </div>
                         <div>
                             <label className="block text-gray-300 mb-2 text-sm font-medium">Author *</label>
@@ -578,13 +684,33 @@ const UpdateBlogPostPage = () => {
                                             <p>Hyperlink Format: [link text](URL)</p>
                                             <p>Example: [Stanford University](https://stanford.edu)</p>
                                         </div>
+                                        <div className="mb-4">
+                                            <label className="block text-gray-300 mb-2 text-sm">Bullet Points (Optional)</label>
+                                            <input
+                                                type="text"
+                                                value={section.bulletPoints.join(', ')}
+                                                onChange={(e) => handleContentSectionChange(index, 'bulletPoints', e.target.value)}
+                                                className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                placeholder="Comma separated points"
+                                            />
+                                            {section.bulletPoints.length > 0 && (
+                                                <div className="mt-4">
+                                                    <h4 className="text-sm font-medium text-gray-300 mb-2">Preview Bullet Points:</h4>
+                                                    <ul className="list-disc pl-5 space-y-1 text-gray-300">
+                                                        {section.bulletPoints.map((point, i) => (
+                                                            <li key={i}>{point}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+                                        </div>
                                     </>
                                 )}
 
                                 {section.contentType === 'image' && (
                                     <>
                                         <div className="mb-4">
-                                            <label className="block text-gray-300 mb-2 text-sm">Image *</label>
+                                            <label className="block text-gray-300 mb-2 text-sm">Image</label>
                                             <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center">
                                                 <input
                                                     type="file"
@@ -606,16 +732,14 @@ const UpdateBlogPostPage = () => {
                                                 )}
                                             </div>
                                         </div>
-
                                         <div className="mb-4">
-                                            <label className="block text-gray-300 mb-2 text-sm">Image Alt Text *</label>
+                                            <label className="block text-gray-300 mb-2 text-sm">Image Alt Text</label>
                                             <input
                                                 type="text"
                                                 value={section.alt || ''}
                                                 onChange={(e) => handleContentSectionChange(index, 'alt', e.target.value)}
                                                 className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                                 placeholder="Describe the image for accessibility"
-                                                required
                                             />
                                         </div>
                                     </>
@@ -634,7 +758,6 @@ const UpdateBlogPostPage = () => {
                                                 required
                                             />
                                         </div>
-
                                         <div className="mb-4">
                                             <label className="block text-gray-300 mb-2 text-sm">URL *</label>
                                             <input
@@ -646,11 +769,23 @@ const UpdateBlogPostPage = () => {
                                                 required
                                             />
                                         </div>
+                                        <div className="mb-4">
+                                            <label className="block text-gray-300 mb-2 text-sm">Link Target</label>
+                                            <select
+                                                value={section.target}
+                                                onChange={(e) => handleContentSectionChange(index, 'target', e.target.value)}
+                                                className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            >
+                                                <option value="_blank">Open in new tab (_blank)</option>
+                                                <option value="_self">Open in same tab (_self)</option>
+                                                <option value="_parent">Open in parent frame (_parent)</option>
+                                                <option value="_top">Open in full body of the window (_top)</option>
+                                            </select>
+                                        </div>
                                     </>
                                 )}
                             </div>
                         ))}
-
                         <button
                             type="button"
                             onClick={addContentSection}
@@ -792,6 +927,94 @@ const UpdateBlogPostPage = () => {
                             className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
                         >
                             <span className="mr-1">+</span> Add FAQ
+                        </button>
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="block text-gray-300 text-sm font-medium">Direct Answers</label>
+                        {formData.directAnswers.map((answer, index) => (
+                            <div key={index} className="bg-gray-800/50 rounded-xl p-5 border border-gray-700">
+                                <div className="mb-4">
+                                    <label className="block text-gray-300 mb-2 text-sm">Question</label>
+                                    <input
+                                        type="text"
+                                        value={answer.question}
+                                        onChange={(e) => handleDirectAnswerChange(index, 'question', e.target.value)}
+                                        className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        placeholder="Enter direct answer question"
+                                    />
+                                </div>
+                                <div className="mb-4">
+                                    <label className="block text-gray-300 mb-2 text-sm">Answer</label>
+                                    <textarea
+                                        value={answer.answer}
+                                        onChange={(e) => handleDirectAnswerChange(index, 'answer', e.target.value)}
+                                        className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        placeholder="Enter direct answer"
+                                        rows="3"
+                                    />
+                                </div>
+                                {formData.directAnswers.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeDirectAnswer(index)}
+                                        className="text-red-500 hover:text-red-400 text-sm"
+                                    >
+                                        Remove Direct Answer
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={addDirectAnswer}
+                            className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+                        >
+                            <span className="mr-1">+</span> Add Direct Answer
+                        </button>
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="block text-gray-300 text-sm font-medium">Citations</label>
+                        {formData.citations.map((citation, index) => (
+                            <div key={index} className="bg-gray-800/50 rounded-xl p-5 border border-gray-700">
+                                <div className="mb-4">
+                                    <label className="block text-gray-300 mb-2 text-sm">Source</label>
+                                    <input
+                                        type="text"
+                                        value={citation.source}
+                                        onChange={(e) => handleCitationChange(index, 'source', e.target.value)}
+                                        className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        placeholder="Enter citation source"
+                                    />
+                                </div>
+                                <div className="mb-4">
+                                    <label className="block text-gray-300 mb-2 text-sm">Link</label>
+                                    <input
+                                        type="url"
+                                        value={citation.link}
+                                        onChange={(e) => handleCitationChange(index, 'link', e.target.value)}
+                                        className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        placeholder="https://example.com"
+                                    />
+                                </div>
+                                {formData.citations.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeCitation(index)}
+                                        className="text-red-500 hover:text-red-400 text-sm"
+                                    >
+                                        Remove Citation
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={addCitation}
+                            className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+                        >
+                            <span className="mr-1">+</span> Add Citation
                         </button>
                     </div>
 

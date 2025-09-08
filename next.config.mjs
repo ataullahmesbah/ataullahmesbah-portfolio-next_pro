@@ -77,7 +77,7 @@ const nextConfig = {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
           },
-         
+
 
           {
             key: 'Content-Security-Policy',
@@ -98,6 +98,20 @@ const nextConfig = {
           },
         ],
       },
+      // Blog Updated Path
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'no-store, max-age=0' },
+        ],
+      },
+      {
+        source: '/admin-dashboard/blog/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'no-store, max-age=0' },
+        ],
+      },
+      // Blog Updated Path
       {
         source: '/api/:path*',
         headers: [
