@@ -37,16 +37,13 @@ export async function GET(request) {
     }
 }
 
-
-
-
 export async function POST(req) {
     await dbConnect();
     try {
         const formData = await req.formData();
 
         // Validate required fields
-        const requiredFields = ['title', 'slug', 'mainImage', 'author', 'metaTitle', 'metaDescription'];
+        const requiredFields = ['title', 'slug', 'author', 'metaTitle', 'metaDescription'];
         const missingFields = requiredFields.filter(field => !formData.get(field));
         if (missingFields.length > 0) {
             return NextResponse.json(
@@ -68,6 +65,11 @@ export async function POST(req) {
                 ).end(buffer);
             });
             mainImageUrl = result.secure_url;
+        } else {
+            return NextResponse.json(
+                { success: false, error: 'Main image is required' },
+                { status: 400 }
+            );
         }
 
         // Process content sections
@@ -111,29 +113,25 @@ export async function POST(req) {
                         target: item.target || '_blank'
                     };
                 } else {
-                    // Text processing logic - convert markdown links to proper format
+                    // Text content
                     if (!item.data?.trim()) {
                         throw new Error('Text content cannot be empty');
                     }
-
-                    // Convert markdown-style links to proper format for storage
-                    const textWithProcessedLinks = item.data;
-
                     return {
                         type: 'text',
-                        data: textWithProcessedLinks,
+                        data: item.data,
                         tag: item.tag || 'p',
                         bulletPoints: item.bulletPoints || []
                     };
                 }
             })
         );
+
         // Calculate read time
         const wordCount = processedContent
             .filter(item => item.type === 'text')
             .reduce((count, item) => count + item.data.split(/\s+/).length, 0);
         const readTime = Math.max(1, Math.ceil(wordCount / 200));
-
 
         // Create new blog with all SEO fields
         const newBlog = new Blog({
@@ -151,6 +149,7 @@ export async function POST(req) {
             categories: JSON.parse(formData.get('categories') || '[]'),
             readTime,
             // SEO fields
+            structuredData: formData.get('structuredData') || '',
             faqs: JSON.parse(formData.get('faqs') || '[]'),
             lsiKeywords: JSON.parse(formData.get('lsiKeywords') || '[]'),
             semanticRelatedTerms: JSON.parse(formData.get('semanticRelatedTerms') || '[]'),
@@ -177,8 +176,6 @@ export async function POST(req) {
         );
     }
 }
-
-
 
 
 export async function DELETE(request) {

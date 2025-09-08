@@ -1,3 +1,5 @@
+
+
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -13,7 +15,7 @@ const CONTENT_TYPES = [
   { value: 'text-h6', label: 'Heading 6 (h6)' },
   { value: 'text-p', label: 'Paragraph (p)' },
   { value: 'image', label: 'Image' },
-  { value: 'link', label: 'Hyperlink' }, // নতুন টাইপ যোগ করুন
+  { value: 'link', label: 'Hyperlink' },
 ];
 
 const AddBlogPostPage = () => {
@@ -36,12 +38,12 @@ const AddBlogPostPage = () => {
       bulletPoints: [],
       alt: '',
       image: null,
-      href: '', // New Field URL
-      target: '_blank', // NEW Field Target
+      href: '',
+      target: '_blank'
     }],
     keyPoints: [],
     tags: [],
-    // SEO Field
+    // SEO fields
     structuredData: '',
     faqs: [{ question: '', answer: '' }],
     lsiKeywords: [],
@@ -57,6 +59,7 @@ const AddBlogPostPage = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mainImagePreview, setMainImagePreview] = useState('');
 
   useEffect(() => {
     if (session?.user?.name) {
@@ -93,113 +96,214 @@ const AddBlogPostPage = () => {
     }
   };
 
-
   const handleShortDescriptionChange = (index, value) => {
-    const updatedDescriptions = [...formData.shortDescriptions];
-    updatedDescriptions[index] = value;
-    setFormData({ ...formData, shortDescriptions: updatedDescriptions });
+    setFormData(prev => {
+      const updatedDescriptions = [...prev.shortDescriptions];
+      updatedDescriptions[index] = value;
+      return { ...prev, shortDescriptions: updatedDescriptions };
+    });
   };
 
   const addShortDescription = () => {
-    setFormData({ ...formData, shortDescriptions: [...formData.shortDescriptions, ''] });
+    setFormData(prev => ({
+      ...prev,
+      shortDescriptions: [...prev.shortDescriptions, '']
+    }));
   };
 
   const removeShortDescription = (index) => {
-    const updatedDescriptions = formData.shortDescriptions.filter((_, i) => i !== index);
-    setFormData({ ...formData, shortDescriptions: updatedDescriptions });
+    setFormData(prev => {
+      const updatedDescriptions = prev.shortDescriptions.filter((_, i) => i !== index);
+      return { ...prev, shortDescriptions: updatedDescriptions };
+    });
   };
 
-
   const handleContentSectionChange = (index, field, value) => {
-    const updatedSections = [...formData.contentSections];
+    setFormData(prev => {
+      const updatedSections = [...prev.contentSections];
 
-    if (field === 'contentType') {
-      updatedSections[index].contentType = value;
-      // রিসেট ডেটা যখন টাইপ পরিবর্তন হয়
-      if (value.startsWith('text-')) {
-        updatedSections[index].data = '';
-        updatedSections[index].bulletPoints = [];
-        updatedSections[index].image = null;
-        updatedSections[index].alt = '';
-        updatedSections[index].href = '';
-        updatedSections[index].target = '_blank';
-      } else if (value === 'image') {
-        updatedSections[index].data = '';
-        updatedSections[index].bulletPoints = [];
-        updatedSections[index].href = '';
-        updatedSections[index].target = '_blank';
-      } else if (value === 'link') {
-        updatedSections[index].data = '';
-        updatedSections[index].bulletPoints = [];
-        updatedSections[index].image = null;
-        updatedSections[index].alt = '';
+      if (field === 'contentType') {
+        updatedSections[index].contentType = value;
+        // Reset data when changing type
+        if (value.startsWith('text-')) {
+          updatedSections[index].data = '';
+          updatedSections[index].bulletPoints = [];
+          updatedSections[index].image = null;
+          updatedSections[index].alt = '';
+          updatedSections[index].href = '';
+          updatedSections[index].target = '_blank';
+        } else if (value === 'image') {
+          updatedSections[index].data = '';
+          updatedSections[index].bulletPoints = [];
+          updatedSections[index].href = '';
+          updatedSections[index].target = '_blank';
+        } else if (value === 'link') {
+          updatedSections[index].data = '';
+          updatedSections[index].bulletPoints = [];
+          updatedSections[index].image = null;
+          updatedSections[index].alt = '';
+        }
+      } else if (field === 'bulletPoints') {
+        const points = value.split(',').map(p => p.trim()).filter(p => p);
+        updatedSections[index].bulletPoints = points;
+      } else {
+        updatedSections[index][field] = value;
       }
-    } else if (field === 'bulletPoints') {
-      const points = value.split(',').map(p => p.trim()).filter(p => p);
-      updatedSections[index].bulletPoints = points;
-    } else {
-      updatedSections[index][field] = value;
-    }
 
-    setFormData({ ...formData, contentSections: updatedSections });
+      return { ...prev, contentSections: updatedSections };
+    });
   };
 
   const handleFileChange = (e, index = null) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
     if (e.target.name === 'mainImage') {
-      setFormData({ ...formData, mainImage: e.target.files[0] });
+      setFormData(prev => ({ ...prev, mainImage: file }));
+      setMainImagePreview(URL.createObjectURL(file));
     } else if (index !== null) {
-      const updatedSections = [...formData.contentSections];
-      updatedSections[index].image = e.target.files[0];
-      setFormData({ ...formData, contentSections: updatedSections });
+      setFormData(prev => {
+        const updatedSections = [...prev.contentSections];
+        updatedSections[index].image = file;
+        return { ...prev, contentSections: updatedSections };
+      });
     }
   };
 
-
   const addContentSection = () => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       contentSections: [
-        ...formData.contentSections,
+        ...prev.contentSections,
         {
           contentType: 'text-p',
           data: '',
           bulletPoints: [],
           alt: '',
           image: null,
-          href: '', // নতুন ফিল্ড
-          target: '_blank', // নতুন ফিল্ড
+          href: '',
+          target: '_blank'
         }
       ],
-    });
+    }));
   };
 
   const removeContentSection = (index) => {
-    const updatedSections = formData.contentSections.filter((_, i) => i !== index);
-    setFormData({ ...formData, contentSections: updatedSections });
+    setFormData(prev => {
+      const updatedSections = prev.contentSections.filter((_, i) => i !== index);
+      return { ...prev, contentSections: updatedSections };
+    });
   };
 
   const handleKeyPointsChange = (index, value) => {
-    const updatedKeyPoints = [...formData.keyPoints];
-    updatedKeyPoints[index] = value;
-    setFormData({ ...formData, keyPoints: updatedKeyPoints });
+    setFormData(prev => {
+      const updatedKeyPoints = [...prev.keyPoints];
+      updatedKeyPoints[index] = value;
+      return { ...prev, keyPoints: updatedKeyPoints };
+    });
   };
 
   const addKeyPoint = () => {
-    setFormData({ ...formData, keyPoints: [...formData.keyPoints, ''] });
+    setFormData(prev => ({ ...prev, keyPoints: [...prev.keyPoints, ''] }));
   };
 
   const handleTagsChange = (index, value) => {
-    const updatedTags = [...formData.tags];
-    updatedTags[index] = value;
-    setFormData({ ...formData, tags: updatedTags });
+    setFormData(prev => {
+      const updatedTags = [...prev.tags];
+      updatedTags[index] = value;
+      return { ...prev, tags: updatedTags };
+    });
   };
 
   const addTag = () => {
-    setFormData({ ...formData, tags: [...formData.tags, ''] });
+    setFormData(prev => ({ ...prev, tags: [...prev.tags, ''] }));
+  };
+
+  // SEO field handlers
+  const handleFAQChange = (index, field, value) => {
+    setFormData(prev => {
+      const updatedFAQs = [...prev.faqs];
+      updatedFAQs[index][field] = value;
+      return { ...prev, faqs: updatedFAQs };
+    });
+  };
+
+  const addFAQ = () => {
+    setFormData(prev => ({
+      ...prev,
+      faqs: [...prev.faqs, { question: '', answer: '' }]
+    }));
+  };
+
+  const removeFAQ = (index) => {
+    setFormData(prev => {
+      const updatedFAQs = prev.faqs.filter((_, i) => i !== index);
+      return { ...prev, faqs: updatedFAQs };
+    });
+  };
+
+  const handleDirectAnswerChange = (index, field, value) => {
+    setFormData(prev => {
+      const updatedDirectAnswers = [...prev.directAnswers];
+      updatedDirectAnswers[index][field] = value;
+      return { ...prev, directAnswers: updatedDirectAnswers };
+    });
+  };
+
+  const addDirectAnswer = () => {
+    setFormData(prev => ({
+      ...prev,
+      directAnswers: [...prev.directAnswers, { question: '', answer: '' }]
+    }));
+  };
+
+  const removeDirectAnswer = (index) => {
+    setFormData(prev => {
+      const updatedDirectAnswers = prev.directAnswers.filter((_, i) => i !== index);
+      return { ...prev, directAnswers: updatedDirectAnswers };
+    });
+  };
+
+  const handleCitationChange = (index, field, value) => {
+    setFormData(prev => {
+      const updatedCitations = [...prev.citations];
+      updatedCitations[index][field] = value;
+      return { ...prev, citations: updatedCitations };
+    });
+  };
+
+  const addCitation = () => {
+    setFormData(prev => ({
+      ...prev,
+      citations: [...prev.citations, { source: '', link: '' }]
+    }));
+  };
+
+  const removeCitation = (index) => {
+    setFormData(prev => {
+      const updatedCitations = prev.citations.filter((_, i) => i !== index);
+      return { ...prev, citations: updatedCitations };
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validation
+    if (!formData.mainImage) {
+      toast.error('Main image is required');
+      return;
+    }
+
+    const hasEmptyImageSection = formData.contentSections.some(
+      section => section.contentType === 'image' && !section.image
+    );
+
+    if (hasEmptyImageSection) {
+      toast.error('Please upload an image for all image sections');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -217,20 +321,19 @@ const AddBlogPostPage = () => {
       }
 
       // Process content sections for API
-      const contentSections = formData.contentSections.map(section => {
+      const contentSections = formData.contentSections.map((section, index) => {
         if (section.contentType === 'image') {
           if (section.image) {
             formDataToSend.append('contentImages', section.image);
             return {
               type: 'image',
-              data: section.image.name,
+              data: `image-${index}-${Date.now()}`,
               alt: section.alt || '',
               tag: 'image'
             };
           }
           throw new Error('Image file is required for image sections');
         } else if (section.contentType === 'link') {
-          // লিঙ্ক সেকশন প্রসেসিং
           if (!section.data.trim() || !section.href.trim()) {
             throw new Error('Link text and URL are required for link sections');
           }
@@ -242,7 +345,6 @@ const AddBlogPostPage = () => {
             target: section.target || '_blank'
           };
         } else {
-          // টেক্সট সেকশন প্রসেসিং
           const [_, tag] = section.contentType.split('-');
           if (!section.data.trim()) {
             throw new Error('Content cannot be empty for text sections');
@@ -265,7 +367,7 @@ const AddBlogPostPage = () => {
       formDataToSend.append('tags', JSON.stringify(formData.tags.filter(t => t.trim())));
       formDataToSend.append('categories', JSON.stringify([formData.category].filter(c => c.trim())));
 
-      // SEO ফিল্ডগুলো যোগ করুন
+      // SEO fields
       formDataToSend.append('structuredData', formData.structuredData);
       formDataToSend.append('faqs', JSON.stringify(formData.faqs));
       formDataToSend.append('lsiKeywords', JSON.stringify(formData.lsiKeywords));
@@ -300,8 +402,6 @@ const AddBlogPostPage = () => {
     }
   };
 
-
-
   if (status === 'loading') {
     return <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">Loading...</div>;
   }
@@ -317,36 +417,94 @@ const AddBlogPostPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-gray-300 mb-2 text-sm font-medium">Title *</label>
-              <input type="text" name="title" value={formData.title} onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter blog title (10-75 characters)" maxLength="75" required />
-              <div className="text-right text-xs text-gray-500 mt-1">{(formData.title || '').length}/75 characters</div>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="Enter blog title (10-75 characters)"
+                maxLength="75"
+                required
+              />
+              <div className="text-right text-xs text-gray-500 mt-1">{formData.title.length}/75 characters</div>
             </div>
             <div>
               <label className="block text-gray-300 mb-2 text-sm font-medium">Slug *</label>
-              <input type="text" name="slug" value={formData.slug} onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Auto-generated from title" maxLength="75" required />
-              <div className="text-right text-xs text-gray-500 mt-1">{(formData.slug || '').length}/75 characters</div>
+              <input
+                type="text"
+                name="slug"
+                value={formData.slug}
+                onChange={handleChange}
+                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="Auto-generated from title"
+                maxLength="75"
+                required
+              />
+              <div className="text-right text-xs text-gray-500 mt-1">{formData.slug.length}/75 characters</div>
             </div>
             <div>
               <label className="block text-gray-300 mb-2 text-sm font-medium">Meta Title *</label>
-              <input type="text" name="metaTitle" value={formData.metaTitle} onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter meta title (10-75 characters)" maxLength="75" required />
-              <div className="text-right text-xs text-gray-500 mt-1">{(formData.metaTitle || '').length}/75 characters</div>
+              <input
+                type="text"
+                name="metaTitle"
+                value={formData.metaTitle}
+                onChange={handleChange}
+                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="Enter meta title (10-75 characters)"
+                maxLength="75"
+                required
+              />
+              <div className="text-right text-xs text-gray-500 mt-1">{formData.metaTitle.length}/75 characters</div>
             </div>
             <div>
               <label className="block text-gray-300 mb-2 text-sm font-medium">Category *</label>
               <div className="relative">
-                <input type="text" name="category" value={formData.category} onChange={handleChange} list="categorySuggestions" className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Select or enter new category" required />
-                <datalist id="categorySuggestions">{formData.categories.map((cat, index) => (<option key={index} value={cat} />))}</datalist>
+                <input
+                  type="text"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  list="categorySuggestions"
+                  className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Select or enter new category"
+                  required
+                />
+                <datalist id="categorySuggestions">
+                  {formData.categories.map((cat, index) => (
+                    <option key={index} value={cat} />
+                  ))}
+                </datalist>
               </div>
             </div>
             <div>
               <label className="block text-gray-300 mb-2 text-sm font-medium">Author *</label>
-              <input type="text" name="author" value={formData.author} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-not-allowed" readOnly disabled />
+              <input
+                type="text"
+                name="author"
+                value={formData.author}
+                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-not-allowed"
+                readOnly
+                disabled
+              />
             </div>
           </div>
+
           <div>
             <label className="block text-gray-300 mb-2 text-sm font-medium">Meta Description *</label>
-            <textarea name="metaDescription" value={formData.metaDescription} onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter meta description (50-160 characters)" rows="3" maxLength="160" required />
-            <div className="text-right text-xs text-gray-500 mt-1">{(formData.metaDescription || '').length}/160 characters</div>
+            <textarea
+              name="metaDescription"
+              value={formData.metaDescription}
+              onChange={handleChange}
+              className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter meta description (50-160 characters)"
+              rows="3"
+              maxLength="160"
+              required
+            />
+            <div className="text-right text-xs text-gray-500 mt-1">{formData.metaDescription.length}/160 characters</div>
           </div>
+
           <div className="space-y-4">
             <label className="block text-gray-300 text-sm font-medium">Short Descriptions (Optional)</label>
             {formData.shortDescriptions.map((desc, index) => (
@@ -373,20 +531,41 @@ const AddBlogPostPage = () => {
               <span className="mr-1">+</span> Add Another Short Description
             </button>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image 1600px × 900px (16:9 aspect ratio) *</label>
+              <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image *</label>
               <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center">
-                <input type="file" name="mainImage" onChange={handleFileChange} className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700" accept="image/*" required />
+                <input
+                  type="file"
+                  name="mainImage"
+                  onChange={handleFileChange}
+                  className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+                  accept="image/*"
+                  required
+                />
                 <p className="mt-2 text-xs text-gray-500">Recommended: WebP format, 1200x630px</p>
+                {mainImagePreview && (
+                  <div className="mt-4">
+                    <p className="text-xs text-gray-400 mb-1">Preview:</p>
+                    <img src={mainImagePreview} alt="Preview" className="h-32 object-contain mx-auto rounded" />
+                  </div>
+                )}
               </div>
             </div>
             <div>
               <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image Alt Text *</label>
-              <input type="text" name="imageAlt" value={formData.imageAlt} onChange={handleChange} className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Describe the image for accessibility" required />
+              <input
+                type="text"
+                name="imageAlt"
+                value={formData.imageAlt}
+                onChange={handleChange}
+                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="Describe the image for accessibility"
+                required
+              />
             </div>
           </div>
-
 
           {/* Content Sections */}
           <div className="space-y-6">
@@ -406,7 +585,6 @@ const AddBlogPostPage = () => {
                   )}
                 </div>
 
-                {/* Content Type Selector */}
                 <div className="mb-4">
                   <label className="block text-gray-300 mb-2 text-sm">Content Type *</label>
                   <select
@@ -547,7 +725,6 @@ const AddBlogPostPage = () => {
                     </div>
                   </>
                 )}
-
               </div>
             ))}
 
@@ -560,27 +737,41 @@ const AddBlogPostPage = () => {
             </button>
           </div>
 
-
           <div className="space-y-4">
             <label className="block text-gray-300 text-sm font-medium">Key Points (Optional)</label>
             {formData.keyPoints.map((point, index) => (
               <div key={index} className="flex items-center space-x-2">
-                <input type="text" value={point} onChange={(e) => handleKeyPointsChange(index, e.target.value)} className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter key point" />
+                <input
+                  type="text"
+                  value={point}
+                  onChange={(e) => handleKeyPointsChange(index, e.target.value)}
+                  className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Enter key point"
+                />
               </div>
             ))}
-            <button type="button" onClick={addKeyPoint} className="flex items-center text-purple-400 hover:text-purple-300 text-sm"><span className="mr-1">+</span> Add Key Point</button>
+            <button type="button" onClick={addKeyPoint} className="flex items-center text-purple-400 hover:text-purple-300 text-sm">
+              <span className="mr-1">+</span> Add Key Point
+            </button>
           </div>
+
           <div className="space-y-4">
             <label className="block text-gray-300 text-sm font-medium">Tags (Optional)</label>
             {formData.tags.map((tag, index) => (
               <div key={index} className="flex items-center space-x-2">
-                <input type="text" value={tag} onChange={(e) => handleTagsChange(index, e.target.value)} className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter tag" />
+                <input
+                  type="text"
+                  value={tag}
+                  onChange={(e) => handleTagsChange(index, e.target.value)}
+                  className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Enter tag"
+                />
               </div>
             ))}
-            <button type="button" onClick={addTag} className="flex items-center text-purple-400 hover:text-purple-300 text-sm"><span className="mr-1">+</span> Add Tag</button>
+            <button type="button" onClick={addTag} className="flex items-center text-purple-400 hover:text-purple-300 text-sm">
+              <span className="mr-1">+</span> Add Tag
+            </button>
           </div>
-
-
 
           {/* SEO Optimization Section */}
           <div className="bg-gray-800/50 rounded-xl p-5 border border-gray-700">
@@ -592,13 +783,12 @@ const AddBlogPostPage = () => {
                 <select
                   name="language"
                   value={formData.language}
-                  onChange={(e) => setFormData({ ...formData, language: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, language: e.target.value }))}
                   className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="en">English</option>
                   <option value="bn">Bengali</option>
                   <option value="hi">Hindi</option>
-                  {/* Add other language options as needed */}
                 </select>
               </div>
 
@@ -608,7 +798,7 @@ const AddBlogPostPage = () => {
                   id="sgeOptimized"
                   name="sgeOptimized"
                   checked={formData.sgeOptimized}
-                  onChange={(e) => setFormData({ ...formData, sgeOptimized: e.target.checked })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, sgeOptimized: e.target.checked }))}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-700 rounded"
                 />
                 <label htmlFor="sgeOptimized" className="ml-2 block text-sm text-gray-300">
@@ -622,7 +812,7 @@ const AddBlogPostPage = () => {
                   id="expertAuthor"
                   name="expertAuthor"
                   checked={formData.expertAuthor}
-                  onChange={(e) => setFormData({ ...formData, expertAuthor: e.target.checked })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, expertAuthor: e.target.checked }))}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-700 rounded"
                 />
                 <label htmlFor="expertAuthor" className="ml-2 block text-sm text-gray-300">
@@ -640,10 +830,10 @@ const AddBlogPostPage = () => {
                   <input
                     type="text"
                     value={formData.geoLocation.targetCountry}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      geoLocation: { ...formData.geoLocation, targetCountry: e.target.value }
-                    })}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      geoLocation: { ...prev.geoLocation, targetCountry: e.target.value }
+                    }))}
                     className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="e.g., Bangladesh"
                   />
@@ -653,10 +843,10 @@ const AddBlogPostPage = () => {
                   <input
                     type="text"
                     value={formData.geoLocation.targetCity}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      geoLocation: { ...formData.geoLocation, targetCity: e.target.value }
-                    })}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      geoLocation: { ...prev.geoLocation, targetCity: e.target.value }
+                    }))}
                     className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     placeholder="e.g., Dhaka"
                   />
@@ -676,7 +866,7 @@ const AddBlogPostPage = () => {
                       onClick={() => {
                         const updated = [...formData.lsiKeywords];
                         updated.splice(index, 1);
-                        setFormData({ ...formData, lsiKeywords: updated });
+                        setFormData(prev => ({ ...prev, lsiKeywords: updated }));
                       }}
                       className="ml-2 text-red-400 hover:text-red-300"
                     >
