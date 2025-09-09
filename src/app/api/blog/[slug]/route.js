@@ -15,21 +15,19 @@ export async function GET(request, { params }) {
       { $inc: { views: 1 } },
       { new: true }
     );
-
     if (!blog) {
       return new Response(JSON.stringify({ error: 'Blog not found' }), {
         status: 404,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0' },
       });
     }
-
     return new Response(JSON.stringify(blog), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0' },
     });
   } catch (error) {
     return new Response(JSON.stringify({ error: 'Failed to fetch blog' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0' },
     });
   }
 }
@@ -40,37 +38,25 @@ export async function PUT(req, { params }) {
 
   try {
     const formData = await req.formData();
-    const blog = await Blog.findOne({ slug });
 
+    const blog = await Blog.findOne({ slug });
     if (!blog) {
       return NextResponse.json(
         { success: false, error: 'Blog not found' },
-        { status: 404 }
-      );
-    }
-
-    // Validate required fields
-    const requiredFields = ['title', 'metaTitle', 'metaDescription', 'author'];
-    const missingFields = requiredFields.filter(field => !formData.get(field));
-    if (missingFields.length > 0) {
-      return NextResponse.json(
-        { success: false, error: `Missing required fields: ${missingFields.join(', ')}` },
-        { status: 400 }
+        { status: 404, headers: { 'Cache-Control': 'no-store, max-age=0' } }
       );
     }
 
     // Update basic fields
-    blog.title = formData.get('title');
-    blog.metaTitle = formData.get('metaTitle');
-    blog.metaDescription = formData.get('metaDescription');
-    blog.author = formData.get('author');
-    blog.imageAlt = formData.get('imageAlt') || '';
+    if (formData.get('title')) blog.title = formData.get('title');
+    if (formData.get('slug')) blog.slug = formData.get('slug');
+    if (formData.get('metaTitle')) blog.metaTitle = formData.get('metaTitle');
+    if (formData.get('metaDescription')) blog.metaDescription = formData.get('metaDescription');
+    if (formData.get('imageAlt')) blog.imageAlt = formData.get('imageAlt');
+    if (formData.get('author')) blog.author = formData.get('author');
 
     // Handle JSON fields
-    const jsonFields = ['shortDescriptions', 'keyPoints', 'tags', 'categories', 'faqs',
-      'lsiKeywords', 'semanticRelatedTerms', 'geoLocation',
-      'conversationalPhrases', 'directAnswers', 'citations'];
-
+    const jsonFields = ['shortDescriptions', 'keyPoints', 'tags', 'categories', 'faqs', 'lsiKeywords', 'semanticRelatedTerms', 'geoLocation', 'conversationalPhrases', 'directAnswers', 'citations'];
     for (const field of jsonFields) {
       if (formData.has(field)) {
         try {
@@ -78,7 +64,7 @@ export async function PUT(req, { params }) {
         } catch (error) {
           return NextResponse.json(
             { success: false, error: `Invalid ${field} format` },
-            { status: 400 }
+            { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
           );
         }
       }
@@ -92,11 +78,11 @@ export async function PUT(req, { params }) {
       const result = await new Promise((resolve, reject) => {
         cloudinary.uploader.upload_stream(
           {
-            folder: 'blog_main_images',
+            folder: 'blog_images',
             format: 'webp',
             quality: 'auto',
             width: 1200,
-            height: 628,
+            height: 630,
             crop: 'fill', // Auto crop to fill the dimensions
             gravity: 'auto' // Auto detect the best area to focus on
           },
@@ -106,10 +92,7 @@ export async function PUT(req, { params }) {
       blog.mainImage = result.secure_url;
     }
 
-
-
     // Process content sections
-    // Process content images with auto-crop
     if (formData.has('content')) {
       let content;
       try {
@@ -117,7 +100,7 @@ export async function PUT(req, { params }) {
       } catch (error) {
         return NextResponse.json(
           { success: false, error: 'Invalid content format' },
-          { status: 400 }
+          { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
         );
       }
 
@@ -128,7 +111,6 @@ export async function PUT(req, { params }) {
         content.map(async (item) => {
           if (item.type === 'image') {
             if (item.data && (item.data.startsWith('http://') || item.data.startsWith('https://'))) {
-              // Existing image - keep the URL
               return {
                 type: 'image',
                 data: item.data,
@@ -136,7 +118,6 @@ export async function PUT(req, { params }) {
                 tag: 'image'
               };
             } else {
-              // New image upload with auto-crop
               const imageFile = contentImages[imageIndex];
               imageIndex++;
 
@@ -146,7 +127,7 @@ export async function PUT(req, { params }) {
                 const result = await new Promise((resolve, reject) => {
                   cloudinary.uploader.upload_stream(
                     {
-                      folder: 'blog_content_images',
+                      folder: 'blog_images/content',
                       format: 'webp',
                       quality: 'auto',
                       width: 800,
@@ -166,7 +147,6 @@ export async function PUT(req, { params }) {
               }
               throw new Error('Image file missing for image content section');
             }
-
           } else if (item.type === 'link') {
             if (!item.data?.trim() || !item.href?.trim()) {
               throw new Error('Link content and href cannot be empty');
@@ -207,11 +187,14 @@ export async function PUT(req, { params }) {
     if (formData.has('authorCredentials')) blog.authorCredentials = formData.get('authorCredentials');
 
     await blog.save();
-    return NextResponse.json({ success: true, data: blog });
+    return NextResponse.json(
+      { success: true, data: blog },
+      { headers: { 'Cache-Control': 'no-store, max-age=0' } }
+    );
   } catch (error) {
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to update blog' },
-      { status: 500 }
+      { status: 500, headers: { 'Cache-Control': 'no-store, max-age=0' } }
     );
   }
 }
