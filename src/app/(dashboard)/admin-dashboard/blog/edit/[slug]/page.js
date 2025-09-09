@@ -68,100 +68,99 @@ const UpdateBlogPostPage = () => {
     const [mainImagePreview, setMainImagePreview] = useState('');
 
     // Fetch blog data
-   useEffect(() => {
-  if (!slug || status === 'loading') {
-    setLoading(true);
-    return;
-  }
-
-  let isMounted = true;
-
-  const fetchBlog = async () => {
-    try {
-      const res = await fetch(`/api/blog/${slug}`, {
-        cache: 'no-store',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      if (!res.ok) {
-        throw new Error(`Failed to fetch blog: ${res.statusText}`);
-      }
-
-      const blog = await res.json();
-      console.log('Fetched blog data:', blog);
-
-      if (isMounted) {
-        setFormData({
-          title: blog.title || '',
-          slug: blog.slug || '',
-          metaTitle: blog.metaTitle || '',
-          category: blog.categories?.[0] || '',
-          categories: blog.categories || [],
-          author: blog.author || session?.user?.name || '',
-          metaDescription: blog.metaDescription || '',
-          shortDescriptions: blog.shortDescriptions?.length ? blog.shortDescriptions : [''],
-          mainImage: null,
-          imageAlt: blog.imageAlt || '',
-          contentSections: blog.content?.length ? blog.content.map(item => ({
-            contentType: item.type === 'image' ? 'image' :
-                         item.type === 'link' ? 'link' : `text-${item.tag || 'p'}`,
-            data: item.data || '',
-            bulletPoints: item.bulletPoints || [],
-            alt: item.alt || '',
-            image: null,
-            existingImageUrl: item.type === 'image' ? item.data : '',
-            href: item.href || '',
-            target: item.target || '_blank'
-          })) : [{
-            contentType: 'text-p',
-            data: '',
-            bulletPoints: [],
-            alt: '',
-            image: null,
-            existingImageUrl: '',
-            href: '',
-            target: '_blank'
-          }],
-          keyPoints: blog.keyPoints || [],
-          tags: blog.tags || [],
-          structuredData: blog.structuredData || '',
-          faqs: blog.faqs?.length ? blog.faqs : [{ question: '', answer: '' }],
-          lsiKeywords: blog.lsiKeywords || [],
-          semanticRelatedTerms: blog.semanticRelatedTerms || [],
-          geoLocation: blog.geoLocation || { targetCountry: '', targetCity: '' },
-          language: blog.language || 'en',
-          sgeOptimized: blog.sgeOptimized || false,
-          conversationalPhrases: blog.conversationalPhrases || [],
-          directAnswers: blog.directAnswers?.length ? blog.directAnswers : [{ question: '', answer: '' }],
-          expertAuthor: blog.expertAuthor || false,
-          authorCredentials: blog.authorCredentials || '',
-          citations: blog.citations?.length ? blog.citations : [{ source: '', link: '' }],
-        });
-
-        if (blog.mainImage) {
-          setMainImagePreview(blog.mainImage);
+    useEffect(() => {
+        if (!slug || status === 'loading') {
+            setLoading(true);
+            return;
         }
-      }
-    } catch (error) {
-      console.error('Error fetching blog:', error);
-      if (isMounted) {
-        setError(error.message);
-        toast.error('Failed to load blog data');
-      }
-    } finally {
-      if (isMounted) {
-        setLoading(false);
-      }
-    }
-  };
 
-  fetchBlog();
+        let isMounted = true;
 
-  return () => {
-    isMounted = false;
-  };
-}, [slug, status]);
+        const fetchBlog = async () => {
+            try {
+                const res = await fetch(`/api/blog/${slug}`, {
+                    cache: 'no-store',
+                    headers: { 'Content-Type': 'application/json' }
+                });
 
+                if (!res.ok) {
+                    throw new Error(`Failed to fetch blog: ${res.statusText}`);
+                }
+
+                const blog = await res.json();
+                console.log('Fetched blog data:', blog);
+
+                if (isMounted) {
+                    setFormData({
+                        title: blog.title || '',
+                        slug: blog.slug || '',
+                        metaTitle: blog.metaTitle || '',
+                        category: blog.categories?.[0] || '',
+                        categories: blog.categories || [],
+                        author: blog.author || session?.user?.name || '',
+                        metaDescription: blog.metaDescription || '',
+                        shortDescriptions: blog.shortDescriptions?.length ? blog.shortDescriptions : [''],
+                        mainImage: null,
+                        imageAlt: blog.imageAlt || '',
+                        contentSections: blog.content?.length ? blog.content.map(item => ({
+                            contentType: item.type === 'image' ? 'image' :
+                                item.type === 'link' ? 'link' : `text-${item.tag || 'p'}`,
+                            data: item.data || '',
+                            bulletPoints: item.bulletPoints || [],
+                            alt: item.alt || '',
+                            image: null,
+                            existingImageUrl: item.type === 'image' ? item.data : '',
+                            href: item.href || '',
+                            target: item.target || '_blank'
+                        })) : [{
+                            contentType: 'text-p',
+                            data: '',
+                            bulletPoints: [],
+                            alt: '',
+                            image: null,
+                            existingImageUrl: '',
+                            href: '',
+                            target: '_blank'
+                        }],
+                        keyPoints: blog.keyPoints || [],
+                        tags: blog.tags || [],
+                        structuredData: blog.structuredData || '',
+                        faqs: blog.faqs?.length ? blog.faqs : [{ question: '', answer: '' }],
+                        lsiKeywords: blog.lsiKeywords || [],
+                        semanticRelatedTerms: blog.semanticRelatedTerms || [],
+                        geoLocation: blog.geoLocation || { targetCountry: '', targetCity: '' },
+                        language: blog.language || 'en',
+                        sgeOptimized: blog.sgeOptimized || false,
+                        conversationalPhrases: blog.conversationalPhrases || [],
+                        directAnswers: blog.directAnswers?.length ? blog.directAnswers : [{ question: '', answer: '' }],
+                        expertAuthor: blog.expertAuthor || false,
+                        authorCredentials: blog.authorCredentials || '',
+                        citations: blog.citations?.length ? blog.citations : [{ source: '', link: '' }],
+                    });
+
+                    if (blog.mainImage) {
+                        setMainImagePreview(blog.mainImage);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching blog:', error);
+                if (isMounted) {
+                    setError(error.message);
+                    toast.error('Failed to load blog data');
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        fetchBlog();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [slug, status]);
 
     // Update author based on session
     useEffect(() => {
@@ -173,12 +172,17 @@ const UpdateBlogPostPage = () => {
     // Handle input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
-        console.log(`Input change - ${name}: ${value}`);
+
         if (name === 'title') {
+            const newSlug = value.toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .slice(0, 75);
+
             setFormData(prev => ({
                 ...prev,
                 title: value,
-                slug: value.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').slice(0, 75),
+                slug: newSlug,
                 metaTitle: value.slice(0, 75),
             }));
         } else {
@@ -292,6 +296,13 @@ const UpdateBlogPostPage = () => {
         setFormData(prev => ({ ...prev, keyPoints: [...prev.keyPoints, ''] }));
     };
 
+    const removeKeyPoint = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            keyPoints: prev.keyPoints.filter((_, i) => i !== index)
+        }));
+    };
+
     // Handle tags
     const handleTagsChange = (index, value) => {
         setFormData(prev => {
@@ -303,6 +314,73 @@ const UpdateBlogPostPage = () => {
 
     const addTag = () => {
         setFormData(prev => ({ ...prev, tags: [...prev.tags, ''] }));
+    };
+
+    const removeTag = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            tags: prev.tags.filter((_, i) => i !== index)
+        }));
+    };
+
+    // Handle LSI keywords
+    const handleLSIKeywordsChange = (index, value) => {
+        setFormData(prev => {
+            const updatedLSIKeywords = [...prev.lsiKeywords];
+            updatedLSIKeywords[index] = value;
+            return { ...prev, lsiKeywords: updatedLSIKeywords };
+        });
+    };
+
+    const addLSIKeyword = () => {
+        setFormData(prev => ({ ...prev, lsiKeywords: [...prev.lsiKeywords, ''] }));
+    };
+
+    const removeLSIKeyword = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            lsiKeywords: prev.lsiKeywords.filter((_, i) => i !== index)
+        }));
+    };
+
+    // Handle semantic related terms
+    const handleSemanticRelatedTermsChange = (index, value) => {
+        setFormData(prev => {
+            const updatedTerms = [...prev.semanticRelatedTerms];
+            updatedTerms[index] = value;
+            return { ...prev, semanticRelatedTerms: updatedTerms };
+        });
+    };
+
+    const addSemanticRelatedTerm = () => {
+        setFormData(prev => ({ ...prev, semanticRelatedTerms: [...prev.semanticRelatedTerms, ''] }));
+    };
+
+    const removeSemanticRelatedTerm = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            semanticRelatedTerms: prev.semanticRelatedTerms.filter((_, i) => i !== index)
+        }));
+    };
+
+    // Handle conversational phrases
+    const handleConversationalPhrasesChange = (index, value) => {
+        setFormData(prev => {
+            const updatedPhrases = [...prev.conversationalPhrases];
+            updatedPhrases[index] = value;
+            return { ...prev, conversationalPhrases: updatedPhrases };
+        });
+    };
+
+    const addConversationalPhrase = () => {
+        setFormData(prev => ({ ...prev, conversationalPhrases: [...prev.conversationalPhrases, ''] }));
+    };
+
+    const removeConversationalPhrase = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            conversationalPhrases: prev.conversationalPhrases.filter((_, i) => i !== index)
+        }));
     };
 
     // Handle FAQs
@@ -374,23 +452,30 @@ const UpdateBlogPostPage = () => {
         });
     };
 
+    // Handle geoLocation changes
+    const handleGeoLocationChange = (field, value) => {
+        setFormData(prev => ({
+            ...prev,
+            geoLocation: { ...prev.geoLocation, [field]: value }
+        }));
+    };
+
+
+
+
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Validation - Check if main image exists (only for new uploads)
+        if (!formData.mainImage && !mainImagePreview) {
+            toast.error('Main image is required');
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
-            // Validation
-            if (!formData.title.trim()) {
-                throw new Error('Title is required');
-            }
-            if (!formData.metaTitle.trim()) {
-                throw new Error('Meta title is required');
-            }
-            if (!formData.metaDescription.trim()) {
-                throw new Error('Meta description is required');
-            }
-
             const formDataToSend = new FormData();
             formDataToSend.append('title', formData.title);
             formDataToSend.append('slug', formData.slug);
@@ -404,14 +489,14 @@ const UpdateBlogPostPage = () => {
                 formDataToSend.append('mainImage', formData.mainImage);
             }
 
-            // Process content sections
+            // Process content sections for API
             const contentSections = formData.contentSections.map((section, index) => {
                 if (section.contentType === 'image') {
                     if (section.image) {
                         formDataToSend.append('contentImages', section.image);
                         return {
                             type: 'image',
-                            data: section.image.name,
+                            data: `image-${index}-${Date.now()}`,
                             alt: section.alt || '',
                             tag: 'image'
                         };
@@ -423,7 +508,7 @@ const UpdateBlogPostPage = () => {
                             tag: 'image'
                         };
                     }
-                    throw new Error('Image file or existing URL is required for image sections');
+                    throw new Error('Image file is required for image sections');
                 } else if (section.contentType === 'link') {
                     if (!section.data.trim() || !section.href.trim()) {
                         throw new Error('Link text and URL are required for link sections');
@@ -436,7 +521,7 @@ const UpdateBlogPostPage = () => {
                         target: section.target || '_blank'
                     };
                 } else {
-                    const tag = section.contentType.split('-')[1] || 'p';
+                    const [_, tag] = section.contentType.split('-');
                     if (!section.data.trim()) {
                         throw new Error('Content cannot be empty for text sections');
                     }
@@ -449,15 +534,16 @@ const UpdateBlogPostPage = () => {
                 }
             }).filter(section => section);
 
-            console.log('Prepared contentSections:', contentSections);
-            for (let pair of formDataToSend.entries()) {
-                console.log(`FormData: ${pair[0]}:`, pair[1]);
+            if (contentSections.length === 0) {
+                throw new Error('At least one valid content section is required');
             }
 
             formDataToSend.append('content', JSON.stringify(contentSections));
             formDataToSend.append('keyPoints', JSON.stringify(formData.keyPoints.filter(p => p.trim())));
             formDataToSend.append('tags', JSON.stringify(formData.tags.filter(t => t.trim())));
             formDataToSend.append('categories', JSON.stringify([formData.category].filter(c => c.trim())));
+
+            // SEO fields
             formDataToSend.append('structuredData', formData.structuredData);
             formDataToSend.append('faqs', JSON.stringify(formData.faqs));
             formDataToSend.append('lsiKeywords', JSON.stringify(formData.lsiKeywords));
@@ -474,7 +560,6 @@ const UpdateBlogPostPage = () => {
             const response = await fetch(`/api/blog/${slug}`, {
                 method: 'PUT',
                 body: formDataToSend,
-                headers: { 'Cache-Control': 'no-cache' }
             });
 
             if (!response.ok) {
@@ -483,11 +568,9 @@ const UpdateBlogPostPage = () => {
             }
 
             const result = await response.json();
-            console.log('Update response:', result);
             toast.success('Blog post updated successfully!');
             router.push('/admin-dashboard/blog/allblogs');
         } catch (error) {
-            console.error('Submission error:', error);
             toast.error(error.message || 'Failed to update blog post');
         } finally {
             setIsSubmitting(false);
@@ -615,27 +698,48 @@ const UpdateBlogPostPage = () => {
                         <div className="text-right text-xs text-gray-500 mt-1">{formData.metaDescription.length}/160 characters</div>
                     </div>
 
-                    <div>
-                        <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image</label>
-                        <input
-                            type="file"
-                            name="mainImage"
-                            onChange={handleFileChange}
-                            className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
-                            accept="image/*"
-                        />
-                        {mainImagePreview && (
-                            <div className="mt-2">
-                                <Image
-                                    src={mainImagePreview}
-                                    alt="Main image preview"
-                                    width={128}
-                                    height={128}
-                                    className="object-contain mx-auto"
+                    {/* Main Image Section */}
+                    {/* Main Image Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">
+                                Main Image *
+                            </label>
+                            <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center">
+                                <input
+                                    type="file"
+                                    name="mainImage"
+                                    onChange={handleFileChange}
+                                    className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+                                    accept="image/*"
+                                    required
                                 />
+                                <p className="mt-2 text-xs text-gray-500">
+                                    Recommended: 1200×628 pixels (will be automatically resized)
+                                </p>
+                                {mainImagePreview && (
+                                    <div className="mt-4">
+                                        <p className="text-xs text-gray-400 mb-1">Preview:</p>
+                                        <img src={mainImagePreview} alt="Preview" className="h-32 object-contain mx-auto rounded" />
+                                    </div>
+                                )}
                             </div>
-                        )}
+                        </div>
+                        <div>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image Alt Text *</label>
+                            <input
+                                type="text"
+                                name="imageAlt"
+                                value={formData.imageAlt}
+                                onChange={handleChange}
+                                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                placeholder="Describe the image for accessibility"
+                                required
+                            />
+                        </div>
                     </div>
+
+
 
                     <div className="space-y-6">
                         <label className="block text-gray-300 text-sm font-medium">Content Sections</label>
@@ -710,28 +814,43 @@ const UpdateBlogPostPage = () => {
                                 {section.contentType === 'image' && (
                                     <>
                                         <div className="mb-4">
-                                            <label className="block text-gray-300 mb-2 text-sm">Image</label>
+                                            <label className="block text-gray-300 mb-2 text-sm">Image *</label>
                                             <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center">
                                                 <input
                                                     type="file"
                                                     onChange={(e) => handleFileChange(e, index)}
                                                     className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
                                                     accept="image/*"
+                                                    required
                                                 />
+                                                <p className="mt-2 text-xs text-gray-500">
+                                                    Recommended: 800×600 pixels (will be automatically resized)
+                                                </p>
                                                 {section.existingImageUrl && !section.image && (
                                                     <div className="mt-2">
                                                         <p className="text-xs text-gray-400 mb-1">Current Image:</p>
-                                                        <Image
+                                                        <img
                                                             src={section.existingImageUrl}
                                                             alt="Current content"
-                                                            width={128}
-                                                            height={128}
-                                                            className="object-contain mx-auto"
+                                                            className="h-32 object-contain mx-auto"
                                                         />
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
+                                        <div className="mb-4">
+                                            <label className="block text-gray-300 mb-2 text-sm">Image Alt Text *</label>
+                                            <input
+                                                type="text"
+                                                value={section.alt || ''}
+                                                onChange={(e) => handleContentSectionChange(index, 'alt', e.target.value)}
+                                                className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                placeholder="Describe the image for accessibility"
+                                                required
+                                            />
+                                        </div>
+
+
                                         <div className="mb-4">
                                             <label className="block text-gray-300 mb-2 text-sm">Image Alt Text</label>
                                             <input
@@ -839,7 +958,7 @@ const UpdateBlogPostPage = () => {
                                 />
                                 <button
                                     type="button"
-                                    onClick={() => setFormData({ ...formData, keyPoints: formData.keyPoints.filter((_, i) => i !== index) })}
+                                    onClick={() => removeKeyPoint(index)}
                                     className="text-red-500 hover:text-red-400 text-sm"
                                 >
                                     Remove
@@ -868,7 +987,7 @@ const UpdateBlogPostPage = () => {
                                 />
                                 <button
                                     type="button"
-                                    onClick={() => setFormData({ ...formData, tags: formData.tags.filter((_, i) => i !== index) })}
+                                    onClick={() => removeTag(index)}
                                     className="text-red-500 hover:text-red-400 text-sm"
                                 >
                                     Remove
@@ -882,6 +1001,105 @@ const UpdateBlogPostPage = () => {
                         >
                             <span className="mr-1">+</span> Add Tag
                         </button>
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="block text-gray-300 text-sm font-medium">LSI Keywords</label>
+                        {formData.lsiKeywords.map((keyword, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                                <input
+                                    type="text"
+                                    value={keyword}
+                                    onChange={(e) => handleLSIKeywordsChange(index, e.target.value)}
+                                    className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="Enter LSI keyword"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => removeLSIKeyword(index)}
+                                    className="text-red-500 hover:text-red-400 text-sm"
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={addLSIKeyword}
+                            className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+                        >
+                            <span className="mr-1">+</span> Add LSI Keyword
+                        </button>
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="block text-gray-300 text-sm font-medium">Semantic Related Terms</label>
+                        {formData.semanticRelatedTerms.map((term, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                                <input
+                                    type="text"
+                                    value={term}
+                                    onChange={(e) => handleSemanticRelatedTermsChange(index, e.target.value)}
+                                    className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="Enter semantic related term"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => removeSemanticRelatedTerm(index)}
+                                    className="text-red-500 hover:text-red-400 text-sm"
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={addSemanticRelatedTerm}
+                            className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+                        >
+                            <span className="mr-1">+</span> Add Semantic Related Term
+                        </button>
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="block text-gray-300 text-sm font-medium">Conversational Phrases</label>
+                        {formData.conversationalPhrases.map((phrase, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                                <input
+                                    type="text"
+                                    value={phrase}
+                                    onChange={(e) => handleConversationalPhrasesChange(index, e.target.value)}
+                                    className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="Enter conversational phrase"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => removeConversationalPhrase(index)}
+                                    className="text-red-500 hover:text-red-400 text-sm"
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={addConversationalPhrase}
+                            className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+                        >
+                            <span className="mr-1">+</span> Add Conversational Phrase
+                        </button>
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="block text-gray-300 text-sm font-medium">Structured Data (JSON-LD)</label>
+                        <textarea
+                            name="structuredData"
+                            value={formData.structuredData}
+                            onChange={handleChange}
+                            className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            placeholder="Enter structured data in JSON-LD format"
+                            rows="5"
+                        />
                     </div>
 
                     <div className="space-y-4">
@@ -1016,6 +1234,82 @@ const UpdateBlogPostPage = () => {
                         >
                             <span className="mr-1">+</span> Add Citation
                         </button>
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="block text-gray-300 text-sm font-medium">Geo Location</label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-gray-300 mb-2 text-sm">Target Country</label>
+                                <input
+                                    type="text"
+                                    value={formData.geoLocation.targetCountry}
+                                    onChange={(e) => handleGeoLocationChange('targetCountry', e.target.value)}
+                                    className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="Enter target country"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-gray-300 mb-2 text-sm">Target City</label>
+                                <input
+                                    type="text"
+                                    value={formData.geoLocation.targetCity}
+                                    onChange={(e) => handleGeoLocationChange('targetCity', e.target.value)}
+                                    className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="Enter target city"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="block text-gray-300 text-sm font-medium">Language</label>
+                        <select
+                            name="language"
+                            value={formData.language}
+                            onChange={handleChange}
+                            className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        >
+                            <option value="en">English</option>
+                            <option value="bn">Bengali</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="de">German</option>
+                        </select>
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="block text-gray-300 text-sm font-medium">SGE Optimized</label>
+                        <input
+                            type="checkbox"
+                            name="sgeOptimized"
+                            checked={formData.sgeOptimized}
+                            onChange={handleChange}
+                            className="h-5 w-5 text-purple-600 bg-gray-800 border-gray-700 rounded focus:ring-purple-500"
+                        />
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="block text-gray-300 text-sm font-medium">Expert Author</label>
+                        <input
+                            type="checkbox"
+                            name="expertAuthor"
+                            checked={formData.expertAuthor}
+                            onChange={handleChange}
+                            className="h-5 w-5 text-purple-600 bg-gray-800 border-gray-700 rounded focus:ring-purple-500"
+                        />
+                    </div>
+
+                    <div className="space-y-4">
+                        <label className="block text-gray-300 text-sm font-medium">Author Credentials</label>
+                        <textarea
+                            name="authorCredentials"
+                            value={formData.authorCredentials}
+                            onChange={handleChange}
+                            className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            placeholder="Enter author credentials"
+                            rows="3"
+                        />
                     </div>
 
                     <div className="pt-4">
