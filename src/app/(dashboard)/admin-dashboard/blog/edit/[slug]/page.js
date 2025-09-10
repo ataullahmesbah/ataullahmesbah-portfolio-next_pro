@@ -1,5 +1,6 @@
 // app/admin-dashboard/blog/edit/[slug]/page.js
 
+
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -67,12 +68,14 @@ const UpdateBlogPostPage = () => {
     const [error, setError] = useState(null);
     const [mainImagePreview, setMainImagePreview] = useState('');
 
+    // Fetch blog data
     useEffect(() => {
-        if (!slug) {
-            setError('No slug provided');
-            setLoading(false);
+        if (!slug || status === 'loading') {
+            setLoading(true);
             return;
         }
+
+        let isMounted = true;
 
         const fetchBlog = async () => {
             try {
@@ -81,92 +84,111 @@ const UpdateBlogPostPage = () => {
                     headers: { 'Content-Type': 'application/json' }
                 });
 
-                if (!res.ok) throw new Error('Failed to fetch blog');
+                if (!res.ok) {
+                    throw new Error(`Failed to fetch blog: ${res.statusText}`);
+                }
+
                 const blog = await res.json();
+                console.log('Fetched blog data:', blog);
 
-                setFormData({
-                    title: blog.title || '',
-                    slug: blog.slug || '',
-                    metaTitle: blog.metaTitle || '',
-                    category: blog.categories?.[0] || '',
-                    categories: blog.categories || [],
-                    author: blog.author || session?.user?.name || '',
-                    metaDescription: blog.metaDescription || '',
-                    shortDescriptions: blog.shortDescriptions?.length ? blog.shortDescriptions : [''],
-                    mainImage: null,
-                    imageAlt: blog.imageAlt || '',
-                    contentSections: blog.content?.length ? blog.content.map(item => ({
-                        contentType: item.type === 'image' ? 'image' :
-                            item.type === 'link' ? 'link' : `text-${item.tag || 'p'}`,
-                        data: item.data || '',
-                        bulletPoints: item.bulletPoints || [],
-                        alt: item.alt || '',
-                        image: null,
-                        existingImageUrl: item.type === 'image' ? item.data : '',
-                        href: item.href || '',
-                        target: item.target || '_blank'
-                    })) : [{
-                        contentType: 'text-p',
-                        data: '',
-                        bulletPoints: [],
-                        alt: '',
-                        image: null,
-                        existingImageUrl: '',
-                        href: '',
-                        target: '_blank'
-                    }],
-                    keyPoints: blog.keyPoints || [],
-                    tags: blog.tags || [],
-                    structuredData: blog.structuredData || '',
-                    faqs: blog.faqs?.length ? blog.faqs : [{ question: '', answer: '' }],
-                    lsiKeywords: blog.lsiKeywords || [],
-                    semanticRelatedTerms: blog.semanticRelatedTerms || [],
-                    geoLocation: blog.geoLocation || { targetCountry: '', targetCity: '' },
-                    language: blog.language || 'en',
-                    sgeOptimized: blog.sgeOptimized || false,
-                    conversationalPhrases: blog.conversationalPhrases || [],
-                    directAnswers: blog.directAnswers?.length ? blog.directAnswers : [{ question: '', answer: '' }],
-                    expertAuthor: blog.expertAuthor || false,
-                    authorCredentials: blog.authorCredentials || '',
-                    citations: blog.citations?.length ? blog.citations : [{ source: '', link: '' }],
-                });
+                if (isMounted) {
+                    setFormData({
+                        title: blog.title || '',
+                        slug: blog.slug || '',
+                        metaTitle: blog.metaTitle || '',
+                        category: blog.categories?.[0] || '',
+                        categories: blog.categories || [],
+                        author: blog.author || session?.user?.name || '',
+                        metaDescription: blog.metaDescription || '',
+                        shortDescriptions: blog.shortDescriptions?.length ? blog.shortDescriptions : [''],
+                        mainImage: null,
+                        imageAlt: blog.imageAlt || '',
+                        contentSections: blog.content?.length ? blog.content.map(item => ({
+                            contentType: item.type === 'image' ? 'image' :
+                                item.type === 'link' ? 'link' : `text-${item.tag || 'p'}`,
+                            data: item.data || '',
+                            bulletPoints: item.bulletPoints || [],
+                            alt: item.alt || '',
+                            image: null,
+                            existingImageUrl: item.type === 'image' ? item.data : '',
+                            href: item.href || '',
+                            target: item.target || '_blank'
+                        })) : [{
+                            contentType: 'text-p',
+                            data: '',
+                            bulletPoints: [],
+                            alt: '',
+                            image: null,
+                            existingImageUrl: '',
+                            href: '',
+                            target: '_blank'
+                        }],
+                        keyPoints: blog.keyPoints || [],
+                        tags: blog.tags || [],
+                        structuredData: blog.structuredData || '',
+                        faqs: blog.faqs?.length ? blog.faqs : [{ question: '', answer: '' }],
+                        lsiKeywords: blog.lsiKeywords || [],
+                        semanticRelatedTerms: blog.semanticRelatedTerms || [],
+                        geoLocation: blog.geoLocation || { targetCountry: '', targetCity: '' },
+                        language: blog.language || 'en',
+                        sgeOptimized: blog.sgeOptimized || false,
+                        conversationalPhrases: blog.conversationalPhrases || [],
+                        directAnswers: blog.directAnswers?.length ? blog.directAnswers : [{ question: '', answer: '' }],
+                        expertAuthor: blog.expertAuthor || false,
+                        authorCredentials: blog.authorCredentials || '',
+                        citations: blog.citations?.length ? blog.citations : [{ source: '', link: '' }],
+                    });
 
-                if (blog.mainImage) {
-                    setMainImagePreview(blog.mainImage);
+                    if (blog.mainImage) {
+                        setMainImagePreview(blog.mainImage);
+                    }
                 }
             } catch (error) {
-                setError(error.message);
-                toast.error('Failed to load blog data');
+                console.error('Error fetching blog:', error);
+                if (isMounted) {
+                    setError(error.message);
+                    toast.error('Failed to load blog data');
+                }
             } finally {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
 
         fetchBlog();
-    }, [slug, session]);
 
+        return () => {
+            isMounted = false;
+        };
+    }, [slug, status]);
+
+    // Update author based on session
     useEffect(() => {
         if (session?.user?.name) {
             setFormData(prev => ({ ...prev, author: session.user.name }));
         }
     }, [session]);
 
+    // Handle input changes
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        if (name === 'title') {
+        console.log(`Input change - ${name}: ${value}`);
+        if (type === 'checkbox') {
+            setFormData(prev => ({ ...prev, [name]: checked }));
+        } else if (name === 'title') {
             setFormData(prev => ({
                 ...prev,
                 title: value,
                 slug: value.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').slice(0, 75),
                 metaTitle: value.slice(0, 75),
             }));
-        } else if (type === 'checkbox') {
-            setFormData(prev => ({ ...prev, [name]: checked }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
     };
 
+    // Handle short description changes
     const handleShortDescriptionChange = (index, value) => {
         setFormData(prev => {
             const updatedDescriptions = [...prev.shortDescriptions];
@@ -189,6 +211,7 @@ const UpdateBlogPostPage = () => {
         });
     };
 
+    // Handle content section changes
     const handleContentSectionChange = (index, field, value) => {
         setFormData(prev => {
             const updatedSections = [...prev.contentSections];
@@ -209,10 +232,12 @@ const UpdateBlogPostPage = () => {
             } else {
                 updatedSections[index][field] = value;
             }
+            console.log(`Updated content section ${index}:`, updatedSections[index]);
             return { ...prev, contentSections: updatedSections };
         });
     };
 
+    // Handle file changes
     const handleFileChange = (e, index = null) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -224,6 +249,7 @@ const UpdateBlogPostPage = () => {
             setFormData(prev => {
                 const updatedSections = [...prev.contentSections];
                 updatedSections[index] = { ...updatedSections[index], image: file, existingImageUrl: '' };
+                console.log(`Updated image for section ${index}:`, updatedSections[index]);
                 return { ...prev, contentSections: updatedSections };
             });
         }
@@ -255,6 +281,7 @@ const UpdateBlogPostPage = () => {
         });
     };
 
+    // Handle key points
     const handleKeyPointsChange = (index, value) => {
         setFormData(prev => {
             const updatedKeyPoints = [...prev.keyPoints];
@@ -268,12 +295,13 @@ const UpdateBlogPostPage = () => {
     };
 
     const removeKeyPoint = (index) => {
-        setFormData(prev => {
-            const updatedKeyPoints = prev.keyPoints.filter((_, i) => i !== index);
-            return { ...prev, keyPoints: updatedKeyPoints };
-        });
+        setFormData(prev => ({
+            ...prev,
+            keyPoints: prev.keyPoints.filter((_, i) => i !== index)
+        }));
     };
 
+    // Handle tags
     const handleTagsChange = (index, value) => {
         setFormData(prev => {
             const updatedTags = [...prev.tags];
@@ -287,12 +315,13 @@ const UpdateBlogPostPage = () => {
     };
 
     const removeTag = (index) => {
-        setFormData(prev => {
-            const updatedTags = prev.tags.filter((_, i) => i !== index);
-            return { ...prev, tags: updatedTags };
-        });
+        setFormData(prev => ({
+            ...prev,
+            tags: prev.tags.filter((_, i) => i !== index)
+        }));
     };
 
+    // Handle LSI keywords
     const handleLSIKeywordsChange = (index, value) => {
         setFormData(prev => {
             const updatedLSIKeywords = [...prev.lsiKeywords];
@@ -306,17 +335,18 @@ const UpdateBlogPostPage = () => {
     };
 
     const removeLSIKeyword = (index) => {
-        setFormData(prev => {
-            const updatedLSIKeywords = prev.lsiKeywords.filter((_, i) => i !== index);
-            return { ...prev, lsiKeywords: updatedLSIKeywords };
-        });
+        setFormData(prev => ({
+            ...prev,
+            lsiKeywords: prev.lsiKeywords.filter((_, i) => i !== index)
+        }));
     };
 
+    // Handle semantic related terms
     const handleSemanticRelatedTermsChange = (index, value) => {
         setFormData(prev => {
-            const updatedSemanticRelatedTerms = [...prev.semanticRelatedTerms];
-            updatedSemanticRelatedTerms[index] = value;
-            return { ...prev, semanticRelatedTerms: updatedSemanticRelatedTerms };
+            const updatedTerms = [...prev.semanticRelatedTerms];
+            updatedTerms[index] = value;
+            return { ...prev, semanticRelatedTerms: updatedTerms };
         });
     };
 
@@ -325,17 +355,18 @@ const UpdateBlogPostPage = () => {
     };
 
     const removeSemanticRelatedTerm = (index) => {
-        setFormData(prev => {
-            const updatedSemanticRelatedTerms = prev.semanticRelatedTerms.filter((_, i) => i !== index);
-            return { ...prev, semanticRelatedTerms: updatedSemanticRelatedTerms };
-        });
+        setFormData(prev => ({
+            ...prev,
+            semanticRelatedTerms: prev.semanticRelatedTerms.filter((_, i) => i !== index)
+        }));
     };
 
+    // Handle conversational phrases
     const handleConversationalPhrasesChange = (index, value) => {
         setFormData(prev => {
-            const updatedConversationalPhrases = [...prev.conversationalPhrases];
-            updatedConversationalPhrases[index] = value;
-            return { ...prev, conversationalPhrases: updatedConversationalPhrases };
+            const updatedPhrases = [...prev.conversationalPhrases];
+            updatedPhrases[index] = value;
+            return { ...prev, conversationalPhrases: updatedPhrases };
         });
     };
 
@@ -344,16 +375,17 @@ const UpdateBlogPostPage = () => {
     };
 
     const removeConversationalPhrase = (index) => {
-        setFormData(prev => {
-            const updatedConversationalPhrases = prev.conversationalPhrases.filter((_, i) => i !== index);
-            return { ...prev, conversationalPhrases: updatedConversationalPhrases };
-        });
+        setFormData(prev => ({
+            ...prev,
+            conversationalPhrases: prev.conversationalPhrases.filter((_, i) => i !== index)
+        }));
     };
 
+    // Handle FAQs
     const handleFAQChange = (index, field, value) => {
         setFormData(prev => {
             const updatedFAQs = [...prev.faqs];
-            updatedFAQs[index][field] = value;
+            updatedFAQs[index] = { ...updatedFAQs[index], [field]: value };
             return { ...prev, faqs: updatedFAQs };
         });
     };
@@ -372,10 +404,11 @@ const UpdateBlogPostPage = () => {
         });
     };
 
+    // Handle direct answers
     const handleDirectAnswerChange = (index, field, value) => {
         setFormData(prev => {
             const updatedDirectAnswers = [...prev.directAnswers];
-            updatedDirectAnswers[index][field] = value;
+            updatedDirectAnswers[index] = { ...updatedDirectAnswers[index], [field]: value };
             return { ...prev, directAnswers: updatedDirectAnswers };
         });
     };
@@ -394,10 +427,11 @@ const UpdateBlogPostPage = () => {
         });
     };
 
+    // Handle citations
     const handleCitationChange = (index, field, value) => {
         setFormData(prev => {
             const updatedCitations = [...prev.citations];
-            updatedCitations[index][field] = value;
+            updatedCitations[index] = { ...updatedCitations[index], [field]: value };
             return { ...prev, citations: updatedCitations };
         });
     };
@@ -416,21 +450,31 @@ const UpdateBlogPostPage = () => {
         });
     };
 
+    // Handle geoLocation changes
     const handleGeoLocationChange = (field, value) => {
         setFormData(prev => ({
             ...prev,
-            geoLocation: {
-                ...prev.geoLocation,
-                [field]: value
-            }
+            geoLocation: { ...prev.geoLocation, [field]: value }
         }));
     };
 
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
 
         try {
+            // Validation
+            if (!formData.title.trim()) {
+                throw new Error('Title is required');
+            }
+            if (!formData.metaTitle.trim()) {
+                throw new Error('Meta title is required');
+            }
+            if (!formData.metaDescription.trim()) {
+                throw new Error('Meta description is required');
+            }
+
             const formDataToSend = new FormData();
             formDataToSend.append('title', formData.title);
             formDataToSend.append('slug', formData.slug);
@@ -439,12 +483,14 @@ const UpdateBlogPostPage = () => {
             formDataToSend.append('shortDescriptions', JSON.stringify(formData.shortDescriptions.filter(d => d.trim())));
             formDataToSend.append('author', formData.author);
             formDataToSend.append('publishDate', new Date().toISOString());
+            formDataToSend.append('imageAlt', formData.imageAlt);
 
             if (formData.mainImage) {
                 formDataToSend.append('mainImage', formData.mainImage);
             }
 
-            const contentSections = formData.contentSections.map(section => {
+            // Process content sections
+            const contentSections = formData.contentSections.map((section, index) => {
                 if (section.contentType === 'image') {
                     if (section.image) {
                         formDataToSend.append('contentImages', section.image);
@@ -462,7 +508,7 @@ const UpdateBlogPostPage = () => {
                             tag: 'image'
                         };
                     }
-                    throw new Error('Image file is required for image sections');
+                    throw new Error('Image file or existing URL is required for image sections');
                 } else if (section.contentType === 'link') {
                     if (!section.data.trim() || !section.href.trim()) {
                         throw new Error('Link text and URL are required for link sections');
@@ -475,7 +521,7 @@ const UpdateBlogPostPage = () => {
                         target: section.target || '_blank'
                     };
                 } else {
-                    const [_, tag] = section.contentType.split('-');
+                    const tag = section.contentType.split('-')[1] || 'p';
                     if (!section.data.trim()) {
                         throw new Error('Content cannot be empty for text sections');
                     }
@@ -487,6 +533,11 @@ const UpdateBlogPostPage = () => {
                     };
                 }
             }).filter(section => section);
+
+            console.log('Prepared contentSections:', contentSections);
+            for (let pair of formDataToSend.entries()) {
+                console.log(`FormData: ${pair[0]}:`, pair[1]);
+            }
 
             formDataToSend.append('content', JSON.stringify(contentSections));
             formDataToSend.append('keyPoints', JSON.stringify(formData.keyPoints.filter(p => p.trim())));
@@ -508,6 +559,7 @@ const UpdateBlogPostPage = () => {
             const response = await fetch(`/api/blog/${slug}`, {
                 method: 'PUT',
                 body: formDataToSend,
+                headers: { 'Cache-Control': 'no-cache' }
             });
 
             if (!response.ok) {
@@ -516,9 +568,11 @@ const UpdateBlogPostPage = () => {
             }
 
             const result = await response.json();
+            console.log('Update response:', result);
             toast.success('Blog post updated successfully!');
-            router.push('/admin-dashboard/blog/allblogs');
+            router.push('/admin-dashboard/blog/allblogs', { scroll: false });
         } catch (error) {
+            console.error('Submission error:', error);
             toast.error(error.message || 'Failed to update blog post');
         } finally {
             setIsSubmitting(false);
@@ -607,10 +661,16 @@ const UpdateBlogPostPage = () => {
                                 name="category"
                                 value={formData.category}
                                 onChange={handleChange}
+                                list="categorySuggestions"
                                 className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="Select or enter new category"
                                 required
                             />
+                            <datalist id="categorySuggestions">
+                                {formData.categories.map((cat, index) => (
+                                    <option key={index} value={cat} />
+                                ))}
+                            </datalist>
                         </div>
                         <div>
                             <label className="block text-gray-300 mb-2 text-sm font-medium">Author *</label>
@@ -649,7 +709,6 @@ const UpdateBlogPostPage = () => {
                             className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
                             accept="image/*"
                         />
-                        <p className="text-gray-400 text-sm mt-1">Recommended size: 1200x630 pixels (WebP format)</p>
                         {mainImagePreview && (
                             <div className="mt-2">
                                 <Image
@@ -661,6 +720,17 @@ const UpdateBlogPostPage = () => {
                                 />
                             </div>
                         )}
+                        <div className="mt-4">
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image Alt Text</label>
+                            <input
+                                type="text"
+                                name="imageAlt"
+                                value={formData.imageAlt}
+                                onChange={handleChange}
+                                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                placeholder="Describe the main image for accessibility"
+                            />
+                        </div>
                     </div>
 
                     <div className="space-y-6">
@@ -744,7 +814,6 @@ const UpdateBlogPostPage = () => {
                                                     className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
                                                     accept="image/*"
                                                 />
-                                                <p className="text-gray-400 text-sm mt-1">Recommended size: 800x600 pixels (WebP format)</p>
                                                 {section.existingImageUrl && !section.image && (
                                                     <div className="mt-2">
                                                         <p className="text-xs text-gray-400 mb-1">Current Image:</p>
@@ -813,7 +882,6 @@ const UpdateBlogPostPage = () => {
                                 )}
                             </div>
                         ))}
-
                         <button
                             type="button"
                             onClick={addContentSection}
