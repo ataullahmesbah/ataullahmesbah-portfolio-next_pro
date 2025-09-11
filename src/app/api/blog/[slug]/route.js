@@ -97,7 +97,14 @@ export async function PUT(req, { params }) {
       const buffer = Buffer.from(arrayBuffer);
       const result = await new Promise((resolve, reject) => {
         cloudinary.uploader.upload_stream(
-          { folder: 'blog_images', format: 'webp', quality: 'auto' },
+          {
+            folder: 'blog_images',
+            fetch_format: 'webp',
+            quality: 'auto',
+            width: 1200,
+            height: 628,
+            crop: 'fill'
+          },
           (error, result) => error ? reject(error) : resolve(result)
         ).end(buffer);
       });
@@ -144,7 +151,14 @@ export async function PUT(req, { params }) {
                 const buffer = Buffer.from(arrayBuffer);
                 const result = await new Promise((resolve, reject) => {
                   cloudinary.uploader.upload_stream(
-                    { folder: 'blog_images/content', format: 'webp', quality: 'auto' },
+                    {
+                      folder: 'blog_images/content',
+                      fetch_format: 'webp',
+                      quality: 'auto',
+                      width: 800,
+                      height: 600,
+                      crop: 'fill'
+                    },
                     (error, result) => error ? reject(error) : resolve(result)
                   ).end(buffer);
                 });
