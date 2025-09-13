@@ -1,10 +1,10 @@
 
-
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 
 const CONTENT_TYPES = [
   { value: 'text-h1', label: 'Heading 1 (h1)' },
@@ -17,6 +17,47 @@ const CONTENT_TYPES = [
   { value: 'image', label: 'Image' },
   { value: 'link', label: 'Hyperlink' },
 ];
+
+// Simple function to render markdown hyperlinks
+const renderMarkdownLinks = (text) => {
+  const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+  let lastIndex = 0;
+  const elements = [];
+  let match;
+
+  while ((match = markdownLinkRegex.exec(text)) !== null) {
+    const [fullMatch, linkText, url] = match;
+    const startIndex = match.index;
+    const endIndex = markdownLinkRegex.lastIndex;
+
+    // Add text before the link
+    if (startIndex > lastIndex) {
+      elements.push(text.slice(lastIndex, startIndex));
+    }
+
+    // Add the link
+    elements.push(
+      <a
+        key={startIndex}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-purple-400 hover:text-purple-300 underline"
+      >
+        {linkText}
+      </a>
+    );
+
+    lastIndex = endIndex;
+  }
+
+  // Add remaining text
+  if (lastIndex < text.length) {
+    elements.push(text.slice(lastIndex));
+  }
+
+  return elements;
+};
 
 const AddBlogPostPage = () => {
   const { data: session, status } = useSession();
@@ -43,7 +84,6 @@ const AddBlogPostPage = () => {
     }],
     keyPoints: [],
     tags: [],
-    // SEO fields
     structuredData: '',
     faqs: [{ question: '', answer: '' }],
     lsiKeywords: [],
@@ -83,8 +123,10 @@ const AddBlogPostPage = () => {
   }, []);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'title') {
+    const { name, value, type, checked } = e.target;
+    if (type === 'checkbox') {
+      setFormData(prev => ({ ...prev, [name]: checked }));
+    } else if (name === 'title') {
       setFormData(prev => ({
         ...prev,
         title: value,
@@ -121,35 +163,22 @@ const AddBlogPostPage = () => {
   const handleContentSectionChange = (index, field, value) => {
     setFormData(prev => {
       const updatedSections = [...prev.contentSections];
-
       if (field === 'contentType') {
-        updatedSections[index].contentType = value;
-        // Reset data when changing type
-        if (value.startsWith('text-')) {
-          updatedSections[index].data = '';
-          updatedSections[index].bulletPoints = [];
-          updatedSections[index].image = null;
-          updatedSections[index].alt = '';
-          updatedSections[index].href = '';
-          updatedSections[index].target = '_blank';
-        } else if (value === 'image') {
-          updatedSections[index].data = '';
-          updatedSections[index].bulletPoints = [];
-          updatedSections[index].href = '';
-          updatedSections[index].target = '_blank';
-        } else if (value === 'link') {
-          updatedSections[index].data = '';
-          updatedSections[index].bulletPoints = [];
-          updatedSections[index].image = null;
-          updatedSections[index].alt = '';
-        }
+        updatedSections[index] = {
+          ...updatedSections[index],
+          contentType: value,
+          data: '',
+          bulletPoints: [],
+          alt: '',
+          image: null,
+          href: '',
+          target: '_blank'
+        };
       } else if (field === 'bulletPoints') {
-        const points = value.split(',').map(p => p.trim()).filter(p => p);
-        updatedSections[index].bulletPoints = points;
+        updatedSections[index].bulletPoints = value.split(',').map(p => p.trim()).filter(p => p);
       } else {
         updatedSections[index][field] = value;
       }
-
       return { ...prev, contentSections: updatedSections };
     });
   };
@@ -164,7 +193,7 @@ const AddBlogPostPage = () => {
     } else if (index !== null) {
       setFormData(prev => {
         const updatedSections = [...prev.contentSections];
-        updatedSections[index].image = file;
+        updatedSections[index] = { ...updatedSections[index], image: file };
         return { ...prev, contentSections: updatedSections };
       });
     }
@@ -207,6 +236,13 @@ const AddBlogPostPage = () => {
     setFormData(prev => ({ ...prev, keyPoints: [...prev.keyPoints, ''] }));
   };
 
+  const removeKeyPoint = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      keyPoints: prev.keyPoints.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleTagsChange = (index, value) => {
     setFormData(prev => {
       const updatedTags = [...prev.tags];
@@ -219,11 +255,74 @@ const AddBlogPostPage = () => {
     setFormData(prev => ({ ...prev, tags: [...prev.tags, ''] }));
   };
 
-  // SEO field handlers
+  const removeTag = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleLSIKeywordsChange = (index, value) => {
+    setFormData(prev => {
+      const updatedLSIKeywords = [...prev.lsiKeywords];
+      updatedLSIKeywords[index] = value;
+      return { ...prev, lsiKeywords: updatedLSIKeywords };
+    });
+  };
+
+  const addLSIKeyword = () => {
+    setFormData(prev => ({ ...prev, lsiKeywords: [...prev.lsiKeywords, ''] }));
+  };
+
+  const removeLSIKeyword = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      lsiKeywords: prev.lsiKeywords.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleSemanticRelatedTermsChange = (index, value) => {
+    setFormData(prev => {
+      const updatedTerms = [...prev.semanticRelatedTerms];
+      updatedTerms[index] = value;
+      return { ...prev, semanticRelatedTerms: updatedTerms };
+    });
+  };
+
+  const addSemanticRelatedTerm = () => {
+    setFormData(prev => ({ ...prev, semanticRelatedTerms: [...prev.semanticRelatedTerms, ''] }));
+  };
+
+  const removeSemanticRelatedTerm = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      semanticRelatedTerms: prev.semanticRelatedTerms.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleConversationalPhrasesChange = (index, value) => {
+    setFormData(prev => {
+      const updatedPhrases = [...prev.conversationalPhrases];
+      updatedPhrases[index] = value;
+      return { ...prev, conversationalPhrases: updatedPhrases };
+    });
+  };
+
+  const addConversationalPhrase = () => {
+    setFormData(prev => ({ ...prev, conversationalPhrases: [...prev.conversationalPhrases, ''] }));
+  };
+
+  const removeConversationalPhrase = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      conversationalPhrases: prev.conversationalPhrases.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleFAQChange = (index, field, value) => {
     setFormData(prev => {
       const updatedFAQs = [...prev.faqs];
-      updatedFAQs[index][field] = value;
+      updatedFAQs[index] = { ...updatedFAQs[index], [field]: value };
       return { ...prev, faqs: updatedFAQs };
     });
   };
@@ -245,7 +344,7 @@ const AddBlogPostPage = () => {
   const handleDirectAnswerChange = (index, field, value) => {
     setFormData(prev => {
       const updatedDirectAnswers = [...prev.directAnswers];
-      updatedDirectAnswers[index][field] = value;
+      updatedDirectAnswers[index] = { ...updatedDirectAnswers[index], [field]: value };
       return { ...prev, directAnswers: updatedDirectAnswers };
     });
   };
@@ -267,7 +366,7 @@ const AddBlogPostPage = () => {
   const handleCitationChange = (index, field, value) => {
     setFormData(prev => {
       const updatedCitations = [...prev.citations];
-      updatedCitations[index][field] = value;
+      updatedCitations[index] = { ...updatedCitations[index], [field]: value };
       return { ...prev, citations: updatedCitations };
     });
   };
@@ -286,10 +385,16 @@ const AddBlogPostPage = () => {
     });
   };
 
+  const handleGeoLocationChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      geoLocation: { ...prev.geoLocation, [field]: value }
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (!formData.mainImage) {
       toast.error('Main image is required');
       return;
@@ -315,12 +420,12 @@ const AddBlogPostPage = () => {
       formDataToSend.append('shortDescriptions', JSON.stringify(formData.shortDescriptions.filter(d => d.trim())));
       formDataToSend.append('author', formData.author);
       formDataToSend.append('publishDate', new Date().toISOString());
+      formDataToSend.append('imageAlt', formData.imageAlt);
 
       if (formData.mainImage) {
         formDataToSend.append('mainImage', formData.mainImage);
       }
 
-      // Process content sections for API
       const contentSections = formData.contentSections.map((section, index) => {
         if (section.contentType === 'image') {
           if (section.image) {
@@ -345,13 +450,13 @@ const AddBlogPostPage = () => {
             target: section.target || '_blank'
           };
         } else {
-          const [_, tag] = section.contentType.split('-');
+          const tag = section.contentType.split('-')[1] || 'p';
           if (!section.data.trim()) {
             throw new Error('Content cannot be empty for text sections');
           }
           return {
             type: 'text',
-            data: section.data,
+            data: section.data, // Markdown stored as-is
             tag: tag,
             bulletPoints: section.bulletPoints || []
           };
@@ -366,8 +471,6 @@ const AddBlogPostPage = () => {
       formDataToSend.append('keyPoints', JSON.stringify(formData.keyPoints.filter(p => p.trim())));
       formDataToSend.append('tags', JSON.stringify(formData.tags.filter(t => t.trim())));
       formDataToSend.append('categories', JSON.stringify([formData.category].filter(c => c.trim())));
-
-      // SEO fields
       formDataToSend.append('structuredData', formData.structuredData);
       formDataToSend.append('faqs', JSON.stringify(formData.faqs));
       formDataToSend.append('lsiKeywords', JSON.stringify(formData.lsiKeywords));
@@ -383,7 +486,8 @@ const AddBlogPostPage = () => {
 
       const response = await fetch('/api/blog', {
         method: 'POST',
-        body: formDataToSend
+        body: formDataToSend,
+        headers: { 'Cache-Control': 'no-cache' }
       });
 
       if (!response.ok) {
@@ -393,7 +497,7 @@ const AddBlogPostPage = () => {
 
       const result = await response.json();
       toast.success('Blog post created successfully!');
-      router.push('/admin-dashboard/blog/allblogs');
+      router.push('/admin-dashboard/blog/allblogs', { scroll: false });
     } catch (error) {
       console.error('Submission error:', error);
       toast.error(error.message || 'Failed to create blog post');
@@ -403,7 +507,19 @@ const AddBlogPostPage = () => {
   };
 
   if (status === 'loading') {
-    return <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white flex items-center justify-center">
+        <p className="text-red-500">Please sign in to create a blog post.</p>
+      </div>
+    );
   }
 
   return (
@@ -459,23 +575,21 @@ const AddBlogPostPage = () => {
             </div>
             <div>
               <label className="block text-gray-300 mb-2 text-sm font-medium">Category *</label>
-              <div className="relative">
-                <input
-                  type="text"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  list="categorySuggestions"
-                  className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="Select or enter new category"
-                  required
-                />
-                <datalist id="categorySuggestions">
-                  {formData.categories.map((cat, index) => (
-                    <option key={index} value={cat} />
-                  ))}
-                </datalist>
-              </div>
+              <input
+                type="text"
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                list="categorySuggestions"
+                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="Select or enter new category"
+                required
+              />
+              <datalist id="categorySuggestions">
+                {formData.categories.map((cat, index) => (
+                  <option key={index} value={cat} />
+                ))}
+              </datalist>
             </div>
             <div>
               <label className="block text-gray-300 mb-2 text-sm font-medium">Author *</label>
@@ -505,55 +619,28 @@ const AddBlogPostPage = () => {
             <div className="text-right text-xs text-gray-500 mt-1">{formData.metaDescription.length}/160 characters</div>
           </div>
 
-          <div className="space-y-4">
-            <label className="block text-gray-300 text-sm font-medium">Short Descriptions (Optional)</label>
-            {formData.shortDescriptions.map((desc, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <textarea
-                  value={desc}
-                  onChange={(e) => handleShortDescriptionChange(index, e.target.value)}
-                  className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder={`Short Description ${index + 1} (optional)`}
-                  rows="2"
+          <div>
+            <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image *</label>
+            <input
+              type="file"
+              name="mainImage"
+              onChange={handleFileChange}
+              className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+              accept="image/*"
+              required
+            />
+            {mainImagePreview && (
+              <div className="mt-2">
+                <Image
+                  src={mainImagePreview}
+                  alt="Main image preview"
+                  width={128}
+                  height={128}
+                  className="object-contain mx-auto"
                 />
-                {formData.shortDescriptions.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeShortDescription(index)}
-                    className="text-red-500 hover:text-red-400 text-sm"
-                  >
-                    Remove
-                  </button>
-                )}
               </div>
-            ))}
-            <button type="button" onClick={addShortDescription} className="flex items-center text-purple-400 hover:text-purple-300 text-sm">
-              <span className="mr-1">+</span> Add Another Short Description
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image *</label>
-              <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center">
-                <input
-                  type="file"
-                  name="mainImage"
-                  onChange={handleFileChange}
-                  className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
-                  accept="image/*"
-                  required
-                />
-                <p className="mt-2 text-xs text-gray-500">Recommended: WebP format, 1200x630px</p>
-                {mainImagePreview && (
-                  <div className="mt-4">
-                    <p className="text-xs text-gray-400 mb-1">Preview:</p>
-                    <img src={mainImagePreview} alt="Preview" className="h-32 object-contain mx-auto rounded" />
-                  </div>
-                )}
-              </div>
-            </div>
-            <div>
+            )}
+            <div className="mt-4">
               <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image Alt Text *</label>
               <input
                 type="text"
@@ -567,7 +654,6 @@ const AddBlogPostPage = () => {
             </div>
           </div>
 
-          {/* Content Sections */}
           <div className="space-y-6">
             <label className="block text-gray-300 text-sm font-medium">Content Sections</label>
             {formData.contentSections.map((section, index) => (
@@ -598,7 +684,6 @@ const AddBlogPostPage = () => {
                   </select>
                 </div>
 
-                {/* Text Content */}
                 {section.contentType.startsWith('text-') && (
                   <>
                     <div className="mb-4">
@@ -607,16 +692,23 @@ const AddBlogPostPage = () => {
                         value={section.data}
                         onChange={(e) => handleContentSectionChange(index, 'data', e.target.value)}
                         className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        placeholder="Enter your content here. Use [link text](URL) format for hyperlinks. Example: [Google](https://google.com)"
+                        placeholder="Enter your content here. Use [link text](URL) format for inline hyperlinks. Example: It's important to do thorough [keyword research](https://example.com) beforehand."
                         rows="4"
                         required
                       />
                     </div>
                     <div className="mb-4 text-sm text-gray-400">
                       <p>Hyperlink Format: [link text](URL)</p>
-                      <p>Example: [Stanford University](https://stanford.edu)</p>
+                      <p>Example: It is important to do thorough [keyword research](https://example.com) beforehand.</p>
                     </div>
-
+                    {section.data && (
+                      <div className="mb-4">
+                        <h4 className="text-sm font-medium text-gray-300 mb-2">Content Preview:</h4>
+                        <div className="text-gray-300 p-2 bg-gray-900 rounded-lg">
+                          {renderMarkdownLinks(section.data)}
+                        </div>
+                      </div>
+                    )}
                     <div className="mb-4">
                       <label className="block text-gray-300 mb-2 text-sm">Bullet Points (Optional)</label>
                       <input
@@ -640,7 +732,6 @@ const AddBlogPostPage = () => {
                   </>
                 )}
 
-                {/* Image Content */}
                 {section.contentType === 'image' && (
                   <>
                     <div className="mb-4">
@@ -653,10 +744,8 @@ const AddBlogPostPage = () => {
                           accept="image/*"
                           required
                         />
-                        <p className="mt-2 text-xs text-gray-500">Recommended: WebP format, 1200x630px</p>
                       </div>
                     </div>
-
                     <div className="mb-4">
                       <label className="block text-gray-300 mb-2 text-sm">Image Alt Text *</label>
                       <input
@@ -671,7 +760,6 @@ const AddBlogPostPage = () => {
                   </>
                 )}
 
-                {/* Link Content */}
                 {section.contentType === 'link' && (
                   <>
                     <div className="mb-4">
@@ -685,7 +773,6 @@ const AddBlogPostPage = () => {
                         required
                       />
                     </div>
-
                     <div className="mb-4">
                       <label className="block text-gray-300 mb-2 text-sm">URL *</label>
                       <input
@@ -697,7 +784,6 @@ const AddBlogPostPage = () => {
                         required
                       />
                     </div>
-
                     <div className="mb-4">
                       <label className="block text-gray-300 mb-2 text-sm">Link Target</label>
                       <select
@@ -711,23 +797,10 @@ const AddBlogPostPage = () => {
                         <option value="_top">Open in full body of the window (_top)</option>
                       </select>
                     </div>
-
-                    <div className="mb-4 p-3 bg-gray-900 rounded-lg">
-                      <h4 className="text-sm font-medium text-gray-300 mb-2">Link Preview:</h4>
-                      <a
-                        href={section.href || '#'}
-                        target={section.target}
-                        rel="noopener noreferrer"
-                        className="text-purple-400 hover:text-purple-300 underline"
-                      >
-                        {section.data || 'Link text'}
-                      </a>
-                    </div>
                   </>
                 )}
               </div>
             ))}
-
             <button
               type="button"
               onClick={addContentSection}
@@ -738,262 +811,404 @@ const AddBlogPostPage = () => {
           </div>
 
           <div className="space-y-4">
-            <label className="block text-gray-300 text-sm font-medium">Key Points (Optional)</label>
+            <label className="block text-gray-300 text-sm font-medium">Short Descriptions</label>
+            {formData.shortDescriptions.map((desc, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={desc}
+                  onChange={(e) => handleShortDescriptionChange(index, e.target.value)}
+                  className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Enter short description"
+                />
+                {formData.shortDescriptions.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeShortDescription(index)}
+                    className="text-red-500 hover:text-red-400 text-sm"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addShortDescription}
+              className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+            >
+              <span className="mr-1">+</span> Add Short Description
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-gray-300 text-sm font-medium">Key Points</label>
             {formData.keyPoints.map((point, index) => (
               <div key={index} className="flex items-center space-x-2">
                 <input
                   type="text"
                   value={point}
                   onChange={(e) => handleKeyPointsChange(index, e.target.value)}
-                  className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Enter key point"
                 />
+                <button
+                  type="button"
+                  onClick={() => removeKeyPoint(index)}
+                  className="text-red-500 hover:text-red-400 text-sm"
+                >
+                  Remove
+                </button>
               </div>
             ))}
-            <button type="button" onClick={addKeyPoint} className="flex items-center text-purple-400 hover:text-purple-300 text-sm">
+            <button
+              type="button"
+              onClick={addKeyPoint}
+              className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+            >
               <span className="mr-1">+</span> Add Key Point
             </button>
           </div>
 
           <div className="space-y-4">
-            <label className="block text-gray-300 text-sm font-medium">Tags (Optional)</label>
+            <label className="block text-gray-300 text-sm font-medium">Tags</label>
             {formData.tags.map((tag, index) => (
               <div key={index} className="flex items-center space-x-2">
                 <input
                   type="text"
                   value={tag}
                   onChange={(e) => handleTagsChange(index, e.target.value)}
-                  className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Enter tag"
                 />
+                <button
+                  type="button"
+                  onClick={() => removeTag(index)}
+                  className="text-red-500 hover:text-red-400 text-sm"
+                >
+                  Remove
+                </button>
               </div>
             ))}
-            <button type="button" onClick={addTag} className="flex items-center text-purple-400 hover:text-purple-300 text-sm">
+            <button
+              type="button"
+              onClick={addTag}
+              className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+            >
               <span className="mr-1">+</span> Add Tag
             </button>
           </div>
 
-          {/* SEO Optimization Section */}
-          <div className="bg-gray-800/50 rounded-xl p-5 border border-gray-700">
-            <h2 className="text-xl font-bold text-gray-300 mb-4">SEO Optimization</h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <label className="block text-gray-300 mb-2 text-sm font-medium">Language</label>
-                <select
-                  name="language"
-                  value={formData.language}
-                  onChange={(e) => setFormData(prev => ({ ...prev, language: e.target.value }))}
+          <div className="space-y-4">
+            <label className="block text-gray-300 text-sm font-medium">LSI Keywords</label>
+            {formData.lsiKeywords.map((keyword, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={keyword}
+                  onChange={(e) => handleLSIKeywordsChange(index, e.target.value)}
                   className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Enter LSI keyword"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeLSIKeyword(index)}
+                  className="text-red-500 hover:text-red-400 text-sm"
                 >
-                  <option value="en">English</option>
-                  <option value="bn">Bengali</option>
-                  <option value="hi">Hindi</option>
-                </select>
+                  Remove
+                </button>
               </div>
+            ))}
+            <button
+              type="button"
+              onClick={addLSIKeyword}
+              className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+            >
+              <span className="mr-1">+</span> Add LSI Keyword
+            </button>
+          </div>
 
-              <div className="flex items-center mt-6">
+          <div className="space-y-4">
+            <label className="block text-gray-300 text-sm font-medium">Semantic Related Terms</label>
+            {formData.semanticRelatedTerms.map((term, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={term}
+                  onChange={(e) => handleSemanticRelatedTermsChange(index, e.target.value)}
+                  className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Enter semantic related term"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeSemanticRelatedTerm(index)}
+                  className="text-red-500 hover:text-red-400 text-sm"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addSemanticRelatedTerm}
+              className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+            >
+              <span className="mr-1">+</span> Add Semantic Related Term
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-gray-300 text-sm font-medium">Conversational Phrases</label>
+            {formData.conversationalPhrases.map((phrase, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={phrase}
+                  onChange={(e) => handleConversationalPhrasesChange(index, e.target.value)}
+                  className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Enter conversational phrase"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeConversationalPhrase(index)}
+                  className="text-red-500 hover:text-red-400 text-sm"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addConversationalPhrase}
+              className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+            >
+              <span className="mr-1">+</span> Add Conversational Phrase
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-gray-300 text-sm font-medium">Structured Data (JSON-LD)</label>
+            <textarea
+              name="structuredData"
+              value={formData.structuredData}
+              onChange={handleChange}
+              className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter structured data in JSON-LD format"
+              rows="5"
+            />
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-gray-300 text-sm font-medium">FAQs</label>
+            {formData.faqs.map((faq, index) => (
+              <div key={index} className="bg-gray-800/50 rounded-xl p-5 border border-gray-700">
+                <div className="mb-4">
+                  <label className="block text-gray-300 mb-2 text-sm">Question *</label>
+                  <input
+                    type="text"
+                    value={faq.question}
+                    onChange={(e) => handleFAQChange(index, 'question', e.target.value)}
+                    className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Enter FAQ question"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-300 mb-2 text-sm">Answer *</label>
+                  <textarea
+                    value={faq.answer}
+                    onChange={(e) => handleFAQChange(index, 'answer', e.target.value)}
+                    className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Enter FAQ answer"
+                    rows="3"
+                    required
+                  />
+                </div>
+                {formData.faqs.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeFAQ(index)}
+                    className="text-red-500 hover:text-red-400 text-sm"
+                  >
+                    Remove FAQ
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addFAQ}
+              className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+            >
+              <span className="mr-1">+</span> Add FAQ
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-gray-300 text-sm font-medium">Direct Answers</label>
+            {formData.directAnswers.map((answer, index) => (
+              <div key={index} className="bg-gray-800/50 rounded-xl p-5 border border-gray-700">
+                <div className="mb-4">
+                  <label className="block text-gray-300 mb-2 text-sm">Question</label>
+                  <input
+                    type="text"
+                    value={answer.question}
+                    onChange={(e) => handleDirectAnswerChange(index, 'question', e.target.value)}
+                    className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Enter direct answer question"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-300 mb-2 text-sm">Answer</label>
+                  <textarea
+                    value={answer.answer}
+                    onChange={(e) => handleDirectAnswerChange(index, 'answer', e.target.value)}
+                    className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Enter direct answer"
+                    rows="3"
+                  />
+                </div>
+                {formData.directAnswers.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeDirectAnswer(index)}
+                    className="text-red-500 hover:text-red-400 text-sm"
+                  >
+                    Remove Direct Answer
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addDirectAnswer}
+              className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+            >
+              <span className="mr-1">+</span> Add Direct Answer
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-gray-300 text-sm font-medium">Citations</label>
+            {formData.citations.map((citation, index) => (
+              <div key={index} className="bg-gray-800/50 rounded-xl p-5 border border-gray-700">
+                <div className="mb-4">
+                  <label className="block text-gray-300 mb-2 text-sm">Source</label>
+                  <input
+                    type="text"
+                    value={citation.source}
+                    onChange={(e) => handleCitationChange(index, 'source', e.target.value)}
+                    className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Enter citation source"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-300 mb-2 text-sm">Link</label>
+                  <input
+                    type="url"
+                    value={citation.link}
+                    onChange={(e) => handleCitationChange(index, 'link', e.target.value)}
+                    className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="https://example.com"
+                  />
+                </div>
+                {formData.citations.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeCitation(index)}
+                    className="text-red-500 hover:text-red-400 text-sm"
+                  >
+                    Remove Citation
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addCitation}
+              className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
+            >
+              <span className="mr-1">+</span> Add Citation
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-gray-300 text-sm font-medium">Geo Location</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-300 mb-2 text-sm">Target Country</label>
+                <input
+                  type="text"
+                  value={formData.geoLocation.targetCountry}
+                  onChange={(e) => handleGeoLocationChange('targetCountry', e.target.value)}
+                  className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Enter target country"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-300 mb-2 text-sm">Target City</label>
+                <input
+                  type="text"
+                  value={formData.geoLocation.targetCity}
+                  onChange={(e) => handleGeoLocationChange('targetCity', e.target.value)}
+                  className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="Enter target city"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <label className="block text-gray-300 text-sm font-medium">SEO Settings</label>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center">
                 <input
                   type="checkbox"
                   id="sgeOptimized"
                   name="sgeOptimized"
                   checked={formData.sgeOptimized}
-                  onChange={(e) => setFormData(prev => ({ ...prev, sgeOptimized: e.target.checked }))}
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-700 rounded"
+                  onChange={handleChange}
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
-                <label htmlFor="sgeOptimized" className="ml-2 block text-sm text-gray-300">
+                <label htmlFor="sgeOptimized" className="ml-2 text-sm text-gray-300">
                   SGE Optimized
                 </label>
               </div>
-
               <div className="flex items-center">
                 <input
                   type="checkbox"
                   id="expertAuthor"
                   name="expertAuthor"
                   checked={formData.expertAuthor}
-                  onChange={(e) => setFormData(prev => ({ ...prev, expertAuthor: e.target.checked }))}
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-700 rounded"
+                  onChange={handleChange}
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
-                <label htmlFor="expertAuthor" className="ml-2 block text-sm text-gray-300">
+                <label htmlFor="expertAuthor" className="ml-2 text-sm text-gray-300">
                   Expert Author
                 </label>
               </div>
             </div>
-
-            {/* GEO Targeting */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-300 mb-3">GEO Targeting</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-300 mb-2 text-sm">Target Country</label>
-                  <input
-                    type="text"
-                    value={formData.geoLocation.targetCountry}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      geoLocation: { ...prev.geoLocation, targetCountry: e.target.value }
-                    }))}
-                    className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="e.g., Bangladesh"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-2 text-sm">Target City</label>
-                  <input
-                    type="text"
-                    value={formData.geoLocation.targetCity}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      geoLocation: { ...prev.geoLocation, targetCity: e.target.value }
-                    }))}
-                    className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="e.g., Dhaka"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* LSI Keywords */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-300 mb-3">LSI Keywords</h3>
-              <div className="flex flex-wrap gap-2">
-                {formData.lsiKeywords.map((keyword, index) => (
-                  <span key={index} className="bg-purple-900 text-purple-200 px-3 py-1 rounded-full text-sm">
-                    {keyword}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updated = [...formData.lsiKeywords];
-                        updated.splice(index, 1);
-                        setFormData(prev => ({ ...prev, lsiKeywords: updated }));
-                      }}
-                      className="ml-2 text-red-400 hover:text-red-300"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-                <input
-                  type="text"
-                  placeholder="Add LSI keyword"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && e.target.value.trim()) {
-                      e.preventDefault();
-                      setFormData({
-                        ...formData,
-                        lsiKeywords: [...formData.lsiKeywords, e.target.value.trim()]
-                      });
-                      e.target.value = '';
-                    }
-                  }}
-                  className="p-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-            </div>
-
-            {/* FAQs Section */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-300 mb-3">FAQs</h3>
-              {formData.faqs.map((faq, index) => (
-                <div key={index} className="mb-4 p-4 bg-gray-900 rounded-lg">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-gray-300">FAQ {index + 1}</h4>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updated = [...formData.faqs];
-                        updated.splice(index, 1);
-                        setFormData({ ...formData, faqs: updated });
-                      }}
-                      className="text-red-500 hover:text-red-400 text-sm"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                  <div className="mb-3">
-                    <label className="block text-gray-300 mb-1 text-sm">Question</label>
-                    <input
-                      type="text"
-                      value={faq.question}
-                      onChange={(e) => {
-                        const updated = [...formData.faqs];
-                        updated[index].question = e.target.value;
-                        setFormData({ ...formData, faqs: updated });
-                      }}
-                      className="w-full p-2 bg-gray-800 text-white rounded border border-gray-700 focus:outline-none focus:ring-1 focus:ring-purple-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-300 mb-1 text-sm">Answer</label>
-                    <textarea
-                      value={faq.answer}
-                      onChange={(e) => {
-                        const updated = [...formData.faqs];
-                        updated[index].answer = e.target.value;
-                        setFormData({ ...formData, faqs: updated });
-                      }}
-                      className="w-full p-2 bg-gray-800 text-white rounded border border-gray-700 focus:outline-none focus:ring-1 focus:ring-purple-500"
-                      rows="2"
-                    />
-                  </div>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => setFormData({
-                  ...formData,
-                  faqs: [...formData.faqs, { question: '', answer: '' }]
-                })}
-                className="flex items-center text-purple-400 hover:text-purple-300 text-sm"
-              >
-                <span className="mr-1">+</span> Add FAQ
-              </button>
-            </div>
-
-            {/* Author Credentials Section */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-300 mb-3">Author Credentials</h3>
-              <textarea
-                value={formData.authorCredentials}
-                onChange={(e) => setFormData({ ...formData, authorCredentials: e.target.value })}
-                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="Example: Dr. John Doe is a renowned cardiologist with 15 years of experience. He holds an MD from Harvard Medical School and is a fellow of the American College of Cardiology. Dr. Doe has published over 50 research papers..."
-                rows="4"
-              />
-              <p className="text-sm text-gray-400 mt-2">
-                Author credentials help establish E-A-T (Expertise, Authoritativeness, Trustworthiness) which is important for SEO.
-              </p>
-            </div>
-
-            {/* Structured Data Information */}
-            <div className="mb-6 p-4 bg-gray-900 rounded-lg">
-              <h3 className="text-lg font-medium text-gray-300 mb-2">Structured Data Information</h3>
-              <p className="text-sm text-gray-400">
-                Structured data (JSON-LD) will be automatically generated from your blog content and displayed on the blog detail page.
-                This helps search engines understand your content better and may result in rich search results.
-              </p>
-            </div>
           </div>
 
-          {/* Submit Button */}
-          <div className="pt-4">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg font-medium text-white hover:from-purple-700 hover:to-blue-700 transition-all duration-300 flex items-center justify-center ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
-            >
-              {isSubmitting ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Creating Blog Post...
-                </>
-              ) : 'Create Blog Post'}
-            </button>
+          <div className="space-y-4">
+            <label className="block text-gray-300 text-sm font-medium">Author Credentials</label>
+            <textarea
+              name="authorCredentials"
+              value={formData.authorCredentials}
+              onChange={handleChange}
+              className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              placeholder="Enter author credentials"
+              rows="4"
+            />
           </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`w-full py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all duration-300 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {isSubmitting ? 'Submitting...' : 'Create Blog Post'}
+          </button>
         </form>
       </div>
     </div>

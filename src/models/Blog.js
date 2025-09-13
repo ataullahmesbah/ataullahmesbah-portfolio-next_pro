@@ -6,15 +6,26 @@ const BlogSchema = new mongoose.Schema({
   mainImage: { type: String, required: true },
   shortDescriptions: [{ type: String }],
   author: { type: String, required: true },
-
-
   content: [{
     type: {
       type: String,
       enum: ['text', 'image', 'link'],
       required: true
     },
-    data: { type: String, required: true },
+    data: {
+      type: String,
+      required: true,
+      validate: {
+        validator: function (v) {
+          if (this.type === 'text') {
+            // Allow markdown syntax like [text](url) in text content
+            return v && v.trim().length > 0;
+          }
+          return true;
+        },
+        message: 'Text content cannot be empty'
+      }
+    },
     tag: {
       type: String,
       enum: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'image', 'a'],
@@ -47,8 +58,6 @@ const BlogSchema = new mongoose.Schema({
       default: '_blank'
     }
   }],
-
-
   keyPoints: [{ type: String }],
   publishDate: { type: Date, default: Date.now },
   metaTitle: { type: String, required: true },
@@ -57,8 +66,6 @@ const BlogSchema = new mongoose.Schema({
   categories: [{ type: String }],
   views: { type: Number, default: 0 },
   readTime: { type: Number, default: 1 },
-
-  // Advanced SEO Fields
   structuredData: { type: String },
   faqs: [{
     question: { type: String },

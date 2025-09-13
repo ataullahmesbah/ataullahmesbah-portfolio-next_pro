@@ -35,18 +35,19 @@ export async function GET(request, { params }) {
   }
 }
 
+
 export async function PUT(req, { params }) {
   await dbConnect();
-  const { slug } = params;
-  console.log('PUT request for slug:', slug);
+  const { slug: oldSlug } = params;
+  console.log('PUT request for old slug:', oldSlug);
 
   try {
     const formData = await req.formData();
     console.log('FormData keys:', [...formData.keys()]);
 
-    const blog = await Blog.findOne({ slug });
+    const blog = await Blog.findOne({ slug: oldSlug });
     if (!blog) {
-      console.error('No blog found for slug:', slug);
+      console.error('No blog found for old slug:', oldSlug);
       return NextResponse.json(
         { success: false, error: 'Blog not found' },
         { status: 404, headers: { 'Cache-Control': 'no-store, max-age=0' } }
@@ -62,6 +63,20 @@ export async function PUT(req, { params }) {
         { success: false, error: `Missing required fields: ${missingFields.join(', ')}` },
         { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
       );
+    }
+
+    // Update slug
+    const newSlug = formData.get('slug')?.trim();
+    if (newSlug && newSlug !== oldSlug) {
+      const existingBlog = await Blog.findOne({ slug: newSlug });
+      if (existingBlog && existingBlog._id.toString() !== blog._id.toString()) {
+        return NextResponse.json(
+          { success: false, error: 'Slug already exists. Please choose a different slug.' },
+          { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
+        );
+      }
+      blog.slug = newSlug;
+      console.log('Updated slug to:', blog.slug);
     }
 
     // Update basic fields
@@ -98,12 +113,12 @@ export async function PUT(req, { params }) {
       const result = await new Promise((resolve, reject) => {
         cloudinary.uploader.upload_stream(
           {
-            folder: 'blog_images',
+            folder: 'main image',
             fetch_format: 'webp',
             quality: 'auto',
             width: 1200,
             height: 628,
-            crop: 'fill'
+            crop: 'fill',
           },
           (error, result) => error ? reject(error) : resolve(result)
         ).end(buffer);
@@ -145,7 +160,6 @@ export async function PUT(req, { params }) {
               console.log('Uploading new content image at index:', imageIndex);
               const imageFile = contentImages[imageIndex];
               imageIndex++;
-
               if (imageFile && imageFile.size > 0) {
                 const arrayBuffer = await imageFile.arrayBuffer();
                 const buffer = Buffer.from(arrayBuffer);
@@ -157,7 +171,7 @@ export async function PUT(req, { params }) {
                       quality: 'auto',
                       width: 800,
                       height: 600,
-                      crop: 'fill'
+                      crop: 'fill',
                     },
                     (error, result) => error ? reject(error) : resolve(result)
                   ).end(buffer);
@@ -183,12 +197,17 @@ export async function PUT(req, { params }) {
               target: item.target || '_blank'
             };
           } else {
+            // Validate text content with optional markdown hyperlinks
             if (!item.data?.trim()) {
               throw new Error('Text content cannot be empty');
             }
+            const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+            if (item.data.match(markdownLinkRegex)) {
+              console.log('Markdown hyperlinks detected in text:', item.data);
+            }
             return {
               type: 'text',
-              data: item.data,
+              data: item.data, // Store markdown as-is
               tag: item.tag || 'p',
               bulletPoints: item.bulletPoints || []
             };

@@ -20,6 +20,47 @@ const CONTENT_TYPES = [
     { value: 'link', label: 'Hyperlink' },
 ];
 
+// Simple function to render markdown hyperlinks
+const renderMarkdownLinks = (text) => {
+    const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+    let lastIndex = 0;
+    const elements = [];
+    let match;
+
+    while ((match = markdownLinkRegex.exec(text)) !== null) {
+        const [fullMatch, linkText, url] = match;
+        const startIndex = match.index;
+        const endIndex = markdownLinkRegex.lastIndex;
+
+        // Add text before the link
+        if (startIndex > lastIndex) {
+            elements.push(text.slice(lastIndex, startIndex));
+        }
+
+        // Add the link
+        elements.push(
+            <a
+                key={startIndex}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-purple-400 hover:text-purple-300 underline"
+            >
+                {linkText}
+            </a>
+        );
+
+        lastIndex = endIndex;
+    }
+
+    // Add remaining text
+    if (lastIndex < text.length) {
+        elements.push(text.slice(lastIndex));
+    }
+
+    return elements;
+};
+
 const UpdateBlogPostPage = () => {
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -68,7 +109,6 @@ const UpdateBlogPostPage = () => {
     const [error, setError] = useState(null);
     const [mainImagePreview, setMainImagePreview] = useState('');
 
-    // Fetch blog data
     useEffect(() => {
         if (!slug || status === 'loading') {
             setLoading(true);
@@ -163,14 +203,12 @@ const UpdateBlogPostPage = () => {
         };
     }, [slug, status]);
 
-    // Update author based on session
     useEffect(() => {
         if (session?.user?.name) {
             setFormData(prev => ({ ...prev, author: session.user.name }));
         }
     }, [session]);
 
-    // Handle input changes
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         console.log(`Input change - ${name}: ${value}`);
@@ -188,7 +226,6 @@ const UpdateBlogPostPage = () => {
         }
     };
 
-    // Handle short description changes
     const handleShortDescriptionChange = (index, value) => {
         setFormData(prev => {
             const updatedDescriptions = [...prev.shortDescriptions];
@@ -211,7 +248,6 @@ const UpdateBlogPostPage = () => {
         });
     };
 
-    // Handle content section changes
     const handleContentSectionChange = (index, field, value) => {
         setFormData(prev => {
             const updatedSections = [...prev.contentSections];
@@ -237,7 +273,6 @@ const UpdateBlogPostPage = () => {
         });
     };
 
-    // Handle file changes
     const handleFileChange = (e, index = null) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -281,7 +316,6 @@ const UpdateBlogPostPage = () => {
         });
     };
 
-    // Handle key points
     const handleKeyPointsChange = (index, value) => {
         setFormData(prev => {
             const updatedKeyPoints = [...prev.keyPoints];
@@ -301,7 +335,6 @@ const UpdateBlogPostPage = () => {
         }));
     };
 
-    // Handle tags
     const handleTagsChange = (index, value) => {
         setFormData(prev => {
             const updatedTags = [...prev.tags];
@@ -321,7 +354,6 @@ const UpdateBlogPostPage = () => {
         }));
     };
 
-    // Handle LSI keywords
     const handleLSIKeywordsChange = (index, value) => {
         setFormData(prev => {
             const updatedLSIKeywords = [...prev.lsiKeywords];
@@ -341,7 +373,6 @@ const UpdateBlogPostPage = () => {
         }));
     };
 
-    // Handle semantic related terms
     const handleSemanticRelatedTermsChange = (index, value) => {
         setFormData(prev => {
             const updatedTerms = [...prev.semanticRelatedTerms];
@@ -361,7 +392,6 @@ const UpdateBlogPostPage = () => {
         }));
     };
 
-    // Handle conversational phrases
     const handleConversationalPhrasesChange = (index, value) => {
         setFormData(prev => {
             const updatedPhrases = [...prev.conversationalPhrases];
@@ -381,7 +411,6 @@ const UpdateBlogPostPage = () => {
         }));
     };
 
-    // Handle FAQs
     const handleFAQChange = (index, field, value) => {
         setFormData(prev => {
             const updatedFAQs = [...prev.faqs];
@@ -404,7 +433,6 @@ const UpdateBlogPostPage = () => {
         });
     };
 
-    // Handle direct answers
     const handleDirectAnswerChange = (index, field, value) => {
         setFormData(prev => {
             const updatedDirectAnswers = [...prev.directAnswers];
@@ -427,7 +455,6 @@ const UpdateBlogPostPage = () => {
         });
     };
 
-    // Handle citations
     const handleCitationChange = (index, field, value) => {
         setFormData(prev => {
             const updatedCitations = [...prev.citations];
@@ -450,7 +477,6 @@ const UpdateBlogPostPage = () => {
         });
     };
 
-    // Handle geoLocation changes
     const handleGeoLocationChange = (field, value) => {
         setFormData(prev => ({
             ...prev,
@@ -458,13 +484,11 @@ const UpdateBlogPostPage = () => {
         }));
     };
 
-    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
 
         try {
-            // Validation
             if (!formData.title.trim()) {
                 throw new Error('Title is required');
             }
@@ -489,7 +513,6 @@ const UpdateBlogPostPage = () => {
                 formDataToSend.append('mainImage', formData.mainImage);
             }
 
-            // Process content sections
             const contentSections = formData.contentSections.map((section, index) => {
                 if (section.contentType === 'image') {
                     if (section.image) {
@@ -527,7 +550,7 @@ const UpdateBlogPostPage = () => {
                     }
                     return {
                         type: 'text',
-                        data: section.data,
+                        data: section.data, // Markdown stored as-is
                         tag: tag,
                         bulletPoints: section.bulletPoints || []
                     };
@@ -632,13 +655,14 @@ const UpdateBlogPostPage = () => {
                                 type="text"
                                 name="slug"
                                 value={formData.slug}
-                                onChange={handleChange}
-                                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-not-allowed bg-gray-900"
                                 placeholder="Auto-generated from title"
                                 maxLength="75"
-                                required
+                                readOnly
+                                disabled
                             />
                             <div className="text-right text-xs text-gray-500 mt-1">{formData.slug.length}/75 characters</div>
+                            <p className="text-xs text-gray-400 mt-1">Slug is auto-generated from title and cannot be edited directly.</p>
                         </div>
                         <div>
                             <label className="block text-gray-300 mb-2 text-sm font-medium">Meta Title *</label>
@@ -771,15 +795,23 @@ const UpdateBlogPostPage = () => {
                                                 value={section.data}
                                                 onChange={(e) => handleContentSectionChange(index, 'data', e.target.value)}
                                                 className="w-full p-3 bg-gray-900 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                                placeholder="Enter your content here. Use [link text](URL) format for hyperlinks."
+                                                placeholder="Enter your content here. Use [link text](URL) format for inline hyperlinks. Example: It's important to do thorough [keyword research](https://example.com) beforehand."
                                                 rows="4"
                                                 required
                                             />
                                         </div>
                                         <div className="mb-4 text-sm text-gray-400">
                                             <p>Hyperlink Format: [link text](URL)</p>
-                                            <p>Example: [Stanford University](https://stanford.edu)</p>
+                                            <p>Example: It is important to do thorough [keyword research](https://example.com) beforehand.</p>
                                         </div>
+                                        {section.data && (
+                                            <div className="mb-4">
+                                                <h4 className="text-sm font-medium text-gray-300 mb-2">Content Preview:</h4>
+                                                <div className="text-gray-300 p-2 bg-gray-900 rounded-lg">
+                                                    {renderMarkdownLinks(section.data)}
+                                                </div>
+                                            </div>
+                                        )}
                                         <div className="mb-4">
                                             <label className="block text-gray-300 mb-2 text-sm">Bullet Points (Optional)</label>
                                             <input
