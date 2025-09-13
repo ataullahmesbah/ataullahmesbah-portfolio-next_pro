@@ -38,6 +38,7 @@ export async function GET(request) {
     }
 }
 
+
 export async function POST(req) {
     await dbConnect();
     try {
@@ -62,12 +63,12 @@ export async function POST(req) {
             const result = await new Promise((resolve, reject) => {
                 cloudinary.uploader.upload_stream(
                     {
-                        folder: 'blog_images',
+                        folder: 'main image',
                         fetch_format: 'webp',
                         quality: 'auto',
                         width: 1200,
                         height: 628,
-                        crop: 'fill'
+                        crop: 'fill',
                     },
                     (error, result) => error ? reject(error) : resolve(result)
                 ).end(buffer);
@@ -88,7 +89,6 @@ export async function POST(req) {
         const processedContent = await Promise.all(
             content.map(async (item) => {
                 if (item.type === 'image') {
-                    // Image processing logic
                     const imageFile = contentImages[imageIndex];
                     imageIndex++;
                     if (imageFile && imageFile.size > 0) {
@@ -102,7 +102,7 @@ export async function POST(req) {
                                     quality: 'auto',
                                     width: 800,
                                     height: 600,
-                                    crop: 'fill'
+                                    crop: 'fill',
                                 },
                                 (error, result) => error ? reject(error) : resolve(result)
                             ).end(buffer);
@@ -116,7 +116,6 @@ export async function POST(req) {
                     }
                     throw new Error('Image file missing for image content section');
                 } else if (item.type === 'link') {
-                    // Link processing logic
                     if (!item.data?.trim() || !item.href?.trim()) {
                         throw new Error('Link content and href cannot be empty');
                     }
@@ -128,13 +127,18 @@ export async function POST(req) {
                         target: item.target || '_blank'
                     };
                 } else {
-                    // Text content
+                    // Validate text content with optional markdown hyperlinks
                     if (!item.data?.trim()) {
                         throw new Error('Text content cannot be empty');
                     }
+                    // Optional: Validate markdown syntax (basic check for [text](url))
+                    const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+                    if (item.data.match(markdownLinkRegex)) {
+                        console.log('Markdown hyperlinks detected in text:', item.data);
+                    }
                     return {
                         type: 'text',
-                        data: item.data,
+                        data: item.data, // Store markdown as-is
                         tag: item.tag || 'p',
                         bulletPoints: item.bulletPoints || []
                     };
@@ -148,7 +152,7 @@ export async function POST(req) {
             .reduce((count, item) => count + item.data.split(/\s+/).length, 0);
         const readTime = Math.max(1, Math.ceil(wordCount / 200));
 
-        // Create new blog with all SEO fields
+        // Create new blog
         const newBlog = new Blog({
             title: formData.get('title'),
             slug: formData.get('slug'),
@@ -163,7 +167,6 @@ export async function POST(req) {
             tags: JSON.parse(formData.get('tags') || '[]'),
             categories: JSON.parse(formData.get('categories') || '[]'),
             readTime,
-            // SEO fields
             structuredData: formData.get('structuredData') || '',
             faqs: JSON.parse(formData.get('faqs') || '[]'),
             lsiKeywords: JSON.parse(formData.get('lsiKeywords') || '[]'),
@@ -191,6 +194,7 @@ export async function POST(req) {
         );
     }
 }
+
 
 export async function DELETE(request) {
     await dbConnect();

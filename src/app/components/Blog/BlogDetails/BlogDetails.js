@@ -8,7 +8,8 @@ import { FaAnglesRight } from "react-icons/fa6";
 import UserLink from '../../Profile/ProfileLink/UserLink';
 import { useEffect, useState } from 'react';
 
-// FAQ Accordion Component (এটিকে প্রথমে define করুন)
+
+// FAQ Accordion Component
 const FAQAccordion = ({ faqs }) => {
     const [openIndex, setOpenIndex] = useState(null);
 
@@ -29,8 +30,7 @@ const FAQAccordion = ({ faqs }) => {
                         >
                             <span>{faq.question}</span>
                             <svg
-                                className={`w-5 h-5 transform transition-transform duration-300 ${openIndex === index ? 'rotate-180' : ''
-                                    }`}
+                                className={`w-5 h-5 transform transition-transform duration-300 ${openIndex === index ? 'rotate-180' : ''}`}
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -40,8 +40,7 @@ const FAQAccordion = ({ faqs }) => {
                             </svg>
                         </button>
                         <div
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${openIndex === index ? 'max-h-96 opacity-100 mt-3' : 'max-h-0 opacity-0'
-                                }`}
+                            className={`overflow-hidden transition-all duration-300 ease-in-out ${openIndex === index ? 'max-h-96 opacity-100 mt-3' : 'max-h-0 opacity-0'}`}
                         >
                             <p className="text-gray-700">{faq.answer}</p>
                         </div>
@@ -86,6 +85,47 @@ const BreadcrumbSchema = ({ siteUrl, blog }) => {
             dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
         />
     );
+};
+
+// Simple function to render markdown hyperlinks
+const renderMarkdownLinks = (text) => {
+    const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+    let lastIndex = 0;
+    const elements = [];
+    let match;
+
+    while ((match = markdownLinkRegex.exec(text)) !== null) {
+        const [fullMatch, linkText, url] = match;
+        const startIndex = match.index;
+        const endIndex = markdownLinkRegex.lastIndex;
+
+        // Add text before the link
+        if (startIndex > lastIndex) {
+            elements.push(text.slice(lastIndex, startIndex));
+        }
+
+        // Add the link
+        elements.push(
+            <a
+                key={startIndex}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 underline"
+            >
+                {linkText}
+            </a>
+        );
+
+        lastIndex = endIndex;
+    }
+
+    // Add remaining text
+    if (lastIndex < text.length) {
+        elements.push(text.slice(lastIndex));
+    }
+
+    return elements.length > 0 ? elements : text;
 };
 
 export default function BlogContent({ blog }) {
@@ -176,43 +216,6 @@ export default function BlogContent({ blog }) {
                 const Tag = item.tag || 'p';
                 const isHeading = item.tag && item.tag.startsWith('h');
 
-                // Check if text contains hyperlinks
-                const renderTextWithLinks = (text) => {
-                    const linkRegex = /\[(.*?)\]\((.*?)\)/g;
-                    const parts = [];
-                    let lastIndex = 0;
-                    let match;
-
-                    while ((match = linkRegex.exec(text)) !== null) {
-                        // Add text before the link
-                        if (match.index > lastIndex) {
-                            parts.push(text.slice(lastIndex, match.index));
-                        }
-
-                        // Add the link
-                        parts.push(
-                            <a
-                                key={match.index}
-                                href={match[2]}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:text-blue-800 underline"
-                            >
-                                {match[1]}
-                            </a>
-                        );
-
-                        lastIndex = match.index + match[0].length;
-                    }
-
-                    // Add remaining text
-                    if (lastIndex < text.length) {
-                        parts.push(text.slice(lastIndex));
-                    }
-
-                    return parts.length > 0 ? parts : text;
-                };
-
                 return (
                     <div key={index} className="my-4">
                         <Tag className={
@@ -220,12 +223,12 @@ export default function BlogContent({ blog }) {
                                 ? 'text-xl font-semibold mt-6 mb-4'
                                 : 'text-gray-800 my-3'
                         }>
-                            {renderTextWithLinks(item.data)}
+                            {renderMarkdownLinks(item.data)}
                         </Tag>
                         {item.bulletPoints?.length > 0 && (
                             <ul className="list-disc pl-6 mt-2 space-y-1">
                                 {item.bulletPoints.map((point, i) => (
-                                    <li key={i} className="text-gray-800">{renderTextWithLinks(point)}</li>
+                                    <li key={i} className="text-gray-800">{renderMarkdownLinks(point)}</li>
                                 ))}
                             </ul>
                         )}
@@ -370,7 +373,7 @@ export default function BlogContent({ blog }) {
                         className="w-full h-auto rounded-lg shadow-md"
                         priority
                         placeholder="blur"
-                        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/+F9PQAI8wNPgZf9WwAAAABJRU5ErkJggg=="
+                        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/+F9PQAI8wNPgZZ9WwAAAABJRU5ErkJggg=="
                         itemProp="image"
                     />
                 </div>

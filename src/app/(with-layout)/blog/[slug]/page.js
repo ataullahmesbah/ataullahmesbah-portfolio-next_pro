@@ -7,10 +7,6 @@ import Loader from '@/app/components/Loader/Loader';
 import { Suspense } from 'react';
 
 
-
-
-
-
 async function getBlogBySlug(slug) {
     const res = await fetch(`${process.env.NEXTAUTH_URL}/api/blog/${slug}`, {
         cache: 'no-store',
