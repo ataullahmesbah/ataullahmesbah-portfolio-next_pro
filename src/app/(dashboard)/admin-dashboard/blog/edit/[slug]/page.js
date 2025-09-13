@@ -626,6 +626,7 @@ const UpdateBlogPostPage = () => {
                             />
                             <div className="text-right text-xs text-gray-500 mt-1">{formData.title.length}/75 characters</div>
                         </div>
+
                         <div>
                             <label className="block text-gray-300 mb-2 text-sm font-medium">Slug *</label>
                             <input
@@ -640,6 +641,7 @@ const UpdateBlogPostPage = () => {
                             />
                             <div className="text-right text-xs text-gray-500 mt-1">{formData.slug.length}/75 characters</div>
                         </div>
+                        
                         <div>
                             <label className="block text-gray-300 mb-2 text-sm font-medium">Meta Title *</label>
                             <input
