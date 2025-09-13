@@ -8,7 +8,6 @@ import { FaAnglesRight } from "react-icons/fa6";
 import UserLink from '../../Profile/ProfileLink/UserLink';
 import { useEffect, useState } from 'react';
 
-
 // FAQ Accordion Component
 const FAQAccordion = ({ faqs }) => {
     const [openIndex, setOpenIndex] = useState(null);
@@ -111,7 +110,7 @@ const renderMarkdownLinks = (text) => {
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 underline"
+                className="text-blue-600 hover:text-blue-800"
             >
                 {linkText}
             </a>
@@ -242,8 +241,9 @@ export default function BlogContent({ blog }) {
                             src={item.data}
                             alt={item.alt || blog.title}
                             width={800}
-                            height={450}
-                            className="w-full h-auto rounded-lg shadow-md"
+                            height={600}
+                            className="w-full max-w-[800px] h-auto rounded-lg shadow-md mx-auto"
+                            sizes="(max-width: 768px) 100vw, 800px"
                             loading="lazy"
                             placeholder="blur"
                             blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/+F9PQAI8wNPgZZ9WwAAAABJRU5ErkJggg=="
@@ -369,8 +369,9 @@ export default function BlogContent({ blog }) {
                         src={blog.mainImage}
                         alt={blog.title}
                         width={1200}
-                        height={630}
-                        className="w-full h-auto rounded-lg shadow-md"
+                        height={628}
+                        className="w-full max-w-[1200px] h-auto rounded-lg shadow-md mx-auto"
+                        sizes="(max-width: 768px) 100vw, 1200px"
                         priority
                         placeholder="blur"
                         blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/+F9PQAI8wNPgZZ9WwAAAABJRU5ErkJggg=="
