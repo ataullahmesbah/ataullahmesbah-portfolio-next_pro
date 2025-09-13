@@ -656,16 +656,15 @@ const UpdateBlogPostPage = () => {
                                 type="text"
                                 name="slug"
                                 value={formData.slug}
-                                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-not-allowed bg-gray-900"
+                                onChange={handleChange}
+                                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="Auto-generated from title"
                                 maxLength="75"
-                                readOnly
-                                disabled
+                                required
                             />
                             <div className="text-right text-xs text-gray-500 mt-1">{formData.slug.length}/75 characters</div>
-                            <p className="text-xs text-gray-400 mt-1">Slug is auto-generated from title and cannot be edited directly.</p>
                         </div>
-                        
+
                         <div>
                             <label className="block text-gray-300 mb-2 text-sm font-medium">Meta Title *</label>
                             <input
