@@ -72,7 +72,7 @@ export default async function BlogDetail({ params }) {
     const blog = await getBlogBySlug(params.slug);
 
     return (
-        <div className="bg-white min-h-screen">
+        <div className="bg-white min-h-screen poppins-regular">
             <Suspense fallback={<Loader />}>
                 <BlogContent blog={blog} />
                 <CommentBox blogId={blog._id} />

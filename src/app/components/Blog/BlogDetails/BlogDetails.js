@@ -1,6 +1,3 @@
-
-
-
 // src/app/components/Blog/BlogDetails/BlogDetails.js
 "use client";
 import Image from 'next/image';
@@ -112,6 +109,11 @@ const BreadcrumbSchema = ({ siteUrl, blog }) => {
 
 // Simple function to render markdown hyperlinks
 const renderMarkdownLinks = (text) => {
+    // If it's not a string (might be a JSX element), return as is
+    if (typeof text !== 'string') {
+        return text;
+    }
+
     const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
     let lastIndex = 0;
     const elements = [];
@@ -134,7 +136,7 @@ const renderMarkdownLinks = (text) => {
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-700 hover:text-blue-800 transition-colors duration-200 "
+                className="text-blue-700 hover:text-blue-900 transition-colors duration-200 "
             >
                 {linkText}
             </a>
@@ -149,6 +151,72 @@ const renderMarkdownLinks = (text) => {
     }
 
     return elements.length > 0 ? elements : text;
+};
+
+// Highlight text component for patterns like "Text:" that also processes markdown links
+const HighlightedText = ({ text }) => {
+    if (!text || typeof text !== 'string') return text;
+
+    // First process markdown links, then apply highlighting
+    const processText = (inputText) => {
+        const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+        let lastIndex = 0;
+        const elements = [];
+        let match;
+
+        while ((match = markdownLinkRegex.exec(inputText)) !== null) {
+            const [fullMatch, linkText, url] = match;
+            const startIndex = match.index;
+            const endIndex = markdownLinkRegex.lastIndex;
+
+            // Add text before the link
+            if (startIndex > lastIndex) {
+                const textBeforeLink = inputText.slice(lastIndex, startIndex);
+                elements.push(applyHighlighting(textBeforeLink));
+            }
+
+            // Add the link
+            elements.push(
+                <a
+                    key={startIndex}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-700 hover:text-blue-900 transition-colors duration-200"
+                >
+                    {linkText}
+                </a>
+            );
+
+            lastIndex = endIndex;
+        }
+
+        // Add remaining text
+        if (lastIndex < inputText.length) {
+            const remainingText = inputText.slice(lastIndex);
+            elements.push(applyHighlighting(remainingText));
+        }
+
+        return elements.length > 0 ? <>{elements}</> : applyHighlighting(inputText);
+    };
+
+    // Function to apply highlighting to text patterns like "Text:"
+    const applyHighlighting = (inputText) => {
+        const parts = inputText.split(/(\b[A-Za-z\s]+:)/g);
+
+        return parts.map((part, index) => {
+            if (part.match(/\b[A-Za-z\s]+:$/)) {
+                return (
+                    <span key={index} className="font-semibold text-black">
+                        {part}
+                    </span>
+                );
+            }
+            return part;
+        });
+    };
+
+    return processText(text);
 };
 
 export default function BlogContent({ blog }) {
@@ -174,7 +242,7 @@ export default function BlogContent({ blog }) {
         "dateModified": blog.updatedAt || blog.publishDate,
         "publisher": {
             "@type": "Organization",
-            "name": "Your Site Name",
+            "name": "Ataullah Mesbah",
             "logo": {
                 "@type": "ImageObject",
                 "url": `${siteUrl}/logo.png`
@@ -239,19 +307,38 @@ export default function BlogContent({ blog }) {
                 const Tag = item.tag || 'p';
                 const isHeading = item.tag && item.tag.startsWith('h');
 
+                // Only apply highlighting to p tags, not headings
+                if (Tag === 'p') {
+                    return (
+                        <div key={index} className="my-5">
+                            <Tag className="text-gray-800 my-4 leading-relaxed text-lg">
+                                <HighlightedText text={item.data} />
+                            </Tag>
+                            {item.bulletPoints?.length > 0 && (
+                                <ul className="list-disc pl-6 mt-3 space-y-2">
+                                    {item.bulletPoints.map((point, i) => (
+                                        <li key={i} className="text-gray-800 text-lg">
+                                            <HighlightedText text={point} />
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    );
+                }
+
+                // For headings, render normally without highlighting
                 return (
-                    <div key={index} className="my-6">
-                        <Tag className={
-                            isHeading
-                                ? `text-2xl md:text-3xl font-bold mt-10 mb-5 text-gray-900 ${item.tag === 'h2' ? 'border-b pb-3 border-gray-200' : ''}`
-                                : 'text-gray-800 my-4 leading-relaxed text-lg'
-                        }>
+                    <div key={index} className="my-5">
+                        <Tag className="text-2xl md:text-3xl font-bold mt-10 mb-5 text-gray-900">
                             {renderMarkdownLinks(item.data)}
                         </Tag>
                         {item.bulletPoints?.length > 0 && (
-                            <ul className="list-disc pl-6 mt-4 space-y-3">
+                            <ul className="list-disc pl-6 mt-3 space-y-2">
                                 {item.bulletPoints.map((point, i) => (
-                                    <li key={i} className="text-gray-800 text-lg">{renderMarkdownLinks(point)}</li>
+                                    <li key={i} className="text-gray-800 text-lg">
+                                        {renderMarkdownLinks(point)}
+                                    </li>
                                 ))}
                             </ul>
                         )}
@@ -375,7 +462,7 @@ export default function BlogContent({ blog }) {
                 </h1>
 
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-8">
-                    <div className="flex items-center">
+                    <div className="flex items-center text-purple-700">
                         <span className="font-medium">By <UserLink author={blog.author} /></span>
                     </div>
                     <div className="w-px h-4 bg-gray-300"></div>
@@ -419,7 +506,7 @@ export default function BlogContent({ blog }) {
                     <div className="relative bg-white p-6 rounded-xl mb-8 border border-purple-200 shadow-sm">
                         <div className="absolute -left-2 top-4 w-4 h-4 rotate-45 bg-purple-500"></div>
                         <p className="text-lg text-gray-800 font-medium leading-relaxed relative pl-6">
-                            <span className="absolute left-0 top-0 text-4xl text-purple-400 font-serif">"</span>
+                            <span className="absolute left-0 top-0 text-4xl text-purple-400 font-serif">&ldquo;</span>
                             {blog.metaDescription}
                         </p>
                     </div>
