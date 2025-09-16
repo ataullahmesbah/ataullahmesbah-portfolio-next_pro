@@ -391,9 +391,13 @@ export default function UpdateProduct() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-4 md:p-8">
-            <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
-                <h1 className="text-3xl font-bold text-gray-800 mb-6">Update Product</h1>
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white p-4 md:p-6 lg:p-8">
+
+            <div className="max-w-5xl mx-auto ">
+                <h1 className="group relative inline-block text-3xl md:text-4xl font-extrabold text-center mb-10 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent tracking-wide">
+                    Update Product
+                    <span className="block h-[3px] w-0 group-hover:w-32 mx-auto mt-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-500"></span>
+                </h1>
 
                 {errors.general && (
                     <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
@@ -401,45 +405,60 @@ export default function UpdateProduct() {
                     </div>
                 )}
 
-                <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-                    <h2 className="text-lg font-semibold text-gray-700 mb-3">Product Owner</h2>
-                    <p className="text-sm text-gray-500">Logged in as</p>
-                    <p className="font-medium text-gray-800">{session?.user?.name || 'Not available'}</p>
+                <div className="mb-8 p-6 bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-xl border border-gray-700 shadow-lg transition-all duration-300 hover:shadow-xl hover:border-purple-500/30 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <div className="flex items-center mb-4">
+                        <div className="bg-purple-600/20 p-2 rounded-lg mr-3">
+                            <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
+                        <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">Product Owner</h2>
+                    </div>
+                    <div className="pl-1">
+                        <p className="text-sm text-gray-400 mb-1">Logged in as</p>
+                        <p className="text-lg font-semibold text-white flex items-center">
+                            {session?.user?.name || 'Not available'}
+                            <span className="ml-2 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        </p>
+                        {session?.user?.email && (
+                            <p className="text-sm text-gray-400 mt-2">{session.user.email}</p>
+                        )}
+                    </div>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
                     {/* Basic Info */}
                     <div className="space-y-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Product Title*</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Product Title*</label>
                             <input
                                 type="text"
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
+                                className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
                                 placeholder="Enter product title"
                             />
                             {errors.title && <p className="mt-1 text-sm text-red-500">{errors.title}</p>}
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Brand*</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Brand*</label>
                             <input
                                 type="text"
                                 value={formData.brand}
                                 onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.brand ? 'border-red-500' : 'border-gray-300'}`}
+                                className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.brand ? 'border-red-500' : 'border-gray-300'}`}
                                 placeholder="Enter brand name"
                             />
                             {errors.brand && <p className="mt-1 text-sm text-red-500">{errors.brand}</p>}
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Availability</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Availability</label>
                             <select
                                 value={formData.availability}
                                 onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
-                                className="w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-gray-300"
+                                className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 border-gray-300"
                             >
                                 <option value="InStock">In Stock</option>
                                 <option value="OutOfStock">Out of Stock</option>
@@ -449,12 +468,12 @@ export default function UpdateProduct() {
 
                         <div className="flex gap-4 items-center">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Quantity*</label>
+                                <label className="block text-gray-300 mb-2 text-sm font-medium">Quantity*</label>
                                 <input
                                     type="number"
                                     value={formData.quantity}
                                     onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                                    className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.quantity ? 'border-red-500' : 'border-gray-300'}`}
+                                    className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.quantity ? 'border-red-500' : 'border-gray-300'}`}
                                     placeholder="Enter quantity"
                                     min="0"
                                     step="1"
@@ -463,12 +482,12 @@ export default function UpdateProduct() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Product Code*</label>
+                                <label className="block text-gray-300 mb-2 text-sm font-medium">Product Code*</label>
                                 <input
                                     type="text"
                                     value={formData.product_code}
                                     onChange={(e) => setFormData({ ...formData, product_code: e.target.value })}
-                                    className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.product_code ? 'border-red-500' : 'border-gray-300'}`}
+                                    className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.product_code ? 'border-red-500' : 'border-gray-300'}`}
                                     placeholder="Enter product code (e.g. ATM12345)"
                                 />
                                 {errors.product_code && <p className="mt-1 text-sm text-red-500">{errors.product_code}</p>}
@@ -476,7 +495,7 @@ export default function UpdateProduct() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Category*</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Category*</label>
                             <select
                                 value={formData.category}
                                 onChange={(e) =>
@@ -486,7 +505,7 @@ export default function UpdateProduct() {
                                         newCategory: e.target.value === 'new' ? formData.newCategory : '',
                                     })
                                 }
-                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.category ? 'border-red-500' : 'border-gray-300'}`}
+                                className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.category ? 'border-red-500' : 'border-gray-300'}`}
                             >
                                 <option value="" disabled>
                                     Select a category
@@ -505,7 +524,7 @@ export default function UpdateProduct() {
                                         type="text"
                                         value={formData.newCategory}
                                         onChange={(e) => setFormData({ ...formData, newCategory: e.target.value })}
-                                        className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.newCategory ? 'border-red-500' : 'border-gray-300'}`}
+                                        className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.newCategory ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="Enter new category name"
                                     />
                                     {errors.newCategory && <p className="mt-1 text-sm text-red-500">{errors.newCategory}</p>}
@@ -515,14 +534,14 @@ export default function UpdateProduct() {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">BDT Price*</label>
+                                <label className="block text-gray-300 mb-2 text-sm font-medium">BDT Price*</label>
                                 <div className="relative">
                                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">৳</span>
                                     <input
                                         type="number"
                                         value={formData.bdtPrice}
                                         onChange={(e) => setFormData({ ...formData, bdtPrice: e.target.value })}
-                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.bdtPrice ? 'border-red-500' : 'border-gray-300'}`}
+                                        className={`w-full pl-8 pr-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.bdtPrice ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="0.00"
                                         step="0.01"
                                         min="0"
@@ -531,14 +550,14 @@ export default function UpdateProduct() {
                                 {errors.bdtPrice && <p className="mt-1 text-sm text-red-500">{errors.bdtPrice}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">USD Price</label>
+                                <label className="block text-gray-300 mb-2 text-sm font-medium">USD Price</label>
                                 <div className="relative">
                                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">$</span>
                                     <input
                                         type="number"
                                         value={formData.usdPrice}
                                         onChange={(e) => setFormData({ ...formData, usdPrice: e.target.value })}
-                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.usdPrice ? 'border-red-500' : 'border-gray-300'}`}
+                                        className={`w-full pl-8 pr-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.usdPrice ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="0.00"
                                         step="0.01"
                                         min="0"
@@ -552,7 +571,7 @@ export default function UpdateProduct() {
                                             type="number"
                                             value={formData.usdExchangeRate}
                                             onChange={(e) => setFormData({ ...formData, usdExchangeRate: e.target.value })}
-                                            className={`w-full px-3 py-2 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.usdExchangeRate ? 'border-red-500' : 'border-gray-300'}`}
+                                            className={`w-full px-3 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.usdExchangeRate ? 'border-red-500' : 'border-gray-300'}`}
                                             placeholder="0.00"
                                             step="0.01"
                                             min="0"
@@ -562,14 +581,14 @@ export default function UpdateProduct() {
                                 )}
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">EUR Price</label>
+                                <label className="block text-gray-300 mb-2 text-sm font-medium">EUR Price</label>
                                 <div className="relative">
                                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">€</span>
                                     <input
                                         type="number"
                                         value={formData.eurPrice}
                                         onChange={(e) => setFormData({ ...formData, eurPrice: e.target.value })}
-                                        className={`w-full pl-8 pr-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.eurPrice ? 'border-red-500' : 'border-gray-300'}`}
+                                        className={`w-full pl-8 pr-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.eurPrice ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="0.00"
                                         step="0.01"
                                         min="0"
@@ -583,7 +602,7 @@ export default function UpdateProduct() {
                                             type="number"
                                             value={formData.eurExchangeRate}
                                             onChange={(e) => setFormData({ ...formData, eurExchangeRate: e.target.value })}
-                                            className={`w-full px-3 py-2 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.eurExchangeRate ? 'border-red-500' : 'border-gray-300'}`}
+                                            className={`w-full px-3 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.eurExchangeRate ? 'border-red-500' : 'border-gray-300'}`}
                                             placeholder="0.00"
                                             step="0.01"
                                             min="0"
@@ -595,38 +614,38 @@ export default function UpdateProduct() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Primary Description*</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Primary Description*</label>
                             <textarea
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 rows={4}
-                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
+                                className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
                                 placeholder="Describe your product"
                             />
                             {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Short Description (max 160 chars)</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Short Description (max 160 chars)</label>
                             <textarea
                                 value={formData.shortDescription}
                                 onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
                                 rows={2}
                                 maxLength={160}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="Short summary for snippets"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Additional Descriptions</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Additional Descriptions</label>
                             {formData.descriptions.map((desc, index) => (
                                 <div key={index} className="flex items-center mb-2">
                                     <textarea
                                         value={desc}
                                         onChange={(e) => handleDescriptionChange(index, e.target.value)}
                                         rows={2}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                         placeholder={`Additional description ${index + 1}`}
                                     />
                                     {formData.descriptions.length > 1 && (
@@ -650,12 +669,12 @@ export default function UpdateProduct() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Bullet Points (comma-separated)</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Bullet Points (comma-separated)</label>
                             <textarea
                                 value={formData.bulletPoints}
                                 onChange={(e) => setFormData({ ...formData, bulletPoints: e.target.value })}
                                 rows={3}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="Feature 1, Feature 2, Feature 3"
                             />
                             <div className="mt-2">
@@ -673,58 +692,58 @@ export default function UpdateProduct() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Keywords (comma-separated)</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Keywords (comma-separated)</label>
                             <input
                                 type="text"
                                 value={formData.keywords}
                                 onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="keyword1, keyword2, keyword3"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Meta Title* (max 60 chars)</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Meta Title* (max 60 chars)</label>
                             <input
                                 type="text"
                                 value={formData.metaTitle}
                                 onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value })}
                                 maxLength={60}
-                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.metaTitle ? 'border-red-500' : 'border-gray-300'}`}
+                                className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.metaTitle ? 'border-red-500' : 'border-gray-300'}`}
                                 placeholder="Enter meta title"
                             />
                             {errors.metaTitle && <p className="mt-1 text-sm text-red-500">{errors.metaTitle}</p>}
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Meta Description* (max 160 chars)</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Meta Description* (max 160 chars)</label>
                             <textarea
                                 value={formData.metaDescription}
                                 onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
                                 rows={3}
                                 maxLength={160}
-                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.metaDescription ? 'border-red-500' : 'border-gray-300'}`}
+                                className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.metaDescription ? 'border-red-500' : 'border-gray-300'}`}
                                 placeholder="Enter meta description"
                             />
                             {errors.metaDescription && <p className="mt-1 text-sm text-red-500">{errors.metaDescription}</p>}
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">FAQs</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">FAQs</label>
                             {formData.faqs.map((faq, index) => (
                                 <div key={index} className="mb-4 border p-4 rounded-lg">
                                     <input
                                         type="text"
                                         value={faq.question}
                                         onChange={(e) => handleFaqChange(index, 'question', e.target.value)}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg mb-2"
+                                        className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 mb-2"
                                         placeholder="Question"
                                     />
                                     <textarea
                                         value={faq.answer}
                                         onChange={(e) => handleFaqChange(index, 'answer', e.target.value)}
                                         rows={2}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                                        className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                         placeholder="Answer"
                                     />
                                     <button
@@ -746,21 +765,21 @@ export default function UpdateProduct() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Specifications</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Specifications</label>
                             {formData.specifications.map((spec, index) => (
                                 <div key={index} className="flex items-center mb-2">
                                     <input
                                         type="text"
                                         value={spec.name}
                                         onChange={(e) => handleSpecChange(index, 'name', e.target.value)}
-                                        className="w-1/2 px-4 py-3 border border-gray-300 rounded-lg mr-2"
+                                        className="w-1/2 px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 mr-2"
                                         placeholder="Spec Name (e.g. Weight)"
                                     />
                                     <input
                                         type="text"
                                         value={spec.value}
                                         onChange={(e) => handleSpecChange(index, 'value', e.target.value)}
-                                        className="w-1/2 px-4 py-3 border border-gray-300 rounded-lg"
+                                        className="w-1/2 px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                         placeholder="Value (e.g. 200g)"
                                     />
                                     <button
@@ -783,7 +802,7 @@ export default function UpdateProduct() {
 
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Global Product</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Global Product</label>
                             <input
                                 type="checkbox"
                                 checked={formData.isGlobal}
@@ -795,23 +814,23 @@ export default function UpdateProduct() {
                         {!formData.isGlobal && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Target Country*</label>
+                                    <label className="block text-gray-300 mb-2 text-sm font-medium">Target Country*</label>
                                     <input
                                         type="text"
                                         value={formData.targetCountry}
                                         onChange={(e) => setFormData({ ...formData, targetCountry: e.target.value })}
-                                        className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.targetCountry ? 'border-red-500' : 'border-gray-300'}`}
+                                        className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.targetCountry ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="Enter target country"
                                     />
                                     {errors.targetCountry && <p className="mt-1 text-sm text-red-500">{errors.targetCountry}</p>}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Target City*</label>
+                                    <label className="block text-gray-300 mb-2 text-sm font-medium">Target City*</label>
                                     <input
                                         type="text"
                                         value={formData.targetCity}
                                         onChange={(e) => setFormData({ ...formData, targetCity: e.target.value })}
-                                        className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.targetCity ? 'border-red-500' : 'border-gray-300'}`}
+                                        className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.targetCity ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="Enter target city"
                                     />
                                     {errors.targetCity && <p className="mt-1 text-sm text-red-500">{errors.targetCity}</p>}
@@ -821,12 +840,12 @@ export default function UpdateProduct() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Initial Rating Value (1-5)</label>
+                                <label className="block text-gray-300 mb-2 text-sm font-medium">Initial Rating Value (1-5)</label>
                                 <input
                                     type="number"
                                     value={formData.aggregateRating.ratingValue}
                                     onChange={(e) => setFormData({ ...formData, aggregateRating: { ...formData.aggregateRating, ratingValue: e.target.value } })}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                                    className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                     placeholder="e.g. 4.5"
                                     min="1"
                                     max="5"
@@ -834,12 +853,12 @@ export default function UpdateProduct() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Initial Review Count</label>
+                                <label className="block text-gray-300 mb-2 text-sm font-medium">Initial Review Count</label>
                                 <input
                                     type="number"
                                     value={formData.aggregateRating.reviewCount}
                                     onChange={(e) => setFormData({ ...formData, aggregateRating: { ...formData.aggregateRating, reviewCount: e.target.value } })}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+                                    className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                     placeholder="e.g. 0"
                                     min="0"
                                 />
@@ -850,7 +869,7 @@ export default function UpdateProduct() {
                     {/* Product Type */}
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">Product Type*</label>
+                            <label className="block text-sm font-medium text-gray-100 mb-3">Product Type*</label>
                             <div className="flex flex-col sm:flex-row sm:space-x-6 space-y-2 sm:space-y-0">
                                 <label className="inline-flex items-center">
                                     <input
@@ -860,7 +879,7 @@ export default function UpdateProduct() {
                                         onChange={() => setFormData({ ...formData, productType: 'Own', affiliateLink: '' })}
                                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                                     />
-                                    <span className="ml-2 text-gray-700">Own Product</span>
+                                    <span className="ml-2 text-gray-100">Own Product</span>
                                 </label>
                                 <label className="inline-flex items-center">
                                     <input
@@ -870,19 +889,19 @@ export default function UpdateProduct() {
                                         onChange={() => setFormData({ ...formData, productType: 'Affiliate' })}
                                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                                     />
-                                    <span className="ml-2 text-gray-700">Affiliate Product</span>
+                                    <span className="ml-2 text-gray-100">Affiliate Product</span>
                                 </label>
                             </div>
                         </div>
 
                         {formData.productType === 'Affiliate' && (
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Affiliate Link*</label>
+                                <label className="block text-gray-300 mb-2 text-sm font-medium">Affiliate Link*</label>
                                 <input
                                     type="url"
                                     value={formData.affiliateLink}
                                     onChange={(e) => setFormData({ ...formData, affiliateLink: e.target.value })}
-                                    className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.affiliateLink ? 'border-red-500' : 'border-gray-300'}`}
+                                    className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.affiliateLink ? 'border-red-500' : 'border-gray-300'}`}
                                     placeholder="https://example.com/affiliate"
                                 />
                                 {errors.affiliateLink && <p className="mt-1 text-sm text-red-500">{errors.affiliateLink}</p>}
@@ -893,7 +912,7 @@ export default function UpdateProduct() {
                     {/* Images */}
                     <div className="space-y-6">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Main Image* (800*800 px)</label>
+                            <label className="block text-gray-100 mb-2 text-sm font-medium">Main Image* (800*800 px)</label>
                             <input
                                 type="file"
                                 accept="image/*"
@@ -904,7 +923,7 @@ export default function UpdateProduct() {
                             {errors.mainImage && <p className="mt-1 text-sm text-red-500">{errors.mainImage}</p>}
                             {imagePreviews.mainImage && (
                                 <div className="mt-4">
-                                    <p className="text-sm text-gray-600 mb-2">Preview:</p>
+                                    <p className="text-sm text-gray-100 mb-2">Preview:</p>
                                     <Image
                                         src={imagePreviews.mainImage}
                                         alt="Main image preview"
@@ -914,19 +933,19 @@ export default function UpdateProduct() {
                                     />
                                 </div>
                             )}
-                            <label className="block text-sm font-medium text-gray-700 mt-4 mb-2">Main Image ALT Text*</label>
+                            <label className="block text-sm font-medium text-gray-100 mt-4 mb-2">Main Image ALT Text*</label>
                             <input
                                 type="text"
                                 value={formData.mainImageAlt}
                                 onChange={(e) => setFormData({ ...formData, mainImageAlt: e.target.value })}
-                                className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.mainImageAlt ? 'border-red-500' : 'border-gray-300'}`}
+                                className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.mainImageAlt ? 'border-red-500' : 'border-gray-300'}`}
                                 placeholder="Enter ALT text for main image"
                             />
                             {errors.mainImageAlt && <p className="mt-1 text-sm text-red-500">{errors.mainImageAlt}</p>}
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Additional Images (max 5) - (800*800 px)</label>
+                            <label className="block text-gray-100 mb-2 text-sm font-medium">Additional Images (max 5) - (800*800 px)</label>
                             {formData.existingAdditionalImages.map((img, index) => (
                                 <div key={`existing-${index}`} className="mb-4">
                                     <div className="flex items-center">
@@ -945,12 +964,12 @@ export default function UpdateProduct() {
                                             Remove
                                         </button>
                                     </div>
-                                    <label className="block text-sm font-medium text-gray-700 mt-2 mb-1">ALT Text for Existing Image {index + 1}</label>
+                                    <label className="block text-sm font-medium text-gray-100 mt-2 mb-1">ALT Text for Existing Image {index + 1}</label>
                                     <input
                                         type="text"
                                         value={img.alt}
                                         onChange={(e) => handleExistingAltChange(index, e.target.value)}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                         placeholder={`Enter ALT text for existing image ${index + 1}`}
                                     />
                                 </div>
@@ -963,7 +982,7 @@ export default function UpdateProduct() {
                                             accept="image/*"
                                             ref={(el) => (additionalImageInputRefs.current[index] = el)}
                                             onChange={(e) => handleAdditionalImageChange(index, e)}
-                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                            className="block w-full text-sm text-gray-100 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                         />
                                         <button
                                             type="button"
@@ -987,12 +1006,12 @@ export default function UpdateProduct() {
                                             />
                                         </div>
                                     )}
-                                    <label className="block text-sm font-medium text-gray-700 mt-2 mb-1">ALT Text for New Image {index + 1}</label>
+                                    <label className="block text-sm font-medium text-gray-100 mt-2 mb-1">ALT Text for New Image {index + 1}</label>
                                     <input
                                         type="text"
                                         value={formData.additionalAlts[index]}
                                         onChange={(e) => handleAdditionalAltChange(index, e.target.value)}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                         placeholder={`Enter ALT text for additional image ${index + 1}`}
                                     />
                                 </div>
@@ -1018,7 +1037,7 @@ export default function UpdateProduct() {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className={`w-full px-6 py-3 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg font-medium text-white hover:from-purple-700 hover:to-blue-700 transition-all duration-300 flex items-center justify-center ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             {isSubmitting ? (
                                 <span className="flex items-center justify-center">

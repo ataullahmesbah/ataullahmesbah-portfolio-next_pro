@@ -100,7 +100,7 @@ export default async function ProductDetails({ params }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-900 text-white border-b border-b-gray-800 pb-8">
       <Suspense fallback={<LoadingSkeleton />}>
         <ProductDetailsClient product={product} latestProducts={latestProducts} />
       </Suspense>

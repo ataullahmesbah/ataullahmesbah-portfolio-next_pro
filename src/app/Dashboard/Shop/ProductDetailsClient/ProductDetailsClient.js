@@ -60,6 +60,15 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             price: product.prices.find((p) => p.currency === 'BDT')?.amount || 0,
             availability: `https://schema.org/${product.availability || 'InStock'}`,
             url: `${process.env.NEXTAUTH_URL}/shop/${product.slug}`,
+            areaServed: product.isGlobal ? 'Worldwide' : {
+                '@type': 'Place',
+                name: product.targetCity,
+                address: {
+                    '@type': 'PostalAddress',
+                    addressLocality: product.targetCity,
+                    addressCountry: product.targetCountry,
+                },
+            },
         },
         aggregateRating: product.aggregateRating?.ratingValue
             ? {
@@ -525,6 +534,9 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                     ? `In Stock (${product.quantity} available)`
                                     : product.availability}
                             </p>
+                            <div className="text-xs text-gray-200">
+                                <p>Available in: {product.isGlobal ? 'Worldwide' : `${product.targetCity}, ${product.targetCountry}`}</p>
+                            </div>
                         </div>
 
                         {/* Product Details Tabs - Vertical List */}
@@ -590,7 +602,9 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             {latestProducts.length > 0 && (
                 <div className="mt-12">
                     <h2 className="text-xl font-semibold text-white mb-6">You May Also Like</h2>
+
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+
                         {latestProducts.slice(0, 5).map((item) => (
                             <Link
                                 key={item._id}
@@ -624,6 +638,8 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                     </p>
                                 </div>
                             </Link>
+
+
                         ))}
                     </div>
                 </div>
