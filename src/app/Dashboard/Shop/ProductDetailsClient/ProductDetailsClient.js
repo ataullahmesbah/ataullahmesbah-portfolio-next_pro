@@ -404,7 +404,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                     {/* Product Info */}
                     <div className="space-y-6">
                         <div>
-                            <h1 className="text-2xl font-bold text-white">{product.title}</h1>
+                            <h1 className="text-2xl font-bold text-white">{product.title} - {product.category?.name || ''}</h1>
                             {product.brand && (
                                 <p className="text-sm text-gray-400 mt-1">Brand: {product.brand}</p>
                             )}

@@ -54,6 +54,9 @@ const productSchema = new mongoose.Schema({
     ratingValue: { type: Number, min: 1, max: 5 },
     reviewCount: { type: Number, default: 0 },
   }, // For SGE
+  targetCountry: { type: String, default: 'Bangladesh' },
+  targetCity: { type: String, default: 'Dhaka' },
+  isGlobal: { type: Boolean, default: false },
   specifications: [specSchema], // For AEO
   schemaMarkup: { type: Object }, // For SEO and GEO (auto-generated in API)
 }, { timestamps: true });

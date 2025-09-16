@@ -41,6 +41,9 @@ export default function UpdateProduct() {
         faqs: [],
         specifications: [],
         aggregateRating: { ratingValue: '', reviewCount: '' },
+        isGlobal: false,
+        targetCountry: 'Bangladesh',
+        targetCity: 'Dhaka',
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -102,6 +105,9 @@ export default function UpdateProduct() {
                         ratingValue: product.aggregateRating?.ratingValue || '',
                         reviewCount: product.aggregateRating?.reviewCount || '',
                     },
+                    isGlobal: product.isGlobal || false,
+                    targetCountry: product.targetCountry || 'Bangladesh',
+                    targetCity: product.targetCity || 'Dhaka',
                 });
 
                 setImagePreviews({
@@ -119,6 +125,13 @@ export default function UpdateProduct() {
             fetchData();
         }
     }, [productId]);
+
+    useEffect(() => {
+        return () => {
+            if (imagePreviews.mainImage) URL.revokeObjectURL(imagePreviews.mainImage);
+            imagePreviews.additionalImages.forEach((url) => url && URL.revokeObjectURL(url));
+        };
+    }, [imagePreviews]);
 
     const validateForm = () => {
         const newErrors = {};
@@ -158,10 +171,15 @@ export default function UpdateProduct() {
         if (!formData.quantity || isNaN(formData.quantity) || parseInt(formData.quantity) < 0) {
             newErrors.quantity = 'Quantity must be a non-negative integer';
         }
+        if (!formData.isGlobal) {
+            if (!formData.targetCountry.trim()) newErrors.targetCountry = 'Target country is required';
+            if (!formData.targetCity.trim()) newErrors.targetCity = 'Target city is required';
+        }
         if (!formData.brand.trim()) newErrors.brand = 'Brand is required';
         if (!formData.metaTitle.trim() || formData.metaTitle.length > 60) newErrors.metaTitle = 'Meta Title is required (max 60 chars)';
         if (!formData.metaDescription.trim() || formData.metaDescription.length > 160) newErrors.metaDescription = 'Meta Description is required (max 160 chars)';
         return newErrors;
+
     };
 
     const handleSubmit = async (e) => {
@@ -218,6 +236,9 @@ export default function UpdateProduct() {
         data.append('specifications', JSON.stringify(formData.specifications));
         data.append('aggregateRating.ratingValue', formData.aggregateRating.ratingValue);
         data.append('aggregateRating.reviewCount', formData.aggregateRating.reviewCount);
+        data.append('isGlobal', formData.isGlobal.toString());
+        data.append('targetCountry', formData.targetCountry || '');
+        data.append('targetCity', formData.targetCity || '');
 
         // Debug FormData
         console.log('FormData entries:');
@@ -759,6 +780,44 @@ export default function UpdateProduct() {
                                 + Add Specification
                             </button>
                         </div>
+
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Global Product</label>
+                            <input
+                                type="checkbox"
+                                checked={formData.isGlobal}
+                                onChange={(e) => setFormData({ ...formData, isGlobal: e.target.checked })}
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            />
+                        </div>
+
+                        {!formData.isGlobal && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Target Country*</label>
+                                    <input
+                                        type="text"
+                                        value={formData.targetCountry}
+                                        onChange={(e) => setFormData({ ...formData, targetCountry: e.target.value })}
+                                        className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.targetCountry ? 'border-red-500' : 'border-gray-300'}`}
+                                        placeholder="Enter target country"
+                                    />
+                                    {errors.targetCountry && <p className="mt-1 text-sm text-red-500">{errors.targetCountry}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Target City*</label>
+                                    <input
+                                        type="text"
+                                        value={formData.targetCity}
+                                        onChange={(e) => setFormData({ ...formData, targetCity: e.target.value })}
+                                        className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.targetCity ? 'border-red-500' : 'border-gray-300'}`}
+                                        placeholder="Enter target city"
+                                    />
+                                    {errors.targetCity && <p className="mt-1 text-sm text-red-500">{errors.targetCity}</p>}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>

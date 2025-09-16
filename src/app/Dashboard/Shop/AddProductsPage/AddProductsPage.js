@@ -38,6 +38,9 @@ export default function AddProduct() {
         faqs: [], // Array of {question, answer}
         specifications: [], // Array of {name, value}
         aggregateRating: { ratingValue: '', reviewCount: '' }, // Optional initial
+        isGlobal: false, // অ্যাড করো
+        targetCountry: 'Bangladesh', // অ্যাড করো
+        targetCity: 'Dhaka',
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,6 +63,13 @@ export default function AddProduct() {
         };
         fetchCategories();
     }, []);
+
+    useEffect(() => {
+        return () => {
+            if (imagePreviews.mainImage) URL.revokeObjectURL(imagePreviews.mainImage);
+            imagePreviews.additionalImages.forEach((url) => url && URL.revokeObjectURL(url));
+        };
+    }, [imagePreviews]);
 
     const validateForm = () => {
         const newErrors = {};
@@ -101,6 +111,10 @@ export default function AddProduct() {
         if (!formData.metaTitle.trim() || formData.metaTitle.length > 60) newErrors.metaTitle = 'Meta Title is required (max 60 chars)';
         if (!formData.metaDescription.trim() || formData.metaDescription.length > 160) newErrors.metaDescription = 'Meta Description is required (max 160 chars)';
         // Additional validations for FAQs, specs if needed
+        if (!formData.isGlobal) {
+            if (!formData.targetCountry.trim()) newErrors.targetCountry = 'Target country is required';
+            if (!formData.targetCity.trim()) newErrors.targetCity = 'Target city is required';
+        }
         return newErrors;
     };
 
@@ -140,6 +154,9 @@ export default function AddProduct() {
         if (formData.newCategory) data.append('newCategory', formData.newCategory);
         data.append('mainImage', formData.mainImage);
         data.append('mainImageAlt', formData.mainImageAlt);
+        data.append('isGlobal', formData.isGlobal.toString());
+        data.append('targetCountry', formData.targetCountry || '');
+        data.append('targetCity', formData.targetCity || '');
 
         // Log FormData to debug
         console.log('FormData entries:');
@@ -251,9 +268,7 @@ export default function AddProduct() {
         const newPreviews = imagePreviews.additionalImages.filter((_, i) => i !== index);
         setFormData({ ...formData, additionalImages: newImages, additionalAlts: newAlts });
         setImagePreviews({ ...imagePreviews, additionalImages: newPreviews });
-        if (additionalImageInputRefs.current[index]) {
-            additionalImageInputRefs.current[index].value = null;
-        }
+        additionalImageInputRefs.current = additionalImageInputRefs.current.filter((_, i) => i !== index);
     };
 
     const handleMainImageChange = (e) => {
@@ -301,8 +316,8 @@ export default function AddProduct() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-4 md:p-8">
-            <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 md:p-8">
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-700 p-4 sm:p-6 lg:p-8">
+            <div className="max-w-5xl mx-auto bg-gray-800 rounded-2xl shadow-2xl p-6 sm:p-8 lg:p-10">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6">Add New Product</h1>
 
                 {errors.general && (
@@ -691,6 +706,44 @@ export default function AddProduct() {
                                 + Add Specification
                             </button>
                         </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">Global Targeting</label>
+                            <input
+                                type="checkbox"
+                                checked={formData.isGlobal}
+                                onChange={(e) => setFormData({ ...formData, isGlobal: e.target.checked })}
+                                className="h-4 w-4 text-purple-500 focus:ring-purple-500 border-gray-600 rounded"
+                            />
+                            <span className="ml-2 text-sm text-gray-300">Enable global targeting</span>
+                        </div>
+
+                        {!formData.isGlobal && (
+                            <>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">Target Country*</label>
+                                    <input
+                                        type="text"
+                                        value={formData.targetCountry}
+                                        onChange={(e) => setFormData({ ...formData, targetCountry: e.target.value })}
+                                        className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.targetCountry ? 'border-red-500' : 'border-gray-300'}`}
+                                        placeholder="Enter target country (e.g., Bangladesh, United Kingdom)"
+                                    />
+                                    {errors.targetCountry && <p className="mt-1 text-sm text-red-300">{errors.targetCountry}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">Target City*</label>
+                                    <input
+                                        type="text"
+                                        value={formData.targetCity}
+                                        onChange={(e) => setFormData({ ...formData, targetCity: e.target.value })}
+                                        className={`w-full px-4 py-3 border rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.targetCity ? 'border-red-500' : 'border-gray-300'}`}
+                                        placeholder="Enter target city (e.g., Dhaka, Manchester, London)"
+                                    />
+                                    {errors.targetCity && <p className="mt-1 text-sm text-red-300">{errors.targetCity}</p>}
+                                </div>
+                            </>
+                        )}
 
                         {/* Optional Initial Aggregate Rating */}
                         <div className="grid grid-cols-2 gap-4">

@@ -65,17 +65,33 @@ export async function POST(request) {
 
     try {
         const formData = await request.formData();
-        console.log('Received formData keys:', [...formData.keys()]); // Debug log
+        console.log('Received formData keys:', [...formData.keys()]); // ইতিমধ্যে আছে
+        if (formData.get('isGlobal') !== 'true') {
+            if (!formData.get('targetCountry')?.trim()) {
+                return Response.json({ error: 'Target country is required when not global' }, { status: 400 });
+            }
+            if (!formData.get('targetCity')?.trim()) {
+                return Response.json({ error: 'Target city is required when not global' }, { status: 400 });
+            }
+        }
 
         // Validate required fields
         const requiredFields = ['title', 'bdtPrice', 'description', 'mainImage', 'productType', 'quantity', 'product_code', 'brand', 'metaTitle', 'metaDescription', 'mainImageAlt'];
+        // Only require targetCountry and targetCity if isGlobal is false
+        if (formData.get('isGlobal') !== 'true') {
+            requiredFields.push('targetCountry', 'targetCity');
+        }
         const missingFields = requiredFields.filter((field) => !formData.get(field) && formData.get(field) !== '');
         if (missingFields.length > 0) {
-            return Response.json(
-                { error: `Missing required fields: ${missingFields.join(', ')}` },
-                { status: 400 }
-            );
+            return Response.json({ error: `Missing required fields: ${missingFields.join(', ')}` }, { status: 400 });
         }
+
+        const targetCountry = formData.get('targetCountry')?.trim().replace(/[^a-zA-Z\s]/g, '') || '';
+        const targetCity = formData.get('targetCity')?.trim().replace(/[^a-zA-Z\s]/g, '') || '';
+        if (formData.get('isGlobal') !== 'true' && (!targetCountry || !targetCity)) {
+            return Response.json({ error: 'Invalid target country or city format' }, { status: 400 });
+        }
+
 
         // Validate productType
         if (!['Own', 'Affiliate'].includes(formData.get('productType'))) {
@@ -299,13 +315,19 @@ export async function POST(request) {
                 priceCurrency: 'BDT',
                 price: bdtPrice,
                 availability: formData.get('availability') || 'https://schema.org/InStock',
+                url: `${process.env.NEXTAUTH_URL}/shop/${uniqueSlug}`,
+                itemOffered: {
+                    '@type': 'Product',
+                    areaServed: formData.get('isGlobal') === 'true' ? 'Worldwide' : formData.get('targetCountry'),
+                },
             },
             aggregateRating: {
                 '@type': 'AggregateRating',
-                ratingValue: formData.get('aggregateRating.ratingValue') || 0,
-                reviewCount: formData.get('aggregateRating.reviewCount') || 0,
+                ratingValue: parseFloat(formData.get('aggregateRating.ratingValue')) || 0,
+                reviewCount: parseInt(formData.get('aggregateRating.reviewCount')) || 0,
             },
         };
+
 
         const product = new Product({
             title: formData.get('title'),
@@ -313,7 +335,7 @@ export async function POST(request) {
             prices,
             mainImage: mainImageResult.secure_url,
             mainImageAlt: formData.get('mainImageAlt'),
-            additionalImages, // This should be an array of { url, alt } objects
+            additionalImages,
             description: formData.get('description'),
             shortDescription: formData.get('shortDescription'),
             product_code: formData.get('product_code'),
@@ -337,6 +359,9 @@ export async function POST(request) {
             },
             specifications,
             schemaMarkup,
+            targetCountry: formData.get('targetCountry'),
+            targetCity: formData.get('targetCity'),
+            isGlobal: formData.get('isGlobal') === 'true',
         });
 
         console.log('Product to save:', JSON.stringify(product, null, 2)); // Debug log

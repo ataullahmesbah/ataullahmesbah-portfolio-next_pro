@@ -124,6 +124,9 @@ export async function PUT(request, { params }) {
         const metaTitle = formData.get('metaTitle');
         const metaDescription = formData.get('metaDescription');
         const keywords = formData.get('keywords')?.split(',').map((kw) => kw.trim()).filter(Boolean) || [];
+        const isGlobal = formData.get('isGlobal') === 'true';
+        const targetCountry = formData.get('targetCountry')?.trim().replace(/[^a-zA-Z\s-]/g, '') || '';
+        const targetCity = formData.get('targetCity')?.trim().replace(/[^a-zA-Z\s-]/g, '') || '';
         let faqs = [];
         if (formData.get('faqs')) {
             try {
@@ -186,6 +189,15 @@ export async function PUT(request, { params }) {
         }
         if (additionalImages.length !== additionalAlts.length) {
             return Response.json({ error: 'Number of additional images and ALT texts must match' }, { status: 400 });
+        }
+
+        if (!isGlobal) {
+            if (!targetCountry.trim()) {
+                return Response.json({ error: 'Target country is required when not global' }, { status: 400 });
+            }
+            if (!targetCity.trim()) {
+                return Response.json({ error: 'Target city is required when not global' }, { status: 400 });
+            }
         }
 
         // Handle category
@@ -320,6 +332,11 @@ export async function PUT(request, { params }) {
                 priceCurrency: 'BDT',
                 price: bdtPrice,
                 availability: availability || 'https://schema.org/InStock',
+                url: `${process.env.NEXTAUTH_URL}/shop/${uniqueSlug}`,
+                itemOffered: {
+                    '@type': 'Product',
+                    areaServed: isGlobal ? 'Worldwide' : targetCountry,
+                },
             },
             aggregateRating: {
                 '@type': 'AggregateRating',
@@ -357,6 +374,9 @@ export async function PUT(request, { params }) {
                 specifications,
                 aggregateRating,
                 schemaMarkup,
+                isGlobal,
+                targetCountry,
+                targetCity,
             },
             { new: true, runValidators: true }
         );
