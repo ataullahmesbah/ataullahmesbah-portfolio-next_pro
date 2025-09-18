@@ -116,14 +116,14 @@ async function BlogContent({ page, limit }) {
                   key={blog.slug}
                   className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-700 flex flex-col"
                 >
-                  <div className="relative h-48 sm:h-56 md:h-64 w-full">
+                  <div className="relative w-full aspect-[16/9]"> {/* Changed to aspect ratio */}
                     <Image
                       src={blog.mainImage}
                       alt={blog.title}
                       fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       className="w-full h-full object-cover"
-                      priority={index < 3} // Only prioritize first few images
+                      priority={index < 3}
                     />
                   </div>
                   <div className="p-4 sm:p-5 flex flex-col flex-grow">
