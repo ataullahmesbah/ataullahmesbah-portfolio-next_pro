@@ -119,6 +119,22 @@ export async function POST(request) {
             );
         }
 
+        // Size Processing
+        const sizeRequirement = formData.get('sizeRequirement') || 'Optional';
+        let sizes = [];
+        if (formData.get('sizes')) {
+            try {
+                sizes = JSON.parse(formData.get('sizes')).filter((size) => size.trim());
+            } catch {
+                return Response.json({ error: 'Invalid sizes format' }, { status: 400 });
+            }
+        }
+
+        // Mandatory হলে সাইজ চেক করুন
+        if (sizeRequirement === 'Mandatory' && sizes.length === 0) {
+            return Response.json({ error: 'At least one size is required when size is Mandatory' }, { status: 400 });
+        }
+
         // Process prices
         const prices = [{ currency: 'BDT', amount: bdtPrice }];
         if (formData.get('usdPrice')) {
@@ -358,6 +374,8 @@ export async function POST(request) {
                 reviewCount: parseInt(formData.get('aggregateRating.reviewCount')) || 0,
             },
             specifications,
+            sizeRequirement,
+            sizes,
             schemaMarkup,
             targetCountry: formData.get('targetCountry'),
             targetCity: formData.get('targetCity'),

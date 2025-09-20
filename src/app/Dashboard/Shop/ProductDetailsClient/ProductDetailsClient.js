@@ -9,7 +9,6 @@ import { toast } from 'react-hot-toast';
 import { CiDeliveryTruck } from "react-icons/ci";
 
 
-
 export default function ProductDetailsClient({ product, latestProducts }) {
     const [selectedImage, setSelectedImage] = useState(product.mainImage);
     const [selectedImageAlt, setSelectedImageAlt] = useState(product.mainImageAlt || product.title);
@@ -21,6 +20,8 @@ export default function ProductDetailsClient({ product, latestProducts }) {
     const [activeTab, setActiveTab] = useState(null); // Track active drawer tab
     const [isMobile, setIsMobile] = useState(false); // Track if device is mobile
     const router = useRouter();
+    const [selectedSize, setSelectedSize] = useState('');
+    const [showSizeError, setShowSizeError] = useState(false);
 
     // Detect mobile device
     useEffect(() => {
@@ -101,6 +102,18 @@ export default function ProductDetailsClient({ product, latestProducts }) {
         : null;
 
     const handleAddToCart = async () => {
+
+        if (product.productType === 'Own' && product.sizeRequirement === 'Mandatory' && product.sizes?.length > 0 && !selectedSize) {
+            setShowSizeError(true);
+            toast.error('Please select a size before adding to cart');
+            return;
+        }
+
+        if (product.availability !== 'InStock' || product.quantity <= 0 || product.productType === 'Affiliate') {
+            toast.error('This product cannot be added to cart');
+            return;
+        }
+
         if (product.availability !== 'InStock' || product.quantity <= 0 || product.productType === 'Affiliate') {
             toast.error('This product cannot be added to cart');
             return;
@@ -163,6 +176,17 @@ export default function ProductDetailsClient({ product, latestProducts }) {
     };
 
     const handleBuyNow = async () => {
+        if (product.productType === 'Own' && product.sizeRequirement === 'Mandatory' && product.sizes?.length > 0 && !selectedSize) {
+            setShowSizeError(true);
+            toast.error('Please select a size before buying');
+            return;
+        }
+
+        if (product.availability !== 'InStock' || product.quantity <= 0) {
+            toast.error('This product is out of stock');
+            return;
+        }
+
         if (product.availability !== 'InStock' || product.quantity <= 0) {
             toast.error('This product is out of stock');
             return;
@@ -464,6 +488,33 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                 ))}
                             </select>
                         </div>
+
+                        {product.productType === 'Own' && product.sizeRequirement === 'Mandatory' && product.sizes?.length > 0 && (
+                            <div className="space-y-3">
+                                <label className="block text-sm font-medium text-gray-300">Select Size:</label>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                                    {product.sizes.map((size, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => {
+                                                setSelectedSize(size);
+                                                setShowSizeError(false);
+                                            }}
+                                            className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${selectedSize === size
+                                                ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25'
+                                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
+                                                }`}
+                                        >
+                                            {size}
+                                        </button>
+                                    ))}
+                                </div>
+                                {showSizeError && (
+                                    <p className="text-sm text-red-400">Please select a size before adding to cart</p>
+                                )}
+                            </div>
+                        )}
+
 
                         {product.availability !== 'InStock' && product.productType !== 'Affiliate' ? (
                             <div className="p-3 bg-red-900/20 text-red-300 rounded-md text-sm">

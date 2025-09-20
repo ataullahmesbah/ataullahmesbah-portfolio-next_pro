@@ -23,6 +23,8 @@ const reviewSchema = new mongoose.Schema({
   reviewer: { type: String },
 });
 
+
+
 const productSchema = new mongoose.Schema({
   title: { type: String, required: true },
   slug: { type: String, required: true, unique: true, index: true },
@@ -57,6 +59,15 @@ const productSchema = new mongoose.Schema({
   targetCountry: { type: String, default: 'Bangladesh' },
   targetCity: { type: String, default: 'Dhaka' },
   isGlobal: { type: Boolean, default: false },
+  sizeRequirement: {
+    type: String,
+    enum: ['Optional', 'Mandatory'],
+    default: 'Optional',
+  },
+  sizes: [{
+    type: String,
+    trim: true,
+  }],
   specifications: [specSchema], // For AEO
   schemaMarkup: { type: Object }, // For SEO and GEO (auto-generated in API)
 }, { timestamps: true });

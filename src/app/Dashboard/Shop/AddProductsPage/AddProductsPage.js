@@ -37,6 +37,8 @@ export default function AddProduct() {
         keywords: '',
         faqs: [], // Array of {question, answer}
         specifications: [], // Array of {name, value}
+        sizeRequirement: 'Optional',
+        sizes: [], // Array of size strings (e.g., ["XS", "SM", "XL"])
         aggregateRating: { ratingValue: '', reviewCount: '' }, // Optional initial
         isGlobal: false, // অ্যাড করো
         targetCountry: 'Bangladesh', // অ্যাড করো
@@ -111,6 +113,18 @@ export default function AddProduct() {
         if (!formData.metaTitle.trim() || formData.metaTitle.length > 60) newErrors.metaTitle = 'Meta Title is required (max 60 chars)';
         if (!formData.metaDescription.trim() || formData.metaDescription.length > 160) newErrors.metaDescription = 'Meta Description is required (max 160 chars)';
         // Additional validations for FAQs, specs if needed
+        // Size Validations
+        if (!formData.sizeRequirement) {
+            newErrors.sizeRequirement = 'Size requirement is required';
+        }
+        if (formData.sizeRequirement === 'Mandatory' && formData.sizes.length === 0) {
+            newErrors.sizes = 'At least one size is required when size is Mandatory';
+        }
+        formData.sizes.forEach((size, index) => {
+            if (formData.sizeRequirement === 'Mandatory' && !size.trim()) {
+                newErrors[`size${index}`] = 'Size cannot be empty';
+            }
+        });
         if (!formData.isGlobal) {
             if (!formData.targetCountry.trim()) newErrors.targetCountry = 'Target country is required';
             if (!formData.targetCity.trim()) newErrors.targetCity = 'Target city is required';
@@ -184,6 +198,8 @@ export default function AddProduct() {
         data.append('keywords', formData.keywords);
         data.append('faqs', JSON.stringify(formData.faqs));
         data.append('specifications', JSON.stringify(formData.specifications));
+        data.append('sizeRequirement', formData.sizeRequirement);
+        data.append('sizes', JSON.stringify(formData.sizes.filter((size) => size.trim())));
         data.append('aggregateRating.ratingValue', formData.aggregateRating.ratingValue);
         data.append('aggregateRating.reviewCount', formData.aggregateRating.reviewCount);
 
@@ -313,6 +329,21 @@ export default function AddProduct() {
         const newAlts = [...formData.additionalAlts];
         newAlts[index] = value;
         setFormData({ ...formData, additionalAlts: newAlts });
+    };
+
+    const handleSizeChange = (index, value) => {
+        const newSizes = [...formData.sizes];
+        newSizes[index] = value;
+        setFormData({ ...formData, sizes: newSizes });
+    };
+
+    const addSize = () => {
+        setFormData({ ...formData, sizes: [...formData.sizes, ''] });
+    };
+
+    const removeSize = (index) => {
+        const newSizes = formData.sizes.filter((_, i) => i !== index);
+        setFormData({ ...formData, sizes: newSizes });
     };
 
     return (
@@ -727,6 +758,53 @@ export default function AddProduct() {
                             >
                                 + Add Specification
                             </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Size Requirement*</label>
+                            <select
+                                value={formData.sizeRequirement}
+                                onChange={(e) => setFormData({ ...formData, sizeRequirement: e.target.value })}
+                                className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors.sizeRequirement ? 'border-red-500' : 'border-gray-300'}`}
+                            >
+                                <option value="Optional">Optional</option>
+                                <option value="Mandatory">Mandatory</option>
+                            </select>
+                            {errors.sizeRequirement && <p className="mt-1 text-sm text-red-500">{errors.sizeRequirement}</p>}
+
+                            {formData.sizeRequirement === 'Mandatory' && (
+                                <div>
+                                    <label className="block text-gray-300 mb-2 text-sm font-medium">Sizes*</label>
+                                    {formData.sizes.map((size, index) => (
+                                        <div key={index} className="flex items-center mb-2">
+                                            <input
+                                                type="text"
+                                                value={size}
+                                                onChange={(e) => handleSizeChange(index, e.target.value)}
+                                                className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors[`size${index}`] ? 'border-red-500' : 'border-gray-300'}`}
+                                                placeholder={`Size ${index + 1} (e.g., XS, 40)`}
+                                            />
+                                            {formData.sizes.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeSize(index)}
+                                                    className="ml-2 text-red-500 hover:text-red-700"
+                                                >
+                                                    Remove
+                                                </button>
+                                            )}
+                                            {errors[`size${index}`] && <p className="mt-1 text-sm text-red-500">{errors[`size${index}`]}</p>}
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={addSize}
+                                        className="text-blue-500 hover:text-blue-700 text-sm font-medium"
+                                    >
+                                        + Add Size
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         <div>
