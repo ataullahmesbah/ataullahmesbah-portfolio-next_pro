@@ -8,7 +8,6 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { CiDeliveryTruck } from "react-icons/ci";
 
-
 export default function ProductDetailsClient({ product, latestProducts }) {
     const [selectedImage, setSelectedImage] = useState(product.mainImage);
     const [selectedImageAlt, setSelectedImageAlt] = useState(product.mainImageAlt || product.title);
@@ -17,23 +16,21 @@ export default function ProductDetailsClient({ product, latestProducts }) {
     const [quantity, setQuantity] = useState(1);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [conversionRates, setConversionRates] = useState({ USD: 123, EUR: 135, BDT: 1 });
-    const [activeTab, setActiveTab] = useState(null); // Track active drawer tab
-    const [isMobile, setIsMobile] = useState(false); // Track if device is mobile
+    const [activeTab, setActiveTab] = useState(null);
+    const [isMobile, setIsMobile] = useState(false);
     const router = useRouter();
-    const [selectedSize, setSelectedSize] = useState('');
+    const [selectedSize, setSelectedSize] = useState(null);
     const [showSizeError, setShowSizeError] = useState(false);
 
-    // Detect mobile device
     useEffect(() => {
         const checkMobile = () => {
-            setIsMobile(window.innerWidth < 768); // md breakpoint in Tailwind
+            setIsMobile(window.innerWidth < 768);
         };
         checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Fetch conversion rates
     useEffect(() => {
         axios
             .get('/api/products/conversion-rates')
@@ -46,7 +43,6 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             });
     }, []);
 
-    // Structured data with full schema
     const structuredData = {
         '@context': 'https://schema.org',
         '@type': 'Product',
@@ -85,7 +81,6 @@ export default function ProductDetailsClient({ product, latestProducts }) {
         })),
     };
 
-    // FAQPage schema
     const faqStructuredData = product.faqs?.length > 0
         ? {
             '@context': 'https://schema.org',
@@ -102,7 +97,6 @@ export default function ProductDetailsClient({ product, latestProducts }) {
         : null;
 
     const handleAddToCart = async () => {
-
         if (product.productType === 'Own' && product.sizeRequirement === 'Mandatory' && product.sizes?.length > 0 && !selectedSize) {
             setShowSizeError(true);
             toast.error('Please select a size before adding to cart');
@@ -114,29 +108,21 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             return;
         }
 
-        if (product.availability !== 'InStock' || product.quantity <= 0 || product.productType === 'Affiliate') {
-            toast.error('This product cannot be added to cart');
-            return;
-        }
-
         try {
-            const response = await axios.get(`/api/products/${product._id}`);
-            const currentProduct = response.data;
+            const response = await axios.post('/api/products/cart/validate', {
+                productId: product._id,
+                quantity,
+                size: selectedSize ? selectedSize.name : null,
+            });
+            const validation = response.data;
 
-            if (quantity > currentProduct.quantity) {
-                toast.error(`Only ${currentProduct.quantity} units available`);
-                setQuantity(Math.min(quantity, currentProduct.quantity));
-                return;
-            }
-
-            if (quantity > 3) {
-                toast.error('Cannot add more than 3 units of this product');
-                setQuantity(3);
+            if (!validation.valid) {
+                toast.error(validation.message);
                 return;
             }
 
             const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            const existingItem = cart.find((item) => item._id === product._id);
+            const existingItem = cart.find((item) => item._id === product._id && (!item.size || item.size === selectedSize?.name));
             let newQuantity = quantity;
 
             if (existingItem) {
@@ -145,12 +131,12 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                     toast.error('Cannot add more than 3 units of this product');
                     return;
                 }
-                if (newQuantity > currentProduct.quantity) {
-                    toast.error('Selected quantity exceeds available stock');
+                if (selectedSize && newQuantity > selectedSize.quantity) {
+                    toast.error(`Only ${selectedSize.quantity} units available for size ${selectedSize.name}`);
                     return;
                 }
                 cart.splice(cart.indexOf(existingItem), 1);
-                cart.push({ ...existingItem, quantity: newQuantity });
+                cart.push({ ...existingItem, quantity: newQuantity, size: selectedSize?.name });
                 toast.success('Cart updated successfully');
             } else {
                 const priceObj = product.prices.find((p) => p.currency === 'BDT') || product.prices[0];
@@ -163,6 +149,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                     mainImage: product.mainImage,
                     mainImageAlt: product.mainImageAlt,
                     currency: 'BDT',
+                    size: selectedSize?.name,
                 });
                 toast.success('Added to cart successfully');
             }
@@ -171,7 +158,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             setIsCartOpen(true);
         } catch (error) {
             console.error('Error validating product stock:', error);
-            toast.error('Error checking product availability');
+            toast.error(error.response?.data?.message || 'Error checking product availability');
         }
     };
 
@@ -187,11 +174,6 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             return;
         }
 
-        if (product.availability !== 'InStock' || product.quantity <= 0) {
-            toast.error('This product is out of stock');
-            return;
-        }
-
         if (product.productType === 'Affiliate') {
             window.open(product.affiliateLink, '_blank', 'noopener,noreferrer');
             toast.success('Redirecting to affiliate site');
@@ -199,23 +181,20 @@ export default function ProductDetailsClient({ product, latestProducts }) {
         }
 
         try {
-            const response = await axios.get(`/api/products/${product._id}`);
-            const currentProduct = response.data;
+            const response = await axios.post('/api/products/cart/validate', {
+                productId: product._id,
+                quantity,
+                size: selectedSize ? selectedSize.name : null,
+            });
+            const validation = response.data;
 
-            if (quantity > 3) {
-                toast.error('Maximum 3 units per order');
-                setQuantity(3);
-                return;
-            }
-
-            if (quantity > currentProduct.quantity) {
-                toast.error(`Only ${currentProduct.quantity} units available`);
-                setQuantity(Math.min(quantity, currentProduct.quantity));
+            if (!validation.valid) {
+                toast.error(validation.message);
                 return;
             }
 
             const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            const filteredCart = cart.filter((item) => item._id !== product._id);
+            const filteredCart = cart.filter((item) => item._id !== product._id || (item.size && item.size !== selectedSize?.name));
             const priceObj = product.prices.find((p) => p.currency === 'BDT') || product.prices[0];
             const priceInBDT = priceObj.currency === 'BDT' ? priceObj.amount : priceObj.amount * (conversionRates[priceObj.currency] || 1);
 
@@ -229,6 +208,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                     mainImage: product.mainImage,
                     mainImageAlt: product.mainImageAlt,
                     currency: 'BDT',
+                    size: selectedSize?.name,
                 },
             ];
 
@@ -238,7 +218,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             router.push('/checkout');
         } catch (error) {
             console.error('Error validating product stock:', error);
-            toast.error('Error checking product availability');
+            toast.error(error.response?.data?.message || 'Error checking product availability');
         }
     };
 
@@ -257,7 +237,6 @@ export default function ProductDetailsClient({ product, latestProducts }) {
         }).format(currency === 'BDT' ? total : total / (conversionRates[currency] || 1))}`;
     };
 
-    // Define tabs for product details
     const tabs = [
         {
             id: 'product-details',
@@ -280,9 +259,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                         <div>
                             <h4 className="text-md amsfonts text-white mb-2">Additional Information</h4>
                             {product.descriptions.map((desc, index) => (
-                                <p key={index} className="text-gray-300 text-sm mb-2">
-                                    {desc}
-                                </p>
+                                <p key={index} className="text-gray-300 text-sm mb-2">{desc}</p>
                             ))}
                         </div>
                     )}
@@ -334,22 +311,15 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                 </div>
             ),
         },
-    ].filter(Boolean); // Remove falsy values
+    ].filter(Boolean);
 
     return (
         <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-            />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
             {faqStructuredData && (
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
-                />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }} />
             )}
 
-            {/* Breadcrumb Navigation */}
             <nav className="flex mb-6" aria-label="Breadcrumb">
                 <ol className="inline-flex items-center space-x-1 md:space-x-2">
                     <li className="inline-flex items-center">
@@ -378,10 +348,8 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                 </ol>
             </nav>
 
-            {/* Main Product Section */}
             <div className="">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-8">
-                    {/* Image Gallery */}
                     <div className="space-y-3">
                         <div
                             className="relative w-full max-w-md mx-auto rounded-md overflow-hidden bg-gray-800 shadow-sm cursor-zoom-in"
@@ -407,40 +375,39 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                         {(product.additionalImages.length > 0 || product.mainImage) && (
                             <div className="w-full max-w-md mx-auto">
                                 <div className="grid grid-cols-5 gap-2">
-                                    {[
-                                        { url: product.mainImage, alt: product.mainImageAlt || product.title },
-                                        ...product.additionalImages,
-                                    ].map((img, index) => (
-                                        <div
-                                            key={index}
-                                            className={`relative aspect-square rounded-md overflow-hidden cursor-pointer transition-transform duration-200 ${selectedImage === img.url ? 'ring-2 ring-purple-500' : 'hover:ring-2 hover:ring-purple-300 hover:scale-105'}`}
-                                            onClick={() => {
-                                                setSelectedImage(img.url);
-                                                setSelectedImageAlt(img.alt);
-                                            }}
-                                        >
-                                            <Image
-                                                src={img.url}
-                                                alt={img.alt || `${product.title} thumbnail ${index + 1}`}
-                                                width={80}
-                                                height={80}
-                                                className="object-cover"
-                                                sizes="80px"
-                                            />
-                                        </div>
-                                    ))}
+                                    {[{ url: product.mainImage, alt: product.mainImageAlt || product.title }, ...product.additionalImages].map(
+                                        (img, index) => (
+                                            <div
+                                                key={index}
+                                                className={`relative aspect-square rounded-md overflow-hidden cursor-pointer transition-transform duration-200 ${selectedImage === img.url ? 'ring-2 ring-purple-500' : 'hover:ring-2 hover:ring-purple-300 hover:scale-105'
+                                                    }`}
+                                                onClick={() => {
+                                                    setSelectedImage(img.url);
+                                                    setSelectedImageAlt(img.alt);
+                                                }}
+                                            >
+                                                <Image
+                                                    src={img.url}
+                                                    alt={img.alt || `${product.title} thumbnail ${index + 1}`}
+                                                    width={80}
+                                                    height={80}
+                                                    className="object-cover"
+                                                    sizes="80px"
+                                                />
+                                            </div>
+                                        )
+                                    )}
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* Product Info */}
                     <div className="space-y-6">
                         <div>
-                            <h1 className="text-2xl font-bold text-white">{product.title} - {product.category?.name || ''}</h1>
-                            {product.brand && (
-                                <p className="text-sm text-gray-400 mt-1">Brand: {product.brand}</p>
-                            )}
+                            <h1 className="text-2xl font-bold text-white">
+                                {product.title} - {product.category?.name || ''}
+                            </h1>
+                            {product.brand && <p className="text-sm text-gray-400 mt-1">Brand: {product.brand}</p>}
                             {product.category && (
                                 <span className="inline-block mt-2 px-3 py-1 bg-purple-900/30 text-purple-300 rounded-full text-xs">
                                     {product.category.name}
@@ -473,6 +440,32 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                             </div>
                         </div>
 
+                        {product.productType === 'Own' && product.sizeRequirement === 'Mandatory' && product.sizes?.length > 0 && (
+                            <div className="space-y-3">
+                                <label className="block text-sm font-medium text-gray-300">Size</label>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                                    {product.sizes
+                                        .filter((size) => size.quantity > 0)
+                                        .map((size, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() => {
+                                                    setSelectedSize(size);
+                                                    setShowSizeError(false);
+                                                }}
+                                                className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${selectedSize?.name === size.name
+                                                        ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25'
+                                                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
+                                                    }`}
+                                            >
+                                                {size.name}
+                                            </button>
+                                        ))}
+                                </div>
+                                {showSizeError && <p className="text-sm text-red-400">Please select a size before adding to cart</p>}
+                            </div>
+                        )}
+
                         <div className="flex items-center gap-4">
                             <label className="text-sm font-medium text-gray-300">Quantity:</label>
                             <select
@@ -488,33 +481,6 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                 ))}
                             </select>
                         </div>
-
-                        {product.productType === 'Own' && product.sizeRequirement === 'Mandatory' && product.sizes?.length > 0 && (
-                            <div className="space-y-3">
-                                <label className="block text-sm font-medium text-gray-300">Select Size:</label>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                                    {product.sizes.map((size, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => {
-                                                setSelectedSize(size);
-                                                setShowSizeError(false);
-                                            }}
-                                            className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${selectedSize === size
-                                                ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25'
-                                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
-                                                }`}
-                                        >
-                                            {size}
-                                        </button>
-                                    ))}
-                                </div>
-                                {showSizeError && (
-                                    <p className="text-sm text-red-400">Please select a size before adding to cart</p>
-                                )}
-                            </div>
-                        )}
-
 
                         {product.availability !== 'InStock' && product.productType !== 'Affiliate' ? (
                             <div className="p-3 bg-red-900/20 text-red-300 rounded-md text-sm">
@@ -556,12 +522,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
                                     >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                                        />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                     </svg>
                                     {product.productType === 'Affiliate' ? 'Buy on Affiliate Site' : 'Buy Now'}
                                 </button>
@@ -570,27 +531,20 @@ export default function ProductDetailsClient({ product, latestProducts }) {
 
                         <div>
                             <div className="text-xs flex items-center gap-2 text-gray-200">
-                                <p className='text-lg text-gray-100'>
+                                <p className="text-lg text-gray-100">
                                     <CiDeliveryTruck />
                                 </p>
-                                <p className="">
-
-                                    Delivery time: 3 - 4 business days</p>
+                                <p>Delivery time: 3 - 4 business days</p>
                             </div>
-
                             <p className="text-xs text-gray-200">Product Code: {product.product_code || 'N/A'}</p>
                             <p className="text-xs text-gray-200">
-                                Availability:{' '}
-                                {product.availability === 'InStock'
-                                    ? `In Stock (${product.quantity} available)`
-                                    : product.availability}
+                                Availability: {product.availability === 'InStock' ? `In Stock (${product.quantity} available)` : product.availability}
                             </p>
                             <div className="text-xs text-gray-200">
                                 <p>Available in: {product.isGlobal ? 'Worldwide' : `${product.targetCity}, ${product.targetCountry}`}</p>
                             </div>
                         </div>
 
-                        {/* Product Details Tabs - Vertical List */}
                         {tabs.length > 0 && (
                             <div className="pt-4 border-t border-gray-700">
                                 <div className="flex flex-col gap-2">
@@ -615,16 +569,15 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                 </div>
             </div>
 
-            {/* Drawer for Product Details */}
             {activeTab && (
                 <div
                     className="fixed inset-0 bg-black bg-opacity-50 z-40 md:bg-transparent md:right-0 md:top-0 md:bottom-0 md:w-1/3 md:min-w-[300px] md:max-w-[400px]"
-                    onClick={() => !isMobile ? setActiveTab(null) : null} // Close on outside click only on non-mobile
+                    onClick={() => (!isMobile ? setActiveTab(null) : null)}
                 >
                     <div
                         className={`fixed bottom-0 left-0 right-0 bg-gray-800 p-6 rounded-t-xl md:rounded-none md:right-0 md:top-0 md:bottom-0 md:w-1/3 md:min-w-[300px] md:max-w-[400px] transform transition-transform duration-300 ease-in-out ${activeTab ? 'translate-y-0 md:translate-x-0' : 'translate-y-full md:translate-x-full'
                             }`}
-                        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside drawer
+                        onClick={(e) => e.stopPropagation()}
                         role="dialog"
                         aria-labelledby={`drawer-title-${activeTab}`}
                     >
@@ -642,20 +595,15 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                 </svg>
                             </button>
                         </div>
-                        <div className="max-h-[90vh] overflow-y-auto"> {/* Increased max-h for mobile */}
-                            {tabs.find((tab) => tab.id === activeTab)?.content}
-                        </div>
+                        <div className="max-h-[90vh] overflow-y-auto">{tabs.find((tab) => tab.id === activeTab)?.content}</div>
                     </div>
                 </div>
             )}
 
-            {/* More Products Section */}
             {latestProducts.length > 0 && (
                 <div className="mt-12">
                     <h2 className="text-xl font-semibold text-white mb-6">You May Also Like</h2>
-
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-
                         {latestProducts.slice(0, 5).map((item) => (
                             <Link
                                 key={item._id}
@@ -681,22 +629,15 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                 <div className="p-3 mt-auto">
                                     <h3 className="text-sm font-medium text-white line-clamp-2">{item.title}</h3>
                                     <p className="text-purple-400 font-semibold mt-1 text-sm">
-                                        ৳
-                                        {getPriceInBDT(
-                                            item.prices.find((p) => p.currency === 'BDT')?.amount || item.prices[0].amount,
-                                            item.prices[0].currency
-                                        ).toLocaleString()}
+                                        ৳{getPriceInBDT(item.prices.find((p) => p.currency === 'BDT')?.amount || item.prices[0].amount, item.prices[0].currency).toLocaleString()}
                                     </p>
                                 </div>
                             </Link>
-
-
                         ))}
                     </div>
                 </div>
             )}
 
-            {/* Image Zoom Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
                     <div className="relative max-w-4xl w-full">
@@ -710,13 +651,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                             </svg>
                         </button>
                         <div className="relative aspect-square w-full">
-                            <Image
-                                src={selectedImage}
-                                alt={selectedImageAlt}
-                                fill
-                                className="object-contain"
-                                sizes="100vw"
-                            />
+                            <Image src={selectedImage} alt={selectedImageAlt} fill className="object-contain" sizes="100vw" />
                         </div>
                     </div>
                 </div>

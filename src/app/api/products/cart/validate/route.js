@@ -1,105 +1,45 @@
 import { NextResponse } from 'next/server';
 import Product from '@/models/Products';
 import dbConnect from '@/lib/dbMongoose';
-
+import mongoose from 'mongoose';
 
 export async function POST(request) {
     await dbConnect();
-
     try {
-        const { cartItems } = await request.json();
+        const { productId, quantity, size } = await request.json();
 
-        if (!Array.isArray(cartItems)) {
-            return NextResponse.json(
-                { error: 'Invalid cart data' },
-                { status: 400 }
-            );
+        if (!mongoose.Types.ObjectId.isValid(productId)) {
+            return Response.json({ valid: false, message: 'Invalid product ID' }, { status: 400 });
         }
 
-        const validationResults = [];
-        let isValid = true;
-        let totalCartValue = 0;
-
-        for (const item of cartItems) {
-            const product = await Product.findById(item.productId);
-
-            if (!product) {
-                validationResults.push({
-                    productId: item.productId,
-                    valid: false,
-                    message: 'Product not found'
-                });
-                isValid = false;
-                continue;
-            }
-
-            // Check if product is available for purchase
-            if (product.quantity <= 0 || product.productType === 'Affiliate') {
-                validationResults.push({
-                    productId: item.productId,
-                    valid: false,
-                    message: 'Product is not available for purchase'
-                });
-                isValid = false;
-                continue;
-            }
-
-            // Check if requested quantity exceeds available stock
-            if (item.quantity > product.quantity) {
-                validationResults.push({
-                    productId: item.productId,
-                    valid: false,
-                    message: `Only ${product.quantity} units available for ${product.title}`,
-                    availableQuantity: product.quantity
-                });
-                isValid = false;
-            }
-            // Check if quantity exceeds maximum allowed per order (3)
-            else if (item.quantity > 3) {
-                validationResults.push({
-                    productId: item.productId,
-                    valid: false,
-                    message: 'Maximum 3 units per product allowed',
-                    availableQuantity: Math.min(product.quantity, 3)
-                });
-                isValid = false;
-            }
-            // Check for negative quantity
-            else if (item.quantity < 1) {
-                validationResults.push({
-                    productId: item.productId,
-                    valid: false,
-                    message: 'Quantity must be at least 1',
-                    availableQuantity: 1
-                });
-                isValid = false;
-            }
-            // Item is valid
-            else {
-                validationResults.push({
-                    productId: item.productId,
-                    valid: true,
-                    availableQuantity: product.quantity,
-                    price: product.prices.find(p => p.currency === 'BDT')?.amount || product.prices[0]?.amount
-                });
-
-                // Calculate item total for cart value
-                const price = product.prices.find(p => p.currency === 'BDT')?.amount || product.prices[0]?.amount;
-                totalCartValue += price * item.quantity;
-            }
+        if (quantity < 1 || quantity > 3) {
+            return Response.json({ valid: false, message: 'Quantity must be between 1 and 3' }, { status: 400 });
         }
 
-        return NextResponse.json({
-            isValid,
-            results: validationResults,
-            totalCartValue
-        });
+        const product = await Product.findById(productId).lean();
+        if (!product) {
+            return Response.json({ valid: false, message: 'Product not found' }, { status: 404 });
+        }
 
+        if (product.availability !== 'InStock' || product.quantity <= 0) {
+            return Response.json({ valid: false, message: 'Product is out of stock' }, { status: 400 });
+        }
+
+        if (product.productType === 'Own' && product.sizeRequirement === 'Mandatory' && size) {
+            const sizeData = product.sizes.find((s) => s.name === size);
+            if (!sizeData) {
+                return Response.json({ valid: false, message: `Size ${size} not available` }, { status: 400 });
+            }
+            if (quantity > sizeData.quantity) {
+                return Response.json({ valid: false, message: `Only ${sizeData.quantity} units available for size ${size}` }, { status: 400 });
+            }
+        } else if (quantity > product.quantity) {
+            return Response.json({ valid: false, message: `Only ${product.quantity} units available` }, { status: 400 });
+        }
+
+        return Response.json({ valid: true }, { status: 200 });
     } catch (error) {
-        console.error('Cart validation error:', error);
-        return NextResponse.json(
-            { error: 'Failed to validate cart' },
-            { status: 500 }
-        );
+        console.error('Error validating cart:', error);
+        return Response.json({ valid: false, message: `Failed to validate cart: ${error.message}` }, { status: 500 });
     }
 }

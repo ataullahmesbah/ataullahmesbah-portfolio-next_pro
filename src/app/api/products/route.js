@@ -120,20 +120,25 @@ export async function POST(request) {
         }
 
         // Size Processing
-        const sizeRequirement = formData.get('sizeRequirement') || 'Optional';
-        let sizes = [];
-        if (formData.get('sizes')) {
-            try {
-                sizes = JSON.parse(formData.get('sizes')).filter((size) => size.trim());
-            } catch {
-                return Response.json({ error: 'Invalid sizes format' }, { status: 400 });
-            }
-        }
 
-        // Mandatory হলে সাইজ চেক করুন
-        if (sizeRequirement === 'Mandatory' && sizes.length === 0) {
-            return Response.json({ error: 'At least one size is required when size is Mandatory' }, { status: 400 });
-        }
+          const sizeRequirement = formData.get('sizeRequirement') || 'Optional';
+  let sizes = [];
+  if (formData.get('sizes')) {
+    try {
+      sizes = JSON.parse(formData.get('sizes')).filter((size) => size.name.trim() && size.quantity >= 0);
+      if (sizeRequirement === 'Mandatory' && sizes.length === 0) {
+        return Response.json({ error: 'At least one size with quantity is required when size is Mandatory' }, { status: 400 });
+      }
+      // Validate that sum of size quantities equals total quantity
+      const totalSizeQuantity = sizes.reduce((sum, size) => sum + size.quantity, 0);
+      const totalQuantity = parseInt(formData.get('quantity'), 10);
+      if (sizeRequirement === 'Mandatory' && totalSizeQuantity !== totalQuantity) {
+        return Response.json({ error: 'Sum of size quantities must equal total quantity' }, { status: 400 });
+      }
+    } catch {
+      return Response.json({ error: 'Invalid sizes format' }, { status: 400 });
+    }
+  }
 
         // Process prices
         const prices = [{ currency: 'BDT', amount: bdtPrice }];

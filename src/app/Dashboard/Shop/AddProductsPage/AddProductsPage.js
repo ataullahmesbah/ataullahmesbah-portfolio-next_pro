@@ -38,10 +38,10 @@ export default function AddProduct() {
         faqs: [], // Array of {question, answer}
         specifications: [], // Array of {name, value}
         sizeRequirement: 'Optional',
-        sizes: [], // Array of size strings (e.g., ["XS", "SM", "XL"])
+        sizes: [], // Array of objects: [{name: "", quantity: 0}]
         aggregateRating: { ratingValue: '', reviewCount: '' }, // Optional initial
-        isGlobal: false, // অ্যাড করো
-        targetCountry: 'Bangladesh', // অ্যাড করো
+        isGlobal: false,
+        targetCountry: 'Bangladesh',
         targetCity: 'Dhaka',
     });
     const [errors, setErrors] = useState({});
@@ -117,14 +117,24 @@ export default function AddProduct() {
         if (!formData.sizeRequirement) {
             newErrors.sizeRequirement = 'Size requirement is required';
         }
-        if (formData.sizeRequirement === 'Mandatory' && formData.sizes.length === 0) {
-            newErrors.sizes = 'At least one size is required when size is Mandatory';
-        }
-        formData.sizes.forEach((size, index) => {
-            if (formData.sizeRequirement === 'Mandatory' && !size.trim()) {
-                newErrors[`size${index}`] = 'Size cannot be empty';
+        if (formData.sizeRequirement === 'Mandatory') {
+            if (formData.sizes.length === 0) {
+                newErrors.sizes = 'At least one size with quantity is required when size is Mandatory';
+            } else {
+                formData.sizes.forEach((size, index) => {
+                    if (!size.name.trim()) {
+                        newErrors[`sizeName${index}`] = 'Size name cannot be empty';
+                    }
+                    if (size.quantity < 0 || isNaN(size.quantity)) {
+                        newErrors[`sizeQuantity${index}`] = 'Size quantity must be a non-negative number';
+                    }
+                });
+                const totalSizeQuantity = formData.sizes.reduce((sum, size) => sum + (size.quantity || 0), 0);
+                if (totalSizeQuantity !== parseInt(formData.quantity, 10)) {
+                    newErrors.sizes = 'Sum of size quantities must equal total quantity';
+                }
             }
-        });
+        }
         if (!formData.isGlobal) {
             if (!formData.targetCountry.trim()) newErrors.targetCountry = 'Target country is required';
             if (!formData.targetCity.trim()) newErrors.targetCity = 'Target city is required';
@@ -199,7 +209,7 @@ export default function AddProduct() {
         data.append('faqs', JSON.stringify(formData.faqs));
         data.append('specifications', JSON.stringify(formData.specifications));
         data.append('sizeRequirement', formData.sizeRequirement);
-        data.append('sizes', JSON.stringify(formData.sizes.filter((size) => size.trim())));
+        data.append('sizes', JSON.stringify(formData.sizes.filter((size) => size.name.trim() && size.quantity >= 0)));
         data.append('aggregateRating.ratingValue', formData.aggregateRating.ratingValue);
         data.append('aggregateRating.reviewCount', formData.aggregateRating.reviewCount);
 
@@ -331,14 +341,14 @@ export default function AddProduct() {
         setFormData({ ...formData, additionalAlts: newAlts });
     };
 
-    const handleSizeChange = (index, value) => {
+    const handleSizeChange = (index, field, value) => {
         const newSizes = [...formData.sizes];
-        newSizes[index] = value;
+        newSizes[index] = { ...newSizes[index], [field]: field === 'quantity' ? parseInt(value, 10) || 0 : value };
         setFormData({ ...formData, sizes: newSizes });
     };
 
     const addSize = () => {
-        setFormData({ ...formData, sizes: [...formData.sizes, ''] });
+        setFormData({ ...formData, sizes: [...formData.sizes, { name: '', quantity: 0 }] });
     };
 
     const removeSize = (index) => {
@@ -776,13 +786,21 @@ export default function AddProduct() {
                                 <div>
                                     <label className="block text-gray-300 mb-2 text-sm font-medium">Sizes*</label>
                                     {formData.sizes.map((size, index) => (
-                                        <div key={index} className="flex items-center mb-2">
+                                        <div key={index} className="flex items-center mb-2 gap-4">
                                             <input
                                                 type="text"
-                                                value={size}
-                                                onChange={(e) => handleSizeChange(index, e.target.value)}
-                                                className={`w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors[`size${index}`] ? 'border-red-500' : 'border-gray-300'}`}
-                                                placeholder={`Size ${index + 1} (e.g., XS, 40)`}
+                                                value={size.name}
+                                                onChange={(e) => handleSizeChange(index, 'name', e.target.value)}
+                                                className={`w-1/2 p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors[`sizeName${index}`] ? 'border-red-500' : 'border-gray-300'}`}
+                                                placeholder={`Size ${index + 1} (e.g., S, 40)`}
+                                            />
+                                            <input
+                                                type="number"
+                                                value={size.quantity}
+                                                onChange={(e) => handleSizeChange(index, 'quantity', e.target.value)}
+                                                className={`w-1/2 p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors[`sizeQuantity${index}`] ? 'border-red-500' : 'border-gray-300'}`}
+                                                placeholder="Quantity"
+                                                min="0"
                                             />
                                             {formData.sizes.length > 1 && (
                                                 <button
@@ -793,7 +811,11 @@ export default function AddProduct() {
                                                     Remove
                                                 </button>
                                             )}
-                                            {errors[`size${index}`] && <p className="mt-1 text-sm text-red-500">{errors[`size${index}`]}</p>}
+                                            {(errors[`sizeName${index}`] || errors[`sizeQuantity${index}`]) && (
+                                                <p className="mt-1 text-sm text-red-500">
+                                                    {errors[`sizeName${index}`] || errors[`sizeQuantity${index}`]}
+                                                </p>
+                                            )}
                                         </div>
                                     ))}
                                     <button
@@ -803,6 +825,7 @@ export default function AddProduct() {
                                     >
                                         + Add Size
                                     </button>
+                                    {errors.sizes && <p className="mt-1 text-sm text-red-500">{errors.sizes}</p>}
                                 </div>
                             )}
                         </div>

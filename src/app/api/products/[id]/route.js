@@ -32,8 +32,12 @@ export async function GET(request, { params }) {
         if (!product) {
             return Response.json({ error: 'Product not found' }, { status: 404 });
         }
+        if (product.sizeRequirement === 'Mandatory' && product.sizes?.length > 0) {
+            product.sizes = product.sizes.filter((size) => size.quantity > 0);
+        }
         return Response.json(product, { status: 200 });
     } catch (error) {
+        console.error('Error fetching product:', error);
         return Response.json({ error: `Failed to fetch product: ${error.message}` }, { status: 500 });
     }
 }

@@ -23,6 +23,11 @@ const reviewSchema = new mongoose.Schema({
   reviewer: { type: String },
 });
 
+const sizeSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  quantity: { type: Number, required: true, min: 0 },
+});
+
 
 
 const productSchema = new mongoose.Schema({
@@ -64,10 +69,7 @@ const productSchema = new mongoose.Schema({
     enum: ['Optional', 'Mandatory'],
     default: 'Optional',
   },
-  sizes: [{
-    type: String,
-    trim: true,
-  }],
+  sizes: [sizeSchema],
   specifications: [specSchema], // For AEO
   schemaMarkup: { type: Object }, // For SEO and GEO (auto-generated in API)
 }, { timestamps: true });
