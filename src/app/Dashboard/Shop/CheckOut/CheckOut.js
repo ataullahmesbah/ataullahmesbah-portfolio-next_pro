@@ -578,7 +578,8 @@ export default function Checkout() {
                                                 <p className="text-gray-400 text-xs">
                                                     ৳{(getBDTPrice(item) || 0).toLocaleString()} × {item.quantity || 1}
                                                 </p>
-                                                <div className="flex items-center mt-1">
+                                                {item.size && <p className="text-xs text-gray-300">Size: {item.size}</p>}
+                                                {/* <div className="flex items-center mt-1">
                                                     <button
                                                         onClick={() => handleQuantityChange(item._id, (item.quantity || 1) - 1)}
                                                         className="px-2 py-1 bg-gray-700 text-white rounded-l hover:bg-gray-600"
@@ -594,7 +595,7 @@ export default function Checkout() {
                                                     >
                                                         +
                                                     </button>
-                                                </div>
+                                                </div> */}
                                             </div>
                                             <div className="text-sm">
                                                 ৳{((getBDTPrice(item) || 0) * (item.quantity || 1)).toLocaleString()}

@@ -442,7 +442,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
 
                         {product.productType === 'Own' && product.sizeRequirement === 'Mandatory' && product.sizes?.length > 0 && (
                             <div className="space-y-3">
-                                <label className="block text-sm font-medium text-gray-300">Size</label>
+                                <label className="block text-sm font-medium text-gray-300">Size:</label>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2">
                                     {product.sizes
                                         .filter((size) => size.quantity > 0)

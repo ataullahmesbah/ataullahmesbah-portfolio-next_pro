@@ -122,7 +122,6 @@ export async function PUT(request, { params }) {
         const existingAdditionalImages = formData.get('existingAdditionalImages')
             ? JSON.parse(formData.get('existingAdditionalImages'))
             : [];
-        const quantity = parseInt(formData.get('quantity'));
         const brand = formData.get('brand');
         const availability = formData.get('availability');
         const metaTitle = formData.get('metaTitle');
@@ -131,6 +130,18 @@ export async function PUT(request, { params }) {
         const isGlobal = formData.get('isGlobal') === 'true';
         const targetCountry = formData.get('targetCountry')?.trim().replace(/[^a-zA-Z\s-]/g, '') || '';
         const targetCity = formData.get('targetCity')?.trim().replace(/[^a-zA-Z\s-]/g, '') || '';
+        const quantityRaw = formData.get('quantity');
+        const quantity = parseInt(quantityRaw, 10);
+        const sizeRequirement = formData.get('sizeRequirement') || 'Optional';
+        const sizes = [];
+        const sizeNames = formData.getAll('sizes[name]');
+        const sizeQuantities = formData.getAll('sizes[quantity]');
+        for (let i = 0; i < sizeNames.length; i++) {
+            sizes.push({
+                name: sizeNames[i],
+                quantity: parseInt(sizeQuantities[i]) || 0,
+            });
+        }
         let faqs = [];
         if (formData.get('faqs')) {
             try {
@@ -203,7 +214,21 @@ export async function PUT(request, { params }) {
                 return Response.json({ error: 'Target city is required when not global' }, { status: 400 });
             }
         }
-
+        // size validation
+        if (sizeRequirement === 'Mandatory' && sizes.length === 0) {
+            return Response.json({ error: 'At least one size with quantity is required when size is Mandatory' }, { status: 400 });
+        }
+        if (sizeRequirement === 'Mandatory' && sizes.reduce((sum, size) => sum + size.quantity, 0) !== quantity) {
+            return Response.json({ error: 'Sum of size quantities must equal total quantity' }, { status: 400 });
+        }
+        sizes.forEach((size, index) => {
+            if (!size.name.trim()) {
+                return Response.json({ error: `Size name at index ${index} is required` }, { status: 400 });
+            }
+            if (isNaN(size.quantity) || size.quantity < 0) {
+                return Response.json({ error: `Quantity for size ${size.name} must be a non-negative integer` }, { status: 400 });
+            }
+        });
         // Handle category
         let category;
         if (newCategory && newCategory.trim()) {
@@ -369,7 +394,6 @@ export async function PUT(request, { params }) {
                 owner: session.user.name,
                 brand,
                 category: category._id,
-                quantity,
                 availability,
                 metaTitle,
                 metaDescription,
@@ -379,6 +403,9 @@ export async function PUT(request, { params }) {
                 aggregateRating,
                 schemaMarkup,
                 isGlobal,
+                quantity: quantity,
+                sizeRequirement: sizeRequirement,
+                sizes: sizes.length > 0 ? sizes : existingProduct.sizes || [],
                 targetCountry,
                 targetCity,
             },
