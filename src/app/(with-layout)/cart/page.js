@@ -10,6 +10,9 @@ export default function CartPage() {
     const [cart, setCart] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [conversionRates, setConversionRates] = useState({ USD: 123, EUR: 135, BDT: 1 });
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState(null);
+    const [availableSizesMap, setAvailableSizesMap] = useState({});
     const router = useRouter();
 
     useEffect(() => {
@@ -33,6 +36,39 @@ export default function CartPage() {
                 toast.error('Failed to load currency conversion rates');
             });
     }, []);
+
+    // Fetch available sizes for each product in cart
+    useEffect(() => {
+        const fetchSizesForProducts = async () => {
+            if (cart.length === 0) return;
+
+            try {
+                const productIds = [...new Set(cart.map(item => item._id))];
+                const sizesMap = {};
+
+                for (const productId of productIds) {
+                    try {
+                        const response = await axios.get(`/api/products/${productId}`);
+                        const product = response.data;
+
+                        if (product.sizes && product.sizes.length > 0) {
+                            sizesMap[productId] = product.sizes
+                                .filter(size => size.quantity > 0)
+                                .map(size => size.name);
+                        }
+                    } catch (error) {
+                        console.error(`Error fetching product ${productId}:`, error);
+                    }
+                }
+
+                setAvailableSizesMap(sizesMap);
+            } catch (error) {
+                console.error('Error fetching sizes:', error);
+            }
+        };
+
+        fetchSizesForProducts();
+    }, [cart]);
 
     const validateQuantityWithBackend = async (productId, newQuantity, size) => {
         try {
@@ -80,6 +116,80 @@ export default function CartPage() {
         localStorage.setItem('cart', JSON.stringify(updatedCart));
         setCart(updatedCart);
         window.dispatchEvent(new Event('cartUpdated'));
+
+        // Show custom toast notification
+        const product = cart.find(item => item._id === productId && (!item.size || item.size === size));
+        showCustomToast(`${product.title} has been removed from cart`);
+
+        setShowDeleteModal(false);
+        setItemToDelete(null);
+    };
+
+    const confirmDelete = (productId, size, title) => {
+        setItemToDelete({ productId, size, title });
+        setShowDeleteModal(true);
+    };
+
+    const showCustomToast = (message) => {
+        const toastElement = document.createElement('div');
+        toastElement.className = 'custom-toast';
+        toastElement.innerHTML = `
+            <div class="toast-content">
+                <svg xmlns="http://www.w3.org/2000/svg" class="toast-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                <span>${message}</span>
+            </div>
+        `;
+
+        document.body.appendChild(toastElement);
+
+        setTimeout(() => {
+            toastElement.classList.add('show');
+        }, 10);
+
+        setTimeout(() => {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(toastElement);
+            }, 300);
+        }, 3000);
+    };
+
+    const handleSizeChange = async (productId, oldSize, newSize) => {
+        if (oldSize === newSize) return;
+
+        setIsLoading(true);
+        try {
+            // Check if the new size is available
+            const response = await axios.get(`/api/products/${productId}`);
+            const product = response.data;
+
+            if (product.sizes && product.sizes.length > 0) {
+                const sizeData = product.sizes.find(s => s.name === newSize);
+                if (!sizeData || sizeData.quantity === 0) {
+                    toast.error('Selected size is not available');
+                    setIsLoading(false);
+                    return;
+                }
+            }
+
+            // Update the cart with the new size
+            const updatedCart = cart.map((item) =>
+                item._id === productId && (!item.size || item.size === oldSize) ? { ...item, size: newSize } : item
+            );
+
+            localStorage.setItem('cart', JSON.stringify(updatedCart));
+            setCart(updatedCart);
+            window.dispatchEvent(new Event('cartUpdated'));
+
+            toast.success('Size updated successfully');
+        } catch (error) {
+            console.error('Error changing size:', error);
+            toast.error('Failed to update size');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const getSubtotal = () => {
@@ -139,96 +249,158 @@ export default function CartPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white border-b border-gray-800 pb-8">
-            <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                <h1 className="text-2xl font-bold mb-4">Your Cart</h1>
+        <div className="min-h-screen bg-gray-900 text-gray-100">
+            <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                <h1 className="text-3xl font-bold mb-8 text-center md:text-left">Shopping Cart</h1>
+
                 {cart.length === 0 ? (
-                    <div className="text-center">
-                        <p className="text-gray-400 mb-4">Your cart is empty</p>
-                        <Link href="/shop" className="inline-block py-2 px-4 bg-purple-600 text-white rounded hover:bg-purple-700">
+                    <div className="flex flex-col items-center justify-center py-16">
+                        <div className="mb-6 text-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </div>
+                        <p className="text-xl text-gray-400 mb-6">Your cart is empty</p>
+                        <Link
+                            href="/shop"
+                            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white rounded-md transition-all duration-300 shadow-lg hover:shadow-purple-800/30"
+                        >
                             Continue Shopping
                         </Link>
                     </div>
                 ) : (
                     <>
-                        <p className="text-sm text-yellow-400 mb-4 bg-gray-800 p-2">
-                            Adding products to the cart does not mean they are reserved. Buy now to not miss the chance to purchase!
-                        </p>
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div className="lg:col-span-2 space-y-4">
-                                <h2 className="text-xl font-semibold mb-4">Shopping Cart ({getTotalQuantity()} items)</h2>
-                                {cart.map((item, index) => (
-                                    <div key={`${item._id}-${item.size || index}`} className="flex items-start gap-4 bg-gray-800 p-3">
-                                        <div className="relative w-24 h-24 flex-shrink-0">
-                                            <Image
-                                                src={item.mainImage}
-                                                alt={item.mainImageAlt || item.title}
-                                                width={96}
-                                                height={96}
-                                                className="object-cover rounded"
-                                                sizes="96px"
-                                            />
-                                        </div>
-                                        <div className="flex-1 space-y-2">
-                                            <h3 className="text-lg font-medium">{item.title}</h3>
-                                            {item.size && <p className="text-sm text-gray-400">Size: {item.size}</p>}
-                                            <p className="text-sm text-purple-300">৳{(item.price * item.quantity).toLocaleString()}</p>
-                                            <div className="flex items-center gap-2">
-                                                <button
-                                                    onClick={() => handleQuantityChange(item._id, item.quantity - 1, item.size)}
-                                                    disabled={item.quantity <= 1 || isLoading}
-                                                    className="px-2 py-1 bg-gray-700 text-white rounded text-sm disabled:opacity-50"
-                                                >
-                                                    −
-                                                </button>
-                                                <span className="text-sm">{item.quantity}</span>
-                                                <button
-                                                    onClick={() => handleQuantityChange(item._id, item.quantity + 1, item.size)}
-                                                    disabled={isLoading}
-                                                    className="px-2 py-1 bg-gray-700 text-white rounded text-sm disabled:opacity-50"
-                                                >
-                                                    {isLoading ? '...' : '+'}
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={() => handleRemoveItem(item._id, item.size)}
-                                            className="text-red-400 hover:text-red-600"
-                                            disabled={isLoading}
-                                        >
-                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                ))}
+                        <div className="bg-gray-800 p-4 rounded-lg mb-6">
+                            <div className="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                </svg>
+                                <p className="text-sm text-yellow-400">
+                                    Adding products to the cart does not mean they are reserved. Buy now to not miss the chance to purchase!
+                                </p>
                             </div>
-                            <div className="lg:col-span-1">
-                                <div className="bg-gray-800 p-4 sticky top-6">
-                                    <h2 className="text-xl font-semibold mb-4">Order Now</h2>
-                                    <div className="space-y-2 text-gray-400">
-                                        <p>Delivery Time: 3 - 4 business days</p>
-                                        <p>Free Return within 15 days</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div className="lg:col-span-2">
+                                <div className="bg-gray-800 rounded-lg p-6">
+                                    <h2 className="text-xl font-semibold mb-6">Cart Items ({getTotalQuantity()})</h2>
+                                    <div className="space-y-6">
+                                        {cart.map((item, index) => (
+                                            <div key={`${item._id}-${item.size || index}`} className="flex items-center gap-4 pb-6 border-b border-gray-700 last:border-0 last:pb-0">
+                                                <div className="relative w-20 h-20 flex-shrink-0">
+                                                    <Image
+                                                        src={item.mainImage}
+                                                        alt={item.mainImageAlt || item.title}
+                                                        width={80}
+                                                        height={80}
+                                                        className="object-cover rounded-md"
+                                                        sizes="80px"
+                                                    />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="text-sm font-medium truncate">{item.title}</h3>
+                                                    {item.size && availableSizesMap[item._id] && availableSizesMap[item._id].length > 0 && (
+                                                        <div className="mt-2">
+                                                            <label className="text-xs text-gray-400 mr-2">Size:</label>
+                                                            <select
+                                                                value={item.size}
+                                                                onChange={(e) => handleSizeChange(item._id, item.size, e.target.value)}
+                                                                className="text-xs bg-gray-700 border border-gray-600 rounded px-2 py-1 text-white"
+                                                                disabled={isLoading}
+                                                            >
+                                                                {availableSizesMap[item._id].map(size => (
+                                                                    <option key={size} value={size}>{size}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    )}
+                                                    <p className="text-indigo-400 font-medium mt-2 text-sm">৳{item.price.toLocaleString()}</p>
+                                                </div>
+                                                <div className="flex flex-col items-end">
+                                                    <div className="flex items-center border border-gray-600 rounded-md overflow-hidden mb-2">
+                                                        <button
+                                                            onClick={() => handleQuantityChange(item._id, item.quantity - 1, item.size)}
+                                                            disabled={item.quantity <= 1 || isLoading}
+                                                            className="px-3 py-1 bg-gray-700 text-white hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                            −
+                                                        </button>
+                                                        <span className="px-3 py-1 bg-gray-800 min-w-[2rem] text-center">{item.quantity}</span>
+                                                        <button
+                                                            onClick={() => handleQuantityChange(item._id, item.quantity + 1, item.size)}
+                                                            disabled={isLoading}
+                                                            className="px-3 py-1 bg-gray-700 text-white hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                            {isLoading ? '...' : '+'}
+                                                        </button>
+                                                    </div>
+                                                    <p className="text-indigo-400 font-medium">৳{(item.price * item.quantity).toLocaleString()}</p>
+                                                    <button
+                                                        onClick={() => confirmDelete(item._id, item.size, item.title)}
+                                                        className="mt-2 text-gray-400 hover:text-red-400 transition-colors"
+                                                        disabled={isLoading}
+                                                        title="Remove item"
+                                                    >
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                    <div className="mt-4 space-y-2">
-                                        <div className="flex justify-between text-sm">
-                                            <span>Subtotal</span>
-                                            <span>৳{getSubtotal().toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            <div className="lg:col-span-1">
+                                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg p-6 sticky top-6 border border-gray-700 shadow-lg">
+                                    <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
+
+                                    <div className="space-y-4 mb-6">
+                                        <div className="flex items-center text-gray-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span className="text-sm">Delivery: 3-4 business days</span>
                                         </div>
-                                        <div className="flex justify-between text-lg font-medium pt-2 border-t border-gray-700">
+                                        <div className="flex items-center text-gray-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                            <span className="text-sm">Free returns within 15 days</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4 pt-4 border-t border-gray-700">
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-400">Subtotal</span>
+                                            <span className="font-medium">৳{getSubtotal().toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between text-lg font-semibold pt-4 border-t border-gray-700">
                                             <span>Total</span>
-                                            <span>৳{getSubtotal().toLocaleString()}</span>
+                                            <span className="text-indigo-400">৳{getSubtotal().toLocaleString()}</span>
                                         </div>
+
                                         <button
                                             onClick={handleProceedToCheckout}
                                             disabled={cart.length === 0 || isLoading}
-                                            className="mt-4 w-full py-2 bg-purple-600 text-white rounded hover:bg-purple-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="mt-6 w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white rounded-md transition-all duration-300 shadow-lg hover:shadow-purple-800/30 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
-                                            {isLoading ? 'Validating...' : 'Proceed to Checkout'}
+                                            {isLoading ? (
+                                                <span className="flex items-center justify-center">
+                                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    Validating...
+                                                </span>
+                                            ) : 'Proceed to Checkout'}
                                         </button>
+
                                         <Link
                                             href="/shop"
-                                            className="block w-full py-2 mt-2 bg-gray-700 text-white text-center rounded hover:bg-gray-600 text-sm"
+                                            className="block w-full py-3 mt-3 bg-gray-700 hover:bg-gray-600 text-white text-center rounded-md transition-colors duration-300"
                                         >
                                             Continue Shopping
                                         </Link>
@@ -239,6 +411,67 @@ export default function CartPage() {
                     </>
                 )}
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full border border-gray-700 shadow-xl">
+                        <h3 className="text-xl font-semibold mb-4">Confirm Removal</h3>
+                        <p className="text-gray-300 mb-6">Are you sure you want to remove {itemToDelete?.title} from your cart?</p>
+                        <div className="flex justify-end space-x-4">
+                            <button
+                                onClick={() => setShowDeleteModal(false)}
+                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-md transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleRemoveItem(itemToDelete.productId, itemToDelete.size)}
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
+                            >
+                                Yes, Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <style jsx>{`
+                .custom-toast {
+                    position: fixed;
+                    bottom: 24px;
+                    right: 24px;
+                    background: linear-gradient(to right, #1a1a1a, #2d2d2d);
+                    color: #fff;
+                    padding: 16px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 10px 25px rgba(128, 0, 128, 0.3);
+                    border-left: 4px solid #8b5cf6;
+                    opacity: 0;
+                    transform: translateY(20px);
+                    transition: opacity 0.3s, transform 0.3s;
+                    z-index: 1000;
+                    max-width: 320px;
+                }
+                
+                .custom-toast.show {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                
+                .toast-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                
+                .toast-icon {
+                    width: 20px;
+                    height: 20px;
+                    color: #8b5cf6;
+                    flex-shrink: 0;
+                }
+            `}</style>
         </div>
     );
 }

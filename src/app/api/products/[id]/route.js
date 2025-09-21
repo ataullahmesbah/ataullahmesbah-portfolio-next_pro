@@ -14,12 +14,14 @@ import dbConnect from '@/lib/dbMongoose';
 
 
 // Sort function for additional images by lastModified date
+// Sort function for additional images by lastModified date
 const ascendingSort = (a, b) => {
     if (a instanceof File && b instanceof File) {
         return b.lastModified - a.lastModified;
     }
     return 0;
 };
+
 
 export async function GET(request, { params }) {
     await dbConnect();
@@ -95,7 +97,7 @@ export async function PUT(request, { params }) {
         }
 
         const formData = await request.formData();
-        console.log('Received formData keys:', [...formData.keys()]); // Debug log
+        console.log('Received formData keys:', [...formData.keys()]);
 
         // Extract form data
         const title = formData.get('title');
@@ -133,14 +135,13 @@ export async function PUT(request, { params }) {
         const quantityRaw = formData.get('quantity');
         const quantity = parseInt(quantityRaw, 10);
         const sizeRequirement = formData.get('sizeRequirement') || 'Optional';
-        const sizes = [];
-        const sizeNames = formData.getAll('sizes[name]');
-        const sizeQuantities = formData.getAll('sizes[quantity]');
-        for (let i = 0; i < sizeNames.length; i++) {
-            sizes.push({
-                name: sizeNames[i],
-                quantity: parseInt(sizeQuantities[i]) || 0,
-            });
+        let sizes = [];
+        if (formData.get('sizes')) {
+            try {
+                sizes = JSON.parse(formData.get('sizes')).filter((size) => size.name.trim() && size.quantity >= 0);
+            } catch {
+                return Response.json({ error: 'Invalid sizes format' }, { status: 400 });
+            }
         }
         let faqs = [];
         if (formData.get('faqs')) {
@@ -165,70 +166,71 @@ export async function PUT(request, { params }) {
 
         // Validate required fields
         const requiredFields = ['title', 'bdtPrice', 'description', 'product_code', 'brand', 'metaTitle', 'metaDescription', 'mainImageAlt'];
+        if (!isGlobal) {
+            requiredFields.push('targetCountry', 'targetCity');
+        }
         const missingFields = requiredFields.filter((field) => !formData.get(field) && formData.get(field) !== '');
+        const errors = {};
         if (missingFields.length > 0) {
-            return Response.json({ error: `Missing required fields: ${missingFields.join(', ')}` }, { status: 400 });
+            errors.missingFields = `Missing required fields: ${missingFields.join(', ')}`;
         }
         if (isNaN(bdtPrice) || bdtPrice <= 0) {
-            return Response.json({ error: 'BDT price must be a positive number' }, { status: 400 });
+            errors.bdtPrice = 'BDT price must be a positive number';
         }
         if (usdPrice && (isNaN(usdPrice) || usdPrice <= 0)) {
-            return Response.json({ error: 'USD price must be a positive number' }, { status: 400 });
+            errors.usdPrice = 'USD price must be a positive number';
         }
         if (eurPrice && (isNaN(eurPrice) || eurPrice <= 0)) {
-            return Response.json({ error: 'EUR price must be a positive number' }, { status: 400 });
+            errors.eurPrice = 'EUR price must be a positive number';
         }
         if (usdPrice && usdExchangeRate && (isNaN(usdExchangeRate) || usdExchangeRate <= 0)) {
-            return Response.json({ error: 'USD exchange rate must be a positive number' }, { status: 400 });
+            errors.usdExchangeRate = 'USD exchange rate must be a positive number';
         }
         if (eurPrice && eurExchangeRate && (isNaN(eurExchangeRate) || eurExchangeRate <= 0)) {
-            return Response.json({ error: 'EUR exchange rate must be a positive number' }, { status: 400 });
+            errors.eurExchangeRate = 'EUR exchange rate must be a positive number';
         }
         if (!categoryId && !newCategory) {
-            return Response.json({ error: 'Category or new category name is required' }, { status: 400 });
+            errors.category = 'Category or new category name is required';
         }
         if (!mainImage && !existingMainImage) {
-            return Response.json({ error: 'Main image is required' }, { status: 400 });
+            errors.mainImage = 'Main image is required';
         }
         if (isNaN(quantity) || quantity < 0) {
-            return Response.json({ error: 'Quantity must be a non-negative integer' }, { status: 400 });
+            errors.quantity = 'Quantity must be a non-negative integer';
         }
         if (productType === 'Affiliate' && !affiliateLink) {
-            return Response.json({ error: 'Affiliate link is required for affiliate products' }, { status: 400 });
+            errors.affiliateLink = 'Affiliate link is required for affiliate products';
         }
         if (metaTitle.length > 60) {
-            return Response.json({ error: 'Meta Title must be 60 characters or less' }, { status: 400 });
+            errors.metaTitle = 'Meta Title must be 60 characters or less';
         }
         if (metaDescription.length > 160) {
-            return Response.json({ error: 'Meta Description must be 160 characters or less' }, { status: 400 });
+            errors.metaDescription = 'Meta Description must be 160 characters or less';
         }
-        if (additionalImages.length !== additionalAlts.length) {
-            return Response.json({ error: 'Number of additional images and ALT texts must match' }, { status: 400 });
+        if (!isGlobal && !targetCountry.trim()) {
+            errors.targetCountry = 'Target country is required when not global';
         }
-
-        if (!isGlobal) {
-            if (!targetCountry.trim()) {
-                return Response.json({ error: 'Target country is required when not global' }, { status: 400 });
-            }
-            if (!targetCity.trim()) {
-                return Response.json({ error: 'Target city is required when not global' }, { status: 400 });
-            }
+        if (!isGlobal && !targetCity.trim()) {
+            errors.targetCity = 'Target city is required when not global';
         }
-        // size validation
         if (sizeRequirement === 'Mandatory' && sizes.length === 0) {
-            return Response.json({ error: 'At least one size with quantity is required when size is Mandatory' }, { status: 400 });
+            errors.sizes = 'At least one size with quantity is required when size is Mandatory';
         }
         if (sizeRequirement === 'Mandatory' && sizes.reduce((sum, size) => sum + size.quantity, 0) !== quantity) {
-            return Response.json({ error: 'Sum of size quantities must equal total quantity' }, { status: 400 });
+            errors.sizes = 'Sum of size quantities must equal total quantity';
         }
         sizes.forEach((size, index) => {
             if (!size.name.trim()) {
-                return Response.json({ error: `Size name at index ${index} is required` }, { status: 400 });
+                errors[`sizeName${index}`] = `Size name at index ${index} is required`;
             }
             if (isNaN(size.quantity) || size.quantity < 0) {
-                return Response.json({ error: `Quantity for size ${size.name} must be a non-negative integer` }, { status: 400 });
+                errors[`sizeQuantity${index}`] = `Quantity for size ${size.name} must be a non-negative integer`;
             }
         });
+        if (Object.keys(errors).length > 0) {
+            return Response.json({ error: errors }, { status: 400 });
+        }
+
         // Handle category
         let category;
         if (newCategory && newCategory.trim()) {
@@ -320,7 +322,6 @@ export async function PUT(request, { params }) {
                 alt: additionalAlts[index] || `Additional image ${index + 1} for ${title}`,
             });
         }
-        console.log('Processed additionalImageUrls:', additionalImageUrls); // Debug log
 
         // Prepare prices
         const prices = [{ currency: 'BDT', amount: bdtPrice }];
@@ -403,8 +404,8 @@ export async function PUT(request, { params }) {
                 aggregateRating,
                 schemaMarkup,
                 isGlobal,
-                quantity: quantity,
-                sizeRequirement: sizeRequirement,
+                quantity,
+                sizeRequirement,
                 sizes: sizes.length > 0 ? sizes : existingProduct.sizes || [],
                 targetCountry,
                 targetCity,
@@ -416,9 +417,10 @@ export async function PUT(request, { params }) {
             return Response.json({ error: 'Product not found' }, { status: 404 });
         }
 
-        console.log('Updated product:', JSON.stringify(product, null, 2)); // Debug log
+        console.log('Updated product:', JSON.stringify(product, null, 2));
         return Response.json({ message: 'Product updated', product }, { status: 200 });
     } catch (error) {
+        console.error('Error updating product:', error);
         if (error.name === 'ValidationError') {
             const errors = Object.values(error.errors).map((err) => err.message);
             return Response.json({ error: `Validation failed: ${errors.join(', ')}` }, { status: 400 });

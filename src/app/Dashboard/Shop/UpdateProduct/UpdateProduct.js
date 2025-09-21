@@ -29,8 +29,8 @@ export default function UpdateProduct() {
         mainImageAlt: '',
         existingMainImage: '',
         additionalImages: [],
-        additionalAlts: [], // For new images
-        existingAdditionalImages: [], // Array of { url, alt }
+        additionalAlts: [],
+        existingAdditionalImages: [],
         quantity: '',
         product_code: '',
         brand: '',
@@ -58,17 +58,14 @@ export default function UpdateProduct() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Fetch product
                 const productRes = await fetch(`/api/products/${productId}`);
                 if (!productRes.ok) throw new Error('Failed to fetch product');
                 const product = await productRes.json();
 
-                // Fetch categories
                 const categoriesRes = await fetch('/api/products?type=categories');
                 if (!categoriesRes.ok) throw new Error('Failed to fetch categories');
                 const categoriesData = await categoriesRes.json();
 
-                // Set form data
                 const bdtPriceObj = product.prices.find((p) => p.currency === 'BDT');
                 const usdPriceObj = product.prices.find((p) => p.currency === 'USD');
                 const eurPriceObj = product.prices.find((p) => p.currency === 'EUR');
@@ -204,10 +201,7 @@ export default function UpdateProduct() {
         if (!formData.metaTitle.trim() || formData.metaTitle.length > 60) newErrors.metaTitle = 'Meta Title is required (max 60 chars)';
         if (!formData.metaDescription.trim() || formData.metaDescription.length > 160) newErrors.metaDescription = 'Meta Description is required (max 160 chars)';
         return newErrors;
-
     };
-
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -246,13 +240,12 @@ export default function UpdateProduct() {
         if (formData.mainImage) data.append('mainImage', formData.mainImage);
         data.append('mainImageAlt', formData.mainImageAlt);
         data.append('existingMainImage', formData.existingMainImage);
-        formData.additionalImages.forEach((img, index) => {
+        formData.additionalImages.forEach((img) => {
             if (img) data.append('additionalImages', img);
         });
-        formData.additionalAlts.forEach((alt) => {
-            if (alt) data.append('additionalAlts', alt);
+        formData.additionalAlts.forEach((alt, index) => {
+            data.append('additionalAlts', alt || `Additional image ${index + 1} for ${formData.title}`);
         });
-
         data.append('existingAdditionalImages', JSON.stringify(formData.existingAdditionalImages));
         data.append('quantity', formData.quantity);
         data.append('brand', formData.brand);
@@ -270,7 +263,6 @@ export default function UpdateProduct() {
         data.append('targetCountry', formData.targetCountry || '');
         data.append('targetCity', formData.targetCity || '');
 
-        // Debug FormData
         console.log('FormData entries:');
         for (let [key, value] of data.entries()) {
             console.log(`${key}:`, value instanceof File ? value.name : value);
@@ -435,12 +427,9 @@ export default function UpdateProduct() {
         setFormData({ ...formData, sizes: newSizes });
     };
 
-
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white p-4 md:p-6 lg:p-8">
-
-            <div className="max-w-5xl mx-auto ">
+            <div className="max-w-5xl mx-auto">
                 <h1 className="group relative inline-block text-3xl md:text-4xl font-extrabold text-center mb-10 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent tracking-wide">
                     Update Product
                     <span className="block h-[3px] w-0 group-hover:w-32 mx-auto mt-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-500"></span>
@@ -448,7 +437,7 @@ export default function UpdateProduct() {
 
                 {errors.general && (
                     <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-                        {errors.general}
+                        {typeof errors.general === 'object' ? JSON.stringify(errors.general) : errors.general}
                     </div>
                 )}
 
@@ -474,7 +463,6 @@ export default function UpdateProduct() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
-                    {/* Basic Info */}
                     <div className="space-y-6">
                         <div>
                             <label className="block text-gray-300 mb-2 text-sm font-medium">Product Title*</label>
@@ -861,7 +849,7 @@ export default function UpdateProduct() {
 
                             {formData.sizeRequirement === 'Mandatory' && (
                                 <div>
-                                    <label className="block text-gray-300 mb-2 text-sm font-medium">Sizes*</label>
+                                    <label className="block text-gray-300 mb-2 text-sm font-medium">Sizes* (Total quantity must match sum of size quantities)</label>
                                     {formData.sizes.map((size, index) => (
                                         <div key={index} className="flex items-center mb-2 gap-4">
                                             <input
@@ -869,7 +857,7 @@ export default function UpdateProduct() {
                                                 value={size.name}
                                                 onChange={(e) => handleSizeChange(index, 'name', e.target.value)}
                                                 className={`w-1/2 p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 ${errors[`sizeName${index}`] ? 'border-red-500' : 'border-gray-300'}`}
-                                                placeholder={`Size ${index + 1} (e.g., S, 40)`}
+                                                placeholder={`Size ${index + 1} (e.g., S, M, 40)`}
                                             />
                                             <input
                                                 type="number"
@@ -879,7 +867,7 @@ export default function UpdateProduct() {
                                                 placeholder="Quantity"
                                                 min="0"
                                             />
-                                            {formData.sizes.length > 1 && (
+                                            {formData.sizes.length > 0 && (
                                                 <button
                                                     type="button"
                                                     onClick={() => removeSize(index)}
@@ -906,6 +894,7 @@ export default function UpdateProduct() {
                                 </div>
                             )}
                         </div>
+
 
 
                         <div>
