@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import CartSlider from '../CartSlider/CartSlider';
 import axios from 'axios';
-import { toast } from 'react-hot-toast';
 import { CiDeliveryTruck } from "react-icons/ci";
 
 export default function ProductDetailsClient({ product, latestProducts }) {
@@ -21,6 +20,62 @@ export default function ProductDetailsClient({ product, latestProducts }) {
     const router = useRouter();
     const [selectedSize, setSelectedSize] = useState(null);
     const [showSizeError, setShowSizeError] = useState(false);
+
+    // Custom Toast Function
+    const showCustomToast = (message, type = 'info') => {
+        const existingToast = document.querySelector('.custom-toast-slider');
+        if (existingToast) {
+            document.body.removeChild(existingToast);
+        }
+
+        const toastElement = document.createElement('div');
+        toastElement.className = `custom-toast-slider custom-toast-${type}`;
+
+        const icons = {
+            success: `
+                <svg xmlns="http://www.w3.org/2000/svg" class="toast-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+            `,
+            error: `
+                <svg xmlns="http://www.w3.org/2000/svg" class="toast-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+            `,
+            info: `
+                <svg xmlns="http://www.w3.org/2000/svg" class="toast-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+            `
+        };
+
+        toastElement.innerHTML = `
+            <div class="toast-content">
+                ${icons[type]}
+                <span class="toast-message">${message}</span>
+                <button class="toast-close" onclick="this.parentElement.parentElement.remove()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(toastElement);
+
+        setTimeout(() => {
+            toastElement.classList.add('show');
+        }, 10);
+
+        setTimeout(() => {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (document.body.contains(toastElement)) {
+                    document.body.removeChild(toastElement);
+                }
+            }, 300);
+        }, 4000);
+    };
 
     useEffect(() => {
         const checkMobile = () => {
@@ -39,7 +94,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             })
             .catch((err) => {
                 console.error('Error fetching conversion rates:', err);
-                toast.error('Failed to load currency conversion rates');
+                showCustomToast('Failed to load currency conversion rates', 'error');
             });
     }, []);
 
@@ -99,12 +154,12 @@ export default function ProductDetailsClient({ product, latestProducts }) {
     const handleAddToCart = async () => {
         if (product.productType === 'Own' && product.sizeRequirement === 'Mandatory' && product.sizes?.length > 0 && !selectedSize) {
             setShowSizeError(true);
-            toast.error('Please select a size before adding to cart');
+            showCustomToast('Please select a size before adding to cart', 'error');
             return;
         }
 
         if (product.availability !== 'InStock' || product.quantity <= 0 || product.productType === 'Affiliate') {
-            toast.error('This product cannot be added to cart');
+            showCustomToast('This product cannot be added to cart', 'error');
             return;
         }
 
@@ -117,7 +172,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             const validation = response.data;
 
             if (!validation.valid) {
-                toast.error(validation.message);
+                showCustomToast(validation.message, 'error');
                 return;
             }
 
@@ -128,16 +183,16 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             if (existingItem) {
                 newQuantity = existingItem.quantity + quantity;
                 if (newQuantity > 3) {
-                    toast.error('Cannot add more than 3 units of this product');
+                    showCustomToast('Cannot add more than 3 units of this product', 'error');
                     return;
                 }
                 if (selectedSize && newQuantity > selectedSize.quantity) {
-                    toast.error(`Only ${selectedSize.quantity} units available for size ${selectedSize.name}`);
+                    showCustomToast(`Only ${selectedSize.quantity} units available for size ${selectedSize.name}`, 'error');
                     return;
                 }
                 cart.splice(cart.indexOf(existingItem), 1);
                 cart.push({ ...existingItem, quantity: newQuantity, size: selectedSize?.name });
-                toast.success('Cart updated successfully');
+                showCustomToast(`Cart updated with ${newQuantity} units of ${product.title}`, 'success');
             } else {
                 const priceObj = product.prices.find((p) => p.currency === 'BDT') || product.prices[0];
                 const priceInBDT = priceObj.currency === 'BDT' ? priceObj.amount : priceObj.amount * (conversionRates[priceObj.currency] || 1);
@@ -151,32 +206,32 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                     currency: 'BDT',
                     size: selectedSize?.name,
                 });
-                toast.success('Added to cart successfully');
+                showCustomToast(`Added ${quantity} units of ${product.title} to cart`, 'success');
             }
             localStorage.setItem('cart', JSON.stringify(cart));
             window.dispatchEvent(new Event('cartUpdated'));
             setIsCartOpen(true);
         } catch (error) {
             console.error('Error validating product stock:', error);
-            toast.error(error.response?.data?.message || 'Error checking product availability');
+            showCustomToast(error.response?.data?.message || 'Error checking product availability', 'error');
         }
     };
 
     const handleBuyNow = async () => {
         if (product.productType === 'Own' && product.sizeRequirement === 'Mandatory' && product.sizes?.length > 0 && !selectedSize) {
             setShowSizeError(true);
-            toast.error('Please select a size before buying');
+            showCustomToast('Please select a size before buying', 'error');
             return;
         }
 
         if (product.availability !== 'InStock' || product.quantity <= 0) {
-            toast.error('This product is out of stock');
+            showCustomToast('This product is out of stock', 'error');
             return;
         }
 
         if (product.productType === 'Affiliate') {
             window.open(product.affiliateLink, '_blank', 'noopener,noreferrer');
-            toast.success('Redirecting to affiliate site');
+            showCustomToast('Redirecting to affiliate site', 'success');
             return;
         }
 
@@ -189,7 +244,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             const validation = response.data;
 
             if (!validation.valid) {
-                toast.error(validation.message);
+                showCustomToast(validation.message, 'error');
                 return;
             }
 
@@ -214,11 +269,11 @@ export default function ProductDetailsClient({ product, latestProducts }) {
 
             localStorage.setItem('cart', JSON.stringify(updatedCart));
             window.dispatchEvent(new Event('cartUpdated'));
-            toast.success('Proceeding to checkout');
-            router.push('/checkout');
+            showCustomToast(`Proceeding to cart with ${quantity} units of ${product.title}`, 'success');
+            router.push('/cart');
         } catch (error) {
             console.error('Error validating product stock:', error);
-            toast.error(error.response?.data?.message || 'Error checking product availability');
+            showCustomToast(error.response?.data?.message || 'Error checking product availability', 'error');
         }
     };
 
@@ -453,9 +508,9 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                                     setSelectedSize(size);
                                                     setShowSizeError(false);
                                                 }}
-                                                className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${selectedSize?.name === size.name
-                                                        ? 'bg-purple-600 text-white shadow-md shadow-purple-500/25'
-                                                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
+                                                className={`px-2 py-1 rounded-lg text-sm font-medium transition-all duration-200 border ${selectedSize?.name === size.name
+                                                    ? 'bg-purple-600 text-white border-purple-600'
+                                                    : 'border-gray-500 text-gray-300 hover:bg-purple-500/10 hover:border-purple-500'
                                                     }`}
                                             >
                                                 {size.name}
@@ -658,6 +713,83 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             )}
 
             <CartSlider isOpen={isCartOpen} setIsOpen={setIsCartOpen} conversionRates={conversionRates} />
+
+            <style jsx global>{`
+                .custom-toast-slider {
+                    position: fixed;
+                    top: 24px;
+                    right: 24px;
+                    background: linear-gradient(135deg, #1a1a1a 0%, #2d1b4e 100%);
+                    color: #fff;
+                    padding: 16px 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 10px 25px rgba(128, 0, 128, 0.3);
+                    border-left: 4px solid #8b5cf6;
+                    opacity: 0;
+                    transform: translateY(20px) scale(0.95);
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    z-index: 1001;
+                    max-width: 320px;
+                    backdrop-filter: blur(10px);
+                }
+
+                .custom-toast-slider.show {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+
+                .custom-toast-success {
+                    border-left-color: #10b981;
+                    background: linear-gradient(135deg, #1a1a1a 0%, #064e3b 100%);
+                }
+
+                .custom-toast-error {
+                    border-left-color: #ef4444;
+                    background: linear-gradient(135deg, #1a1a1a 0%, #7f1d1d 100%);
+                }
+
+                .toast-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+
+                .toast-icon {
+                    width: 20px;
+                    height: 20px;
+                    color: #8b5cf6;
+                    flex-shrink: 0;
+                }
+
+                .custom-toast-success .toast-icon {
+                    color: #10b981;
+                }
+
+                .custom-toast-error .toast-icon {
+                    color: #ef4444;
+                }
+
+                .toast-message {
+                    flex: 1;
+                    font-size: 14px;
+                    line-height: 1.4;
+                }
+
+                .toast-close {
+                    background: none;
+                    border: none;
+                    color: #9ca3af;
+                    cursor: pointer;
+                    padding: 4px;
+                    border-radius: 4px;
+                    transition: all 0.2s;
+                }
+
+                .toast-close:hover {
+                    color: #fff;
+                    background: rgba(255,255,255,0.1);
+                }
+            `}</style>
         </div>
     );
 }

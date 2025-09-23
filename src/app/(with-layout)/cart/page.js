@@ -18,7 +18,8 @@ export default function CartPage() {
     useEffect(() => {
         const updateCart = () => {
             const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
-            setCart(storedCart);
+            const uniqueCart = removeDuplicateCartItems(storedCart);
+            setCart(uniqueCart);
         };
         updateCart();
         window.addEventListener('cartUpdated', updateCart);
@@ -33,9 +34,40 @@ export default function CartPage() {
             })
             .catch((err) => {
                 console.error('Error fetching conversion rates:', err);
-                toast.error('Failed to load currency conversion rates');
+                showCustomToast('Failed to load currency conversion rates', 'error');
             });
     }, []);
+
+    // Function to remove duplicate cart items (same product + same size)
+    const removeDuplicateCartItems = (cartItems) => {
+        const uniqueItemsMap = new Map();
+
+        cartItems.forEach(item => {
+            const key = `${item._id}-${item.size || 'no-size'}`;
+
+            if (uniqueItemsMap.has(key)) {
+                const existingItem = uniqueItemsMap.get(key);
+                const mergedQuantity = existingItem.quantity + item.quantity;
+                const finalQuantity = Math.min(mergedQuantity, 3); // Max 3 products
+
+                uniqueItemsMap.set(key, {
+                    ...existingItem,
+                    quantity: finalQuantity
+                });
+            } else {
+                uniqueItemsMap.set(key, {
+                    ...item,
+                    quantity: Math.min(item.quantity, 3) // Ensure max 3
+                });
+            }
+        });
+
+        return Array.from(uniqueItemsMap.values());
+    };
+
+    // Helper function to create consistent size keys
+    const getSizeKey = (size) => size || 'no-size';
+    const getItemSizeKey = (item) => item.size || 'no-size';
 
     // Fetch available sizes for each product in cart
     useEffect(() => {
@@ -72,6 +104,14 @@ export default function CartPage() {
 
     const validateQuantityWithBackend = async (productId, newQuantity, size) => {
         try {
+            // Check maximum limit first
+            if (newQuantity > 3) {
+                return {
+                    valid: false,
+                    message: 'Maximum 3 products allowed per item'
+                };
+            }
+
             const response = await axios.post('/api/products/cart/validate', {
                 productId,
                 quantity: newQuantity,
@@ -80,8 +120,10 @@ export default function CartPage() {
             return response.data;
         } catch (error) {
             console.error('Error validating quantity:', error);
-            toast.error(error.response?.data?.message || 'Error checking product availability');
-            return { valid: false, message: 'Error checking product availability' };
+            return {
+                valid: false,
+                message: error.response?.data?.message || 'Error checking product availability'
+            };
         }
     };
 
@@ -92,34 +134,53 @@ export default function CartPage() {
         try {
             const validation = await validateQuantityWithBackend(productId, newQuantity, size);
             if (!validation.valid) {
-                toast.error(validation.message);
+                showCustomToast(validation.message, 'error');
                 setIsLoading(false);
                 return;
             }
 
             const updatedCart = cart.map((item) =>
-                item._id === productId && (!item.size || item.size === size) ? { ...item, quantity: newQuantity } : item
+                item._id === productId && getItemSizeKey(item) === getSizeKey(size)
+                    ? { ...item, quantity: newQuantity }
+                    : item
             );
-            localStorage.setItem('cart', JSON.stringify(updatedCart));
-            setCart(updatedCart);
+
+            const uniqueCart = removeDuplicateCartItems(updatedCart);
+            localStorage.setItem('cart', JSON.stringify(uniqueCart));
+            setCart(uniqueCart);
             window.dispatchEvent(new Event('cartUpdated'));
+
+            // Show success toast for quantity change
+            if (newQuantity > 1) {
+                showCustomToast(
+                    `Quantity updated to ${newQuantity} for ${cart.find(item => item._id === productId && getItemSizeKey(item) === getSizeKey(size))?.title
+                    }`,
+                    'success'
+                );
+            }
         } catch (error) {
             console.error('Error updating quantity:', error);
-            toast.error('Failed to update quantity');
+            showCustomToast('Failed to update quantity', 'error');
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleRemoveItem = (productId, size) => {
-        const updatedCart = cart.filter((item) => !(item._id === productId && (!item.size || item.size === size)));
-        localStorage.setItem('cart', JSON.stringify(updatedCart));
-        setCart(updatedCart);
+        const updatedCart = cart.filter((item) =>
+            !(item._id === productId && getItemSizeKey(item) === getSizeKey(size))
+        );
+
+        const uniqueCart = removeDuplicateCartItems(updatedCart);
+        localStorage.setItem('cart', JSON.stringify(uniqueCart));
+        setCart(uniqueCart);
         window.dispatchEvent(new Event('cartUpdated'));
 
         // Show custom toast notification
-        const product = cart.find(item => item._id === productId && (!item.size || item.size === size));
-        showCustomToast(`${product.title} has been removed from cart`);
+        const product = cart.find(item => item._id === productId && getItemSizeKey(item) === getSizeKey(size));
+        if (product) {
+            showCustomToast(`${product.title} has been removed from cart`, 'success');
+        }
 
         setShowDeleteModal(false);
         setItemToDelete(null);
@@ -130,15 +191,44 @@ export default function CartPage() {
         setShowDeleteModal(true);
     };
 
-    const showCustomToast = (message) => {
+    // Custom Toast Function
+    const showCustomToast = (message, type = 'info') => {
+        // Remove any existing toast
+        const existingToast = document.querySelector('.custom-toast-page');
+        if (existingToast) {
+            document.body.removeChild(existingToast);
+        }
+
         const toastElement = document.createElement('div');
-        toastElement.className = 'custom-toast';
-        toastElement.innerHTML = `
-            <div class="toast-content">
+        toastElement.className = `custom-toast-page custom-toast-${type}`;
+
+        const icons = {
+            success: `
                 <svg xmlns="http://www.w3.org/2000/svg" class="toast-icon" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
-                <span>${message}</span>
+            `,
+            error: `
+                <svg xmlns="http://www.w3.org/2000/svg" class="toast-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+            `,
+            info: `
+                <svg xmlns="http://www.w3.org/2000/svg" class="toast-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+            `
+        };
+
+        toastElement.innerHTML = `
+            <div class="toast-content">
+                ${icons[type]}
+                <span class="toast-message">${message}</span>
+                <button class="toast-close" onclick="this.parentElement.parentElement.remove()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
             </div>
         `;
 
@@ -151,9 +241,11 @@ export default function CartPage() {
         setTimeout(() => {
             toastElement.classList.remove('show');
             setTimeout(() => {
-                document.body.removeChild(toastElement);
+                if (document.body.contains(toastElement)) {
+                    document.body.removeChild(toastElement);
+                }
             }, 300);
-        }, 3000);
+        }, 4000);
     };
 
     const handleSizeChange = async (productId, oldSize, newSize) => {
@@ -168,7 +260,7 @@ export default function CartPage() {
             if (product.sizes && product.sizes.length > 0) {
                 const sizeData = product.sizes.find(s => s.name === newSize);
                 if (!sizeData || sizeData.quantity === 0) {
-                    toast.error('Selected size is not available');
+                    showCustomToast('Selected size is not available', 'error');
                     setIsLoading(false);
                     return;
                 }
@@ -176,17 +268,24 @@ export default function CartPage() {
 
             // Update the cart with the new size
             const updatedCart = cart.map((item) =>
-                item._id === productId && (!item.size || item.size === oldSize) ? { ...item, size: newSize } : item
+                item._id === productId && getItemSizeKey(item) === getSizeKey(oldSize)
+                    ? { ...item, size: newSize }
+                    : item
             );
 
-            localStorage.setItem('cart', JSON.stringify(updatedCart));
-            setCart(updatedCart);
+            const uniqueCart = removeDuplicateCartItems(updatedCart);
+            localStorage.setItem('cart', JSON.stringify(uniqueCart));
+            setCart(uniqueCart);
             window.dispatchEvent(new Event('cartUpdated'));
 
-            toast.success('Size updated successfully');
+            showCustomToast(
+                `Size updated to ${newSize} for ${cart.find(item => item._id === productId && getItemSizeKey(item) === getSizeKey(oldSize))?.title
+                }`,
+                'success'
+            );
         } catch (error) {
             console.error('Error changing size:', error);
-            toast.error('Failed to update size');
+            showCustomToast('Failed to update size', 'error');
         } finally {
             setIsLoading(false);
         }
@@ -203,9 +302,38 @@ export default function CartPage() {
     const handleProceedToCheckout = async () => {
         setIsLoading(true);
         try {
-            const validationPromises = cart.map(async (item) => {
+            // Check for quantity limits before validation
+            const exceededLimitItems = cart.filter(item => item.quantity > 3);
+            if (exceededLimitItems.length > 0) {
+                exceededLimitItems.forEach(item => {
+                    showCustomToast(`Maximum 3 units allowed for ${item.title}`, 'error');
+                });
+
+                // Auto-correct quantities
+                const correctedCart = cart.map(item => ({
+                    ...item,
+                    quantity: Math.min(item.quantity, 3)
+                }));
+
+                localStorage.setItem('cart', JSON.stringify(correctedCart));
+                setCart(correctedCart);
+                window.dispatchEvent(new Event('cartUpdated'));
+                setIsLoading(false);
+                return;
+            }
+
+            // First remove any duplicates before validation
+            const cleanedCart = removeDuplicateCartItems(cart);
+            if (cleanedCart.length !== cart.length) {
+                showCustomToast('Duplicate items removed from cart', 'info');
+                localStorage.setItem('cart', JSON.stringify(cleanedCart));
+                setCart(cleanedCart);
+                window.dispatchEvent(new Event('cartUpdated'));
+            }
+
+            const validationPromises = cleanedCart.map(async (item) => {
                 const validation = await validateQuantityWithBackend(item._id, item.quantity, item.size);
-                return { ...validation, productId: item._id, size: item.size };
+                return { ...validation, productId: item._id, size: item.size, title: item.title };
             });
 
             const results = await Promise.all(validationPromises);
@@ -213,27 +341,42 @@ export default function CartPage() {
 
             if (invalidItems.length > 0) {
                 invalidItems.forEach((item) => {
-                    toast.error(item.message);
+                    showCustomToast(`${item.title}: ${item.message}`, 'error');
                 });
 
                 const updatedCart = await Promise.all(
-                    cart.map(async (item) => {
-                        const response = await axios.get(`/api/products/${item._id}`);
-                        const product = response.data;
-                        if (item.size) {
-                            const sizeData = product.sizes.find((s) => s.name === item.size);
-                            if (!sizeData || item.quantity > sizeData.quantity) {
-                                return { ...item, quantity: Math.min(item.quantity, sizeData?.quantity || 0) };
+                    cleanedCart.map(async (item) => {
+                        try {
+                            const response = await axios.get(`/api/products/${item._id}`);
+                            const product = response.data;
+                            if (item.size) {
+                                const sizeData = product.sizes.find((s) => s.name === item.size);
+                                if (!sizeData || item.quantity > sizeData.quantity) {
+                                    showCustomToast(
+                                        `Adjusted quantity to ${sizeData?.quantity || 0} for ${item.title} (size: ${item.size})`,
+                                        'info'
+                                    );
+                                    return { ...item, quantity: Math.min(item.quantity, sizeData?.quantity || 0) };
+                                }
+                            } else if (item.quantity > product.quantity) {
+                                showCustomToast(
+                                    `Adjusted quantity to ${product.quantity} for ${item.title}`,
+                                    'info'
+                                );
+                                return { ...item, quantity: Math.min(item.quantity, product.quantity) };
                             }
-                        } else if (item.quantity > product.quantity) {
-                            return { ...item, quantity: Math.min(item.quantity, product.quantity) };
+                            return item;
+                        } catch (error) {
+                            console.error(`Error updating product ${item._id}:`, error);
+                            showCustomToast(`Failed to validate ${item.title}`, 'error');
+                            return item;
                         }
-                        return item;
                     })
                 );
 
-                localStorage.setItem('cart', JSON.stringify(updatedCart));
-                setCart(updatedCart);
+                const finalCart = removeDuplicateCartItems(updatedCart);
+                localStorage.setItem('cart', JSON.stringify(finalCart));
+                setCart(finalCart);
                 window.dispatchEvent(new Event('cartUpdated'));
                 setIsLoading(false);
                 return;
@@ -242,7 +385,7 @@ export default function CartPage() {
             router.push('/checkout');
         } catch (error) {
             console.error('Error validating cart:', error);
-            toast.error('Failed to validate cart items');
+            showCustomToast('Failed to validate cart items', 'error');
         } finally {
             setIsLoading(false);
         }
@@ -284,10 +427,10 @@ export default function CartPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             <div className="lg:col-span-2">
                                 <div className="bg-gray-800 rounded-lg p-6">
-                                    <h2 className="text-xl font-semibold mb-6">Cart Items ({getTotalQuantity()})</h2>
+                                    <h2 className="text-xl font-semibold mb-6">Cart Items ({getTotalQuantity()} items)</h2>
                                     <div className="space-y-6">
                                         {cart.map((item, index) => (
-                                            <div key={`${item._id}-${item.size || index}`} className="flex items-center gap-4 pb-6 border-b border-gray-700 last:border-0 last:pb-0">
+                                            <div key={`${item._id}-${getItemSizeKey(item)}-${index}`} className="flex items-center gap-4 pb-6 border-b border-gray-700 last:border-0 last:pb-0">
                                                 <div className="relative w-20 h-20 flex-shrink-0">
                                                     <Image
                                                         src={item.mainImage}
@@ -326,10 +469,10 @@ export default function CartPage() {
                                                         >
                                                             −
                                                         </button>
-                                                        <span className="px-3 py-1 bg-gray-800 min-w-[2rem] text-center">{item.quantity}</span>
+                                                        <span className="px-3 py-1 bg-gray-800 min-w-[2rem] text-center">{item.quantity}/3</span>
                                                         <button
                                                             onClick={() => handleQuantityChange(item._id, item.quantity + 1, item.size)}
-                                                            disabled={isLoading}
+                                                            disabled={isLoading || item.quantity >= 3}
                                                             className="px-3 py-1 bg-gray-700 text-white hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                         >
                                                             {isLoading ? '...' : '+'}
@@ -417,7 +560,7 @@ export default function CartPage() {
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
                     <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full border border-gray-700 shadow-xl">
                         <h3 className="text-xl font-semibold mb-4">Confirm Removal</h3>
-                        <p className="text-gray-300 mb-6">Are you sure you want to remove {itemToDelete?.title} from your cart?</p>
+                        <p className="text-gray-300 mb-6">Are you sure you want to remove "{itemToDelete?.title}" from your cart?</p>
                         <div className="flex justify-end space-x-4">
                             <button
                                 onClick={() => setShowDeleteModal(false)}
@@ -436,42 +579,82 @@ export default function CartPage() {
                 </div>
             )}
 
-            <style jsx>{`
-                .custom-toast {
-                    position: fixed;
-                    bottom: 24px;
-                    right: 24px;
-                    background: linear-gradient(to right, #1a1a1a, #2d2d2d);
-                    color: #fff;
-                    padding: 16px 20px;
-                    border-radius: 8px;
-                    box-shadow: 0 10px 25px rgba(128, 0, 128, 0.3);
-                    border-left: 4px solid #8b5cf6;
-                    opacity: 0;
-                    transform: translateY(20px);
-                    transition: opacity 0.3s, transform 0.3s;
-                    z-index: 1000;
-                    max-width: 320px;
-                }
-                
-                .custom-toast.show {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-                
-                .toast-content {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                }
-                
-                .toast-icon {
-                    width: 20px;
-                    height: 20px;
-                    color: #8b5cf6;
-                    flex-shrink: 0;
-                }
-            `}</style>
+            <style jsx global>{`
+    .custom-toast-page {
+        position: fixed;
+        top: 24px; /* Changed from bottom: 24px */
+        right: 24px;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d1b4e 100%);
+        color: #fff;
+        padding: 16px 20px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(128, 0, 128, 0.3);
+        border-left: 4px solid #8b5cf6;
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1001;
+        max-width: 320px;
+        backdrop-filter: blur(10px);
+    }
+
+    .custom-toast-page.show {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    .custom-toast-success {
+        border-left-color: #10b981;
+        background: linear-gradient(135deg, #1a1a1a 0%, #064e3b 100%);
+    }
+
+    .custom-toast-error {
+        border-left-color: #ef4444;
+        background: linear-gradient(135deg, #1a1a1a 0%, #7f1d1d 100%);
+    }
+
+    .toast-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .toast-icon {
+        width: 20px;
+        height: 20px;
+        color: #8b5cf6;
+        flex-shrink: 0;
+    }
+
+    .custom-toast-success .toast-icon {
+        color: #10b981;
+    }
+
+    .custom-toast-error .toast-icon {
+        color: #ef4444;
+    }
+
+    .toast-message {
+        flex: 1;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .toast-close {
+        background: none;
+        border: none;
+        color: #9ca3af;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .toast-close:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.1);
+    }
+`}</style>
         </div>
     );
 }
