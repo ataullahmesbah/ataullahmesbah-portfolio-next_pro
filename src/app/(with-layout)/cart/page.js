@@ -505,7 +505,7 @@ export default function CartPage() {
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
-                                            <span className="text-sm">Delivery: 3-4 business days</span>
+                                            <span className="text-sm">Delivery: 3-7 business days</span>
                                         </div>
                                         <div className="flex items-center text-gray-400">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -560,7 +560,7 @@ export default function CartPage() {
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
                     <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full border border-gray-700 shadow-xl">
                         <h3 className="text-xl font-semibold mb-4">Confirm Removal</h3>
-                        <p className="text-gray-300 mb-6">Are you sure you want to remove "{itemToDelete?.title}" from your cart?</p>
+                        <p className="text-gray-300 mb-6">Are you sure you want to remove {itemToDelete?.title} from your cart?</p>
                         <div className="flex justify-end space-x-4">
                             <button
                                 onClick={() => setShowDeleteModal(false)}

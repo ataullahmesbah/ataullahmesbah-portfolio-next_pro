@@ -24,11 +24,11 @@ export async function POST(request) {
         // Business Information (Top Section)
         doc.setFontSize(14);
         doc.setFont("helvetica", "bold");
-        doc.text("Mesbah's Premium Shop", 105, 15, { align: "center" });
+        doc.text("SOOQRA ONE SHOP", 105, 15, { align: "center" });
         doc.setFontSize(9);
         doc.setFont("helvetica", "normal");
         doc.text("3 Muirfield Cresent, E14 9SZ, Bangladesh", 105, 22, { align: "center" });
-        doc.text("09634090025 | shop.mesbah1@gmail.com", 105, 27, { align: "center" });
+        doc.text("+8801732183389 | sooqraone.shop@gmail.com", 105, 27, { align: "center" });
 
         // Invoice Header
         doc.setFontSize(12);

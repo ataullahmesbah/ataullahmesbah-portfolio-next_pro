@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import axios from 'axios';
-import toast, { Toaster } from 'react-hot-toast';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 
@@ -34,7 +33,61 @@ export default function Checkout() {
     const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [validatingCart, setValidatingCart] = useState(false);
 
+    // Custom Toast Function
+    const showCustomToast = (message, type = 'info') => {
+        const existingToast = document.querySelector('.custom-toast-checkout');
+        if (existingToast) {
+            document.body.removeChild(existingToast);
+        }
 
+        const toastElement = document.createElement('div');
+        toastElement.className = `custom-toast-checkout custom-toast-${type}`;
+
+        const icons = {
+            success: `
+                <svg xmlns="http://www.w3.org/2000/svg" class="toast-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+            `,
+            error: `
+                <svg xmlns="http://www.w3.org/2000/svg" class="toast-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+            `,
+            info: `
+                <svg xmlns="http://www.w3.org/2000/svg" class="toast-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+            `
+        };
+
+        toastElement.innerHTML = `
+            <div class="toast-content">
+                ${icons[type]}
+                <span class="toast-message">${message}</span>
+                <button class="toast-close" onclick="this.parentElement.parentElement.remove()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(toastElement);
+
+        setTimeout(() => {
+            toastElement.classList.add('show');
+        }, 10);
+
+        setTimeout(() => {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (document.body.contains(toastElement)) {
+                    document.body.removeChild(toastElement);
+                }
+            }, 300);
+        }, 4000);
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -63,30 +116,46 @@ export default function Checkout() {
             } catch (error) {
                 console.error('Error fetching checkout data:', error);
                 setError('Failed to load checkout data. Please refresh the page.');
+                showCustomToast('Failed to load checkout data. Please refresh the page.', 'error');
             }
         };
         fetchData();
     }, []);
 
-
-    // Add this function to your checkout component
     const validateCart = async () => {
         setValidatingCart(true);
         try {
-            const response = await axios.post('/api/products/cart/validate', {
-                cartItems: cart.map(item => ({
-                    productId: item._id,
-                    quantity: item.quantity
-                }))
+            const validationPromises = cart.map(async (item) => {
+                try {
+                    const response = await axios.post('/api/products/cart/validate', {
+                        productId: item._id,
+                        quantity: item.quantity,
+                        size: item.size || null
+                    });
+                    return { ...response.data, productId: item._id, size: item.size || null, title: item.title };
+                } catch (error) {
+                    console.error(`Error validating product ${item._id}:`, error);
+                    return {
+                        valid: false,
+                        message: error.response?.data?.message || 'Error validating item',
+                        productId: item._id,
+                        size: item.size || null,
+                        title: item.title
+                    };
+                }
             });
 
-            const { isValid, results } = response.data;
+            const results = await Promise.all(validationPromises);
+            const invalidItems = results.filter(result => !result.valid);
 
-            if (!isValid) {
-                // Update cart with corrected quantities
+            if (invalidItems.length > 0) {
                 const updatedCart = cart.map(item => {
-                    const validation = results.find(r => r.productId === item._id);
+                    const validation = results.find(r => r.productId === item._id && (r.size || null) === (item.size || null));
                     if (!validation.valid && validation.availableQuantity !== undefined) {
+                        showCustomToast(
+                            `Adjusted quantity to ${validation.availableQuantity} for ${item.title}${item.size ? ` (size: ${item.size})` : ''}`,
+                            'info'
+                        );
                         return { ...item, quantity: validation.availableQuantity };
                     }
                     return item;
@@ -96,11 +165,11 @@ export default function Checkout() {
                 localStorage.setItem('cart', JSON.stringify(updatedCart));
                 window.dispatchEvent(new Event('cartUpdated'));
 
-                // Show error messages
-                results.forEach(result => {
-                    if (!result.valid && result.message) {
-                        toast.error(result.message);
-                    }
+                invalidItems.forEach(result => {
+                    showCustomToast(
+                        `${result.title || 'Product'}: ${result.message}${result.size ? ` (size: ${result.size})` : ''}`,
+                        'error'
+                    );
                 });
 
                 return false;
@@ -109,13 +178,12 @@ export default function Checkout() {
             return true;
         } catch (error) {
             console.error('Cart validation error:', error);
-            toast.error('Failed to validate cart items');
+            showCustomToast('Failed to validate cart items', 'error');
             return false;
         } finally {
             setValidatingCart(false);
         }
     };
-
 
     const getBDTPrice = (item) => {
         if (!item || !item.price || !item.currency) return 0;
@@ -140,22 +208,20 @@ export default function Checkout() {
         setCustomerInfo((prev) => ({ ...prev, phone }));
     };
 
-
     const handleQuantityChange = async (productId, newQuantity) => {
         if (newQuantity < 1 || !productId) return;
 
         try {
-            // Validate with backend before changing quantity
             const response = await axios.get(`/api/products/${productId}`);
             const product = response.data;
 
             if (newQuantity > product.quantity) {
-                toast.error(`Only ${product.quantity} units available`);
+                showCustomToast(`Only ${product.quantity} units available for ${product.title}`, 'error');
                 return;
             }
 
             if (newQuantity > 3) {
-                toast.error('Maximum 3 units per product');
+                showCustomToast(`Maximum 3 units allowed for ${product.title}`, 'error');
                 return;
             }
 
@@ -166,6 +232,7 @@ export default function Checkout() {
             localStorage.setItem('cart', JSON.stringify(updatedCart));
             window.dispatchEvent(new Event('cartUpdated'));
 
+            showCustomToast(`Quantity updated to ${newQuantity} for ${product.title}`, 'success');
 
             if (appliedCoupon) {
                 if (appliedCoupon.type === 'product') {
@@ -178,7 +245,7 @@ export default function Checkout() {
                         setAppliedCoupon(null);
                         setCouponCode('');
                         setCouponError('Coupon no longer applicable.');
-                        toast.error('Coupon no longer applicable.');
+                        showCustomToast('Coupon no longer applicable.', 'error');
                     }
                 } else if (appliedCoupon.type === 'global') {
                     const subtotal = updatedCart.reduce((sum, item) => sum + getBDTPrice(item) * (item.quantity || 1), 0);
@@ -189,18 +256,17 @@ export default function Checkout() {
                         setAppliedCoupon(null);
                         setCouponCode('');
                         setCouponError(`Cart total must be at least ৳${appliedCoupon.minCartTotal}`);
-                        toast.error(`Cart total must be at least ৳${appliedCoupon.minCartTotal}`);
+                        showCustomToast(`Cart total must be at least ৳${appliedCoupon.minCartTotal}`, 'error');
                     }
                 }
             }
         } catch (error) {
             console.error('Error validating product stock:', error);
-            toast.error('Error checking product availability');
+            showCustomToast('Error checking product availability', 'error');
         }
     };
 
     const subtotal = cart.reduce((sum, item) => sum + getBDTPrice(item) * (item.quantity || 1), 0);
-
 
     const handleCouponApply = async () => {
         setCouponError('');
@@ -210,7 +276,7 @@ export default function Checkout() {
             const productIds = cart.map(item => item._id).filter(id => id);
             if (!productIds.length) {
                 setCouponError('No valid products in cart.');
-                toast.error('No valid products in cart.');
+                showCustomToast('No valid products in cart.', 'error');
                 return;
             }
             const response = await axios.post('/api/products/coupons/validate', {
@@ -221,13 +287,12 @@ export default function Checkout() {
                 email: customerInfo.email,
                 phone: customerInfo.phone,
             });
-            console.log('Coupon validate response:', response.data);
             if (response.data.valid) {
                 if (response.data.type === 'product') {
                     const cartItem = cart.find(item => item._id === response.data.productId?.toString());
                     if (!cartItem) {
                         setCouponError('Coupon not applicable to cart items.');
-                        toast.error('Coupon not applicable to cart items.');
+                        showCustomToast('Coupon not applicable to cart items.', 'error');
                         return;
                     }
                     const discountAmount = (getBDTPrice(cartItem) * response.data.discountPercentage) / 100;
@@ -238,7 +303,7 @@ export default function Checkout() {
                         productId: response.data.productId,
                         discountPercentage: response.data.discountPercentage,
                     });
-                    toast.success('Coupon applied successfully!');
+                    showCustomToast(`Coupon ${couponCode} applied successfully!`, 'success');
                 } else if (response.data.type === 'global') {
                     const discountAmount = response.data.discountAmount;
                     setDiscount(Number.isFinite(discountAmount) ? discountAmount : 0);
@@ -248,19 +313,18 @@ export default function Checkout() {
                         discountAmount,
                         minCartTotal: response.data.minCartTotal || 0,
                     });
-                    toast.success('Coupon applied successfully!');
+                    showCustomToast(`Coupon ${couponCode} applied successfully!`, 'success');
                 }
             } else {
                 setCouponError(response.data.message || 'Invalid coupon code.');
-                toast.error(response.data.message || 'Invalid coupon code.');
+                showCustomToast(response.data.message || 'Invalid coupon code.', 'error');
             }
         } catch (err) {
             console.error('Error applying coupon:', err.response?.data || err.message);
             setCouponError('Error applying coupon. Please try again.');
-            toast.error('Error applying coupon. Please try again.');
+            showCustomToast('Error applying coupon. Please try again.', 'error');
         }
     };
-
 
     const generateOrderId = () => {
         return 'ORDER_' + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -268,13 +332,11 @@ export default function Checkout() {
 
     const payableAmount = subtotal - discount + (paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' ? (Number.isFinite(shippingCharge) ? shippingCharge : 0) : 0);
 
-    // Then update your handleCheckout function to call validateCart first
     const handleCheckout = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
-        // Validate cart with backend first
         const isCartValid = await validateCart();
         if (!isCartValid) {
             setLoading(false);
@@ -283,21 +345,21 @@ export default function Checkout() {
 
         if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.address) {
             setError('Please fill in all required fields.');
-            toast.error('Please fill in all required fields.');
+            showCustomToast('Please fill in all required fields.', 'error');
             setLoading(false);
             return;
         }
 
         if (paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' && (!customerInfo.district || !customerInfo.thana)) {
             setError('Please select district and thana for COD.');
-            toast.error('Please select district and thana for COD.');
+            showCustomToast('Please select district and thana for COD.', 'error');
             setLoading(false);
             return;
         }
 
         if (!cart.length) {
             setError('Your cart is empty.');
-            toast.error('Your cart is empty.');
+            showCustomToast('Your cart is empty.', 'error');
             setLoading(false);
             return;
         }
@@ -309,6 +371,7 @@ export default function Checkout() {
                 title: item.title || 'Unknown Product',
                 quantity: item.quantity || 1,
                 price: getBDTPrice(item),
+                size: item.size || null
             })),
             customerInfo,
             paymentMethod,
@@ -319,11 +382,8 @@ export default function Checkout() {
             couponCode: appliedCoupon ? appliedCoupon.code : null,
         };
 
-        console.log('Sending order data:', orderData);
-
         try {
             const orderResponse = await axios.post('/api/products/orders', orderData);
-            console.log('Order creation response:', orderResponse.data);
             if (orderResponse.data.message === 'Order created') {
                 if (appliedCoupon) {
                     await axios.post('/api/products/coupons/record-usage', {
@@ -336,7 +396,8 @@ export default function Checkout() {
                 if (paymentMethod === 'cod') {
                     localStorage.removeItem('cart');
                     window.dispatchEvent(new Event('cartUpdated'));
-                    toast.success('Order placed successfully!', { duration: 3000 });
+                    showCustomToast(`Order ${orderData.orderId} placed successfully!`, 'success');
+                    setLoading(true); // Keep button disabled during redirect
                     router.push(`/checkout/cod-success?orderId=${orderData.orderId}`);
                 } else {
                     const sslcommerzData = {
@@ -375,9 +436,9 @@ export default function Checkout() {
                         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
                     );
 
-                    console.log('SSLCOMMERZ response:', response.data);
                     if (response.data.status === 'SUCCESS' && response.data.GatewayPageURL) {
-                        toast.success('Redirecting to payment gateway...');
+                        showCustomToast('Redirecting to payment gateway...', 'info');
+                        setLoading(true); // Keep button disabled during redirect
                         window.location.href = response.data.GatewayPageURL;
                     } else {
                         throw new Error(response.data.error || 'Payment initiation failed');
@@ -390,21 +451,39 @@ export default function Checkout() {
             const errorMessage = err.response?.data?.error || err.message || 'Payment processing failed';
             console.error('Checkout error:', err.response?.data || err.message);
             setError(errorMessage);
-            toast.error(errorMessage);
-        } finally {
+            showCustomToast(errorMessage, 'error');
             setLoading(false);
         }
     };
 
-
     return (
         <div className="min-h-screen bg-gray-900 text-gray-200 py-8 px-4 sm:px-6 lg:px-8 border-b border-b-gray-800">
-            <Toaster position="top-right" toastOptions={{ duration: 4000, style: { background: '#333', color: '#fff' } }} />
             <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-8">
-                    <h1 className="text-2xl sm:text-3xl font-medium mb-2">Checkout</h1>
-                    <p className="text-gray-400">Complete your purchase</p>
-                </div>
+           
+
+           <div className="text-center poppins-regular mb-8 py-5 bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-xl border border-gray-700/60 backdrop-blur-md shadow-xl">
+    {/* Animated icon */}
+    <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl mb-3 shadow-lg animate-pulse hover:animate-none hover:scale-110 transition-transform duration-300">
+        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+    </div>
+    
+    {/* Main heading */}
+    <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">
+        Secure Checkout
+    </h1>
+    
+    {/* Subtitle with brand */}
+    <p className="text-gray-300 text-sm mb-2">
+        Complete your order with <span className="text-purple-300 font-semibold">Sooqra One</span>
+    </p>
+    
+    {/* Mini progress bar */}
+    <div className="w-16 h-0.5 bg-gray-700 rounded-full mx-auto overflow-hidden">
+        <div className="w-3/4 h-full bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full"></div>
+    </div>
+</div>
 
                 {error && (
                     <div className="bg-red-600/90 text-white p-3 rounded-lg mb-6 text-center">
@@ -412,7 +491,6 @@ export default function Checkout() {
                     </div>
                 )}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Left Column - Billing Details */}
                     <div className="bg-gray-800 rounded-lg p-6">
                         <h2 className="text-xl font-medium mb-6">Billing Details</h2>
                         <form onSubmit={handleCheckout} className="space-y-4">
@@ -541,9 +619,7 @@ export default function Checkout() {
                         </form>
                     </div>
 
-                    {/* Right Column - Order Summary */}
                     <div className="space-y-6">
-                        {/* Order Items */}
                         <div className="bg-gray-800 rounded-lg p-6">
                             <h2 className="text-xl font-medium mb-4">Your Order</h2>
 
@@ -579,23 +655,6 @@ export default function Checkout() {
                                                     ৳{(getBDTPrice(item) || 0).toLocaleString()} × {item.quantity || 1}
                                                 </p>
                                                 {item.size && <p className="text-xs text-gray-300">Size: {item.size}</p>}
-                                                {/* <div className="flex items-center mt-1">
-                                                    <button
-                                                        onClick={() => handleQuantityChange(item._id, (item.quantity || 1) - 1)}
-                                                        className="px-2 py-1 bg-gray-700 text-white rounded-l hover:bg-gray-600"
-                                                        disabled={(item.quantity || 1) <= 1 || validatingCart}
-                                                    >
-                                                        -
-                                                    </button>
-                                                    <span className="px-3 py-1 bg-gray-700 text-sm">{item.quantity || 1}</span>
-                                                    <button
-                                                        onClick={() => handleQuantityChange(item._id, (item.quantity || 1) + 1)}
-                                                        className="px-2 py-1 bg-gray-700 text-white rounded-r hover:bg-gray-600"
-                                                        disabled={validatingCart}
-                                                    >
-                                                        +
-                                                    </button>
-                                                </div> */}
                                             </div>
                                             <div className="text-sm">
                                                 ৳{((getBDTPrice(item) || 0) * (item.quantity || 1)).toLocaleString()}
@@ -603,7 +662,6 @@ export default function Checkout() {
                                         </div>
                                     ))}
 
-                                    {/* Coupon Code */}
                                     <div className="pt-2">
                                         <div className="flex gap-2 mb-2">
                                             <input
@@ -628,7 +686,6 @@ export default function Checkout() {
                                         )}
                                     </div>
 
-                                    {/* Order Totals */}
                                     <div className="space-y-2 pt-2">
                                         <div className="flex justify-between text-sm">
                                             <span>Subtotal</span>
@@ -653,7 +710,6 @@ export default function Checkout() {
                             )}
                         </div>
 
-                        {/* Payment Method */}
                         <div className="bg-gray-800 rounded-lg p-6">
                             <h2 className="text-xl font-medium mb-4">Payment Method</h2>
                             <div className="space-y-3">
@@ -683,21 +739,20 @@ export default function Checkout() {
                                         className="text-purple-500 focus:ring-purple-500"
                                     />
                                     <div>
-                                        <span className="block">SSLCOMMERZ</span>
+                                        <span className="block">Online Payment</span>
                                         <span className="text-gray-400 text-xs">Cards, Mobile Banking, etc.</span>
                                     </div>
                                 </label>
                             </div>
                         </div>
 
-                        {/* Place Order Button */}
                         <button
                             type="submit"
                             onClick={handleCheckout}
-                            disabled={loading || cart.length === 0}
-                            className={`w-full py-3 bg-purple-600 text-white rounded-md font-medium hover:bg-purple-700 transition ${loading ? 'opacity-70' : ''}`}
+                            disabled={loading || cart.length === 0 || validatingCart}
+                            className={`w-full py-3 bg-purple-600 text-white rounded-md font-medium hover:bg-purple-700 transition ${loading || validatingCart ? 'opacity-70 cursor-not-allowed' : ''}`}
                         >
-                            {loading ? (
+                            {loading || validatingCart ? (
                                 <span className="flex items-center justify-center">
                                     <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -712,6 +767,83 @@ export default function Checkout() {
                     </div>
                 </div>
             </div>
+
+            <style jsx global>{`
+                .custom-toast-checkout {
+                    position: fixed;
+                    top: 24px;
+                    right: 24px;
+                    background: linear-gradient(135deg, #1a1a1a 0%, #2d1b4e 100%);
+                    color: #fff;
+                    padding: 16px 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 10px 25px rgba(128, 0, 128, 0.3);
+                    border-left: 4px solid #8b5cf6;
+                    opacity: 0;
+                    transform: translateY(20px) scale(0.95);
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    z-index: 1001;
+                    max-width: 320px;
+                    backdrop-filter: blur(10px);
+                }
+
+                .custom-toast-checkout.show {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+
+                .custom-toast-success {
+                    border-left-color: #10b981;
+                    background: linear-gradient(135deg, #1a1a1a 0%, #064e3b 100%);
+                }
+
+                .custom-toast-error {
+                    border-left-color: #ef4444;
+                    background: linear-gradient(135deg, #1a1a1a 0%, #7f1d1d 100%);
+                }
+
+                .toast-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+
+                .toast-icon {
+                    width: 20px;
+                    height: 20px;
+                    color: #8b5cf6;
+                    flex-shrink: 0;
+                }
+
+                .custom-toast-success .toast-icon {
+                    color: #10b981;
+                }
+
+                .custom-toast-error .toast-icon {
+                    color: #ef4444;
+                }
+
+                .toast-message {
+                    flex: 1;
+                    font-size: 14px;
+                    line-height: 1.4;
+                }
+
+                .toast-close {
+                    background: none;
+                    border: none;
+                    color: #9ca3af;
+                    cursor: pointer;
+                    padding: 4px;
+                    border-radius: 4px;
+                    transition: all 0.2s;
+                }
+
+                .toast-close:hover {
+                    color: #fff;
+                    background: rgba(255,255,255,0.1);
+                }
+            `}</style>
         </div>
     );
 }

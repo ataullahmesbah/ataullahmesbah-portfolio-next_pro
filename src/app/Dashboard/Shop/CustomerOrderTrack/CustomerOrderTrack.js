@@ -100,7 +100,7 @@ const CustomerOrderTrack = () => {
 
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mb-3 text-center">
-                    Ataullah Mesbah Order Tracking
+                    Sooqra One Order Tracking
                 </h1>
                 <p className="text-base text-gray-300 mb-8 text-center">
                     Track your order easily with your order ID

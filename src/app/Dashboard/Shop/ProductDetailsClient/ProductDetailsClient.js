@@ -377,51 +377,83 @@ export default function ProductDetailsClient({ product, latestProducts }) {
 
 
             <nav className="flex mb-6" aria-label="Breadcrumb">
-                <ol className="inline-flex items-center space-x-1 md:space-x-2">
-                    <li>
-                        <div className="flex items-center">
-                            <h2 className="ml-1 text-sm font-medium text-gray-200 hover:text-white">
-                                SOOQRA ONE
-                            </h2>
-                        </div>
-                    </li>
+    {/* Mobile View - Two Lines with proper responsive handling */}
+    <div className="block md:hidden w-full">
+        {/* First Line - SOOQRA ONE > HOME > SHOP */}
+        <div className="flex items-center space-x-1 mb-2 flex-wrap">
+            <div className="flex items-center">
+                <h2 className="text-sm font-medium text-gray-200 whitespace-nowrap">SOOQRA ONE</h2>
+            </div>
+            <svg className="w-3 h-3 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+            </svg>
+            <Link href="/" className="text-sm font-medium text-gray-400 hover:text-white whitespace-nowrap">
+                Home
+            </Link>
+            <svg className="w-3 h-3 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+            </svg>
+            <Link href="/shop" className="text-sm font-medium text-gray-400 hover:text-white whitespace-nowrap">
+                Shop
+            </Link>
+        </div>
+        
+        {/* Second Line - Product Title with responsive text handling */}
+        <div className="flex items-center min-w-0"> {/* min-w-0 for flexbox truncation */}
+            <svg className="w-3 h-3 text-gray-400 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+            </svg>
+            <span 
+                className="text-sm font-medium text-white truncate block min-w-0" 
+                title={product.title}
+            >
+                {product.title}
+            </span>
+        </div>
+    </div>
 
-                    <li className="inline-flex items-center">
-                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                        </svg>
-                        <Link href="/" className="inline-flex items-center text-sm font-medium text-gray-400 hover:text-white">
-                            Home
-                        </Link>
-                    </li>
-                    <li>
-                        <div className="flex items-center">
-                            <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                            </svg>
-                            <Link href="/shop" className="ml-1 text-sm font-medium text-gray-400 hover:text-white">
-                                Shop
-                            </Link>
-                        </div>
-                    </li>
-                    <li aria-current="page">
-                        <div className="flex items-center">
-                            <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                            </svg>
-                            {/* Mobile: Max 20 characters, Desktop: Full title */}
-                            <span className="ml-1 text-sm font-medium text-white">
-                                <span className="block md:hidden">
-                                    {product.title.length > 25 ? `${product.title.substring(0, 25)}...` : product.title}
-                                </span>
-                                <span className="hidden md:block">
-                                    {product.title}
-                                </span>
-                            </span>
-                        </div>
-                    </li>
-                </ol>
-            </nav>
+    {/* Desktop View - Original Single Line */}
+    <div className="hidden md:block">
+        <ol className="inline-flex items-center space-x-1 md:space-x-2 flex-wrap">
+            <li className="flex items-center">
+                <div className="flex items-center">
+                    <h2 className="ml-1 text-sm font-medium text-gray-200 hover:text-white whitespace-nowrap">
+                        SOOQRA ONE
+                    </h2>
+                </div>
+            </li>
+            
+            <li className="inline-flex items-center">
+                <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                </svg>
+                <Link href="/" className="inline-flex items-center text-sm font-medium text-gray-400 hover:text-white whitespace-nowrap">
+                    Home
+                </Link>
+            </li>
+            <li className="flex items-center">
+                <div className="flex items-center">
+                    <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                    <Link href="/shop" className="ml-1 text-sm font-medium text-gray-400 hover:text-white whitespace-nowrap">
+                        Shop
+                    </Link>
+                </div>
+            </li>
+            <li aria-current="page" className="flex items-center min-w-0">
+                <div className="flex items-center min-w-0">
+                    <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                    <span className="ml-1 text-sm font-medium text-white truncate max-w-xs lg:max-w-md xl:max-w-lg" title={product.title}>
+                        {product.title}
+                    </span>
+                </div>
+            </li>
+        </ol>
+    </div>
+</nav>
 
             <div className="">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-8">
@@ -609,7 +641,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                                 <p className="text-lg text-gray-100">
                                     <CiDeliveryTruck />
                                 </p>
-                                <p>Delivery time: 3 - 4 business days</p>
+                                <p>Delivery time: 3 - 7 business days</p>
                             </div>
                             <p className="text-xs text-gray-200">Product Code: {product.product_code || 'N/A'}</p>
                             <p className="text-xs text-gray-200">
