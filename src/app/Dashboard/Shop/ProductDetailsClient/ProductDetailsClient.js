@@ -375,9 +375,21 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }} />
             )}
 
+
             <nav className="flex mb-6" aria-label="Breadcrumb">
                 <ol className="inline-flex items-center space-x-1 md:space-x-2">
+                    <li>
+                        <div className="flex items-center">
+                            <h2 className="ml-1 text-sm font-medium text-gray-200 hover:text-white">
+                                SOOQRA ONE
+                            </h2>
+                        </div>
+                    </li>
+
                     <li className="inline-flex items-center">
+                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
                         <Link href="/" className="inline-flex items-center text-sm font-medium text-gray-400 hover:text-white">
                             Home
                         </Link>
@@ -397,7 +409,15 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                             <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                             </svg>
-                            <span className="ml-1 text-sm font-medium text-white">{product.title}</span>
+                            {/* Mobile: Max 20 characters, Desktop: Full title */}
+                            <span className="ml-1 text-sm font-medium text-white">
+                                <span className="block md:hidden">
+                                    {product.title.length > 25 ? `${product.title.substring(0, 25)}...` : product.title}
+                                </span>
+                                <span className="hidden md:block">
+                                    {product.title}
+                                </span>
+                            </span>
                         </div>
                     </li>
                 </ol>
