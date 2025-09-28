@@ -7,6 +7,7 @@ import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 
 export default function Checkout() {
+    const [isCouponOpen, setIsCouponOpen] = useState(false);
     const [cart, setCart] = useState([]);
     const [paymentMethod, setPaymentMethod] = useState('cod');
     const [customerInfo, setCustomerInfo] = useState({
@@ -32,6 +33,10 @@ export default function Checkout() {
     const [userId, setUserId] = useState('mock-user-id');
     const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [validatingCart, setValidatingCart] = useState(false);
+
+    const toggleCoupon = () => {
+        setIsCouponOpen(!isCouponOpen);
+    };
 
     // Custom Toast Function
     const showCustomToast = (message, type = 'info') => {
@@ -459,31 +464,31 @@ export default function Checkout() {
     return (
         <div className="min-h-screen bg-gray-900 text-gray-200 py-8 px-4 sm:px-6 lg:px-8 border-b border-b-gray-800">
             <div className="max-w-6xl mx-auto">
-           
 
-           <div className="text-center poppins-regular mb-8 py-5 bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-xl border border-gray-700/60 backdrop-blur-md shadow-xl">
-    {/* Animated icon */}
-    <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl mb-3 shadow-lg animate-pulse hover:animate-none hover:scale-110 transition-transform duration-300">
-        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-        </svg>
-    </div>
-    
-    {/* Main heading */}
-    <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">
-        Secure Checkout
-    </h1>
-    
-    {/* Subtitle with brand */}
-    <p className="text-gray-300 text-sm mb-2">
-        Complete your order with <span className="text-purple-300 font-semibold">Sooqra One</span>
-    </p>
-    
-    {/* Mini progress bar */}
-    <div className="w-16 h-0.5 bg-gray-700 rounded-full mx-auto overflow-hidden">
-        <div className="w-3/4 h-full bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full"></div>
-    </div>
-</div>
+
+                <div className="text-center poppins-regular mb-8 py-5 bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-xl border border-gray-700/60 backdrop-blur-md shadow-xl">
+                    {/* Animated icon */}
+                    <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl mb-3 shadow-lg animate-pulse hover:animate-none hover:scale-110 transition-transform duration-300">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+
+                    {/* Main heading */}
+                    <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">
+                        Secure Checkout
+                    </h1>
+
+                    {/* Subtitle with brand */}
+                    <p className="text-gray-300 text-sm mb-2">
+                        Complete your order with <span className="text-purple-300 font-semibold">Sooqra One</span>
+                    </p>
+
+                    {/* Mini progress bar */}
+                    <div className="w-16 h-0.5 bg-gray-700 rounded-full mx-auto overflow-hidden">
+                        <div className="w-3/4 h-full bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full"></div>
+                    </div>
+                </div>
 
                 {error && (
                     <div className="bg-red-600/90 text-white p-3 rounded-lg mb-6 text-center">
@@ -663,27 +668,70 @@ export default function Checkout() {
                                     ))}
 
                                     <div className="pt-2">
-                                        <div className="flex gap-2 mb-2">
-                                            <input
-                                                type="text"
-                                                value={couponCode}
-                                                onChange={(e) => setCouponCode(e.target.value)}
-                                                placeholder="Coupon code"
-                                                className="flex-1 bg-gray-700 border border-gray-600 rounded-md p-2 text-sm focus:outline-none focus:border-purple-500"
-                                            />
-                                            <button
-                                                onClick={handleCouponApply}
-                                                className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm"
+                                        <div className="flex items-center gap-2 cursor-pointer" onClick={toggleCoupon}>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-5 w-5 text-purple-500"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                strokeWidth={2}
                                             >
-                                                Apply
-                                            </button>
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"
+                                                />
+                                            </svg>
+                                            <span className="text-sm text-purple-400 hover:text-purple-300">Have a Coupon?</span>
                                         </div>
-                                        {couponError && <p className="text-red-500 text-xs">{couponError}</p>}
-                                        {discount > 0 && (
-                                            <p className="text-green-500 text-xs">
-                                                Coupon applied! ৳{discount.toLocaleString()} discount
-                                            </p>
-                                        )}
+                                        <div
+                                            className={`coupon-box overflow-hidden transition-all duration-300 ease-in-out ${isCouponOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+                                                }`}
+                                        >
+                                            <div className="flex items-center gap-2 mt-2 relative">
+                                                <input
+                                                    type="text"
+                                                    value={couponCode}
+                                                    onChange={(e) => setCouponCode(e.target.value)}
+                                                    placeholder="Enter coupon code"
+                                                    className="flex-1 bg-gray-700 border border-gray-600 rounded-md p-2 text-sm focus:outline-none focus:border-purple-500"
+                                                />
+                                                <button
+                                                    onClick={handleCouponApply}
+                                                    className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm"
+                                                >
+                                                    Apply
+                                                </button>
+                                                <button
+                                                    onClick={toggleCoupon}
+                                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-600 rounded-full"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-4 w-4 text-gray-400 hover:text-white"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                        strokeWidth={2}
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            d="M6 18L18 6M6 6l12 12"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            {couponError && (
+                                                <p className="text-red-400 text-xs mt-2">{couponError}</p>
+                                            )}
+                                            {discount > 0 && (
+                                                <p className="text-green-400 text-xs mt-2">
+                                                    Coupon applied! ৳{discount.toLocaleString()} discount
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
 
                                     <div className="space-y-2 pt-2">
@@ -842,6 +890,29 @@ export default function Checkout() {
                 .toast-close:hover {
                     color: #fff;
                     background: rgba(255,255,255,0.1);
+                }
+                    .coupon-box {
+                    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+                }
+                .coupon-box.max-h-0 {
+                    max-height: 0;
+                    opacity: 0;
+                }
+                .coupon-box.max-h-40 {
+                    max-height: 10rem; /* Adjust based on content height */
+                }
+                .coupon-box input {
+                    padding-right: 2.5rem; /* Space for close icon */
+                }
+                .coupon-box button:hover {
+                    transform: scale(1.05);
+                }
+                .coupon-box .text-red-400,
+                .coupon-box .text-green-400 {
+                    font-weight: 500;
+                    padding: 0.5rem;
+                    border-radius: 4px;
+                    background: rgba(255, 255, 255, 0.05);
                 }
             `}</style>
         </div>
