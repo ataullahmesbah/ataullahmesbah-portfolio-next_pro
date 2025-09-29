@@ -7,8 +7,6 @@ import Product from '@/models/Products';
 import mongoose from 'mongoose';
 
 
-
-// In your /api/products/orders/action/route.js
 export async function POST(request) {
     try {
         await dbConnect();
@@ -35,10 +33,24 @@ export async function POST(request) {
                     }, { status: 400 });
                 }
 
-                if (product.quantity < item.quantity) {
-                    return NextResponse.json({
-                        error: `Insufficient stock for "${item.title}". Available: ${product.quantity}, Requested: ${item.quantity}. Cannot accept order.`
-                    }, { status: 400 });
+                if (item.size && product.sizeRequirement === 'Mandatory') {
+                    const sizeData = product.sizes.find(s => s.name === item.size);
+                    if (!sizeData) {
+                        return NextResponse.json({
+                            error: `Size "${item.size}" not found for "${item.title}"`
+                        }, { status: 400 });
+                    }
+                    if (sizeData.quantity < item.quantity) {
+                        return NextResponse.json({
+                            error: `Insufficient stock for "${item.title}" size "${item.size}". Available: ${sizeData.quantity}, Requested: ${item.quantity}. Cannot accept order.`
+                        }, { status: 400 });
+                    }
+                } else {
+                    if (product.quantity < item.quantity) {
+                        return NextResponse.json({
+                            error: `Insufficient stock for "${item.title}". Available: ${product.quantity}, Requested: ${item.quantity}. Cannot accept order.`
+                        }, { status: 400 });
+                    }
                 }
 
                 if (product.quantity === 0) {
@@ -49,7 +61,7 @@ export async function POST(request) {
 
                 if (product.productType === 'Affiliate') {
                     return NextResponse.json({
-                        error: `"${item.title}" is an affiliate product and cannot be processed through our system.`
+                        error: `"${item.title}" is an affiliate product and cannot be processed.`
                     }, { status: 400 });
                 }
             }

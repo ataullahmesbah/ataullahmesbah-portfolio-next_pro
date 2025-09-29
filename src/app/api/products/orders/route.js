@@ -6,8 +6,7 @@ import Coupon from '@/models/Coupon';
 import Config from '@/models/Config';
 import dbConnect from '@/lib/dbMongoose';
 import UsedCoupon from '@/models/UsedCoupon';
-
-
+import Product from '@/models/Product';
 
 export async function GET(request) {
     try {
@@ -67,9 +66,28 @@ export async function POST(request) {
             return NextResponse.json({ error: 'District and thana required for COD orders' }, { status: 400 });
         }
 
+        // Validate product quantities and sizes
+        for (const item of products) {
+            const product = await Product.findById(item.productId);
+            if (!product) {
+                return NextResponse.json({ error: `Product not found for ID ${item.productId}` }, { status: 400 });
+            }
+
+            if (item.size && product.sizeRequirement === 'Mandatory') {
+                const sizeData = product.sizes.find(s => s.name === item.size);
+                if (!sizeData) {
+                    return NextResponse.json({ error: `Invalid size ${item.size} for product ${product.title}` }, { status: 400 });
+                }
+                if (item.quantity > sizeData.quantity) {
+                    return NextResponse.json({ error: `Insufficient stock for ${product.title} size ${item.size}` }, { status: 400 });
+                }
+            } else if (item.quantity > product.quantity) {
+                return NextResponse.json({ error: `Insufficient stock for ${product.title}` }, { status: 400 });
+            }
+        }
+
         // Validate coupon if provided
         if (couponCode) {
-            // Check product-specific coupon
             const coupon = await Coupon.findOne({ code: couponCode, isActive: true });
             if (coupon) {
                 if (!products.some(p => p.productId === coupon.productId?.toString())) {
@@ -88,10 +106,9 @@ export async function POST(request) {
                     }
                 }
             } else {
-                // Check global coupon (case-insensitive)
-                const globalCoupon = await Config.findOne({ 
-                    key: 'globalCoupon', 
-                    'value.code': { $regex: `^${couponCode}$`, $options: 'i' } 
+                const globalCoupon = await Config.findOne({
+                    key: 'globalCoupon',
+                    'value.code': { $regex: `^${couponCode}$`, $options: 'i' }
                 });
                 if (!globalCoupon || !globalCoupon.value || !globalCoupon.value.code) {
                     return NextResponse.json({ error: 'Coupon not found' }, { status: 400 });

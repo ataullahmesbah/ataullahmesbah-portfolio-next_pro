@@ -5,9 +5,6 @@ import dbConnect from '@/lib/dbMongoose';
 import Product from '@/models/Products';
 
 
-
-
-
 export async function POST(request) {
     await dbConnect();
 
@@ -33,10 +30,27 @@ export async function POST(request) {
                 continue;
             }
 
-            if (product.quantity < item.quantity) {
-                validationResults.push(`❌ Insufficient stock for "${item.title}" (Available: ${product.quantity}, Needed: ${item.quantity})`);
-                isValid = false;
-            } else if (product.quantity === 0) {
+            if (item.size && product.sizeRequirement === 'Mandatory') {
+                const sizeData = product.sizes.find((s) => s.name === item.size);
+                if (!sizeData) {
+                    validationResults.push(`❌ Size "${item.size}" not found for "${item.title}"`);
+                    isValid = false;
+                    continue;
+                }
+                if (sizeData.quantity < item.quantity) {
+                    validationResults.push(`❌ Insufficient stock for "${item.title}" size "${item.size}" (Available: ${sizeData.quantity}, Needed: ${item.quantity})`);
+                    isValid = false;
+                    continue;
+                }
+            } else {
+                if (product.quantity < item.quantity) {
+                    validationResults.push(`❌ Insufficient stock for "${item.title}" (Available: ${product.quantity}, Needed: ${item.quantity})`);
+                    isValid = false;
+                    continue;
+                }
+            }
+
+            if (product.quantity === 0) {
                 validationResults.push(`❌ "${item.title}" is out of stock`);
                 isValid = false;
             } else if (product.productType === 'Affiliate') {

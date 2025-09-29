@@ -218,6 +218,14 @@ export default function OrdersPage() {
         });
     };
 
+    const formatSize = (size) => {
+        if (!size || typeof size !== 'string' || size.trim() === '') {
+            return 'N/A';
+        }
+        return size.charAt(0).toUpperCase() + size.slice(1).toLowerCase();
+    };
+
+
     return (
         <div className="min-h-screen bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
             {/* Toast container */}
@@ -228,20 +236,37 @@ export default function OrdersPage() {
                 toastOptions={{
                     duration: 4000,
                     style: {
-                        background: '#363636',
+                        background: 'linear-gradient(135deg, #363636, #4b4b4b)',
                         color: '#fff',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+                        padding: '12px 16px',
+                        fontWeight: 500,
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
                     },
                     success: {
                         duration: 3000,
                         style: {
-                            background: '#10b981',
+                            background: 'linear-gradient(135deg, #10b981, #059669)',
+                            border: '1px solid rgba(16, 185, 129, 0.5)',
                         },
+                        icon: (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        ),
                     },
                     error: {
                         duration: 5000,
                         style: {
-                            background: '#ef4444',
+                            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                            border: '1px solid rgba(239, 68, 68, 0.5)',
                         },
+                        icon: (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        ),
                     },
                 }}
             />
@@ -486,7 +511,7 @@ export default function OrdersPage() {
                 {/* Customer Info Modal */}
                 {showCustomerInfo && selectedOrder && (
                     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-                        <div className="bg-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="bg-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-xl font-bold text-white">Order Details - {selectedOrder.orderId}</h2>
                                 <button
@@ -499,7 +524,12 @@ export default function OrdersPage() {
                                 </button>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+                                {/* Divider for Desktop */}
+                                <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gray-600"></div>
+                                {/* Divider for Mobile */}
+                                <div className="md:hidden my-6 border-t border-gray-600"></div>
+
                                 {/* Customer Information */}
                                 <div>
                                     <h3 className="text-lg font-semibold text-white mb-4">Customer Information</h3>
@@ -549,6 +579,9 @@ export default function OrdersPage() {
                                                 <div className="text-sm text-gray-400">
                                                     Quantity: {product.quantity} × ৳{product.price.toLocaleString()} = ৳{(product.quantity * product.price).toLocaleString()}
                                                 </div>
+                                                <div className="text-sm text-gray-400">
+                                                    Size: {formatSize(product.size)}
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
@@ -577,6 +610,34 @@ export default function OrdersPage() {
                     </div>
                 )}
             </div>
+            <style jsx>{`
+                .animate-toast-in {
+                    animation: slideIn 0.3s ease-out;
+                }
+                .animate-toast-out {
+                    animation: fadeOut 0.3s ease-in;
+                }
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                @keyframes fadeOut {
+                    from {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                }
+            `}</style>
         </div>
     );
 }
