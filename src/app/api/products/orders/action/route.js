@@ -7,6 +7,7 @@ import Product from '@/models/Products';
 import mongoose from 'mongoose';
 
 
+
 export async function POST(request) {
     try {
         await dbConnect();
@@ -30,6 +31,12 @@ export async function POST(request) {
                 if (!product) {
                     return NextResponse.json({
                         error: `Product "${item.title}" not found in our system. Please contact support.`
+                    }, { status: 400 });
+                }
+
+                if (product.sizeRequirement === 'Mandatory' && !item.size) {
+                    return NextResponse.json({
+                        error: `Size is required for "${item.title}"`
                     }, { status: 400 });
                 }
 
@@ -68,10 +75,25 @@ export async function POST(request) {
 
             // Update product quantities
             for (const item of order.products) {
-                await Product.findByIdAndUpdate(
-                    item.productId,
-                    { $inc: { quantity: -item.quantity } }
-                );
+                const product = await Product.findById(item.productId);
+                if (item.size && product.sizeRequirement === 'Mandatory') {
+                    await Product.findByIdAndUpdate(
+                        item.productId,
+                        {
+                            $set: {
+                                'sizes.$[elem].quantity': product.sizes.find(s => s.name === item.size).quantity - item.quantity
+                            }
+                        },
+                        {
+                            arrayFilters: [{ 'elem.name': item.size }]
+                        }
+                    );
+                } else {
+                    await Product.findByIdAndUpdate(
+                        item.productId,
+                        { $inc: { quantity: -item.quantity } }
+                    );
+                }
             }
 
             await Order.updateOne(

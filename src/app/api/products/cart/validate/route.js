@@ -1,3 +1,5 @@
+// api/products/cart/validate/route.js
+
 import { NextResponse } from 'next/server';
 import Product from '@/models/Products';
 import dbConnect from '@/lib/dbMongoose';

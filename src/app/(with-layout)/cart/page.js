@@ -301,6 +301,7 @@ export default function CartPage() {
 
     const handleProceedToCheckout = async () => {
         setIsLoading(true);
+        console.log('Cart before checkout:', cart);
         try {
             // Check for quantity limits before validation
             const exceededLimitItems = cart.filter(item => item.quantity > 3);

@@ -6,7 +6,8 @@ import Coupon from '@/models/Coupon';
 import Config from '@/models/Config';
 import dbConnect from '@/lib/dbMongoose';
 import UsedCoupon from '@/models/UsedCoupon';
-import Product from '@/models/Product';
+import Product from '@/models/Products';
+
 
 export async function GET(request) {
     try {
@@ -52,6 +53,9 @@ export async function POST(request) {
             couponCode,
         } = await request.json();
 
+        // Debug: Log received data
+        console.log('Received POST data:', { orderId, products, customerInfo, paymentMethod, status, total, discount, shippingCharge, couponCode });
+
         // Validate required fields
         if (!orderId || !products || !customerInfo || !paymentMethod || !status || total == null) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -71,6 +75,10 @@ export async function POST(request) {
             const product = await Product.findById(item.productId);
             if (!product) {
                 return NextResponse.json({ error: `Product not found for ID ${item.productId}` }, { status: 400 });
+            }
+
+            if (product.sizeRequirement === 'Mandatory' && !item.size) {
+                return NextResponse.json({ error: `Size is required for product ${product.title}` }, { status: 400 });
             }
 
             if (item.size && product.sizeRequirement === 'Mandatory') {
@@ -130,9 +138,17 @@ export async function POST(request) {
             }
         }
 
+        // Create order with validated products
         const order = await Order.create({
             orderId,
-            products,
+            products: products.map(item => ({
+                productId: item.productId,
+                title: item.title,
+                quantity: item.quantity,
+                price: item.price,
+                mainImage: item.mainImage || null,
+                size: item.size || null
+            })),
             customerInfo,
             paymentMethod,
             status,
@@ -142,8 +158,10 @@ export async function POST(request) {
             couponCode: couponCode || null,
         });
 
+        console.log('Order saved:', await Order.findById(order._id).lean()); // Debug
         return NextResponse.json({ message: 'Order created', orderId }, { status: 200 });
     } catch (error) {
+        console.error('Error creating order:', error);
         return NextResponse.json({ error: `Failed to create order: ${error.message}` }, { status: 500 });
     }
 }

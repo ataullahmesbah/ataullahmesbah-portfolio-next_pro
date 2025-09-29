@@ -98,6 +98,7 @@ export default function Checkout() {
         const fetchData = async () => {
             try {
                 const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+                console.log('Cart loaded in Checkout:', storedCart); // Debug
                 setCart(storedCart);
 
                 const districtsResponse = await axios.get('/api/products/districts-thanas');
@@ -130,6 +131,7 @@ export default function Checkout() {
     const validateCart = async () => {
         setValidatingCart(true);
         try {
+            console.log('Cart before validation:', cart); // Debug
             const validationPromises = cart.map(async (item) => {
                 try {
                     const response = await axios.post('/api/products/cart/validate', {
@@ -161,11 +163,11 @@ export default function Checkout() {
                             `Adjusted quantity to ${validation.availableQuantity} for ${item.title}${item.size ? ` (size: ${item.size})` : ''}`,
                             'info'
                         );
-                        return { ...item, quantity: validation.availableQuantity };
+                        return { ...item, quantity: validation.availableQuantity, size: item.size || null }; // Ensure size is preserved
                     }
                     return item;
                 });
-
+                console.log('Cart after validation:', updatedCart); // Debug
                 setCart(updatedCart);
                 localStorage.setItem('cart', JSON.stringify(updatedCart));
                 window.dispatchEvent(new Event('cartUpdated'));
@@ -386,7 +388,7 @@ export default function Checkout() {
             shippingCharge: paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' ? (Number.isFinite(shippingCharge) ? shippingCharge : 0) : 0,
             couponCode: appliedCoupon ? appliedCoupon.code : null,
         };
-
+        console.log('Order data:', orderData); // Debug
         try {
             const orderResponse = await axios.post('/api/products/orders', orderData);
             if (orderResponse.data.message === 'Order created') {

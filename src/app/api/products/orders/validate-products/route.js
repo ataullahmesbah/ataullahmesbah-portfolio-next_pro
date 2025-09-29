@@ -12,10 +12,7 @@ export async function POST(request) {
         const { orderId, products } = await request.json();
 
         if (!orderId || !Array.isArray(products)) {
-            return NextResponse.json(
-                { error: 'Invalid request data' },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: 'Invalid request data' }, { status: 400 });
         }
 
         const validationResults = [];
@@ -26,6 +23,12 @@ export async function POST(request) {
 
             if (!product) {
                 validationResults.push(`❌ Product "${item.title}" not found in our system`);
+                isValid = false;
+                continue;
+            }
+
+            if (product.sizeRequirement === 'Mandatory' && !item.size) {
+                validationResults.push(`❌ Size is required for "${item.title}"`);
                 isValid = false;
                 continue;
             }

@@ -6,6 +6,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Toaster, toast } from 'react-hot-toast';
 
+
 export default function OrdersPage() {
     const [orders, setOrders] = useState([]);
     const [filteredOrders, setFilteredOrders] = useState([]);
@@ -225,12 +226,8 @@ export default function OrdersPage() {
         return size.charAt(0).toUpperCase() + size.slice(1).toLowerCase();
     };
 
-
     return (
         <div className="min-h-screen bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
-            {/* Toast container */}
-            {/* Toast Container */}
-
             <Toaster
                 position="top-right"
                 toastOptions={{
@@ -524,6 +521,9 @@ export default function OrdersPage() {
                                 </button>
                             </div>
 
+                            {/* Debug: Log products to check size field */}
+                            {console.log('Selected Order Products:', selectedOrder.products)}
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
                                 {/* Divider for Desktop */}
                                 <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gray-600"></div>
@@ -581,6 +581,9 @@ export default function OrdersPage() {
                                                 </div>
                                                 <div className="text-sm text-gray-400">
                                                     Size: {formatSize(product.size)}
+                                                </div>
+                                                <div className="text-sm text-gray-400">
+                                                    Size Debug: {JSON.stringify(product.size)}
                                                 </div>
                                             </div>
                                         ))}

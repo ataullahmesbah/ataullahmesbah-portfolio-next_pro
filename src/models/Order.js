@@ -12,6 +12,7 @@ const OrderSchema = new mongoose.Schema({
         quantity: Number,
         price: Number,
         mainImage: String, // Added for product images
+        size: { type: String, required: false }
     }],
     customerInfo: {
         name: String,
