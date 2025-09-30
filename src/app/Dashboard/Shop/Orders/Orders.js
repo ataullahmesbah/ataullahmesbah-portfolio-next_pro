@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Toaster, toast } from 'react-hot-toast';
+import ShippingLabel from '@/app/components/ShippingLabel/ShippingLabel';
 
 
 export default function OrdersPage() {
@@ -21,6 +22,14 @@ export default function OrdersPage() {
     const [validatingOrder, setValidatingOrder] = useState(null);
     const ordersPerPage = 10;
     const router = useRouter();
+    const [showShippingLabel, setShowShippingLabel] = useState(false);
+    const [selectedOrderForLabel, setSelectedOrderForLabel] = useState(null);
+
+    // Print Label Handler function 
+    const handlePrintLabel = (order) => {
+        setSelectedOrderForLabel(order);
+        setShowShippingLabel(true);
+    };
 
     useEffect(() => {
         fetchOrders();
@@ -236,6 +245,8 @@ export default function OrdersPage() {
         return size.charAt(0).toUpperCase() + size.slice(1).toLowerCase();
     };
 
+
+
     return (
         <div className="min-h-screen bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
             <Toaster
@@ -441,6 +452,20 @@ export default function OrdersPage() {
                                                             >
                                                                 Details
                                                             </button>
+
+
+                                                            {order.status === 'accepted' && (
+                                                                <button
+                                                                    onClick={() => handlePrintLabel(order)}
+                                                                    className="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-xs flex items-center gap-1"
+                                                                >
+                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                                                    </svg>
+                                                                    Print
+                                                                </button>
+                                                            )}
+
                                                             {(order.status === 'pending' || order.status === 'pending_payment') && (
                                                                 <>
                                                                     <button
@@ -588,18 +613,25 @@ export default function OrdersPage() {
                                     <h3 className="text-lg font-semibold text-white mt-6 mb-4">Products</h3>
                                     <div className="space-y-3">
                                         {groupProductsBySize(selectedOrder.products).map((product, index) => (
-                                            <div key={index} className="bg-gray-750 rounded-lg p-3">
-                                                <div className="font-medium">{product.title}</div>
-                                                <div className="text-sm text-gray-400">
-                                                    Quantity: {product.quantity} × ৳{product.price.toLocaleString()} = ৳{(product.quantity * product.price).toLocaleString()}
+                                            <div key={index} className="bg-gray-750 rounded-lg p-4 border-l-4 border-purple-500">
+                                                <div className="text-white font-medium text-base mb-2">{product.title}</div>
+
+                                                <div className="flex justify-between items-center text-sm">
+                                                    <span className="text-gray-300">
+                                                        Qty: <span className="text-white font-semibold">{product.quantity}</span>
+                                                        × ৳<span className="text-white font-semibold">{product.price.toLocaleString()}</span>
+                                                    </span>
+                                                    <span className="text-green-400 font-bold">
+                                                        = ৳{(product.quantity * product.price).toLocaleString()}
+                                                    </span>
                                                 </div>
-                                                <div className="text-sm text-gray-400">
-                                                    Size: {formatSize(product.size)}
+
+                                                <div className="mt-2 text-sm">
+                                                    <span className="text-gray-400">Size:</span>
+                                                    <span className="ml-2 text-white font-medium bg-gray-700 px-2 py-1 rounded">
+                                                        {formatSize(product.size)}
+                                                    </span>
                                                 </div>
-                                                {/* Debug: Log size for verification */}
-                                                {/* <div className="text-sm text-gray-400">
-                                                    Size Debug: {JSON.stringify(product.size)}
-                                                </div> */}
                                             </div>
                                         ))}
                                     </div>
@@ -627,6 +659,17 @@ export default function OrdersPage() {
                         </div>
                     </div>
                 )}
+
+                {showShippingLabel && selectedOrderForLabel && (
+                    <ShippingLabel
+                        order={selectedOrderForLabel}
+                        onClose={() => {
+                            setShowShippingLabel(false);
+                            setSelectedOrderForLabel(null);
+                        }}
+                    />
+                )}
+
             </div>
             <style jsx>{`
                 .animate-toast-in {
@@ -657,5 +700,9 @@ export default function OrdersPage() {
                 }
             `}</style>
         </div>
+
+
     );
+
+
 }
