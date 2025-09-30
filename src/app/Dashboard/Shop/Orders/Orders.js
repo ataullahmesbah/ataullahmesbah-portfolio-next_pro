@@ -99,11 +99,9 @@ export default function OrdersPage() {
                 orderId: order.orderId,
                 products: order.products
             });
-
             return response.data;
         } catch (error) {
             console.error('Error validating order products:', error);
-
             if (error.response?.data?.error) {
                 toast.error(error.response.data.error, {
                     duration: 5000,
@@ -133,11 +131,8 @@ export default function OrdersPage() {
     const handleAction = async (orderId, action) => {
         try {
             const order = orders.find(o => o.orderId === orderId);
-
             if (action === 'accept') {
-                // Validate products before accepting
                 const validation = await validateOrderProducts(order);
-
                 if (!validation.isValid) {
                     validation.issues.forEach(issue => {
                         toast.error(issue, {
@@ -154,7 +149,6 @@ export default function OrdersPage() {
             }
 
             const response = await axios.post('/api/products/orders/action', { orderId, action });
-
             if (response.data.success) {
                 setOrders((prev) =>
                     prev.map((o) =>
@@ -165,8 +159,6 @@ export default function OrdersPage() {
                 );
                 updateStats(orders);
                 filterOrders(orders, activeTab, searchTerm, selectedDate);
-
-                // Show success toast
                 toast.success(`Order ${action === 'accept' ? 'accepted' : 'rejected'} successfully!`, {
                     duration: 3000,
                     style: {
@@ -178,8 +170,6 @@ export default function OrdersPage() {
             }
         } catch (error) {
             console.error(`Error performing ${action} on order:`, error);
-
-            // Show specific error messages based on the error response
             if (error.response?.data?.error) {
                 toast.error(error.response.data.error, {
                     duration: 5000,
@@ -200,6 +190,26 @@ export default function OrdersPage() {
                 });
             }
         }
+    };
+
+    // Function to group products by productId and size
+    const groupProductsBySize = (products) => {
+        const grouped = {};
+        products.forEach(product => {
+            const key = `${product.productId}-${product.size || 'no-size'}`;
+            if (!grouped[key]) {
+                grouped[key] = {
+                    productId: product.productId,
+                    title: product.title,
+                    price: product.price,
+                    mainImage: product.mainImage,
+                    size: product.size || null,
+                    quantity: 0
+                };
+            }
+            grouped[key].quantity += product.quantity;
+        });
+        return Object.values(grouped);
     };
 
     const paginatedOrders = filteredOrders.slice(
@@ -376,79 +386,83 @@ export default function OrdersPage() {
                                             </td>
                                         </tr>
                                     ) : (
-                                        paginatedOrders.map((order) => (
-                                            <tr key={order.orderId} className="border-b border-gray-700 hover:bg-gray-750">
-                                                <td className="py-4 text-sm font-mono">{order.orderId}</td>
-                                                <td className="py-4">
-                                                    <div>
-                                                        <div className="font-medium">{order.customerInfo.name}</div>
-                                                        <div className="text-gray-400 text-sm">{order.customerInfo.phone}</div>
-                                                    </div>
-                                                </td>
-                                                <td className="py-4">
-                                                    <div className="max-w-xs">
-                                                        {order.products.map((product, index) => (
-                                                            <div key={index} className="mb-2 last:mb-0">
-                                                                <div className="font-medium">{product.title}</div>
-                                                                <div className="text-gray-400 text-sm">
-                                                                    Qty: {product.quantity} × ৳{product.price.toLocaleString()}
+                                        paginatedOrders.map((order) => {
+                                            const groupedProducts = groupProductsBySize(order.products);
+                                            return (
+                                                <tr key={order.orderId} className="border-b border-gray-700 hover:bg-gray-750">
+                                                    <td className="py-4 text-sm font-mono">{order.orderId}</td>
+                                                    <td className="py-4">
+                                                        <div>
+                                                            <div className="font-medium">{order.customerInfo.name}</div>
+                                                            <div className="text-gray-400 text-sm">{order.customerInfo.phone}</div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4">
+                                                        <div className="max-w-xs">
+                                                            {groupedProducts.map((product, index) => (
+                                                                <div key={index} className="mb-2 last:mb-0">
+                                                                    <div className="font-medium">{product.title}</div>
+                                                                    <div className="text-gray-400 text-sm">
+                                                                        Qty: {product.quantity} × ৳{product.price.toLocaleString()}
+                                                                        {product.size && ` | Size: ${formatSize(product.size)}`}
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </td>
-                                                <td className="py-4 font-bold">৳{order.total.toLocaleString()}</td>
-                                                <td className="py-4">
-                                                    <span className={`px-2 py-1 rounded-full text-xs ${order.paymentMethod === 'cod'
-                                                        ? 'bg-yellow-500/20 text-yellow-400'
-                                                        : 'bg-green-500/20 text-green-400'
-                                                        }`}>
-                                                        {order.paymentMethod === 'cod' ? 'COD' : 'Prepaid'}
-                                                    </span>
-                                                </td>
-                                                <td className="py-4 text-sm text-gray-400">{formatDate(order.createdAt)}</td>
-                                                <td className="py-4">
-                                                    <span className={`px-2 py-1 rounded-full text-xs ${order.status === 'pending' || order.status === 'pending_payment'
-                                                        ? 'bg-blue-500/20 text-blue-400'
-                                                        : order.status === 'accepted'
-                                                            ? 'bg-green-500/20 text-green-400'
-                                                            : 'bg-red-500/20 text-red-400'
-                                                        }`}>
-                                                        {order.status.replace('_', ' ')}
-                                                    </span>
-                                                </td>
-                                                <td className="py-4">
-                                                    <div className="flex flex-wrap gap-2">
-                                                        <button
-                                                            onClick={() => {
-                                                                setSelectedOrder(order);
-                                                                setShowCustomerInfo(true);
-                                                            }}
-                                                            className="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs"
-                                                        >
-                                                            Details
-                                                        </button>
-                                                        {(order.status === 'pending' || order.status === 'pending_payment') && (
-                                                            <>
-                                                                <button
-                                                                    onClick={() => handleAction(order.orderId, 'accept')}
-                                                                    disabled={validatingOrder === order.orderId}
-                                                                    className="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-xs disabled:opacity-50"
-                                                                >
-                                                                    {validatingOrder === order.orderId ? 'Checking...' : 'Accept'}
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleAction(order.orderId, 'reject')}
-                                                                    className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 text-xs"
-                                                                >
-                                                                    Reject
-                                                                </button>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
+                                                            ))}
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4 font-bold">৳{order.total.toLocaleString()}</td>
+                                                    <td className="py-4">
+                                                        <span className={`px-2 py-1 rounded-full text-xs ${order.paymentMethod === 'cod'
+                                                            ? 'bg-yellow-500/20 text-yellow-400'
+                                                            : 'bg-green-500/20 text-green-400'
+                                                            }`}>
+                                                            {order.paymentMethod === 'cod' ? 'COD' : 'Prepaid'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-4 text-sm text-gray-400">{formatDate(order.createdAt)}</td>
+                                                    <td className="py-4">
+                                                        <span className={`px-2 py-1 rounded-full text-xs ${order.status === 'pending' || order.status === 'pending_payment'
+                                                            ? 'bg-blue-500/20 text-blue-400'
+                                                            : order.status === 'accepted'
+                                                                ? 'bg-green-500/20 text-green-400'
+                                                                : 'bg-red-500/20 text-red-400'
+                                                            }`}>
+                                                            {order.status.replace('_', ' ')}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-4">
+                                                        <div className="flex flex-wrap gap-2">
+                                                            <button
+                                                                onClick={() => {
+                                                                    setSelectedOrder(order);
+                                                                    setShowCustomerInfo(true);
+                                                                }}
+                                                                className="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs"
+                                                            >
+                                                                Details
+                                                            </button>
+                                                            {(order.status === 'pending' || order.status === 'pending_payment') && (
+                                                                <>
+                                                                    <button
+                                                                        onClick={() => handleAction(order.orderId, 'accept')}
+                                                                        disabled={validatingOrder === order.orderId}
+                                                                        className="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-xs disabled:opacity-50"
+                                                                    >
+                                                                        {validatingOrder === order.orderId ? 'Checking...' : 'Accept'}
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleAction(order.orderId, 'reject')}
+                                                                        className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 text-xs"
+                                                                    >
+                                                                        Reject
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
                                     )}
                                 </tbody>
                             </table>
@@ -522,7 +536,7 @@ export default function OrdersPage() {
                             </div>
 
                             {/* Debug: Log products to check size field */}
-                            {console.log('Selected Order Products:', selectedOrder.products)}
+                            {console.log('Selected Order Products:', JSON.stringify(selectedOrder.products, null, 2))}
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
                                 {/* Divider for Desktop */}
@@ -573,7 +587,7 @@ export default function OrdersPage() {
 
                                     <h3 className="text-lg font-semibold text-white mt-6 mb-4">Products</h3>
                                     <div className="space-y-3">
-                                        {selectedOrder.products.map((product, index) => (
+                                        {groupProductsBySize(selectedOrder.products).map((product, index) => (
                                             <div key={index} className="bg-gray-750 rounded-lg p-3">
                                                 <div className="font-medium">{product.title}</div>
                                                 <div className="text-sm text-gray-400">
@@ -582,9 +596,10 @@ export default function OrdersPage() {
                                                 <div className="text-sm text-gray-400">
                                                     Size: {formatSize(product.size)}
                                                 </div>
-                                                <div className="text-sm text-gray-400">
+                                                {/* Debug: Log size for verification */}
+                                                {/* <div className="text-sm text-gray-400">
                                                     Size Debug: {JSON.stringify(product.size)}
-                                                </div>
+                                                </div> */}
                                             </div>
                                         ))}
                                     </div>

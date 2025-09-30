@@ -158,7 +158,10 @@ export async function POST(request) {
             couponCode: couponCode || null,
         });
 
-        console.log('Order saved:', await Order.findById(order._id).lean()); // Debug
+        // Debug: Log saved order
+        const savedOrder = await Order.findById(order._id).lean();
+        console.log('Order saved to database:', JSON.stringify(savedOrder, null, 2));
+
         return NextResponse.json({ message: 'Order created', orderId }, { status: 200 });
     } catch (error) {
         console.error('Error creating order:', error);

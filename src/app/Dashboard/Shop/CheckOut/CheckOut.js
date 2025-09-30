@@ -378,7 +378,8 @@ export default function Checkout() {
                 title: item.title || 'Unknown Product',
                 quantity: item.quantity || 1,
                 price: getBDTPrice(item),
-                size: item.size || null
+                mainImage: item.mainImage || null,
+                size: item.size || null // Ensure size is included
             })),
             customerInfo,
             paymentMethod,
@@ -388,7 +389,10 @@ export default function Checkout() {
             shippingCharge: paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' ? (Number.isFinite(shippingCharge) ? shippingCharge : 0) : 0,
             couponCode: appliedCoupon ? appliedCoupon.code : null,
         };
-        console.log('Order data:', orderData); // Debug
+
+        // Debug: Log orderData to verify size
+        console.log('Order data being sent to backend:', JSON.stringify(orderData, null, 2));
+
         try {
             const orderResponse = await axios.post('/api/products/orders', orderData);
             if (orderResponse.data.message === 'Order created') {
