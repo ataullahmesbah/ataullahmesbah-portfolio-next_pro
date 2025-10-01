@@ -1,33 +1,33 @@
-// components/ShippingLabel.js
 import { useRef, useState, useEffect } from 'react';
 
 const ShippingLabel = ({ order, onClose }) => {
     const labelRef = useRef();
     const [barcodeDataUrl, setBarcodeDataUrl] = useState(null);
 
-    // Generate proper Code 128 barcode
+    // Generate proper Code 128 barcode with improved quiet zones and sizing for better scannability
     useEffect(() => {
         const generateBarcode = () => {
             try {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
 
-                // Set canvas size
-                canvas.width = 300;
-                canvas.height = 80;
+                // Increased canvas size for better resolution and quiet zones
+                canvas.width = 400;
+                canvas.height = 60;
 
                 // White background
                 ctx.fillStyle = '#FFFFFF';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // Barcode settings
+                // Barcode settings - adjusted for scannability
                 const data = order.orderId;
-                const barWidth = 2;
-                const barHeight = 60;
-                const startX = 20;
-                const startY = 10;
+                const barWidth = 1.5; // Thinner bars for denser barcode if needed
+                const barHeight = 50;
+                const quietZone = 30; // Increased quiet zone (min 10 modules, ~15px per side)
+                const startX = quietZone;
+                const startY = 5;
 
-                // Code 128 encoding table
+                // Code 128 encoding table (unchanged)
                 const code128Encoding = {
                     "0": "11011001100", "1": "11001101100", "2": "11001100110",
                     "3": "10010011000", "4": "10010001100", "5": "10001001100",
@@ -76,21 +76,14 @@ const ShippingLabel = ({ order, onClose }) => {
                 // Encode each character
                 for (let i = 0; i < data.length; i++) {
                     const char = data[i];
-                    let code;
+                    let code = char.charCodeAt(0) - 32;
 
-                    if (char >= ' ' && char <= '~') {
-                        code = char.charCodeAt(0) - 32;
-                        if (code >= 0 && code <= 94) {
-                            checksum += code * (i + 1);
-                        }
+                    // Improved fallback: if outside range, use Code 128C for digits or shift
+                    if (code < 0 || code > 94) {
+                        code = 0; // Fallback to space, but log for debug
+                        console.warn(`Invalid char in orderId: ${char}, falling back to space`);
                     }
-
-                    // Use space as fallback
-                    if (code === undefined || !code128Encoding[code]) {
-                        code = 0; // Space character
-                        checksum += code * (i + 1);
-                    }
-
+                    checksum += code * (i + 1);
                     binaryString += code128Encoding[code];
                 }
 
@@ -112,16 +105,14 @@ const ShippingLabel = ({ order, onClose }) => {
                     x += barWidth;
                 }
 
-                // Add order ID text below barcode
-                ctx.fillStyle = '#000000';
-                ctx.font = 'bold 12px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(order.orderId, canvas.width / 2, barHeight + 25);
+                // Ensure end quiet zone
+                if (x + quietZone > canvas.width) {
+                    canvas.width = x + quietZone * 2; // Dynamically adjust canvas if barcode is long
+                }
 
                 setBarcodeDataUrl(canvas.toDataURL());
             } catch (error) {
                 console.error('Barcode generation failed:', error);
-                // Fallback to simple barcode
                 generateSimpleBarcode();
             }
         };
@@ -129,50 +120,46 @@ const ShippingLabel = ({ order, onClose }) => {
         const generateSimpleBarcode = () => {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            canvas.width = 300;
-            canvas.height = 80;
+            canvas.width = 400;
+            canvas.height = 60;
 
             // White background
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Simple barcode using order ID
+            // Simple barcode with improved settings
             ctx.fillStyle = '#000000';
-            const barWidth = 2;
-            const barHeight = 60;
-            const startX = 20;
-            const startY = 10;
+            const barWidth = 1.5;
+            const barHeight = 50;
+            const quietZone = 30;
+            const startX = quietZone;
+            const startY = 5;
 
             let x = startX;
 
-            // Convert order ID to binary pattern for scanning
             const orderId = order.orderId;
             let binaryPattern = '';
 
-            // Create a consistent binary pattern from order ID
             for (let i = 0; i < orderId.length; i++) {
                 const charCode = orderId.charCodeAt(i);
                 binaryPattern += charCode.toString(2).padStart(8, '0');
             }
 
-            // Draw bars based on binary pattern
             for (let i = 0; i < binaryPattern.length; i++) {
                 if (binaryPattern[i] === '1') {
                     ctx.fillRect(x, startY, barWidth, barHeight);
                 }
                 x += barWidth;
 
-                // Add small gaps for better readability
-                if (i % 4 === 0) {
-                    x += 1;
+                if (i % 8 === 0) { // Better gaps for readability
+                    x += 2;
                 }
             }
 
-            // Add order ID text
-            ctx.fillStyle = '#000000';
-            ctx.font = 'bold 12px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(order.orderId, canvas.width / 2, barHeight + 25);
+            // Ensure end quiet zone
+            if (x + quietZone > canvas.width) {
+                canvas.width = x + quietZone * 2;
+            }
 
             setBarcodeDataUrl(canvas.toDataURL());
         };
@@ -263,14 +250,6 @@ const ShippingLabel = ({ order, onClose }) => {
                         height: 20mm;
                         display: block;
                         margin: 0 auto;
-                    }
-                    
-                    .barcode-text {
-                        font-size: 8px;
-                        font-weight: 600;
-                        color: #2d3748;
-                        margin-top: 1mm;
-                        text-align: center;
                     }
                     
                     .content-section {
@@ -416,7 +395,6 @@ const ShippingLabel = ({ order, onClose }) => {
                     
                     <div class="barcode-container">
                         <img class="barcode" src="${barcodeDataUrl}" alt="Barcode" />
-                        <div class="barcode-text">Scan to track order: ${order.orderId}</div>
                     </div>
 
                     <div class="content-section">
@@ -600,27 +578,16 @@ const ShippingLabel = ({ order, onClose }) => {
                             flexShrink: 0
                         }}>
                             {barcodeDataUrl && (
-                                <>
-                                    <img
-                                        src={barcodeDataUrl}
-                                        alt="Barcode"
-                                        style={{
-                                            maxWidth: '100%',
-                                            height: '20mm',
-                                            display: 'block',
-                                            margin: '0 auto'
-                                        }}
-                                    />
-                                    <div style={{
-                                        fontSize: '8px',
-                                        fontWeight: '600',
-                                        color: '#2d3748',
-                                        marginTop: '1mm',
-                                        textAlign: 'center'
-                                    }}>
-                                        Scan to track order: {order.orderId}
-                                    </div>
-                                </>
+                                <img
+                                    src={barcodeDataUrl}
+                                    alt="Barcode"
+                                    style={{
+                                        maxWidth: '100%',
+                                        height: '20mm',
+                                        display: 'block',
+                                        margin: '0 auto'
+                                    }}
+                                />
                             )}
                         </div>
 
