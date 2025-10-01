@@ -1,74 +1,180 @@
 // components/ShippingLabel.js
 import { useRef, useState, useEffect } from 'react';
-import { toPng } from 'html-to-image';
 
 const ShippingLabel = ({ order, onClose }) => {
     const labelRef = useRef();
     const [barcodeDataUrl, setBarcodeDataUrl] = useState(null);
 
-    // Generate barcode using Canvas
+    // Generate proper Code 128 barcode
     useEffect(() => {
         const generateBarcode = () => {
             try {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                
+
                 // Set canvas size
                 canvas.width = 300;
                 canvas.height = 80;
-                
-                // Clear canvas
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Background
-                ctx.fillStyle = '#ffffff';
+
+                // White background
+                ctx.fillStyle = '#FFFFFF';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
+
                 // Barcode settings
+                const data = order.orderId;
                 const barWidth = 2;
-                const barHeight = 50;
+                const barHeight = 60;
                 const startX = 20;
                 const startY = 10;
-                
-                // Convert order ID to binary representation (simple code39 simulation)
-                const binaryData = order.orderId.split('').map(char => {
-                    const code = char.charCodeAt(0).toString(2).padStart(8, '0');
-                    return code;
-                }).join('');
-                
+
+                // Code 128 encoding table
+                const code128Encoding = {
+                    "0": "11011001100", "1": "11001101100", "2": "11001100110",
+                    "3": "10010011000", "4": "10010001100", "5": "10001001100",
+                    "6": "10011001000", "7": "10011000100", "8": "10001100100",
+                    "9": "11001001000", "10": "11001000100", "11": "11000100100",
+                    "12": "10110011100", "13": "10011011100", "14": "10011001110",
+                    "15": "10111001100", "16": "10011101100", "17": "10011100110",
+                    "18": "11001110010", "19": "11001011100", "20": "11001001110",
+                    "21": "11011100100", "22": "11001110100", "23": "11101101110",
+                    "24": "11101001100", "25": "11100101100", "26": "11100100110",
+                    "27": "11101100100", "28": "11100110100", "29": "11100110010",
+                    "30": "11011011000", "31": "11011000110", "32": "11000110110",
+                    "33": "10100011000", "34": "10001011000", "35": "10001000110",
+                    "36": "10110001000", "37": "10001101000", "38": "10001100010",
+                    "39": "11010001000", "40": "11000101000", "41": "11000100010",
+                    "42": "10110111000", "43": "10110001110", "44": "10001101110",
+                    "45": "10111011000", "46": "10111000110", "47": "10001110110",
+                    "48": "11101110110", "49": "11010001110", "50": "11000101110",
+                    "51": "11011101000", "52": "11011100010", "53": "11011101110",
+                    "54": "11101011000", "55": "11101000110", "56": "11100010110",
+                    "57": "11101101000", "58": "11101100010", "59": "11100011010",
+                    "60": "11101111010", "61": "11001000010", "62": "11110001010",
+                    "63": "10100110000", "64": "10100001100", "65": "10010110000",
+                    "66": "10010000110", "67": "10000101100", "68": "10000100110",
+                    "69": "10110010000", "70": "10110000100", "71": "10011010000",
+                    "72": "10011000010", "73": "10000110100", "74": "10000110010",
+                    "75": "11000010010", "76": "11001010000", "77": "11110111010",
+                    "78": "11000010100", "79": "10001111010", "80": "10100111100",
+                    "81": "10010111100", "82": "10010011110", "83": "10111100100",
+                    "84": "10011110100", "85": "10011110010", "86": "11110100100",
+                    "87": "11110010100", "88": "11110010010", "89": "11011011110",
+                    "90": "11011110110", "91": "11110110110", "92": "10101111000",
+                    "93": "10100011110", "94": "10001011110", "95": "10111101000",
+                    "96": "10111100010", "97": "11110101000", "98": "11110100010",
+                    "99": "10111011110", "100": "10111101110", "101": "11101011110",
+                    "102": "11110101110", "103": "11010000100", "104": "11010010000",
+                    "105": "11010011100", "106": "11000111010"
+                };
+
+                // Start code for Code 128B
+                let binaryString = "11010010000";
+
+                // Calculate checksum
+                let checksum = 104; // Start code B value
+
+                // Encode each character
+                for (let i = 0; i < data.length; i++) {
+                    const char = data[i];
+                    let code;
+
+                    if (char >= ' ' && char <= '~') {
+                        code = char.charCodeAt(0) - 32;
+                        if (code >= 0 && code <= 94) {
+                            checksum += code * (i + 1);
+                        }
+                    }
+
+                    // Use space as fallback
+                    if (code === undefined || !code128Encoding[code]) {
+                        code = 0; // Space character
+                        checksum += code * (i + 1);
+                    }
+
+                    binaryString += code128Encoding[code];
+                }
+
+                // Add checksum (modulo 103)
+                checksum = checksum % 103;
+                binaryString += code128Encoding[checksum];
+
+                // Stop code
+                binaryString += "1100011101011";
+
                 // Draw barcode
                 ctx.fillStyle = '#000000';
                 let x = startX;
-                
-                for (let i = 0; i < binaryData.length; i++) {
-                    if (binaryData[i] === '1') {
+
+                for (let i = 0; i < binaryString.length; i++) {
+                    if (binaryString[i] === '1') {
                         ctx.fillRect(x, startY, barWidth, barHeight);
                     }
                     x += barWidth;
                 }
-                
-                // Draw order ID below barcode
+
+                // Add order ID text below barcode
                 ctx.fillStyle = '#000000';
-                ctx.font = '12px Arial';
+                ctx.font = 'bold 12px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText(order.orderId, canvas.width / 2, barHeight + 30);
-                
+                ctx.fillText(order.orderId, canvas.width / 2, barHeight + 25);
+
                 setBarcodeDataUrl(canvas.toDataURL());
             } catch (error) {
                 console.error('Barcode generation failed:', error);
-                // Fallback: create simple text barcode
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = 300;
-                canvas.height = 60;
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#000000';
-                ctx.font = 'bold 16px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(`📦 ${order.orderId}`, canvas.width / 2, 35);
-                setBarcodeDataUrl(canvas.toDataURL());
+                // Fallback to simple barcode
+                generateSimpleBarcode();
             }
+        };
+
+        const generateSimpleBarcode = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 300;
+            canvas.height = 80;
+
+            // White background
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Simple barcode using order ID
+            ctx.fillStyle = '#000000';
+            const barWidth = 2;
+            const barHeight = 60;
+            const startX = 20;
+            const startY = 10;
+
+            let x = startX;
+
+            // Convert order ID to binary pattern for scanning
+            const orderId = order.orderId;
+            let binaryPattern = '';
+
+            // Create a consistent binary pattern from order ID
+            for (let i = 0; i < orderId.length; i++) {
+                const charCode = orderId.charCodeAt(i);
+                binaryPattern += charCode.toString(2).padStart(8, '0');
+            }
+
+            // Draw bars based on binary pattern
+            for (let i = 0; i < binaryPattern.length; i++) {
+                if (binaryPattern[i] === '1') {
+                    ctx.fillRect(x, startY, barWidth, barHeight);
+                }
+                x += barWidth;
+
+                // Add small gaps for better readability
+                if (i % 4 === 0) {
+                    x += 1;
+                }
+            }
+
+            // Add order ID text
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(order.orderId, canvas.width / 2, barHeight + 25);
+
+            setBarcodeDataUrl(canvas.toDataURL());
         };
 
         generateBarcode();
@@ -91,373 +197,367 @@ const ShippingLabel = ({ order, onClose }) => {
                             padding: 0;
                             -webkit-print-color-adjust: exact;
                             print-color-adjust: exact;
+                            width: 100mm;
+                            height: 150mm;
+                        }
+                        * {
+                            box-sizing: border-box;
                         }
                     }
-                    * { 
-                        margin: 0; 
-                        padding: 0; 
-                        box-sizing: border-box; 
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    }
+                    
                     .shipping-label {
                         width: 100mm;
                         height: 150mm;
-                        padding: 5mm;
-                        border: 1.5px solid #2c3e50;
-                        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-                        color: #2c3e50;
+                        padding: 4mm;
+                        border: 2px solid #1a365d;
+                        background: white;
+                        color: #1a365d;
                         font-size: 9px;
-                        line-height: 1.3;
+                        line-height: 1.2;
                         position: relative;
-                        overflow: hidden;
+                        font-family: 'Segoe UI', Arial, sans-serif;
+                        display: flex;
+                        flex-direction: column;
                     }
+                    
                     .header { 
                         text-align: center; 
-                        margin-bottom: 4mm; 
+                        margin-bottom: 2mm;
                         padding-bottom: 2mm;
-                        border-bottom: 2px solid #3498db;
-                        background: linear-gradient(135deg, #3498db, #2980b9);
-                        margin: -5mm -5mm 4mm -5mm;
+                        border-bottom: 3px solid #2b6cb0;
+                        background: linear-gradient(135deg, #2b6cb0, #2c5282);
+                        margin: -4mm -4mm 2mm -4mm;
                         padding: 3mm;
                         color: white;
                     }
+                    
                     .company-name { 
                         font-size: 16px; 
                         font-weight: 800; 
                         margin-bottom: 1mm;
                         letter-spacing: 0.5px;
                     }
-                    .company-tagline {
-                        font-size: 8px;
-                        opacity: 0.9;
-                        font-weight: 300;
-                    }
+                    
                     .order-id { 
-                        font-size: 11px; 
+                        font-size: 10px; 
                         font-weight: 600;
                         margin-top: 1mm;
-                        background: rgba(255,255,255,0.2);
+                        background: rgba(255,255,255,0.15);
                         padding: 1mm 2mm;
                         border-radius: 3px;
                         display: inline-block;
                     }
-                    .barcode-section { 
+                    
+                    .barcode-container { 
                         text-align: center; 
-                        margin: 2mm 0 3mm 0;
-                        padding: 2mm;
-                        background: #f8f9fa;
+                        margin: 1mm 0 2mm 0;
+                        padding: 1mm;
+                        background: #f7fafc;
                         border-radius: 4px;
-                        border: 1px solid #e9ecef;
+                        border: 1px solid #e2e8f0;
+                        flex-shrink: 0;
                     }
+                    
                     .barcode {
                         max-width: 100%;
-                        height: 25mm;
-                        margin-bottom: 1mm;
+                        height: 20mm;
+                        display: block;
+                        margin: 0 auto;
                     }
-                    .barcode-number {
-                        font-family: 'Courier New', monospace;
-                        font-weight: bold;
-                        font-size: 10px;
-                        letter-spacing: 1px;
-                        color: #2c3e50;
+                    
+                    .barcode-text {
+                        font-size: 8px;
+                        font-weight: 600;
+                        color: #2d3748;
+                        margin-top: 1mm;
+                        text-align: center;
                     }
-                    .two-column {
+                    
+                    .content-section {
                         display: grid;
                         grid-template-columns: 1fr 1fr;
-                        gap: 3mm;
-                        margin-bottom: 3mm;
+                        gap: 2mm;
+                        margin-bottom: 2mm;
+                        flex: 1;
                     }
-                    .section { 
-                        margin-bottom: 3mm; 
+                    
+                    .info-box {
+                        border: 1px solid #cbd5e0;
+                        padding: 2mm;
+                        background: white;
+                        border-radius: 3px;
+                        height: fit-content;
                     }
+                    
                     .section-title { 
                         font-weight: 700; 
                         margin-bottom: 1mm; 
                         padding-bottom: 0.5mm;
-                        border-bottom: 1px solid #3498db;
-                        color: #2c3e50;
-                        font-size: 9px;
+                        border-bottom: 1px solid #2b6cb0;
+                        color: #2d3748;
+                        font-size: 8px;
                         text-transform: uppercase;
-                        letter-spacing: 0.5px;
+                        letter-spacing: 0.3px;
                     }
-                    .address-box {
-                        border: 1px solid #bdc3c7;
-                        padding: 2mm;
-                        background: #ffffff;
-                        border-radius: 3px;
-                        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                    
+                    .address-line {
+                        margin-bottom: 0.3mm;
                     }
-                    .address-title {
-                        font-weight: 600;
-                        color: #3498db;
-                        margin-bottom: 0.5mm;
-                        font-size: 8px;
-                    }
+                    
                     .contact-info {
-                        font-size: 8px;
-                        color: #7f8c8d;
-                        margin-top: 0.5mm;
+                        font-size: 7px;
+                        color: #4a5568;
+                        margin-top: 1mm;
+                        padding-top: 1mm;
+                        border-top: 1px dashed #e2e8f0;
                     }
-                    .products { 
-                        margin-top: 2mm; 
-                    }
-                    .product-item {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 0.5mm;
-                        padding: 1mm;
-                        background: #f8f9fa;
-                        border-radius: 2px;
-                        border-left: 2px solid #3498db;
-                    }
-                    .product-name {
-                        flex: 1;
-                        font-weight: 500;
-                    }
-                    .product-details {
-                        font-size: 8px;
-                        color: #7f8c8d;
-                        text-align: right;
-                    }
-                    .shipping-info {
-                        background: #e8f4fc;
+                    
+                    .shipping-details {
+                        background: #ebf8ff;
                         padding: 2mm;
                         border-radius: 3px;
-                        border: 1px solid #3498db;
-                        margin-top: 2mm;
-                    }
-                    .info-grid {
+                        border: 1px solid #90cdf4;
+                        margin-bottom: 2mm;
                         display: grid;
                         grid-template-columns: 1fr 1fr;
                         gap: 1mm;
                         font-size: 8px;
                     }
-                    .info-item {
+                    
+                    .detail-item {
                         display: flex;
                         justify-content: space-between;
                     }
-                    .info-label {
+                    
+                    .detail-label {
                         font-weight: 600;
-                        color: #2c3e50;
+                        color: #2d3748;
                     }
-                    .info-value {
+                    
+                    .detail-value {
                         font-weight: 500;
-                        color: #e74c3c;
+                        color: #e53e3e;
                     }
-                    .footer {
-                        position: absolute;
-                        bottom: 5mm;
-                        left: 5mm;
-                        right: 5mm;
-                        text-align: center;
+                    
+                    .products-section {
+                        flex: 1;
+                        overflow: hidden;
+                    }
+                    
+                    .products-scroll {
+                        max-height: 25mm;
+                        overflow-y: auto;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 3px;
+                        padding: 1mm;
+                        background: #f7fafc;
+                    }
+                    
+                    .product-row {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 0.5mm 1mm;
+                        border-bottom: 1px dashed #e2e8f0;
+                        font-size: 8px;
+                    }
+                    
+                    .product-row:last-child {
+                        border-bottom: none;
+                    }
+                    
+                    .product-name {
+                        flex: 1;
+                        font-weight: 500;
+                        color: #2d3748;
+                    }
+                    
+                    .product-meta {
                         font-size: 7px;
-                        color: #7f8c8d;
-                        border-top: 1px solid #bdc3c7;
+                        color: #718096;
+                        text-align: right;
+                        white-space: nowrap;
+                        margin-left: 1mm;
+                    }
+                    
+                    .footer {
+                        text-align: center;
+                        font-size: 6px;
+                        color: #718096;
+                        border-top: 1px solid #e2e8f0;
                         padding-top: 1mm;
-                        background: white;
+                        margin-top: 1mm;
+                        flex-shrink: 0;
                     }
-                    .urgency-badge {
+                    
+                    .urgency-stamp {
                         position: absolute;
-                        top: 5mm;
-                        right: 5mm;
-                        background: #e74c3c;
+                        top: 4mm;
+                        right: 4mm;
+                        background: #e53e3e;
                         color: white;
                         padding: 1mm 2mm;
-                        border-radius: 3px;
-                        font-size: 8px;
-                        font-weight: bold;
+                        border-radius: 2px;
+                        font-size: 7px;
+                        font-weight: 800;
                         transform: rotate(5deg);
-                    }
-                    .weight-indicator {
-                        position: absolute;
-                        bottom: 12mm;
-                        right: 5mm;
-                        background: #34495e;
-                        color: white;
-                        padding: 1mm 2mm;
-                        border-radius: 3px;
-                        font-size: 8px;
-                        font-weight: bold;
+                        border: 1px solid white;
                     }
                 </style>
             </head>
             <body>
                 <div class="shipping-label">
-                    <div class="urgency-badge">SHIPPING</div>
+                    <div class="urgency-stamp">SHIPPING</div>
                     
                     <div class="header">
                         <div class="company-name">SOOQRA ONE</div>
-                        <div class="company-tagline">Premium E-commerce Delivery</div>
                         <div class="order-id">ORDER #${order.orderId}</div>
                     </div>
                     
-                    <div class="barcode-section">
+                    <div class="barcode-container">
                         <img class="barcode" src="${barcodeDataUrl}" alt="Barcode" />
-                        <div class="barcode-number">${order.orderId}</div>
+                        <div class="barcode-text">Scan to track order: ${order.orderId}</div>
                     </div>
 
-                    <div class="two-column">
-                        <div class="section">
-                            <div class="section-title">Sender Information</div>
-                            <div class="address-box">
-                                <div class="address-title">SOOQRA ONE</div>
-                                <div>Dhaka, Bangladesh</div>
-                                <div class="contact-info">
-                                    📞 0123456789 | ✉️ info@sooqra.com<br>
-                                    🌐 www.sooqra.com
-                                </div>
+                    <div class="content-section">
+                        <div class="info-box">
+                            <div class="section-title">Sender</div>
+                            <div class="address-line"><strong>SOOQRA ONE</strong></div>
+                            <div class="address-line">Dhaka, Bangladesh</div>
+                            <div class="contact-info">
+                                Phone: 0123456789<br>
+                                Email: info@sooqra.com
                             </div>
                         </div>
 
-                        <div class="section">
-                            <div class="section-title">Recipient Information</div>
-                            <div class="address-box">
-                                <div class="address-title">${order.customerInfo.name}</div>
-                                <div>${order.customerInfo.address}</div>
-                                <div>${order.customerInfo.city || ''} ${order.customerInfo.postcode || ''}</div>
-                                <div>${order.customerInfo.district || ''} ${order.customerInfo.thana || ''}</div>
-                                <div class="contact-info">
-                                    📞 ${order.customerInfo.phone}<br>
-                                    ✉️ ${order.customerInfo.email}
-                                </div>
+                        <div class="info-box">
+                            <div class="section-title">Recipient</div>
+                            <div class="address-line"><strong>${order.customerInfo.name}</strong></div>
+                            <div class="address-line">${order.customerInfo.address}</div>
+                            <div class="address-line">
+                                ${[order.customerInfo.city, order.customerInfo.postcode].filter(Boolean).join(' ')}
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="shipping-info">
-                        <div class="section-title">Shipping Details</div>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <span class="info-label">Order Date:</span>
-                                <span class="info-value">${new Date(order.createdAt).toLocaleDateString()}</span>
+                            <div class="address-line">
+                                ${[order.customerInfo.district, order.customerInfo.thana].filter(Boolean).join(', ')}
                             </div>
-                            <div class="info-item">
-                                <span class="info-label">Payment:</span>
-                                <span class="info-value">${order.paymentMethod === 'cod' ? 'COD' : 'Prepaid'}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Amount:</span>
-                                <span class="info-value">৳${order.total.toLocaleString()}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Items:</span>
-                                <span class="info-value">${order.products.length}</span>
+                            <div class="contact-info">
+                                Phone: ${order.customerInfo.phone}<br>
+                                Email: ${order.customerInfo.email}
                             </div>
                         </div>
                     </div>
 
-                    <div class="section products">
-                        <div class="section-title">Package Contents</div>
-                        ${order.products.map(product => `
-                            <div class="product-item">
-                                <span class="product-name">${product.title}</span>
-                                <div class="product-details">
-                                    Qty: ${product.quantity} | Size: ${product.size || 'N/A'}
-                                </div>
-                            </div>
-                        `).join('')}
+                    <div class="shipping-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Date:</span>
+                            <span class="detail-value">${new Date(order.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Payment:</span>
+                            <span class="detail-value">${order.paymentMethod === 'cod' ? 'COD' : 'Prepaid'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Amount:</span>
+                            <span class="detail-value">৳${order.total.toLocaleString()}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Items:</span>
+                            <span class="detail-value">${order.products.reduce((sum, p) => sum + p.quantity, 0)}</span>
+                        </div>
                     </div>
 
-                    <div class="weight-indicator">
-                        Weight: ${order.products.length > 2 ? 'MEDIUM' : 'LIGHT'}
+                    <div class="products-section">
+                        <div class="section-title">Products</div>
+                        <div class="products-scroll">
+                            ${order.products.map(product => `
+                                <div class="product-row">
+                                    <span class="product-name">${product.title}</span>
+                                    <div class="product-meta">
+                                        Qty: ${product.quantity} | ${product.size || 'N/A'}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
 
                     <div class="footer">
-                        <strong>SOOQRA ONE</strong> - Thank you for your business! | Track your order at www.sooqra.com/track
+                        <strong>SOOQRA ONE</strong> - www.sooqra.com
                     </div>
                 </div>
+                
+                <script>
+                    window.onload = function() {
+                        setTimeout(function() {
+                            window.print();
+                            setTimeout(function() {
+                                window.close();
+                            }, 500);
+                        }, 250);
+                    };
+                </script>
             </body>
             </html>
         `;
 
-        const printWindow = window.open('', '_blank');
+        const printWindow = window.open('', '_blank', 'width=400,height=600');
         printWindow.document.write(printContent);
         printWindow.document.close();
-        
-        printWindow.onload = () => {
-            printWindow.focus();
-            setTimeout(() => {
-                printWindow.print();
-                printWindow.close();
-            }, 250);
-        };
-    };
-
-    const handleDownload = async () => {
-        if (labelRef.current) {
-            try {
-                const dataUrl = await toPng(labelRef.current, {
-                    quality: 1.0,
-                    backgroundColor: '#ffffff',
-                    pixelRatio: 3 // High resolution for print
-                });
-
-                const link = document.createElement('a');
-                link.download = `sooqra-shipping-${order.orderId}.png`;
-                link.href = dataUrl;
-                link.click();
-                
-                toast.success('Label downloaded successfully!');
-            } catch (error) {
-                console.error('Download failed:', error);
-                toast.error('Download failed. Please try again.');
-            }
-        }
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl p-6 max-w-4xl w-full max-h-[95vh] overflow-y-auto shadow-2xl">
-                <div className="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2">
+            <div className="bg-white rounded-xl p-4 w-full max-w-2xl max-h-[95vh] overflow-y-auto">
+                <div className="flex justify-between items-center mb-4 border-b border-gray-200 pb-3">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-800">
+                        <h2 className="text-xl font-bold text-gray-800">
                             Shipping Label
                         </h2>
-                        <p className="text-gray-600 text-sm mt-1">
-                            Order # {order.orderId} • {order.customerInfo.name}
+                        <p className="text-gray-600 text-xs mt-1">
+                            Order: {order.orderId} • Customer: {order.customerInfo.name}
                         </p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                        className="text-gray-500 hover:text-gray-700 transition-colors"
                     >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
-                {/* Preview */}
-                <div className="border-2 border-gray-200 rounded-xl p-6 mb-6 bg-white shadow-inner">
+                {/* Preview Container */}
+                <div className="border-2 border-gray-300 rounded-lg p-4 mb-4 bg-white shadow-inner flex justify-center">
                     <div
                         ref={labelRef}
-                        className="shipping-label-preview mx-auto bg-gradient-to-br from-white to-gray-50 shadow-lg"
+                        className="shipping-label-preview bg-white shadow-lg"
                         style={{
                             width: '100mm',
-                            height: '150mm',
-                            padding: '5mm',
-                            border: '1.5px solid #2c3e50',
-                            color: '#2c3e50',
+                            minHeight: '150mm',
+                            padding: '4mm',
+                            border: '2px solid #1a365d',
+                            color: '#1a365d',
                             fontSize: '9px',
-                            lineHeight: '1.3',
-                            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+                            lineHeight: '1.2',
+                            fontFamily: "'Segoe UI', Arial, sans-serif",
                             position: 'relative',
-                            overflow: 'hidden'
+                            display: 'flex',
+                            flexDirection: 'column'
                         }}
                     >
-                        {/* Urgency Badge */}
+                        {/* Urgency Stamp */}
                         <div style={{
                             position: 'absolute',
-                            top: '5mm',
-                            right: '5mm',
-                            background: '#e74c3c',
+                            top: '4mm',
+                            right: '4mm',
+                            background: '#e53e3e',
                             color: 'white',
                             padding: '1mm 2mm',
-                            borderRadius: '3px',
-                            fontSize: '8px',
-                            fontWeight: 'bold',
-                            transform: 'rotate(5deg)'
+                            borderRadius: '2px',
+                            fontSize: '7px',
+                            fontWeight: '800',
+                            transform: 'rotate(5deg)',
+                            border: '1px solid white'
                         }}>
                             SHIPPING
                         </div>
@@ -465,203 +565,169 @@ const ShippingLabel = ({ order, onClose }) => {
                         {/* Header */}
                         <div style={{
                             textAlign: 'center',
-                            marginBottom: '4mm',
+                            marginBottom: '2mm',
                             paddingBottom: '2mm',
-                            borderBottom: '2px solid #3498db',
-                            background: 'linear-gradient(135deg, #3498db, #2980b9)',
-                            margin: '-5mm -5mm 4mm -5mm',
+                            borderBottom: '3px solid #2b6cb0',
+                            background: 'linear-gradient(135deg, #2b6cb0, #2c5282)',
+                            margin: '-4mm -4mm 2mm -4mm',
                             padding: '3mm',
                             color: 'white'
                         }}>
                             <div style={{ fontSize: '16px', fontWeight: '800', marginBottom: '1mm', letterSpacing: '0.5px' }}>
                                 SOOQRA ONE
                             </div>
-                            <div style={{ fontSize: '8px', opacity: '0.9', fontWeight: '300' }}>
-                                Premium E-commerce Delivery
-                            </div>
                             <div style={{
-                                fontSize: '11px',
+                                fontSize: '10px',
                                 fontWeight: '600',
                                 marginTop: '1mm',
-                                background: 'rgba(255,255,255,0.2)',
+                                background: 'rgba(255,255,255,0.15)',
                                 padding: '1mm 2mm',
                                 borderRadius: '3px',
                                 display: 'inline-block'
                             }}>
-                                ORDER #{order.orderId}
+                                ORDER #${order.orderId}
                             </div>
                         </div>
 
-                        {/* Barcode Section */}
+                        {/* Barcode */}
                         <div style={{
                             textAlign: 'center',
-                            margin: '2mm 0 3mm 0',
-                            padding: '2mm',
-                            background: '#f8f9fa',
+                            margin: '1mm 0 2mm 0',
+                            padding: '1mm',
+                            background: '#f7fafc',
                             borderRadius: '4px',
-                            border: '1px solid #e9ecef'
+                            border: '1px solid #e2e8f0',
+                            flexShrink: 0
                         }}>
                             {barcodeDataUrl && (
-                                <img 
-                                    src={barcodeDataUrl} 
-                                    alt="Barcode" 
-                                    style={{
-                                        maxWidth: '100%',
-                                        height: '25mm',
-                                        marginBottom: '1mm'
-                                    }}
-                                />
+                                <>
+                                    <img
+                                        src={barcodeDataUrl}
+                                        alt="Barcode"
+                                        style={{
+                                            maxWidth: '100%',
+                                            height: '20mm',
+                                            display: 'block',
+                                            margin: '0 auto'
+                                        }}
+                                    />
+                                    <div style={{
+                                        fontSize: '8px',
+                                        fontWeight: '600',
+                                        color: '#2d3748',
+                                        marginTop: '1mm',
+                                        textAlign: 'center'
+                                    }}>
+                                        Scan to track order: {order.orderId}
+                                    </div>
+                                </>
                             )}
-                            <div style={{
-                                fontFamily: "'Courier New', monospace",
-                                fontWeight: 'bold',
-                                fontSize: '10px',
-                                letterSpacing: '1px',
-                                color: '#2c3e50'
-                            }}>
-                                {order.orderId}
-                            </div>
                         </div>
 
                         {/* Sender & Recipient */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3mm', marginBottom: '3mm' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2mm', marginBottom: '2mm', flex: 1 }}>
                             {/* Sender */}
-                            <div>
-                                <div style={{ fontWeight: '700', marginBottom: '1mm', paddingBottom: '0.5mm', borderBottom: '1px solid #3498db', color: '#2c3e50', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    Sender Information
+                            <div style={{ border: '1px solid #cbd5e0', padding: '2mm', background: 'white', borderRadius: '3px', height: 'fit-content' }}>
+                                <div style={{ fontWeight: '700', marginBottom: '1mm', paddingBottom: '0.5mm', borderBottom: '1px solid #2b6cb0', color: '#2d3748', fontSize: '8px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                                    Sender
                                 </div>
-                                <div style={{ border: '1px solid #bdc3c7', padding: '2mm', background: '#ffffff', borderRadius: '3px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                                    <div style={{ fontWeight: '600', color: '#3498db', marginBottom: '0.5mm', fontSize: '8px' }}>
-                                        SOOQRA ONE
-                                    </div>
-                                    <div>Dhaka, Bangladesh</div>
-                                    <div style={{ fontSize: '8px', color: '#7f8c8d', marginTop: '0.5mm' }}>
-                                        📞 0123456789 | ✉️ info@sooqra.com<br/>
-                                        🌐 www.sooqra.com
-                                    </div>
+                                <div style={{ marginBottom: '0.3mm' }}><strong>SOOQRA ONE</strong></div>
+                                <div style={{ marginBottom: '0.3mm' }}>Dhaka, Bangladesh</div>
+                                <div style={{ fontSize: '7px', color: '#4a5568', marginTop: '1mm', paddingTop: '1mm', borderTop: '1px dashed #e2e8f0' }}>
+                                    Phone: 0123456789<br />
+                                    Email: info@sooqra.com
                                 </div>
                             </div>
 
                             {/* Recipient */}
-                            <div>
-                                <div style={{ fontWeight: '700', marginBottom: '1mm', paddingBottom: '0.5mm', borderBottom: '1px solid #3498db', color: '#2c3e50', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    Recipient Information
+                            <div style={{ border: '1px solid #cbd5e0', padding: '2mm', background: 'white', borderRadius: '3px', height: 'fit-content' }}>
+                                <div style={{ fontWeight: '700', marginBottom: '1mm', paddingBottom: '0.5mm', borderBottom: '1px solid #2b6cb0', color: '#2d3748', fontSize: '8px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                                    Recipient
                                 </div>
-                                <div style={{ border: '1px solid #bdc3c7', padding: '2mm', background: '#ffffff', borderRadius: '3px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                                    <div style={{ fontWeight: '600', color: '#3498db', marginBottom: '0.5mm', fontSize: '8px' }}>
-                                        {order.customerInfo.name}
-                                    </div>
-                                    <div>{order.customerInfo.address}</div>
-                                    <div>{order.customerInfo.city || ''} {order.customerInfo.postcode || ''}</div>
-                                    <div>{order.customerInfo.district || ''} {order.customerInfo.thana || ''}</div>
-                                    <div style={{ fontSize: '8px', color: '#7f8c8d', marginTop: '0.5mm' }}>
-                                        📞 {order.customerInfo.phone}<br/>
-                                        ✉️ {order.customerInfo.email}
-                                    </div>
+                                <div style={{ marginBottom: '0.3mm' }}><strong>{order.customerInfo.name}</strong></div>
+                                <div style={{ marginBottom: '0.3mm' }}>{order.customerInfo.address}</div>
+                                <div style={{ marginBottom: '0.3mm' }}>
+                                    {[order.customerInfo.city, order.customerInfo.postcode].filter(Boolean).join(' ')}
                                 </div>
-                            </div>
-                        </div>
-
-                        {/* Shipping Info */}
-                        <div style={{ background: '#e8f4fc', padding: '2mm', borderRadius: '3px', border: '1px solid #3498db', marginTop: '2mm' }}>
-                            <div style={{ fontWeight: '700', marginBottom: '1mm', paddingBottom: '0.5mm', borderBottom: '1px solid #3498db', color: '#2c3e50', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                Shipping Details
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1mm', fontSize: '8px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span style={{ fontWeight: '600', color: '#2c3e50' }}>Order Date:</span>
-                                    <span style={{ fontWeight: '500', color: '#e74c3c' }}>{new Date(order.createdAt).toLocaleDateString()}</span>
+                                <div style={{ marginBottom: '0.3mm' }}>
+                                    {[order.customerInfo.district, order.customerInfo.thana].filter(Boolean).join(', ')}
                                 </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span style={{ fontWeight: '600', color: '#2c3e50' }}>Payment:</span>
-                                    <span style={{ fontWeight: '500', color: '#e74c3c' }}>{order.paymentMethod === 'cod' ? 'COD' : 'Prepaid'}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span style={{ fontWeight: '600', color: '#2c3e50' }}>Amount:</span>
-                                    <span style={{ fontWeight: '500', color: '#e74c3c' }}>৳{order.total.toLocaleString()}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span style={{ fontWeight: '600', color: '#2c3e50' }}>Items:</span>
-                                    <span style={{ fontWeight: '500', color: '#e74c3c' }}>{order.products.length}</span>
+                                <div style={{ fontSize: '7px', color: '#4a5568', marginTop: '1mm', paddingTop: '1mm', borderTop: '1px dashed #e2e8f0' }}>
+                                    Phone: {order.customerInfo.phone}<br />
+                                    Email: {order.customerInfo.email}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Products */}
-                        <div style={{ marginTop: '3mm' }}>
-                            <div style={{ fontWeight: '700', marginBottom: '1mm', paddingBottom: '0.5mm', borderBottom: '1px solid #3498db', color: '#2c3e50', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                Package Contents
+                        {/* Shipping Details */}
+                        <div style={{ background: '#ebf8ff', padding: '2mm', borderRadius: '3px', border: '1px solid #90cdf4', marginBottom: '2mm', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1mm', fontSize: '8px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span style={{ fontWeight: '600', color: '#2d3748' }}>Date:</span>
+                                <span style={{ fontWeight: '500', color: '#e53e3e' }}>{new Date(order.createdAt).toLocaleDateString()}</span>
                             </div>
-                            {order.products.map((product, index) => (
-                                <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5mm', padding: '1mm', background: '#f8f9fa', borderRadius: '2px', borderLeft: '2px solid #3498db' }}>
-                                    <span style={{ flex: 1, fontWeight: '500' }}>{product.title}</span>
-                                    <div style={{ fontSize: '8px', color: '#7f8c8d', textAlign: 'right' }}>
-                                        Qty: {product.quantity} | Size: {product.size || 'N/A'}
-                                    </div>
-                                </div>
-                            ))}
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span style={{ fontWeight: '600', color: '#2d3748' }}>Payment:</span>
+                                <span style={{ fontWeight: '500', color: '#e53e3e' }}>{order.paymentMethod === 'cod' ? 'COD' : 'Prepaid'}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span style={{ fontWeight: '600', color: '#2d3748' }}>Amount:</span>
+                                <span style={{ fontWeight: '500', color: '#e53e3e' }}>৳{order.total.toLocaleString()}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span style={{ fontWeight: '600', color: '#2d3748' }}>Items:</span>
+                                <span style={{ fontWeight: '500', color: '#e53e3e' }}>{order.products.reduce((sum, p) => sum + p.quantity, 0)}</span>
+                            </div>
                         </div>
 
-                        {/* Weight Indicator */}
-                        <div style={{
-                            position: 'absolute',
-                            bottom: '12mm',
-                            right: '5mm',
-                            background: '#34495e',
-                            color: 'white',
-                            padding: '1mm 2mm',
-                            borderRadius: '3px',
-                            fontSize: '8px',
-                            fontWeight: 'bold'
-                        }}>
-                            Weight: {order.products.length > 2 ? 'MEDIUM' : 'LIGHT'}
+                        {/* Products Section */}
+                        <div style={{ flex: 1, overflow: 'hidden' }}>
+                            <div style={{ fontWeight: '700', marginBottom: '1mm', paddingBottom: '0.5mm', borderBottom: '1px solid #2b6cb0', color: '#2d3748', fontSize: '8px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+                                Products
+                            </div>
+                            <div style={{ maxHeight: '25mm', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '3px', padding: '1mm', background: '#f7fafc' }}>
+                                {order.products.map((product, index) => (
+                                    <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5mm 1mm', borderBottom: '1px dashed #e2e8f0', fontSize: '8px' }}>
+                                        <span style={{ flex: 1, fontWeight: '500', color: '#2d3748' }}>{product.title}</span>
+                                        <div style={{ fontSize: '7px', color: '#718096', textAlign: 'right', whiteSpace: 'nowrap', marginLeft: '1mm' }}>
+                                            Qty: {product.quantity} | {product.size || 'N/A'}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
                         {/* Footer */}
                         <div style={{
-                            position: 'absolute',
-                            bottom: '5mm',
-                            left: '5mm',
-                            right: '5mm',
                             textAlign: 'center',
-                            fontSize: '7px',
-                            color: '#7f8c8d',
-                            borderTop: '1px solid #bdc3c7',
+                            fontSize: '6px',
+                            color: '#718096',
+                            borderTop: '1px solid #e2e8f0',
                             paddingTop: '1mm',
-                            background: 'white'
+                            marginTop: '1mm',
+                            flexShrink: 0
                         }}>
-                            <strong>SOOQRA ONE</strong> - Thank you for your business! | Track your order at www.sooqra.com/track
+                            <strong>SOOQRA ONE</strong> - www.sooqra.com
                         </div>
                     </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex justify-center gap-4 pt-4 border-t border-gray-200">
+                <div className="flex flex-col sm:flex-row justify-center gap-3 pt-3 border-t border-gray-200">
                     <button
                         onClick={handlePrint}
-                        className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 font-semibold flex items-center gap-3 shadow-lg hover:shadow-xl transition-all duration-200"
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center justify-center gap-2 transition-colors"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                         </svg>
-                        Print Shipping Label
-                    </button>
-
-                    <button
-                        onClick={handleDownload}
-                        className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 font-semibold flex items-center gap-3 shadow-lg hover:shadow-xl transition-all duration-200"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        Download PNG
+                        Print Label
                     </button>
 
                     <button
                         onClick={onClose}
-                        className="px-8 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                        className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-medium transition-colors"
                     >
-                        Close Preview
+                        Close
                     </button>
                 </div>
             </div>
