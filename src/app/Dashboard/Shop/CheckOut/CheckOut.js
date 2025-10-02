@@ -98,7 +98,7 @@ export default function Checkout() {
         const fetchData = async () => {
             try {
                 const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
-                console.log('Cart loaded in Checkout:', storedCart); // Debug
+              
                 setCart(storedCart);
 
                 const districtsResponse = await axios.get('/api/products/districts-thanas');
@@ -120,7 +120,7 @@ export default function Checkout() {
                     setShippingCharge(Number.isFinite(charge) ? charge : 0);
                 }
             } catch (error) {
-                console.error('Error fetching checkout data:', error);
+               
                 setError('Failed to load checkout data. Please refresh the page.');
                 showCustomToast('Failed to load checkout data. Please refresh the page.', 'error');
             }
@@ -131,7 +131,7 @@ export default function Checkout() {
     const validateCart = async () => {
         setValidatingCart(true);
         try {
-            console.log('Cart before validation:', cart); // Debug
+           
             const validationPromises = cart.map(async (item) => {
                 try {
                     const response = await axios.post('/api/products/cart/validate', {
@@ -141,7 +141,7 @@ export default function Checkout() {
                     });
                     return { ...response.data, productId: item._id, size: item.size || null, title: item.title };
                 } catch (error) {
-                    console.error(`Error validating product ${item._id}:`, error);
+                   
                     return {
                         valid: false,
                         message: error.response?.data?.message || 'Error validating item',
@@ -167,7 +167,7 @@ export default function Checkout() {
                     }
                     return item;
                 });
-                console.log('Cart after validation:', updatedCart); // Debug
+              
                 setCart(updatedCart);
                 localStorage.setItem('cart', JSON.stringify(updatedCart));
                 window.dispatchEvent(new Event('cartUpdated'));
@@ -184,7 +184,7 @@ export default function Checkout() {
 
             return true;
         } catch (error) {
-            console.error('Cart validation error:', error);
+            
             showCustomToast('Failed to validate cart items', 'error');
             return false;
         } finally {
@@ -268,7 +268,7 @@ export default function Checkout() {
                 }
             }
         } catch (error) {
-            console.error('Error validating product stock:', error);
+          
             showCustomToast('Error checking product availability', 'error');
         }
     };
@@ -327,7 +327,7 @@ export default function Checkout() {
                 showCustomToast(response.data.message || 'Invalid coupon code.', 'error');
             }
         } catch (err) {
-            console.error('Error applying coupon:', err.response?.data || err.message);
+           
             setCouponError('Error applying coupon. Please try again.');
             showCustomToast('Error applying coupon. Please try again.', 'error');
         }
@@ -390,8 +390,6 @@ export default function Checkout() {
             couponCode: appliedCoupon ? appliedCoupon.code : null,
         };
 
-        // Debug: Log orderData to verify size
-        console.log('Order data being sent to backend:', JSON.stringify(orderData, null, 2));
 
         try {
             const orderResponse = await axios.post('/api/products/orders', orderData);
@@ -460,7 +458,7 @@ export default function Checkout() {
             }
         } catch (err) {
             const errorMessage = err.response?.data?.error || err.message || 'Payment processing failed';
-            console.error('Checkout error:', err.response?.data || err.message);
+          
             setError(errorMessage);
             showCustomToast(errorMessage, 'error');
             setLoading(false);

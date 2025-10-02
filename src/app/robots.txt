@@ -5,4 +5,5 @@ Disallow: /admin-dashboard/
 Disallow: /moderator-dashboard/
 Disallow: /user-dashboard/
 Disallow: /accounts/
+Disallow: /api/
 Allow: /

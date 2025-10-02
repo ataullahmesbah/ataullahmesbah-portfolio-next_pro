@@ -53,9 +53,7 @@ export async function POST(request) {
             couponCode,
         } = await request.json();
 
-        // Debug: Log received data
-        console.log('Received POST data:', { orderId, products, customerInfo, paymentMethod, status, total, discount, shippingCharge, couponCode });
-
+        
         // Validate required fields
         if (!orderId || !products || !customerInfo || !paymentMethod || !status || total == null) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -160,11 +158,11 @@ export async function POST(request) {
 
         // Debug: Log saved order
         const savedOrder = await Order.findById(order._id).lean();
-        console.log('Order saved to database:', JSON.stringify(savedOrder, null, 2));
+       
 
         return NextResponse.json({ message: 'Order created', orderId }, { status: 200 });
     } catch (error) {
-        console.error('Error creating order:', error);
+       
         return NextResponse.json({ error: `Failed to create order: ${error.message}` }, { status: 500 });
     }
 }
