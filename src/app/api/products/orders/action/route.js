@@ -82,7 +82,8 @@ export async function POST(request) {
                         {
                             $set: {
                                 'sizes.$[elem].quantity': product.sizes.find(s => s.name === item.size).quantity - item.quantity
-                            }
+                            },
+                            $inc: { quantity: -item.quantity } // Add this to deduct from total quantity
                         },
                         {
                             arrayFilters: [{ 'elem.name': item.size }]
