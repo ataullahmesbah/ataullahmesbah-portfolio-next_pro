@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { FiPlus, FiMinus } from 'react-icons/fi';
 
-export default function FAQSection() {
+export default function SEOFAQSection() {
     const [leftActiveIndex, setLeftActiveIndex] = useState(null);
     const [rightActiveIndex, setRightActiveIndex] = useState(null);
 
@@ -17,59 +17,59 @@ export default function FAQSection() {
 
     const leftQuestions = [
         {
-            q: 'Do you offer complete website development services?',
-            a: 'Yes, I offer full-stack web development using technologies like Next.js, React, Node.js, MongoDB, and Tailwind CSS — ensuring fast, secure, and responsive websites tailored to your needs.',
+            q: 'What is GEO (Generative Engine Optimization) and do you offer it?',
+            a: 'Yes! GEO optimizes content for AI search engines like Google\'s SGE. I implement GEO strategies to ensure your content appears in AI-generated answers and conversational search results.',
         },
         {
-            q: 'Can you build custom e-commerce websites with payment gateway integration?',
-            a: 'Absolutely! I create fully functional e-commerce platforms with admin panels, product management, and payment gateways like SSLCOMMERZ, Stripe, and PayPal.',
+            q: 'How do you optimize for Google\'s SGE (Search Generative Experience)?',
+            a: 'I use comprehensive content strategies, E-E-A-T signals, and technical optimizations that help Google\'s AI understand and feature your content in generative search results.',
         },
         {
-            q: 'Do you also provide SEO services with your website packages?',
-            a: 'Yes, I offer SEO services including on-page optimization, keyword research, technical fixes, and strategic content to help your website rank higher on Google.',
+            q: 'What is AEO (Answer Engine Optimization) and how is it different?',
+            a: 'AEO focuses on capturing featured snippets and direct answers, while GEO targets AI-generated responses. I combine both for maximum visibility in all search formats.',
         },
         {
-            q: 'What kind of products do you sell in your shop and how can I pay?',
-            a: 'My <a href="/shop" class="text-indigo-400 hover:underline">Shop page</a> showcases a variety of products. You can order directly using Cash on Delivery (COD) or online payment methods.',
+            q: 'Do you provide international SEO services for global businesses?',
+            a: 'Absolutely! I specialize in international SEO including hreflang implementation, geo-targeting, multi-language content, and global technical SEO strategies.',
         },
         {
-            q: 'Can I subscribe to your newsletter and what will I receive?',
-            a: 'Yes, by subscribing you’ll get emails about new projects, development tips, travel stories, and creative content directly in your inbox.',
+            q: 'What types of technical SEO do you specialize in?',
+            a: 'I handle Core Web Vitals, site architecture, schema markup, mobile optimization, speed optimization, and crawlability issues for better search performance.',
         },
         {
-            q: 'How long does SEO take to show results?',
-            a: 'Typically 3-6 months for significant growth, but some improvements visible in 4-8 weeks.',
+            q: 'How long does SEO take to show significant results?',
+            a: 'Initial improvements in 4-8 weeks, with substantial growth typically in 3-6 months. Competitive niches may take longer, but we track progress consistently.',
         },
     ];
 
     const rightQuestions = [
         {
-            q: 'Where can I find your travel videos and stories?',
-            a: 'Explore my <a href="/content-creation" class="text-indigo-400 hover:underline">Travel section</a> or watch my content on YouTube under "Mesbah Off We Go" for real travel experiences and vlogs.',
+            q: 'Do you offer e-commerce SEO for online stores?',
+            a: 'Yes! I specialize in e-commerce SEO including product page optimization, category structure, technical SEO for stores, and international e-commerce strategies.',
         },
         {
-            q: 'Do you offer digital marketing or affiliate-related services?',
-            a: 'Yes, I work on affiliate strategies, business digitalization, social growth, and e-commerce marketing to help brands grow online effectively.',
+            q: 'What makes your SEO approach different from others?',
+            a: 'I combine traditional SEO excellence with modern AI-search optimization (GEO/SGE), focusing on future-proof strategies that work in both current and emerging search environments.',
         },
         {
-            q: 'Are you available for freelance or remote projects?',
-            a: 'Yes, I’m available for freelance and long-term remote roles. Reach out via my <a href="/contact" class="text-indigo-400 hover:underline">Contact page</a> or LinkedIn.',
+            q: 'Do you provide local SEO services?',
+            a: 'Yes, I offer comprehensive local SEO including Google Business Profile optimization, local citations, review management, and location-based content strategies.',
         },
         {
-            q: 'How do I get started if I want to work with you?',
-            a: 'Send a message through my <a href="/contact" class="text-indigo-400 hover:underline">Contact page</a> or email me with your project details. I’ll respond with a consultation and proposal.',
+            q: 'What is included in your SEO packages?',
+            a: 'My packages include technical audit, keyword research, on-page optimization, content strategy, link building, and ongoing performance tracking with regular reports.',
         },
         {
-            q: 'What is your web development process? Do you offer support after delivery?',
-            a: 'I follow a step-by-step process—planning, design, development, and testing. After delivery, I offer support for bug fixes, updates, or small changes if needed.',
+            q: 'How do you measure SEO success and ROI?',
+            a: 'I track organic traffic growth, keyword rankings, conversion rates, revenue attribution, and use advanced analytics to demonstrate clear ROI for your investment.',
         },
         {
-            q: 'Do you work with international businesses?',
-            a: 'Yes, I specialize in global SEO strategies for worldwide reach.',
+            q: 'Do you work with businesses in competitive industries?',
+            a: 'Yes, I have experience in competitive niches and use advanced strategies including content clusters, topical authority, and strategic link building to achieve rankings.',
         },
     ];
 
-    // Schema Markup for FAQ
+    // Schema Markup for SEO FAQ
     const schema = {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
@@ -85,19 +85,19 @@ export default function FAQSection() {
 
     return (
         <>
-            <section className=" bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 border-b border-b-gray-800">
+            <section className="bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 border-b border-b-gray-800">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-12" data-aos="fade-in">
                         <h2 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 mb-3">
-                            Frequently Asked Questions
+                            SEO Services FAQ
                         </h2>
                         <p className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto" data-aos="fade-in" data-aos-delay="100">
-                            Everything you need to know about my services
+                            Expert answers about GEO, SGE, AEO, and comprehensive SEO strategies
                         </p>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        {/* Left Column */}
+                        {/* Left Column - Modern SEO Focus */}
                         <div className="space-y-4">
                             {leftQuestions.map((item, index) => {
                                 const isActive = leftActiveIndex === index;
@@ -140,14 +140,16 @@ export default function FAQSection() {
                                             role="region"
                                             aria-labelledby={`faq-left-${index}`}
                                         >
-                                            <div className="p-4 sm:p-5 pt-0 text-gray-300 text-xs sm:text-sm" dangerouslySetInnerHTML={{ __html: item.a }} />
+                                            <div className="p-4 sm:p-5 pt-0 text-gray-300 text-xs sm:text-sm">
+                                                {item.a}
+                                            </div>
                                         </div>
                                     </div>
                                 );
                             })}
                         </div>
 
-                        {/* Right Column */}
+                        {/* Right Column - Services & Results Focus */}
                         <div className="space-y-4">
                             {rightQuestions.map((item, index) => {
                                 const isActive = rightActiveIndex === index;
@@ -190,7 +192,9 @@ export default function FAQSection() {
                                             role="region"
                                             aria-labelledby={`faq-right-${index}`}
                                         >
-                                            <div className="p-4 sm:p-5 pt-0 text-gray-300 text-xs sm:text-sm" dangerouslySetInnerHTML={{ __html: item.a }} />
+                                            <div className="p-4 sm:p-5 pt-0 text-gray-300 text-xs sm:text-sm">
+                                                {item.a}
+                                            </div>
                                         </div>
                                     </div>
                                 );

@@ -12,8 +12,13 @@ const SEOTools = () => {
         { name: "On-Page SEO", icon: "📄" },
         { name: "Off-Page SEO", icon: "🔗" },
         { name: "Link Building", icon: "⛓️" },
-        { name: "SEO Consulting", icon: "💡" },
-        { name: "SEO Audit", icon: "📊" }
+        { name: "GEO Optimization", icon: "⚡" },
+        { name: "SEO Audit", icon: "📊" },
+        { name: "SGE Optimization", icon: "🤖" },
+        { name: "E-E-A-T Optimization", icon: "🎯" },
+        { name: "Content Strategy", icon: "🚀" },
+        { name: "Performance Analytics  ", icon: "📈" },
+        { name: "Mobile-First SEO", icon: "📱" }
     ];
 
     return (
@@ -29,8 +34,8 @@ const SEOTools = () => {
                     className="text-center mb-12"
                 >
 
-                    <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-                        Comprehensive solutions to boost your online visibility and organic growth
+                     <p className="text-gray-200 text-base md:text-lg mb-6 md:px-6 lg:px-10">
+                        Comprehensive solutions to boost your online visibility and organic growth. Explore our <Link href="/blog" className="text-indigo-400">SEO Blog</Link> for tips, learn about <Link href="/seo/geo-sge-optimization" className="text-indigo-400">GEO-SGE Optimization</Link>, or check <a href="https://developers.google.com/search/docs" className="text-indigo-400">Google’s SEO Guidelines</a> for best practices.
                     </p>
                 </motion.div>
 
