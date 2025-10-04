@@ -7,7 +7,6 @@ import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
 import CartSlider from '@/app/Dashboard/Shop/CartSlider/CartSlider';
 
-
 const Navbar = () => {
     const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
     const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
@@ -17,12 +16,49 @@ const Navbar = () => {
     const pathname = usePathname();
     const menuRef = useRef(null);
     const { data: session, status } = useSession();
+    const [isSEODropdownOpen, setIsSEODropdownOpen] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(false);
 
     // Conversion rates for CartSlider
     const conversionRates = {
         USD: 120, // 1 USD = 120 BDT
         EUR: 130, // 1 EUR = 130 BDT
         BDT: 1,
+    };
+
+    // Check if the device is desktop (for hover effects)
+    useEffect(() => {
+        const checkDesktop = () => {
+            setIsDesktop(window.innerWidth >= 1024);
+        };
+        checkDesktop();
+        window.addEventListener('resize', checkDesktop);
+        return () => window.removeEventListener('resize', checkDesktop);
+    }, []);
+
+    // Handlers for Services dropdown hover
+    let servicesTimeout;
+    const handleServicesEnter = () => {
+        clearTimeout(servicesTimeout);
+        setIsServicesDropdownOpen(true);
+    };
+    const handleServicesLeave = () => {
+        servicesTimeout = setTimeout(() => {
+            setIsServicesDropdownOpen(false);
+            setIsSEODropdownOpen(false); // Close SEO dropdown when Services dropdown closes
+        }, 300);
+    };
+
+    // Handlers for SEO dropdown hover
+    let seoTimeout;
+    const handleSEOEnter = () => {
+        clearTimeout(seoTimeout);
+        setIsSEODropdownOpen(true);
+    };
+    const handleSEOLeave = () => {
+        seoTimeout = setTimeout(() => {
+            setIsSEODropdownOpen(false);
+        }, 300);
     };
 
     // Update cart count from localStorage
@@ -33,7 +69,6 @@ const Navbar = () => {
             setCartCount(totalItems);
         };
         updateCartCount();
-        // Listen for storage event (cross-tab) and custom cartUpdated event (same tab)
         window.addEventListener('storage', updateCartCount);
         window.addEventListener('cartUpdated', updateCartCount);
         return () => {
@@ -42,33 +77,50 @@ const Navbar = () => {
         };
     }, []);
 
+    // Toggle Services dropdown for mobile
     const toggleServicesDropdown = () => {
         setIsServicesDropdownOpen((prevState) => !prevState);
         setIsUserDropdownOpen(false);
         setIsCartOpen(false);
     };
 
-    const toggleUserDropdown = () => {
-        setIsUserDropdownOpen((prevState) => !prevState);
-        setIsServicesDropdownOpen(false);
-        setIsCartOpen(false);
-    };
-
-    const closeAllDropdowns = () => {
-        setIsServicesDropdownOpen(false);
+    // Toggle SEO dropdown for mobile
+    const toggleSEODropdown = () => {
+        setIsSEODropdownOpen((prevState) => !prevState);
         setIsUserDropdownOpen(false);
         setIsCartOpen(false);
     };
 
+    // Toggle User dropdown
+    const toggleUserDropdown = () => {
+        setIsUserDropdownOpen((prevState) => !prevState);
+        setIsServicesDropdownOpen(false);
+        setIsSEODropdownOpen(false);
+        setIsCartOpen(false);
+    };
+
+    // Close all dropdowns
+    const closeAllDropdowns = () => {
+        setIsServicesDropdownOpen(false);
+        setIsSEODropdownOpen(false);
+        setIsUserDropdownOpen(false);
+        setIsCartOpen(false);
+    };
+
+    // Toggle mobile menu
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen((prevState) => !prevState);
         closeAllDropdowns();
     };
 
+    // Close mobile menu
     const closeMobileMenu = () => {
         setIsMobileMenuOpen(false);
+        setIsServicesDropdownOpen(false);
+        setIsSEODropdownOpen(false);
     };
 
+    // Close user dropdown
     const closeUserDropdown = () => {
         setIsUserDropdownOpen(false);
     };
@@ -185,16 +237,25 @@ const Navbar = () => {
                             </Link>
 
                             {/* Services Dropdown */}
-                            <div className="inline-block relative">
-                                <button onClick={toggleServicesDropdown} className="flex items-center focus:outline-none px-4">
+                            <div
+                                className="relative"
+                                onMouseEnter={isDesktop ? handleServicesEnter : null}
+                                onMouseLeave={isDesktop ? handleServicesLeave : null}
+                            >
+                                <button
+                                    onClick={!isDesktop ? toggleServicesDropdown : null}
+                                    className="flex items-center focus:outline-none px-4"
+                                >
                                     Marketing Services
                                     {isServicesDropdownOpen ? <FaCaretUp className="ml-1" /> : <FaCaretDown className="ml-1" />}
                                 </button>
 
                                 {isServicesDropdownOpen && (
                                     <div
-                                        className="absolute left-0 mt-2 w-96 bg-gray-700 shadow-lg rounded-lg py-2 z-20"
-                                        onMouseLeave={closeAllDropdowns}
+                                        className={`${isDesktop ? 'absolute left-0 mt-2' : 'relative'} ${isDesktop ? 'w-96' : 'w-full'
+                                            } bg-gray-700 shadow-lg rounded-lg py-2 z-20`}
+                                        onMouseEnter={isDesktop ? handleServicesEnter : null}
+                                        onMouseLeave={isDesktop ? handleServicesLeave : null}
                                     >
                                         <Link
                                             href="/web-development"
@@ -203,13 +264,67 @@ const Navbar = () => {
                                         >
                                             Web Development
                                         </Link>
-                                        <Link
-                                            href="/seo"
-                                            className="block px-4 py-2 w-full text-gray-100 hover:bg-gray-800"
-                                            onClick={closeMobileMenu}
+
+                                        {/* SEO Dropdown */}
+                                        <div
+                                            className="relative"
+                                            onMouseEnter={isDesktop ? handleSEOEnter : null}
+                                            onMouseLeave={isDesktop ? handleSEOLeave : null}
                                         >
-                                            Search Engine Optimization
-                                        </Link>
+                                            <button
+                                                onClick={!isDesktop ? toggleSEODropdown : null}
+                                                className="flex items-center justify-between w-full px-4 py-2 text-gray-100 hover:bg-gray-800"
+                                            >
+                                                <span>Search Engine Optimization</span>
+                                                {isSEODropdownOpen ? <FaCaretUp className="ml-1" /> : <FaCaretDown className="ml-1" />}
+                                            </button>
+
+                                            {isSEODropdownOpen && (
+                                                <div
+                                                    className={`${isDesktop ? 'absolute left-full top-0 ml-1' : 'relative ml-4'} ${isDesktop ? 'w-64' : 'w-full'
+                                                        } bg-gray-700 shadow-lg rounded-lg py-2 z-30`}
+                                                    onMouseEnter={isDesktop ? handleSEOEnter : null}
+                                                    onMouseLeave={isDesktop ? handleSEOLeave : null}
+                                                >
+                                                    <Link
+                                                        href="/seo"
+                                                        className="block px-4 py-2 text-gray-100 hover:bg-gray-800 border-b border-gray-600"
+                                                        onClick={closeMobileMenu}
+                                                    >
+                                                        All SEO Services
+                                                    </Link>
+                                                    <Link
+                                                        href="/seo/geo-sge-optimization"
+                                                        className="block px-4 py-2 text-gray-100 hover:bg-gray-800"
+                                                        onClick={closeMobileMenu}
+                                                    >
+                                                        GEO - SGE Optimization
+                                                    </Link>
+                                                    <Link
+                                                        href="/seo/technical-seo"
+                                                        className="block px-4 py-2 text-gray-100 hover:bg-gray-800"
+                                                        onClick={closeMobileMenu}
+                                                    >
+                                                        Technical SEO
+                                                    </Link>
+                                                    <Link
+                                                        href="/seo/local-seo"
+                                                        className="block px-4 py-2 text-gray-100 hover:bg-gray-800"
+                                                        onClick={closeMobileMenu}
+                                                    >
+                                                        Local SEO
+                                                    </Link>
+                                                    <Link
+                                                        href="/seo/ecommerce-seo"
+                                                        className="block px-4 py-2 text-gray-100 hover:bg-gray-800"
+                                                        onClick={closeMobileMenu}
+                                                    >
+                                                        E-commerce SEO
+                                                    </Link>
+                                                </div>
+                                            )}
+                                        </div>
+
                                         <Link
                                             href="/affiliate"
                                             className="block px-4 py-2 w-full text-gray-100 hover:bg-gray-800"
@@ -250,7 +365,10 @@ const Navbar = () => {
                             {/* User Profile Dropdown */}
                             {session ? (
                                 <div className="relative">
-                                    <button onClick={toggleUserDropdown} className="flex items-center focus:outline-none px-4">
+                                    <button
+                                        onClick={toggleUserDropdown}
+                                        className="flex items-center focus:outline-none px-4"
+                                    >
                                         <div className="flex flex-col items-center">
                                             {session?.user?.image ? (
                                                 <Image
