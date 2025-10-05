@@ -307,13 +307,7 @@ const Navbar = () => {
                                                     >
                                                         Technical SEO
                                                     </Link>
-                                                    <Link
-                                                        href="/seo/local-seo"
-                                                        className="block px-4 py-2 text-gray-100 hover:bg-gray-800"
-                                                        onClick={closeMobileMenu}
-                                                    >
-                                                        Local SEO
-                                                    </Link>
+                                                  
                                                     <Link
                                                         href="/seo/ecommerce-seo"
                                                         className="block px-4 py-2 text-gray-100 hover:bg-gray-800"
