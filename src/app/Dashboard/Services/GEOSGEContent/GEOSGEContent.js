@@ -1,27 +1,74 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FiCheck, FiArrowRight, FiBarChart2, FiCode, FiMessageSquare, FiPlay, FiStar, FiUsers, FiTrendingUp, FiShield, FiZap } from 'react-icons/fi';
+import { FiCheck, FiArrowRight, FiBarChart2, FiCode, FiMessageSquare, FiPlay, FiStar, FiUsers, FiTrendingUp, FiShield, FiZap, FiX, FiSearch, FiGlobe, FiTarget } from 'react-icons/fi';
 import Link from "next/link";
 import ContactAssistance from "@/app/components/Share/ConatctAssistance/ContactAssistance";
 import SEOAuditForm from "@/app/components/Share/SEOAuditForm/SEOAuditForm";
 import Image from "next/image";
 import { motion } from 'framer-motion';
+import GEOSGEFAQ from '@/app/components/Share/FAQ/GEOSGEFAQ/GEOSGEFAQ';
 
 const GEOSGEContent = () => {
   const [activeTab, setActiveTab] = useState('geo');
   const [loading, setLoading] = useState(true);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
   // Loading complete korar jonno useEffect add koro
   useEffect(() => {
-    // Simulate loading completion
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 2000); // 2 seconds loading
-
+    }, 2000);
     return () => clearTimeout(timer);
   }, []);
 
+  // YouTube Video Modal - Improved with better sizing
+  const YouTubeModal = ({ isOpen, onClose }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-gray-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-gray-700 shadow-2xl">
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b border-gray-700 bg-gray-900/50">
+            <h2 className="text-2xl font-semibold text-white">Case Study</h2>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-700 rounded-lg transition-colors duration-200"
+            >
+              <FiX className="w-6 h-6 text-gray-400 hover:text-white" />
+            </button>
+          </div>
+
+          {/* YouTube Video - Properly sized */}
+          <div className="relative aspect-video bg-black">
+            <iframe
+              src="https://www.youtube.com/embed/1ckTRFRRA1E?si=H-GisBIGUStV1x2l"
+              title="GEO & SGE Optimization Case Study"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full"
+            ></iframe>
+          </div>
+
+          {/* Video Info */}
+          <div className="p-6 bg-gray-900/30">
+
+            <p className="text-gray-300 mb-4">
+              See how we helped a SaaS company achieve 56% growth in AI-generated traffic
+              through strategic GEO and SGE optimization.
+            </p>
+            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+
+              <span>Case Study</span>
+              <span>•</span>
+              <span>AI SEO</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // Services Data
   const services = [
@@ -135,13 +182,11 @@ const GEOSGEContent = () => {
     }
   ];
 
-
   // Loading state check koro
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center py-20">
         <div className="text-center">
-          {/* Animated Logo/Icon */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -159,7 +204,6 @@ const GEOSGEContent = () => {
             </div>
           </motion.div>
 
-          {/* Loading Text */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -173,7 +217,6 @@ const GEOSGEContent = () => {
             </p>
           </motion.div>
 
-          {/* Animated Dots */}
           <motion.div className="flex justify-center gap-2">
             {[0, 1, 2].map((index) => (
               <motion.div
@@ -192,7 +235,6 @@ const GEOSGEContent = () => {
             ))}
           </motion.div>
 
-          {/* Progress Bar */}
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: "60%" }}
@@ -218,59 +260,150 @@ const GEOSGEContent = () => {
 
   return (
     <section className="min-h-screen bg-gray-900">
-      {/* Hero Section - Modern Design */}
-      <div className="relative py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gray-900 overflow-hidden">
-        {/* Background Elements */}
+      {/* YouTube Video Modal */}
+      <YouTubeModal isOpen={isVideoModalOpen} onClose={() => setIsVideoModalOpen(false)} />
+
+      {/* IMPROVED: Navigation Links Section - Better Design */}
+      <div className="py-4 px-4 sm:px-6 lg:px-8 bg-gray-900/80 backdrop-blur-md border-gray-800 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+            <Link
+              href="/seo"
+              className="group relative bg-gray-800/60 hover:bg-gray-700/80 text-gray-300 hover:text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 border border-transparent hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10"
+            >
+              <span className="relative z-10">All SEO Services</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </Link>
+            <Link
+              href="/seo/technical-seo"
+              className="group relative bg-gray-800/60 hover:bg-gray-700/80 text-gray-300 hover:text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 border border-transparent hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/10"
+            >
+              <span className="relative z-10">Technical SEO</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </Link>
+            <Link
+              href="/seo/ecommerce-seo"
+              className="group relative bg-gray-800/60 hover:bg-gray-700/80 text-gray-300 hover:text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 border border-transparent hover:border-green-500/50 hover:shadow-lg hover:shadow-green-500/10"
+            >
+              <span className="relative z-10">Ecommerce SEO</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </Link>
+            <Link
+              href="/contact"
+              className="group relative bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-purple-500/25 flex items-center gap-2"
+            >
+              <FiTarget className="w-4 h-4" />
+              <span>Get Consultation</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* IMPROVED: Hero Section - Enhanced Design */}
+      <div className="relative py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-gray-900 to-indigo-900/40 overflow-hidden">
+        {/* Enhanced Background Elements */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-indigo-900/20"></div>
-          <div className="absolute top-0 right-0 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/4 -left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 -right-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+
+          {/* Animated Grid Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `linear-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px)`,
+              backgroundSize: '50px 50px'
+            }}></div>
+          </div>
         </div>
 
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center">
-
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-gray-800/50 border border-gray-700 rounded-full px-4 py-2 mb-8">
+            {/* Enhanced Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center gap-2 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-full px-4 py-2 mb-8 hover:border-purple-500/50 transition-all duration-300"
+            >
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-sm text-gray-300">AI Search Optimization Specialist</span>
-            </div>
+              <span className="text-sm text-gray-300 font-medium">AI Search Optimization Specialist</span>
+            </motion.div>
 
-            {/* Main Heading */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              Master Google's{' '}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400">
+            {/* Enhanced Main Heading */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
+            >
+              Master Google&apos;s{' '}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-indigo-400 to-blue-400 animate-gradient">
                 AI Search Revolution
               </span>
-            </h1>
+            </motion.h1>
 
-            {/* Subheading */}
-            <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+            {/* Enhanced Subheading */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-lg md:text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed"
+            >
               Professional GEO & SGE optimization services to future-proof your website.
               Get ahead of competitors with AI-ready SEO strategies that drive real results.
-            </p>
+            </motion.p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            {/* IMPROVED: Enhanced CTA Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
+            >
+              {/* Enhanced Primary Button */}
               <Link
                 href="/contact"
-                className="group bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-lg font-semibold flex items-center gap-3 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/25"
+                className="group relative bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white px-8 py-4 rounded-xl font-semibold flex items-center gap-3 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/30 overflow-hidden border border-gray-700 hover:border-purple-500/50"
               >
-                <span>Get Free AI Search Audit</span>
-                <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
+                {/* Animated Shine Effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+
+                {/* Hover Gradient Overlay */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+
+                {/* Base Background */}
+                <div className="absolute inset-[1px] rounded-xl bg-gray-900 -z-10 group-hover:bg-gradient-to-br group-hover:from-gray-800 group-hover:via-purple-900 group-hover:to-gray-800 transition-all"></div>
+
+                <span className="relative">Get Free AI Search Audit</span>
+                <FiArrowRight className="relative group-hover:translate-x-1 group-hover:scale-110 transition-transform duration-300" />
               </Link>
 
-              <button className="group border border-gray-600 hover:border-indigo-400 text-gray-300 hover:text-white px-8 py-4 rounded-lg font-semibold flex items-center gap-3 transition-all duration-300">
-                <FiPlay className="group-hover:scale-110 transition-transform" />
-                <span>Watch Case Study</span>
-              </button>
-            </div>
+              {/* Enhanced Secondary Button */}
+              <button
+                onClick={() => setIsVideoModalOpen(true)}
+                className="group relative bg-gray-900/50 backdrop-blur-md border border-gray-700 text-white px-8 py-4 rounded-xl font-semibold flex items-center gap-3 transition-all duration-300 hover:bg-gray-800/70 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 overflow-hidden"
+              >
+                {/* Left Accent Bar */}
+                <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-400 to-purple-600 rounded-r-full group-hover:from-purple-300 group-hover:to-purple-500 transition-all"></div>
 
-            {/* Trust Indicators - Modern Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto">
-              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 hover:border-indigo-500/50 transition-all duration-300">
+                {/* Hover Background Effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                <FiPlay className="relative group-hover:scale-110 transition-transform duration-300" />
+                <span className="relative">Watch Case Study</span>
+              </button>
+            </motion.div>
+
+            {/* Enhanced Trust Indicators */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto"
+            >
+              <div className="group bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 hover:border-indigo-500/50 transition-all duration-300 hover:transform hover:-translate-y-1">
                 <div className="flex items-center gap-4">
-                  <div className="bg-indigo-500/20 p-3 rounded-xl">
+                  <div className="bg-indigo-500/20 p-3 rounded-xl group-hover:bg-indigo-500/30 transition-colors">
                     <FiUsers className="w-6 h-6 text-indigo-400" />
                   </div>
                   <div className="text-left">
@@ -280,9 +413,9 @@ const GEOSGEContent = () => {
                 </div>
               </div>
 
-              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 hover:border-green-500/50 transition-all duration-300">
+              <div className="group bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 hover:border-green-500/50 transition-all duration-300 hover:transform hover:-translate-y-1">
                 <div className="flex items-center gap-4">
-                  <div className="bg-green-500/20 p-3 rounded-xl">
+                  <div className="bg-green-500/20 p-3 rounded-xl group-hover:bg-green-500/30 transition-colors">
                     <FiTrendingUp className="w-6 h-6 text-green-400" />
                   </div>
                   <div className="text-left">
@@ -292,33 +425,24 @@ const GEOSGEContent = () => {
                 </div>
               </div>
 
-              <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 hover:border-yellow-500/50 transition-all duration-300">
+              <div className="group bg-gray-800/30 backdrop-blur-sm border border-gray-700 rounded-2xl p-6 hover:border-yellow-500/50 transition-all duration-300 hover:transform hover:-translate-y-1">
                 <div className="flex items-center gap-4">
-                  <div className="bg-yellow-500/20 p-3 rounded-xl">
+                  <div className="bg-yellow-500/20 p-3 rounded-xl group-hover:bg-yellow-500/30 transition-colors">
                     <FiStar className="w-6 h-6 text-yellow-400" />
                   </div>
                   <div className="text-left">
                     <div className="text-2xl font-bold text-white">AI</div>
-                    <div className="text-gray-400 text-sm">Specialist</div>
+                    <div className="text-gray-400 text-sm">Search Expert</div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Scroll Indicator */}
-            <div className="mt-12 flex justify-center">
-              <div className="animate-bounce">
-                <div className="w-6 h-10 border-2 border-gray-600 rounded-full flex justify-center">
-                  <div className="w-1 h-3 bg-gray-400 rounded-full mt-2"></div>
-                </div>
-              </div>
-            </div>
-
+            </motion.div>
           </div>
         </div>
       </div>
 
-      {/* NEW: Improved GEO/SGE Explanation Section */}
+      {/* Rest of your existing sections remain the same */}
+      {/* GEO/SGE Explanation Section */}
       <div className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-white text-center mb-12">Understanding GEO & SGE Optimization</h2>
@@ -370,7 +494,7 @@ const GEOSGEContent = () => {
                 <div className={`ml-auto w-3 h-3 rounded-full ${activeTab === 'sge' ? 'bg-purple-500' : 'bg-gray-600'}`}></div>
               </div>
               <p className="text-gray-300 mb-4">
-                <strong>Search Generative Experience</strong> is Google's AI interface that provides conversational answers instead of traditional results.
+                <strong>Search Generative Experience</strong> is Google&apos;s AI interface that provides conversational answers instead of traditional results.
               </p>
               <ul className="space-y-2 text-gray-300">
                 <li className="flex items-center gap-3">
@@ -389,43 +513,9 @@ const GEOSGEContent = () => {
             </div>
           </div>
 
-          {/* Detailed Explanation */}
-          <div className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700">
-            <h3 className="text-2xl font-bold text-white mb-6">
-              {activeTab === 'geo' ? 'Why GEO Matters for Your Business' : 'How SGE is Changing Search Forever'}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="text-lg font-semibold text-white mb-3">Key Benefits</h4>
-                <ul className="space-y-2 text-gray-300">
-                  {activeTab === 'geo' ? (
-                    <>
-                      <li>• Future-proof against AI search disruption</li>
-                      <li>• Capture traffic from conversational queries</li>
-                      <li>• Build authority with AI systems</li>
-                      <li>• Stay ahead of competitors</li>
-                    </>
-                  ) : (
-                    <>
-                      <li>• Appear in AI-generated answer boxes</li>
-                      <li>• Gain visibility in conversational search</li>
-                      <li>• Drive qualified AI-powered traffic</li>
-                      <li>• Establish thought leadership</li>
-                    </>
-                  )}
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold text-white mb-3">Industry Impact</h4>
-                <p className="text-gray-300">
-                  {activeTab === 'geo'
-                    ? "70% of searches will be AI-generated by 2025. GEO ensures your content remains visible and authoritative in this new landscape."
-                    : "SGE already impacts 84% of search queries. Early optimization provides significant competitive advantage in AI search results."
-                  }
-                </p>
-              </div>
-            </div>
-          </div>
+          {/* Rest of your existing content... */}
+          {/* Services Section, Process Section, Benefits Section, Pricing Section, Audit Section */}
+
         </div>
       </div>
 
@@ -477,7 +567,7 @@ const GEOSGEContent = () => {
         </div>
       </div>
 
-      {/* NEW: Benefits Section */}
+      {/* Benefits Section */}
       <div className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-800/30">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-white text-center mb-12">Why Choose GEO & SGE Optimization?</h2>
@@ -544,93 +634,71 @@ const GEOSGEContent = () => {
         </div>
       </div>
 
-      {/* Audit Section - Alternative Design */}
-      <div className="py-16 px-4 sm:px-6 lg:px-8">
+      {/* Audit Section */}
+      <div className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-800/30">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
-            {/* Left Side - Visual Benefits */}
-            <div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
+            {/* Left Side - Information */}
+            <div className="space-y-6">
+              <h2 className="text-3xl lg:text-4xl font-bold text-white">
                 Ready for <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-400">AI Search Domination?</span>
               </h2>
 
-              <div className="space-y-6">
-                {/* Progress Bars */}
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm text-gray-300 mb-2">
-                      <span>Traditional SEO Impact</span>
-                      <span>60%</span>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: '60%' }}></div>
-                    </div>
-                  </div>
+              <p className="text-lg text-gray-300">
+                Get a comprehensive AI search audit and discover how GEO optimization can transform your organic visibility.
+              </p>
 
+              {/* Benefits List */}
+              <div className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <div className="bg-green-500/20 p-2 rounded-lg mt-1">
+                    <FiCheck className="w-5 h-5 text-green-400" />
+                  </div>
                   <div>
-                    <div className="flex justify-between text-sm text-gray-300 mb-2">
-                      <span>AI Search (GEO/SGE) Impact</span>
-                      <span>92%</span>
-                    </div>
-                    <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div className="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 rounded-full" style={{ width: '92%' }}></div>
-                    </div>
+                    <h4 className="font-semibold text-white">SGE Readiness Score</h4>
+                    <p className="text-gray-400 text-sm">See how well your content performs in AI search results</p>
                   </div>
                 </div>
 
-                {/* Key Points */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-                    <div className="text-2xl mb-2">🚀</div>
-                    <h4 className="font-semibold text-white text-sm">Early Advantage</h4>
-                    <p className="text-gray-400 text-xs">Beat competitors to AI search</p>
+                <div className="flex items-start gap-4">
+                  <div className="bg-blue-500/20 p-2 rounded-lg mt-1">
+                    <FiBarChart2 className="w-5 h-5 text-blue-400" />
                   </div>
-
-                  <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-                    <div className="text-2xl mb-2">🛡️</div>
-                    <h4 className="font-semibold text-white text-sm">Future-Proof</h4>
-                    <p className="text-gray-400 text-xs">Protect against AI disruption</p>
+                  <div>
+                    <h4 className="font-semibold text-white">Competitor Analysis</h4>
+                    <p className="text-gray-400 text-sm">Compare your AI search performance against competitors</p>
                   </div>
+                </div>
 
-                  <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-                    <div className="text-2xl mb-2">📈</div>
-                    <h4 className="font-semibold text-white text-sm">3x Visibility</h4>
-                    <p className="text-gray-400 text-xs">In AI-generated results</p>
+                <div className="flex items-start gap-4">
+                  <div className="bg-purple-500/20 p-2 rounded-lg mt-1">
+                    <FiZap className="w-5 h-5 text-purple-400" />
                   </div>
-
-                  <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
-                    <div className="text-2xl mb-2">💡</div>
-                    <h4 className="font-semibold text-white text-sm">Expert Insights</h4>
-                    <p className="text-gray-400 text-xs">Proven GEO strategies</p>
+                  <div>
+                    <h4 className="font-semibold text-white">Actionable Insights</h4>
+                    <p className="text-gray-400 text-sm">Get specific recommendations for GEO optimization</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Right Side - Audit Form */}
-            <div className="relative">
-              <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700 shadow-xl">
-                <div className="absolute -top-3 -right-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                  Free Report
-                </div>
-
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold text-white mb-2">AI Search Audit</h3>
-                  <p className="text-gray-400">Discover your GEO optimization potential</p>
-                </div>
-
-                <SEOAuditForm />
-
-                <div className="text-center mt-4">
-                  <p className="text-gray-400 text-sm">No credit card required • 100% confidential</p>
-                </div>
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 border border-gray-700 shadow-2xl">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-white mb-2">Free AI Search Audit</h3>
+                <p className="text-gray-400">Get your personalized report in 24 hours</p>
               </div>
+              <SEOAuditForm />
             </div>
 
           </div>
         </div>
       </div>
+
+      {/* FAQ GEO SGE */}
+
+      <GEOSGEFAQ />
 
       {/* Contact Section */}
       <ContactAssistance />

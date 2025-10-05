@@ -7,6 +7,7 @@ import ContactAssistance from "@/app/components/Share/ConatctAssistance/ContactA
 import SEOAuditForm from "@/app/components/Share/SEOAuditForm/SEOAuditForm";
 import EcommerceCaseStudyModal from '@/app/components/Share/EcommerceCaseStudyModal/EcommerceCaseStudyModal';
 import { motion } from 'framer-motion';
+import EcommerceFAQ from '@/app/components/Share/FAQ/EcommerceFAQ/EcommerceFAQ';
 
 const EcommerceSEOContent = () => {
     const [activeTab, setActiveTab] = useState('product');
@@ -687,6 +688,10 @@ const EcommerceSEOContent = () => {
                     </div>
                 </div>
             </div>
+
+            {/* FAQ  */}
+
+            <EcommerceFAQ />
 
             {/* Contact Section */}
             <ContactAssistance />

@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 
 import Image from "next/image";
 import TechnicalCaseStudyModal from '@/app/components/Share/TechnicalCaseStudyModal/TechnicalCaseStudyModal';
+import TechnicalSEOFAQSection from '@/app/components/Share/FAQ/TechnicalFAQSEO/TechnicalFAQSEO';
 
 const TechnicalSEOContent = () => {
     const [activeTab, setActiveTab] = useState('core');
@@ -512,8 +513,8 @@ const TechnicalSEOContent = () => {
                                 <Link
                                     href="/contact"
                                     className={`group relative block w-full text-center py-3 rounded-xl font-semibold transition-all duration-300 ${pkg.popular
-                                            ? 'bg-gradient-to-r from-purple-600/80 to-pink-600/80 backdrop-blur-md text-white hover:from-purple-700/90 hover:to-pink-700/90 hover:shadow-2xl hover:shadow-purple-500/30 hover:translate-y-[-2px]'
-                                            : 'bg-gray-900/50 backdrop-blur-md border border-gray-600 text-gray-300 hover:bg-gray-800/70 hover:text-white hover:border-purple-400/50 hover:shadow-xl hover:shadow-purple-500/10'
+                                        ? 'bg-gradient-to-r from-purple-600/80 to-pink-600/80 backdrop-blur-md text-white hover:from-purple-700/90 hover:to-pink-700/90 hover:shadow-2xl hover:shadow-purple-500/30 hover:translate-y-[-2px]'
+                                        : 'bg-gray-900/50 backdrop-blur-md border border-gray-600 text-gray-300 hover:bg-gray-800/70 hover:text-white hover:border-purple-400/50 hover:shadow-xl hover:shadow-purple-500/10'
                                         }`}
                                 >
                                     {/* Glass effect overlay */}
@@ -523,8 +524,8 @@ const TechnicalSEOContent = () => {
                                     <span className="relative flex items-center justify-center gap-2">
                                         Get Started
                                         <FiArrowRight className={`w-4 h-4 transition-all duration-300 ${pkg.popular
-                                                ? 'group-hover:translate-x-1 group-hover:scale-110'
-                                                : 'group-hover:translate-x-1 group-hover:text-purple-400'
+                                            ? 'group-hover:translate-x-1 group-hover:scale-110'
+                                            : 'group-hover:translate-x-1 group-hover:text-purple-400'
                                             }`} />
                                     </span>
                                 </Link>
@@ -614,6 +615,10 @@ const TechnicalSEOContent = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Technical FAQ */}
+
+            <TechnicalSEOFAQSection />
 
             {/* Contact Section */}
             <ContactAssistance />

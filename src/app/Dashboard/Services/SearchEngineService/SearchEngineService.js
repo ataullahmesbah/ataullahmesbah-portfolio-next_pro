@@ -9,11 +9,107 @@ import SEOService from "@/app/Dashboard/Services/SEOService/SEOService";
 import SEOTools from "@/app/Dashboard/Services/SEOTools/SEOTools";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FiArrowRight, FiBarChart2 } from 'react-icons/fi';
+import { motion } from 'framer-motion';
+import seoImg from "/public/images/seo/seo.webp"
 
 const SearchEngineService = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    // Loading complete korar jonno useEffect add koro
+    useEffect(() => {
+        // Simulate loading completion
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 2000); // 2 seconds loading
+
+        return () => clearTimeout(timer);
+    }, []);
+
+
+    // Loading state check koro
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-900 flex items-center justify-center py-20">
+                <div className="text-center">
+                    {/* Animated Logo/Icon */}
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="flex justify-center mb-6"
+                    >
+                        <div className="relative">
+                            <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+                                <span className="text-white text-2xl font-bold">SEO</span>
+                            </div>
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                className="absolute -inset-2 border-4 border-purple-500 border-t-transparent rounded-2xl"
+                            />
+                        </div>
+                    </motion.div>
+
+                    {/* Loading Text */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        <h3 className="text-xl font-semibold text-white mb-2">
+                            Preparing AI Search Optimization
+                        </h3>
+                        <p className="text-gray-400 mb-6">
+                            Loading SEO strategies...
+                        </p>
+                    </motion.div>
+
+                    {/* Animated Dots */}
+                    <motion.div className="flex justify-center gap-2">
+                        {[0, 1, 2].map((index) => (
+                            <motion.div
+                                key={index}
+                                animate={{
+                                    scale: [1, 1.2, 1],
+                                    opacity: [0.5, 1, 0.5]
+                                }}
+                                transition={{
+                                    duration: 1.5,
+                                    repeat: Infinity,
+                                    delay: index * 0.2
+                                }}
+                                className="w-2 h-2 bg-purple-500 rounded-full"
+                            />
+                        ))}
+                    </motion.div>
+
+                    {/* Progress Bar */}
+                    <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: "60%" }}
+                        transition={{ duration: 2, ease: "easeOut" }}
+                        className="mt-6 h-1 bg-gray-700 rounded-full mx-auto max-w-xs overflow-hidden"
+                    >
+                        <motion.div
+                            animate={{
+                                x: ["-100%", "100%"]
+                            }}
+                            transition={{
+                                duration: 1.5,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                            className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 w-1/2"
+                        />
+                    </motion.div>
+                </div>
+            </div>
+        );
+    }
+
+
 
     return (
         <section className="min-h-screen border-b border-b-gray-800 poppins-regular"
@@ -79,31 +175,32 @@ const SearchEngineService = () => {
                             </button>
                         </div>
 
+
+
                         {/* Quick Navigation to Subpages */}
                         <div className="flex flex-wrap justify-center gap-3 mb-8">
                             <Link
                                 href="/seo/technical-seo"
-                                className="bg-gray-800/50 hover:bg-gray-700 text-gray-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:border hover:border-purple-500/50"
+                                className="group relative bg-gray-800/50 text-gray-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-purple-600/20 hover:shadow-lg hover:shadow-purple-500/10"
                             >
-                                Technical SEO
+                                <span className="relative z-10">Technical SEO</span>
+                                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 to-pink-500/0 rounded-lg group-hover:from-purple-500/5 group-hover:to-pink-500/5 transition-all duration-300 -z-10"></div>
                             </Link>
+
                             <Link
                                 href="/seo/ecommerce-seo"
-                                className="bg-gray-800/50 hover:bg-gray-700 text-gray-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:border hover:border-purple-500/50"
+                                className="group relative bg-gray-800/50 text-gray-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-purple-600/20 hover:shadow-lg hover:shadow-purple-500/10"
                             >
-                                Ecommerce SEO
+                                <span className="relative z-10">Ecommerce SEO</span>
+                                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 to-pink-500/0 rounded-lg group-hover:from-purple-500/5 group-hover:to-pink-500/5 transition-all duration-300 -z-10"></div>
                             </Link>
+
                             <Link
                                 href="/seo/geo-sge-optimization"
-                                className="bg-gray-800/50 hover:bg-gray-700 text-gray-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:border hover:border-purple-500/50"
+                                className="group relative bg-gray-800/50 text-gray-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:bg-purple-600/20 hover:shadow-lg hover:shadow-purple-500/10"
                             >
-                                GEO & SGE
-                            </Link>
-                            <Link
-                                href="/seo/local-seo"
-                                className="bg-gray-800/50 hover:bg-gray-700 text-gray-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:border hover:border-purple-500/50"
-                            >
-                                Local SEO
+                                <span className="relative z-10">GEO & SGE</span>
+                                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 to-pink-500/0 rounded-lg group-hover:from-purple-500/5 group-hover:to-pink-500/5 transition-all duration-300 -z-10"></div>
                             </Link>
                         </div>
 
@@ -140,7 +237,7 @@ const SearchEngineService = () => {
                 {/* Right Image Side */}
                 <div className="w-full flex justify-center mt-8 lg:mt-0">
                     <Image
-                        src="https://i.ibb.co/d5FW2dK/image.png"
+                        src={seoImg}
                         alt="Global SEO Services - Technical SEO and AI Optimization"
                         width={500}
                         height={500}
