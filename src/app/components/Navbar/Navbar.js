@@ -275,7 +275,7 @@ const Navbar = () => {
                                                 onClick={!isDesktop ? toggleSEODropdown : null}
                                                 className="flex items-center justify-between w-full px-4 py-2 text-gray-100 hover:bg-gray-800"
                                             >
-                                                <span>Search Engine Optimization</span>
+                                                <span>SEO Services</span>
                                                 {isSEODropdownOpen ? <FaCaretUp className="ml-1" /> : <FaCaretDown className="ml-1" />}
                                             </button>
 
@@ -291,7 +291,7 @@ const Navbar = () => {
                                                         className="block px-4 py-2 text-gray-100 hover:bg-gray-800 border-b border-gray-600"
                                                         onClick={closeMobileMenu}
                                                     >
-                                                        All SEO Services
+                                                    SEO Strategy
                                                     </Link>
                                                     <Link
                                                         href="/seo/geo-sge-optimization"
