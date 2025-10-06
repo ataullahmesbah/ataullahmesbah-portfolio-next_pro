@@ -163,7 +163,7 @@ const GEOSGESchemaWrapper = () => {
                 "@type": "WebPage",
                 "@id": "https://www.ataullahmesbah.com/seo/geo-sge-optimization",
                 "url": "https://www.ataullahmesbah.com/seo/geo-sge-optimization",
-                "name": "GEO & SGE Optimization Expert | AI Search Optimization Services 2024",
+                "name": "GEO & SGE Optimization Expert | AI Search Optimization Services",
                 "description": "Professional GEO (Generative Engine Optimization) & SGE (Search Generative Experience) services. Prepare your website for AI-powered search. Get AI-ready SEO strategy.",
                 "isPartOf": {
                     "@type": "WebSite",

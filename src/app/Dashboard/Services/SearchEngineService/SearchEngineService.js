@@ -260,7 +260,7 @@ const SearchEngineService = () => {
             </div>
 
             {/* SEO FAQ Section */}
-            <SEOFAQSection />
+                <SEOFAQSection />
 
             {/* Contact Assistance */}
             <div>

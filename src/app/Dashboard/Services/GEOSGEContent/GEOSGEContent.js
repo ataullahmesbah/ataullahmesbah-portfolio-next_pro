@@ -264,7 +264,7 @@ const GEOSGEContent = () => {
       <YouTubeModal isOpen={isVideoModalOpen} onClose={() => setIsVideoModalOpen(false)} />
 
       {/* IMPROVED: Navigation Links Section - Better Design */}
-      <div className="py-4 px-4 sm:px-6 lg:px-8 bg-gray-900/80 backdrop-blur-md border-gray-800 sticky top-0 z-40">
+      <div className="py-4 px-4 sm:px-6 lg:px-8 bg-gray-900/80 backdrop-blur-md border-gray-800">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
             <Link

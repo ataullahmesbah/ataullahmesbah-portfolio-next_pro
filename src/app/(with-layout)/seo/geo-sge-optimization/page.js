@@ -5,7 +5,7 @@ import GEOSGEContent from '@/app/Dashboard/Services/GEOSGEContent/GEOSGEContent'
 
 
 export const metadata = {
-    title: "GEO & SGE Optimization Expert | AI Search Optimization Services 2024",
+    title: "GEO & SGE Optimization Expert | AI Search Optimization Services",
     description: "Professional GEO (Generative Engine Optimization) & SGE (Search Generative Experience) services. Prepare your website for AI-powered search. Get AI-ready SEO strategy.",
     keywords: [
         "GEO optimization",
