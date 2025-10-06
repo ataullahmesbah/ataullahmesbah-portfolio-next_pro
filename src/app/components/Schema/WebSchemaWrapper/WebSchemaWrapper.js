@@ -6,6 +6,7 @@ const WebSchemaWrapper = ({ page }) => {
     const schemaData = {
         "@context": "https://schema.org",
         "@graph": [
+            // ✅ Website Info
             {
                 "@type": "WebSite",
                 "name": "Ataullah Mesbah Portfolio",
@@ -13,71 +14,158 @@ const WebSchemaWrapper = ({ page }) => {
                 "potentialAction": {
                     "@type": "SearchAction",
                     "target": "https://www.ataullahmesbah.com/search?q={search_term_string}",
-                    "query-input": "required name=search_term_string",
-                },
+                    "query-input": "required name=search_term_string"
+                }
             },
+
+            // ✅ Organization Info
+            {
+                "@type": "Organization",
+                "name": "Ataullah Mesbah Web Solutions",
+                "url": "https://www.ataullahmesbah.com",
+                "logo": "https://www.ataullahmesbah.com/logo.png",
+                "sameAs": [
+                    "https://www.linkedin.com/in/ataullah-mesbah",
+                    "https://x.com/ataullah_mesbah"
+                ],
+                "contactPoint": {
+                    "@type": "ContactPoint",
+                    "contactType": "customer support",
+                    "email": "info@ataullahmesbah.com",
+                    "url": "https://www.ataullahmesbah.com/contact"
+                }
+            },
+
+            // ✅ Main Service
             {
                 "@type": "Service",
-                "name": page === "web-packages" ? "Web Development Packages" : page === "web-development" ? "Web Development Services" : "Search Engine Optimization Services",
-                "description": page === "web-packages"
-                    ? "Tailored web development packages by Ataullah Mesbah, including custom websites, ecommerce platforms, and portfolio sites."
-                    : page === "web-development"
-                        ? "Professional web development services by Ataullah Mesbah, including custom websites, ecommerce platforms, WordPress solutions, and performance optimization."
-                        : "Professional SEO services by Ataullah Mesbah to improve website rankings, drive organic traffic, and enhance online visibility.",
+                "name":
+                    page === "web-packages"
+                        ? "Web Development Packages"
+                        : page === "web-development"
+                            ? "Web Development Services"
+                            : "Search Engine Optimization Services",
+                "description":
+                    page === "web-packages"
+                        ? "Tailored web development packages by Ataullah Mesbah, including custom websites, ecommerce platforms, and portfolio sites."
+                        : page === "web-development"
+                            ? "Professional full-stack web development services by Ataullah Mesbah, covering custom sites, ecommerce solutions, SEO optimization, and performance improvements."
+                            : "Professional SEO services by Ataullah Mesbah to improve website rankings, drive organic traffic, and enhance online visibility.",
                 "provider": {
                     "@type": "Person",
                     "name": "Ataullah Mesbah",
                     "url": "https://www.ataullahmesbah.com",
                     "sameAs": [
-                        "https://www.linkedin.com/in/ataullahmesbah",
-                        "https://twitter.com/ataullahmesbah",
-                    ],
+                        "https://www.linkedin.com/in/ataullah-mesbah",
+                        "https://x.com/ataullah_mesbah"
+                    ]
                 },
                 "offers": {
                     "@type": "OfferCatalog",
-                    "name": page === "web-packages" ? "Web Development Packages" : page === "web-development" ? "Web Development Services" : "SEO Services",
+                    "name":
+                        page === "web-packages"
+                            ? "Web Development Packages"
+                            : page === "web-development"
+                                ? "Web Development Services"
+                                : "SEO Services",
                     "itemListElement": [
                         {
                             "@type": "Offer",
                             "itemOffered": {
                                 "@type": "Service",
-                                "name": page === "web-development" ? "Custom Website Development" : page === "web-packages" ? "Custom Website Package" : "SEO Audit",
+                                "name":
+                                    page === "web-development"
+                                        ? "Custom Website Development"
+                                        : page === "web-packages"
+                                            ? "Custom Website Package"
+                                            : "SEO Audit",
+                                "description":
+                                    page === "web-development"
+                                        ? "Custom full-stack websites built with Node.js, React, and MongoDB for businesses needing dynamic functionality."
+                                        : page === "web-packages"
+                                            ? "Pre-designed custom website packages for startups and enterprises."
+                                            : "Comprehensive SEO audits and keyword research.",
+                                "url": `https://www.ataullahmesbah.com/${page}`
                             },
-                            "url": `https://www.ataullahmesbah.com/${page}`,
                             "priceCurrency": "USD",
-                            "description": page === "web-development"
-                                ? "Custom web development solutions tailored to your business needs."
-                                : page === "web-packages"
-                                    ? "Pre-designed web development packages for various business types."
-                                    : "Comprehensive SEO audits and optimization strategies.",
+                            "price": "299.00",
+                            "availability": "https://schema.org/InStock"
                         },
                         {
                             "@type": "Offer",
                             "itemOffered": {
                                 "@type": "Service",
-                                "name": page === "web-development" ? "Ecommerce Development" : page === "web-packages" ? "Ecommerce Package" : "Keyword Research",
+                                "name":
+                                    page === "web-development"
+                                        ? "Ecommerce Development"
+                                        : page === "web-packages"
+                                            ? "Ecommerce Package"
+                                            : "Keyword Research",
+                                "description":
+                                    page === "web-development"
+                                        ? "Ecommerce platforms with secure checkout, payment integration, and custom product management."
+                                        : page === "web-packages"
+                                            ? "Ecommerce website package including cart, product management, and SEO."
+                                            : "Targeted keyword research for ranking growth.",
+                                "url": `https://www.ataullahmesbah.com/${page}`
                             },
-                            "url": `https://www.ataullahmesbah.com/${page}`,
                             "priceCurrency": "USD",
-                            "description": page === "web-development"
-                                ? "Robust ecommerce platforms with payment integration and scalability."
-                                : page === "web-packages"
-                                    ? "Complete ecommerce solutions with payment gateways."
-                                    : "Targeted keyword research to boost search rankings.",
-                        },
-                    ],
+                            "price": "699.00",
+                            "availability": "https://schema.org/InStock"
+                        }
+                    ]
                 },
+                "datePublished": "2025-10-06"
             },
+
+            // ✅ FAQ Section
             {
-                "@type": "Person",
-                "name": "Ataullah Mesbah",
-                "jobTitle": "Web Developer & SEO Expert",
-                "url": "https://www.ataullahmesbah.com",
-                "sameAs": [
-                    "https://www.linkedin.com/in/ataullahmesbah",
-                    "https://twitter.com/ataullahmesbah",
-                ],
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": "Why choose custom web development?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Custom web development ensures your website is built specifically for your business goals — offering full control, scalability, and unique design aligned with your brand identity."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "How long does it take to build an ecommerce website?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Typically, an ecommerce site takes between 3 to 6 weeks depending on design complexity, product volume, and integration needs."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Do you provide maintenance and updates?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes, all packages include post-launch support and monthly maintenance options to ensure your site remains fast, secure, and up-to-date."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Can you integrate APIs or third-party services?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Absolutely. We integrate RESTful APIs, payment gateways, analytics tools, and other third-party systems to enhance your website's functionality."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Is SEO included with your web development packages?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes, every site we build includes SEO-friendly architecture, meta optimization, and performance improvements for better Google ranking."
+                        }
+                    }
+                ]
             },
+
+            // ✅ Breadcrumb
             {
                 "@type": "BreadcrumbList",
                 "itemListElement": [
@@ -85,17 +173,22 @@ const WebSchemaWrapper = ({ page }) => {
                         "@type": "ListItem",
                         "position": 1,
                         "name": "Home",
-                        "item": "https://www.ataullahmesbah.com",
+                        "item": "https://www.ataullahmesbah.com"
                     },
                     {
                         "@type": "ListItem",
                         "position": 2,
-                        "name": page === "web-packages" ? "Web Development Packages" : page === "web-development" ? "Web Development Services" : "SEO Services",
-                        "item": `https://www.ataullahmesbah.com/${page}`,
-                    },
-                ],
-            },
-        ],
+                        "name":
+                            page === "web-packages"
+                                ? "Web Development Packages"
+                                : page === "web-development"
+                                    ? "Web Development Services"
+                                    : "SEO Services",
+                        "item": `https://www.ataullahmesbah.com/${page}`
+                    }
+                ]
+            }
+        ]
     };
 
     return (

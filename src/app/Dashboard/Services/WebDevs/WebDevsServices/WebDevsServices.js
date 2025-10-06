@@ -2,11 +2,12 @@
 
 import ContactAssistance from '@/app/components/Share/ConatctAssistance/ContactAssistance';
 import DevelopmentForm from '@/app/components/Share/DevelopmentForm/DevelopmentForm';
+import WebFAQ from '@/app/components/Share/FAQ/WebFAQ/WebFAQ';
 import WebPackage from '@/app/Dashboard/Services/WebDevs/WebPackage/WebPackage';
 import WebService from '@/app/Dashboard/Services/WebDevs/WebService/WebService';
 import { motion } from "framer-motion";
 import Link from 'next/link';
-import { FiArrowRight, FiCode, FiPlay, FiSearch, FiTrendingUp, FiZap } from 'react-icons/fi';
+import { FiArrowRight, FiCode, FiPlay, FiSearch, FiShoppingCart, FiTrendingUp, FiZap } from 'react-icons/fi';
 
 const WebDevsServices = () => {
     return (
@@ -18,7 +19,7 @@ const WebDevsServices = () => {
 
 
                 {/* Hero Section */}
-               <div className="relative py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-gray-900 to-blue-900/20 overflow-hidden">
+                <div className="relative py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-gray-900 to-blue-900/20 overflow-hidden">
                     {/* Background Elements */}
                     <div className="absolute inset-0">
                         <div className="absolute top-0 right-0 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl"></div>
@@ -50,33 +51,30 @@ const WebDevsServices = () => {
                                 viewport={{ once: true }}
                                 className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed"
                             >
-                                 In today's digital landscape, your website is your most valuable asset. I specialize in <strong className="text-purple-400">Next.js development</strong> to create high-converting, SEO-friendly websites that load instantly and provide exceptional user experiences across all devices.
+                                In today's digital landscape, your website is your most valuable asset. I specialize in <strong className="text-purple-400">Next.js development</strong> to create high-converting, SEO-friendly websites that load instantly and provide exceptional user experiences across all devices.
                             </motion.p>
 
-                       {/* Services Quick Overview - Simple Elegant */}
-<motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, delay: 0.3 }}
-    viewport={{ once: true }}
-    className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-8 max-w-md mx-auto"
->
-    <div className="bg-purple-500/20 border border-purple-500/30 rounded-full px-6 py-3 hover:bg-purple-500/30 transition-all duration-300">
-        <div className="text-purple-300 text-sm font-semibold text-center">
-            Custom Development
-        </div>
-    </div>
-    <div className="bg-pink-500/20 border border-pink-500/30 rounded-full px-6 py-3 hover:bg-pink-500/30 transition-all duration-300">
-        <div className="text-pink-300 text-sm font-semibold text-center">
-            E-commerce
-        </div>
-    </div>
-    <div className="bg-indigo-500/20 border border-indigo-500/30 rounded-full px-6 py-3 hover:bg-indigo-500/30 transition-all duration-300">
-        <div className="text-indigo-300 text-sm font-semibold text-center">
-            Performance & SEO
-        </div>
-    </div>
-</motion.div>
+                            {/* Services - Minimal Cards */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4, delay: 0.2 }}
+                                viewport={{ once: true }}
+                                className="grid grid-cols-3 gap-2 mb-8 max-w-xs mx-auto"
+                            >
+                                <div className="bg-gray-800/50 rounded-lg p-3 text-center border border-gray-700/50">
+                                    <FiCode className="w-4 h-4 text-purple-400 mx-auto mb-1" />
+                                    <div className="text-white text-xs">Custom</div>
+                                </div>
+                                <div className="bg-gray-800/50 rounded-lg p-3 text-center border border-gray-700/50">
+                                    <FiShoppingCart className="w-4 h-4 text-pink-400 mx-auto mb-1" />
+                                    <div className="text-white text-xs">E-commerce</div>
+                                </div>
+                                <div className="bg-gray-800/50 rounded-lg p-3 text-center border border-gray-700/50">
+                                    <FiZap className="w-4 h-4 text-indigo-400 mx-auto mb-1" />
+                                    <div className="text-white text-xs">Performance</div>
+                                </div>
+                            </motion.div>
 
 
                             {/* IMPROVED: Enhanced CTA Buttons */}
@@ -191,6 +189,9 @@ const WebDevsServices = () => {
                 </div>
 
             </div>
+
+            {/* Web FAQ */}
+            <WebFAQ />
 
             <div>
                 {/* TO DO List */}
