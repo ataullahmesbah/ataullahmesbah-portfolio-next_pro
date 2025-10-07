@@ -1,3 +1,5 @@
+// src/app/robots.txt
+
 //robots.txt
 
 User-agent: *
@@ -6,4 +8,9 @@ Disallow: /moderator-dashboard/
 Disallow: /user-dashboard/
 Disallow: /accounts/
 Disallow: /api/
+
+# Allow all other pages
 Allow: /
+
+# Sitemap location (optional but recommended for SEO)
+Sitemap: https://ataullahmesbah.com/sitemap.xml
