@@ -24,7 +24,16 @@ const ShopHeroSection = () => {
   useEffect(() => {
     const fetchSlides = async () => {
       try {
-        const response = await fetch('/api/products/shop-banner');
+        const response = await fetch('/api/products/shop-banner', {
+          headers: {
+            'Cache-Control': 'max-age=3600, stale-while-revalidate'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch banners');
+        }
+
         const data = await response.json();
 
         if (data.success) {
@@ -48,10 +57,28 @@ const ShopHeroSection = () => {
         }
       } catch (error) {
         console.error("Error fetching banners:", error);
+        // Fallback slides if API fails
+        setSlides([{
+          title: "Welcome to Our Shop",
+          subtitle: "Discover amazing products at great prices",
+          highlights: ["Best Quality", "Fast Delivery", "24/7 Support"],
+          cta: "Shop Now",
+          bg: "bg-gradient-to-br from-gray-900 via-purple-900/70 to-gray-900",
+          textColor: "text-white",
+          badgeColor: "from-purple-600 to-indigo-600",
+          features: [{ icon: "🌟", text: "Premium" }, { icon: "🚀", text: "Fast" }],
+          image: "/default-banner.jpg",
+          link: "/shop"
+        }]);
       }
     };
 
     fetchSlides();
+
+    // Cache refresh every 3600 seconds (1 hour)
+    const cacheRefreshInterval = setInterval(fetchSlides, 3600 * 1000);
+
+    return () => clearInterval(cacheRefreshInterval);
   }, []);
 
   useEffect(() => {
@@ -63,6 +90,7 @@ const ShopHeroSection = () => {
     }
   }, [slides]);
 
+  // Return null if no slides (no loading state)
   if (slides.length === 0) return null;
 
   // Responsive breakpoints
@@ -97,9 +125,13 @@ const ShopHeroSection = () => {
                   fill
                   priority
                   sizes="(max-width: 640px) 100vw,
-             (max-width: 1024px) 100vw,
-             100vw"
+                         (max-width: 1024px) 100vw,
+                         100vw"
                   className="object-cover object-center"
+                  onError={(e) => {
+                    // Fallback if image fails to load
+                    e.target.src = "/default-banner.jpg";
+                  }}
                 />
               </div>
 
@@ -176,7 +208,6 @@ const ShopHeroSection = () => {
                   </motion.div>
                 )}
 
-                {/* CTA Button */}
                 {/* CTA Button */}
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
