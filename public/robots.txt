@@ -1,6 +1,5 @@
-// src/app/robots.txt
+// public/robots.txt
 
-//robots.txt
 
 User-agent: *
 Disallow: /admin-dashboard/
