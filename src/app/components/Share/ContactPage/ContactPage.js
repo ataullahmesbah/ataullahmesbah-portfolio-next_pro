@@ -125,24 +125,26 @@ const ContactPage = () => {
                             </div>
                         </div>
 
-                        {/* Social Media - Updated with Square Buttons */}
+                        {/* Social Media - Compact Responsive */}
                         <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-gray-700 shadow-xl">
-                            <h3 className="text-xl md:text-2xl font-bold text-white mb-4">Find Me Online</h3>
-                            <div className="grid grid-cols-2 gap-4">
+                            <h3 className="text-xl md:text-2xl font-bold text-white mb-6 text-center md:text-left">Find Me Online</h3>
+                            <div className="flex flex-wrap justify-center md:justify-start gap-3">
                                 {socialMedia.map((social, index) => (
                                     <motion.a
                                         key={index}
                                         href={social.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        whileHover={{ y: -3 }}
+                                        whileHover={{ y: -2 }}
                                         whileTap={{ scale: 0.95 }}
-                                        className="flex items-center p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-all"
+                                        className="flex items-center px-4 py-3 rounded-lg bg-gray-700/80 hover:bg-gray-600/90 transition-all duration-300 border border-gray-600 hover:border-purple-500/30 group min-w-[140px]"
                                     >
-                                        <div className="w-8 h-8 flex items-center justify-center text-gray-300 hover:text-white mr-3">
+                                        <div className="w-6 h-6 flex items-center justify-center text-gray-300 group-hover:text-white mr-3 transition-colors duration-300">
                                             {social.icon}
                                         </div>
-                                        <span className="text-gray-300 hover:text-white">{social.name}</span>
+                                        <span className="text-gray-300 group-hover:text-white text-sm font-medium transition-colors duration-300">
+                                            {social.name}
+                                        </span>
                                     </motion.a>
                                 ))}
                             </div>

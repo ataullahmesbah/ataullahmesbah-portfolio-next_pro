@@ -9,6 +9,7 @@ import SEU from '/public/images/SEU.jpg';
 import AnimatedHero from "@/app/components/Animation/AnimatedHero/AnimatedHero";
 import AnimatedCard from "@/app/components/Animation/AnimatedCard/AnimatedCard";
 import Loading from '@/app/components/Share/SampleLoader/SamplerLoader';
+import { FiPlay } from 'react-icons/fi';
 
 
 
@@ -302,13 +303,25 @@ const AboutPage = () => {
                 <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
                     Whether you need SEO expertise, a custom web solution, or content strategy - let’s create something remarkable.
                 </p>
-                <Link
-                    href="/contact"
-                    className="inline-block px-10 py-4 bg-gradient-to-r from-sky-500 to-purple-600 rounded-lg font-medium text-lg hover:shadow-lg transition-all hover:scale-105"
-                    aria-label="Contact Ataullah Mesbah"
-                >
-                    Get in Touch
-                </Link>
+
+                <button>
+                    <Link
+                        href="/contact"
+                        className="  group relative bg-gray-900/50 backdrop-blur-md border border-gray-700 text-white px-8 py-4 rounded-xl  flex items-center gap-3 transition-all duration-300 hover:bg-gray-800/70 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 overflow-hidden"
+                        aria-label="Contact Ataullah Mesbah"
+                    >
+                        {/* Left Accent Bar */}
+                        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-400 to-purple-600 rounded-r-full group-hover:from-purple-300 group-hover:to-purple-500 transition-all"></div>
+
+                        {/* Hover Background Effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                        <FiPlay className="relative group-hover:scale-110 transition-transform duration-300" />
+
+                        <span className="relative">Get in Touch</span>
+                    </Link>
+                </button>
+
             </section>
         </main>
     );

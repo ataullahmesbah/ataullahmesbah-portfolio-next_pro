@@ -1,6 +1,8 @@
 'use client';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { FaCode, FaSearch, FaStore, FaEnvelope, FaGlobeAmericas, FaPenAlt, FaArrowRight } from 'react-icons/fa';
+import { FiPlay } from 'react-icons/fi';
 
 const MarketingSection = () => {
     const services = [
@@ -254,27 +256,23 @@ const MarketingSection = () => {
                         whileTap={{ scale: 0.98 }}
                         className="inline-block"
                     >
-                        <motion.a
-                            href="/contact"
-                            initial={{ opacity: 0, y: 10 }}
-                            whileInView={{
-                                opacity: 1,
-                                y: 0,
-                                transition: { delay: 1, duration: 0.6 }
-                            }}
-                            className={`
-                relative inline-flex items-center px-6 py-3 sm:px-8 sm:py-4 overflow-hidden 
-                text-white rounded-lg group bg-gradient-to-r from-purple-600 to-blue-600
-                shadow-lg hover:shadow-xl transition-all duration-300
-                text-base sm:text-lg
-              `}
-                        >
-                            <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
-                            <span className="relative z-10 flex items-center font-semibold">
-                                Get Started Today
-                                <FaArrowRight className="ml-3 w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-2" />
-                            </span>
-                        </motion.a>
+                        <button>
+                            <Link
+                                href="/contact"
+                                className="  group relative bg-gray-900/50 backdrop-blur-md border border-gray-700 text-white px-8 py-4 rounded-xl  flex items-center gap-3 transition-all duration-300 hover:bg-gray-800/70 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 overflow-hidden"
+                                aria-label="Contact Ataullah Mesbah"
+                            >
+                                {/* Left Accent Bar */}
+                                <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-400 to-purple-600 rounded-r-full group-hover:from-purple-300 group-hover:to-purple-500 transition-all"></div>
+
+                                {/* Hover Background Effect */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                                <FiPlay className="relative group-hover:scale-110 transition-transform duration-300" />
+
+                                <span className="relative">Get Started Today</span>
+                            </Link>
+                        </button>
                     </motion.div>
                 </motion.div>
             </div>

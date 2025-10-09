@@ -18,6 +18,13 @@ const ADMIN_ONLY_API_ROUTES = [
   '/api/admin/users',
   '/api/auth/user',
   '/api/users',
+  '/api/products/orders',
+  '/api/admin/verify',
+  '/api/admin/ip-logs',
+  '/api/comments/approved',
+  '/api/comments/pending',
+  '/api/products/config',
+  '/api/products/coupons',
   // '/api/auth/register',
 ];
 

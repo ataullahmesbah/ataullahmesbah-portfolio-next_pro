@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { FaFacebookF, FaTwitter, FaLinkedinIn, FaGithub } from 'react-icons/fa';
+import { FiPlay } from 'react-icons/fi';
 
 const Footer = () => {
     return (
@@ -108,13 +109,28 @@ const Footer = () => {
                                 Subscribe to my newsletter for the latest updates and insights.
                             </p>
 
-                            <div className="flex justify-center md:justify-start">
-                                <Link href='/letter'>
-                                    <button className="text-sm text-gray-200 border border-gray-800 bg-purple-800/10 p-2 px-4 rounded-md transition-colors duration-200">
-                                        Join Newsletter
-                                    </button>
-                                </Link>
+                            <div className="">
+                                <button>
+                                    <Link
+                                        href="/letter"
+                                        className="  group relative bg-gray-900/50 backdrop-blur-md border border-gray-700 text-white px-8 py-2 rounded-lg  flex items-center gap-3 transition-all duration-300 hover:bg-gray-800/70 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 overflow-hidden"
+                                        aria-label="Contact Ataullah Mesbah"
+                                    >
+                                        {/* Left Accent Bar */}
+                                        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-400 to-purple-600 rounded-r-full group-hover:from-purple-300 group-hover:to-purple-500 transition-all"></div>
+
+                                        {/* Hover Background Effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                                        <FiPlay className="relative group-hover:scale-110 transition-transform duration-300" />
+
+                                        <span className="relative">Newsletter</span>
+                                    </Link>
+                                </button>
                             </div>
+
+
+
 
                         </div>
                     </div>

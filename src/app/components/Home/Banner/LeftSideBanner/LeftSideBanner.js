@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import { useTypewriter, Cursor } from 'react-simple-typewriter';
 import Link from 'next/link';
+import { FiArrowRight, FiPlay } from 'react-icons/fi';
 
 const LeftSideBanner = () => {
   const containerVariants = {
@@ -76,24 +77,41 @@ const LeftSideBanner = () => {
         variants={itemVariants}
         className="flex flex-wrap justify-center md:justify-start gap-3 pt-1"
       >
-        <Link href="/contact" className="relative group">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/80 to-pink-500/80 rounded-lg opacity-90 group-hover:opacity-100 transition-all duration-300 group-hover:shadow-[0_0_15px_rgba(168,85,247,0.3)]"></div>
-          <button className="relative px-4 py-2 sm:px-5 sm:py-2.5 bg-gray-800/80 rounded-lg flex items-center gap-2 hover:bg-gray-700/70 transition-all duration-300 border border-gray-700/60">
-            <span className="text-gray-100 font-medium text-xs sm:text-sm">Get Started</span>
-            <svg className="w-3 h-3 sm:w-4 sm:h-4 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-            </svg>
-          </button>
-        </Link>
+        <button>
+          <Link
+            href="/contact"
+            className="  group relative bg-gray-900/50 backdrop-blur-md border border-gray-700 text-white px-8 py-4 rounded-xl  flex items-center gap-3 transition-all duration-300 hover:bg-gray-800/70 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 overflow-hidden"
+            aria-label="Contact Ataullah Mesbah"
+          >
+            {/* Left Accent Bar */}
+            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-400 to-purple-600 rounded-r-full group-hover:from-purple-300 group-hover:to-purple-500 transition-all"></div>
 
-        <Link href="/projects" className="relative group">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/80 to-blue-600/80 rounded-lg opacity-90 group-hover:opacity-100 transition-all duration-300 group-hover:shadow-[0_0_15px_rgba(6,182,212,0.3)]"></div>
-          <button className="relative px-4 py-2 sm:px-5 sm:py-2.5 bg-gray-800/80 rounded-lg flex items-center gap-2 hover:bg-gray-700/70 transition-all duration-300 border border-gray-700/60">
-            <span className="text-gray-100 font-medium text-xs sm:text-sm">View Work</span>
-            <svg className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-            </svg>
-          </button>
+            {/* Hover Background Effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+            <FiPlay className="relative group-hover:scale-110 transition-transform duration-300" />
+
+            <span className="relative">Get in Touch</span>
+          </Link>
+        </button>
+
+
+        {/* Primary Button - Contact */}
+        <Link
+          href="/projects"
+          className="group relative bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white px-8 py-4 rounded-xl  flex items-center gap-3 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/30 overflow-hidden border border-gray-700 hover:border-purple-500/50"
+        >
+          {/* Animated Shine Effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+
+          {/* Hover Gradient Overlay */}
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+
+          {/* Base Background */}
+          <div className="absolute inset-[1px] rounded-xl bg-gray-900 -z-10 group-hover:bg-gradient-to-br group-hover:from-gray-800 group-hover:via-purple-900 group-hover:to-gray-800 transition-all"></div>
+
+          <span className="relative">Start a Project</span>
+          <FiArrowRight className="relative group-hover:translate-x-1 group-hover:scale-110 transition-transform duration-300" />
         </Link>
       </motion.div>
     </motion.div>
