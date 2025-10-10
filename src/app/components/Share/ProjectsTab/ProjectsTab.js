@@ -1,16 +1,14 @@
-// src/app/ProjectsTab.js
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { LineWave } from 'react-loader-spinner';
 import { FaSearch, FaCode, FaPen, FaPlane } from 'react-icons/fa';
-
+import { FiPlay } from 'react-icons/fi';
 import SEOPortfolio from '../PortfolioWorks/SEOPortfolio/SEOPortfolio';
 import TravelPortfolio from '../PortfolioWorks/TravelPortfolio/TravelPortfolio';
 import ContentPortfolio from '../PortfolioWorks/ContentPortfolio/ContentPortfolio';
-import { motion } from 'framer-motion'
+import { motion } from 'framer-motion';
 import ProjectsTabs from '../ProjectsTabs/ProjectsTabs';
-
 
 const ProjectsTab = () => {
     const [activeTab, setActiveTab] = useState('Web Development');
@@ -18,7 +16,6 @@ const ProjectsTab = () => {
     const [projects, setProjects] = useState([]);
     const [error, setError] = useState(null);
 
-    // Fetch projects when the component mounts
     useEffect(() => {
         const fetchProjects = async () => {
             try {
@@ -38,7 +35,6 @@ const ProjectsTab = () => {
         fetchProjects();
     }, []);
 
-    // Define an array of tabs with labels and icons
     const tabs = [
         { label: 'Web Development', icon: <FaCode className="text-lg" /> },
         { label: 'SEO', icon: <FaSearch className="text-lg" /> },
@@ -49,7 +45,6 @@ const ProjectsTab = () => {
     const renderContent = () => {
         switch (activeTab) {
             case 'Web Development':
-                // Pass only the first 3 projects to ProjectsPage
                 return <ProjectsTabs />;
 
             case 'SEO':
@@ -88,47 +83,54 @@ const ProjectsTab = () => {
             </p>
 
             {/* Tabs Navigation */}
-            {/* // In your JSX replace the tabs navigation with this: */}
-            <div className="flex flex-wrap justify-center mb-8 gap-2 sm:gap-4">
+            <div className="flex flex-wrap justify-center mb-8 gap-2 sm:gap-3 md:gap-4">
                 {tabs.map((tab) => (
                     <motion.button
                         key={tab.label}
                         onClick={() => handleTabChange(tab.label)}
-                        whileHover={{ y: -3 }}
+                        whileHover={{ y: -3, scale: 1.02 }}
                         whileTap={{ scale: 0.95 }}
-                        className={`relative flex items-center px-4 py-2 sm:px-6 sm:py-3 rounded-lg transition-all duration-300 ${activeTab === tab.label
-                            ? 'text-white'
-                            : 'text-gray-300 hover:text-white'
-                            }`}
+                        className={`relative flex items-center px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 rounded-xl transition-all duration-300 ${activeTab === tab.label ? 'text-white' : 'text-gray-300 hover:text-white'}`}
                     >
-                        {/* Animated background for active tab */}
+                        {/* Active tab background with static gradient */}
                         {activeTab === tab.label && (
                             <motion.div
                                 layoutId="activeTab"
-                                className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg z-0"
+                                className="absolute inset-0 bg-gradient-to-r from-cyan-400/15 to-purple-500/15 backdrop-blur-md rounded-xl z-0 border border-gray-700/30"
                                 initial={false}
                                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                             />
                         )}
 
-                        {/* Inactive tab background */}
+                        {/* Inactive tab background with glass effect */}
                         {activeTab !== tab.label && (
-                            <div className="absolute inset-0 bg-gray-800 rounded-lg z-0 opacity-80 hover:opacity-100 transition-opacity" />
+                            <div className="absolute inset-0 bg-gray-800/40 backdrop-blur-md rounded-xl z-0 opacity-80 hover:opacity-100 transition-opacity" />
                         )}
 
-                        <span className="relative z-10 flex items-center gap-2 text-sm sm:text-base">
-                            <span className="text-indigo-300">
+                        {/* Animated icon for active tab */}
+                        {activeTab === tab.label && (
+                            <motion.div
+                                animate={{ rotate: [0, 10, 0] }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                                className="relative z-10 mr-1.5"
+                            >
+                                <FiPlay className="text-cyan-300 text-sm sm:text-base" />
+                            </motion.div>
+                        )}
+
+                        <span className="relative z-10 flex items-center gap-1.5 text-xs sm:text-sm md:text-base">
+                            <span className={activeTab === tab.label ? 'text-cyan-300' : 'text-gray-400'}>
                                 {tab.icon}
                             </span>
                             {tab.label}
                         </span>
 
-                        {/* Glow effect on hover */}
+                        {/* Glowing accent bar on hover for inactive tabs */}
                         {activeTab !== tab.label && (
                             <motion.div
-                                initial={{ opacity: 0 }}
-                                whileHover={{ opacity: 1 }}
-                                className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-lg blur-md"
+                                initial={{ width: 0 }}
+                                whileHover={{ width: '100%' }}
+                                className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-cyan-400/30 to-purple-500/30 rounded-t"
                             />
                         )}
                     </motion.button>

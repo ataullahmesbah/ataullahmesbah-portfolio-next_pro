@@ -8,7 +8,6 @@ import ProjectsTab from "../Share/ProjectsTab/ProjectsTab";
 import ShopHighlightSection from "../Home/ShopHighlightSection/ShopHighlightSection";
 import MarketingSection from "../Share/MarketingSection/MarketingSection";
 import Testimonials from "../Share/Testimonials/Testimonials";
-import NewSection from "../Home/NewSection/NewSection";
 import CertificationsAwards from "../CertificationsAwards/CertificationsAwards";
 import NewsletterPage from "../Share/NewsletterPage/NewsletterPage";
 import ContactAssistance from "../Share/ConatctAssistance/ContactAssistance";
@@ -17,6 +16,7 @@ import SideIcons from "../SideIcons/SideIcons";
 import Sponser from '../Sponser/Sponser';
 import MesbahCustomLoader from "../MesbahCustomLoader/MesbahCustomLoader";
 import { useEffect, useState } from "react";
+import SuccessSection from "../Home/SuccessSection/SuccessSection";
 
 export default function HomePageContent() {
 
@@ -57,7 +57,7 @@ export default function HomePageContent() {
             <ShopHighlightSection />
             <MarketingSection />
             <Testimonials />
-            <NewSection />
+            <SuccessSection />
             {/* <CertificationsAwards /> */}
             <NewsletterPage />
             <ContactAssistance />

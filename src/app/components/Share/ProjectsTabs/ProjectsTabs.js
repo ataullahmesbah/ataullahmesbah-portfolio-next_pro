@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { RiArrowRightDoubleLine } from 'react-icons/ri';
+import { FiArrowRight, FiPlay } from 'react-icons/fi';
 
 // Metadata for SEO (App Router); comment out if using Pages Router
 export const metadata = {
@@ -131,16 +132,30 @@ const ProjectsTabs = ({ projects: initialProjects = null }) => {
             </div>
           ))}
         </div>
-        {/* View All Button */}
+
+
+        {/* Primary Button - Contact */}
         <div className="mt-12 text-center">
-          <Link
-            href="/projects"
-            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-indigo-500/20"
-          >
-            Explore All Projects
-            <RiArrowRightDoubleLine className="ml-2 w-5 h-5" />
-          </Link>
+          <button>
+            <Link
+              href="/projects"
+              className="  group relative bg-gray-900/50 backdrop-blur-md border border-gray-700 text-white px-8 py-4 rounded-xl  flex items-center gap-3 transition-all duration-300 hover:bg-gray-800/70 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 overflow-hidden"
+              aria-label="Contact Ataullah Mesbah"
+            >
+              {/* Left Accent Bar */}
+              <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-400 to-purple-600 rounded-r-full group-hover:from-purple-300 group-hover:to-purple-500 transition-all"></div>
+
+              {/* Hover Background Effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+              <FiPlay className="relative group-hover:scale-110 transition-transform duration-300" />
+
+              <span className="relative">Explore All Projects</span>
+            </Link>
+          </button>
         </div>
+
+
       </div>
     </div>
   );

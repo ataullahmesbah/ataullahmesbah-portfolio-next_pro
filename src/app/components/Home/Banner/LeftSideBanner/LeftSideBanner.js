@@ -42,7 +42,7 @@ const LeftSideBanner = () => {
         className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-2"
       >
         <span className="text-xs font-medium uppercase tracking-wider text-purple-300/90">
-          Hello, I'm Ataullah Mesbah
+          Hello, I&#39;m Ataullah Mesbah
         </span>
 
         {/* Mobile/Tablet - Below */}
@@ -77,14 +77,16 @@ const LeftSideBanner = () => {
         variants={itemVariants}
         className="flex flex-wrap justify-center md:justify-start gap-3 pt-1"
       >
+
+
         <button>
           <Link
             href="/contact"
-            className="  group relative bg-gray-900/50 backdrop-blur-md border border-gray-700 text-white px-8 py-4 rounded-xl  flex items-center gap-3 transition-all duration-300 hover:bg-gray-800/70 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 overflow-hidden"
+            className="group relative bg-gray-900/50 backdrop-blur-md border border-gray-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition-all duration-300 hover:bg-gray-800/70 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 overflow-hidden"
             aria-label="Contact Ataullah Mesbah"
           >
             {/* Left Accent Bar */}
-            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-400 to-purple-600 rounded-r-full group-hover:from-purple-300 group-hover:to-purple-500 transition-all"></div>
+            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-purple-400 to-purple-600 rounded-r-full group-hover:from-purple-300 group-hover:to-purple-500 transition-all"></div>
 
             {/* Hover Background Effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -99,7 +101,7 @@ const LeftSideBanner = () => {
         {/* Primary Button - Contact */}
         <Link
           href="/projects"
-          className="group relative bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white px-8 py-4 rounded-xl  flex items-center gap-3 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/30 overflow-hidden border border-gray-700 hover:border-purple-500/50"
+          className="group relative bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/30 overflow-hidden border border-gray-700 hover:border-purple-500/50"
         >
           {/* Animated Shine Effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>

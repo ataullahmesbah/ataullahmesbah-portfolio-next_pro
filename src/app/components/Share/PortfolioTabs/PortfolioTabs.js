@@ -23,7 +23,6 @@ const PortfolioTabs = () => {
 
     const renderContent = () => {
         switch (activeTab) {
-            
             case 'Web': return <WebTabs />;
             case 'SEO': return <SEOTabs />;
             case 'Content': return <ContentPortfolio />;
@@ -46,28 +45,58 @@ const PortfolioTabs = () => {
             <div className="w-full mb-8">
                 <div className="relative">
                     {/* Tabs container with wrapping and centered alignment */}
-                    <div className="flex flex-wrap justify-center space-x-1 space-y-1 sm:bg-gray-800 sm:rounded-lg w-max max-w-full mx-auto">
+                    <div className="flex flex-wrap justify-center space-x-1 sm:space-x-2 md:space-x-3 space-y-1 sm:bg-transparent w-max max-w-full mx-auto">
                         {tabs.map((tab) => (
-                            <button
+                            <motion.button
                                 key={tab.id}
                                 onClick={() => handleTabChange(tab.id)}
-                                className={`relative px-3 py-2 text-sm font-medium transition-all duration-200 rounded-md flex-shrink-0 sm:px-4 ${activeTab === tab.id
-                                        ? 'bg-gray-700 text-white'
-                                        : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
-                                    }`}
-                                style={{
-                                    minWidth: 'max-content',
-                                }}
+                                whileHover={{ y: -2, scale: 1.03 }}
+                                whileTap={{ scale: 0.98 }}
+                                className={`relative flex items-center px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 rounded-full transition-all duration-300 ${activeTab === tab.id ? 'text-white' : 'text-gray-400 hover:text-white'}`}
                             >
-                                {tab.label}
+                                {/* Active tab background with gradient and glow */}
                                 {activeTab === tab.id && (
                                     <motion.div
                                         layoutId="activeTabIndicator"
-                                        className="absolute bottom-0 left-2 right-2 h-[2px] bg-gradient-to-r from-purple-500 to-purple-700 rounded-t-full"
-                                        transition={{ duration: 0.25 }}
+                                        className="absolute inset-0 bg-gradient-to-r from-purple-700/20 to-teal-600/20 backdrop-blur-md rounded-full z-0 border border-purple-700/30"
+                                        initial={false}
+                                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                    >
+                                        <motion.div
+                                            animate={{ scale: [1, 1.1, 1] }}
+                                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                                            className="absolute inset-1 bg-purple-700/10 rounded-full"
+                                        />
+                                    </motion.div>
+                                )}
+
+                                {/* Inactive tab background with glass effect */}
+                                {activeTab !== tab.id && (
+                                    <div className="absolute inset-0 bg-gray-800/30 backdrop-blur-md rounded-full z-0 opacity-80 hover:opacity-100 transition-opacity" />
+                                )}
+
+                                {/* Pulsing dot for active tab */}
+                                {activeTab === tab.id && (
+                                    <motion.div
+                                        animate={{ scale: [1, 1.2, 1] }}
+                                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                                        className="relative z-10 mr-2 w-2 h-2 bg-teal-500 rounded-full"
                                     />
                                 )}
-                            </button>
+
+                                <span className="relative z-10 text-xs sm:text-sm md:text-base font-medium">
+                                    {tab.label}
+                                </span>
+
+                                {/* Sliding underline on hover for inactive tabs */}
+                                {activeTab !== tab.id && (
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        whileHover={{ width: '100%' }}
+                                        className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-purple-500/30 to-teal-500/30 rounded-full"
+                                    />
+                                )}
+                            </motion.button>
                         ))}
                     </div>
 

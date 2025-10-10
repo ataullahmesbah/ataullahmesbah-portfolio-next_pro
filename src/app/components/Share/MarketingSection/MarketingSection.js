@@ -63,7 +63,7 @@ const MarketingSection = () => {
     ];
 
     return (
-        <section className="bg-gray-900 py-16 lg:py-24 px-4 sm:px-6 lg:px-8">
+        <section className="bg-gray-900 py-10 lg:py-24 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
                 {/* Section Header - Improved */}
                 <motion.div
