@@ -78,7 +78,7 @@ const NewsletterDetail = ({ newsletter }) => {
     return (
         <article className="min-h-screen bg-gray-900 text-white border-b border-b-gray-800 py-10">
             {/* Simple Navigation */}
-            <div className=" bg-gray-900">
+            <div className="bg-gray-900">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         <Link
@@ -212,36 +212,45 @@ const NewsletterDetail = ({ newsletter }) => {
                     </div>
                 )}
 
+                <p className="text-gray-300 mb-8">{newsletter.description || 'No description available.'}</p>
+
                 {/* Content Sections */}
-                <div className="prose prose-lg prose-invert max-w-none">
+                <div className="lg:col-span-2 space-y-5">
                     {safeContent.length > 0 ? (
                         safeContent.map((section, index) => (
-                            <section key={index} className="mb-8">
-                                {section.title && (
-                                    <h2 className="text-2xl !font-semibold text-white mb-4">
-                                        {section.title}
-                                    </h2>
+                            <div key={index} className="mb-6">
+                                {section.tag && (
+                                    <>
+                                        {section.tag === 'p' ? (
+                                            <p className="text-gray-300 mb-6">{section.content}</p>
+                                        ) : (
+                                            React.createElement(
+                                                section.tag,
+                                                { className: 'text-xl font-semibold text-white mb-4 mt-3' },
+                                                section.content
+                                            )
+                                        )}
+                                    </>
                                 )}
-
-                                {section.content && (
-                                    <div
-                                        className="text-gray-300 leading-relaxed"
-                                        dangerouslySetInnerHTML={{ __html: section.content }}
-                                    />
+                                {section.bulletPoints && section.bulletPoints.length > 0 && (
+                                    <ul className="list-disc pl-5 mb-4 text-gray-300">
+                                        {section.bulletPoints.map((point, i) => (
+                                            <li key={i}>{point}</li>
+                                        ))}
+                                    </ul>
                                 )}
-
                                 {section.image && (
                                     <div className="my-6 rounded-lg overflow-hidden">
                                         <Image
                                             src={section.image}
-                                            alt={section.imageAlt || section.title || ''}
+                                            alt={section.imageAlt || section.title || 'Section Image'}
                                             width={800}
                                             height={400}
                                             className="w-full h-auto object-cover"
                                         />
                                     </div>
                                 )}
-                            </section>
+                            </div>
                         ))
                     ) : (
                         <div className="text-center py-12 text-gray-400">
