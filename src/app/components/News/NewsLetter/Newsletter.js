@@ -98,7 +98,7 @@ const NewsLetter = () => {
                 headline: newsletter.title,
                 description: newsletter.metaDescription,
                 image: newsletter.mainImage,
-                url: `https://ataullahmesbah.com/letter/${newsletter.slug}`,
+                url: `https://ataullahmesbah.com/newsletter/${newsletter.slug}`,
                 author: { '@type': 'Person', name: newsletter.author || 'Ataullah Mesbah' },
                 publisher: {
                     '@type': 'Organization',
@@ -109,8 +109,6 @@ const NewsLetter = () => {
             },
         })),
     };
-
-
 
     if (loading) {
         return (
@@ -176,7 +174,7 @@ const NewsLetter = () => {
                                         </div>
 
                                         <Link
-                                            href={`/letter/${newsletter.slug}`}
+                                            href={`/newsletter/${newsletter.slug}`}
                                             className="flex items-center text-sm text-purple-400 hover:text-purple-300 transition-colors"
                                         >
                                             View Newsletter
@@ -195,8 +193,8 @@ const NewsLetter = () => {
                                 onClick={() => handlePageChange(currentPage - 1)}
                                 disabled={currentPage === 1}
                                 className={`px-3 py-2 rounded-md flex items-center gap-1 text-sm ${currentPage === 1
-                                        ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                                        : 'bg-gray-800 text-white hover:bg-gray-600'
+                                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                                    : 'bg-gray-800 text-white hover:bg-gray-600'
                                     }`}
                             >
                                 <FiChevronLeft />
@@ -208,10 +206,10 @@ const NewsLetter = () => {
                                     key={index}
                                     onClick={() => typeof item === 'number' && handlePageChange(item)}
                                     className={`px-4 py-2 rounded-md text-sm ${item === currentPage
-                                            ? 'bg-purple-600 text-white'
-                                            : item === '...'
-                                                ? 'bg-gray-800 text-gray-400 cursor-default'
-                                                : 'bg-gray-800 text-white hover:bg-gray-600'
+                                        ? 'bg-purple-600 text-white'
+                                        : item === '...'
+                                            ? 'bg-gray-800 text-gray-400 cursor-default'
+                                            : 'bg-gray-800 text-white hover:bg-gray-600'
                                         }`}
                                 >
                                     {item}
@@ -222,8 +220,8 @@ const NewsLetter = () => {
                                 onClick={() => handlePageChange(currentPage + 1)}
                                 disabled={currentPage === totalPages}
                                 className={`px-3 py-2 rounded-md flex items-center gap-1 text-sm ${currentPage === totalPages
-                                        ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                                        : 'bg-gray-800 text-white hover:bg-gray-600'
+                                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                                    : 'bg-gray-800 text-white hover:bg-gray-600'
                                     }`}
                             >
                                 Next

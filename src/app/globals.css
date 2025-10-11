@@ -336,5 +336,7 @@ html {
 
 
 
-
+.prose h2 {
+    font-weight: 600 !important;
+}
 
