@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import useAOS from '../../hooks/useAOS';
+import { FiPlay } from 'react-icons/fi';
 
 const firstVideo = {
     id: "vNYLJs4G56I",
@@ -164,20 +165,38 @@ const AboutUs = () => {
                         {/* Get Started button */}
                         <div
                             className="py-5 animate-on-scroll"
-                            style={{
-                                transform: 'translateY(20px)',
-                                opacity: 0,
-                                transition: 'all 0.6s ease-out 1s'
-                            }}
+                            // style={{
+                            //     transform: 'translateY(20px)',
+                            //     opacity: 0,
+                            //     transition: 'all 0.6s ease-out 1s'
+                            // }}
                         >
-                            <div className="grid gap-8 justify-start items-start">
+                            {/* <div className="grid gap-8 justify-start items-start">
                                 <div className="relative group">
                                     <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
                                     <button className="relative px-7 py-4 bg-black rounded-lg leading-none flex items-center divide-x divide-gray-600 justify-center text-center">
                                         <a href='/contact' className="pl-6 text-indigo-400 group-hover:text-gray-100 transition duration-200">Get Started &rarr;</a>
                                     </button>
                                 </div>
-                            </div>
+                            </div> */}
+
+                             <button>
+          <Link
+            href="/about"
+            className="group relative bg-gray-900/50 backdrop-blur-md border border-gray-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition-all duration-300 hover:bg-gray-800/70 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 overflow-hidden"
+            aria-label="About Ataullah Mesbah"
+          >
+            {/* Left Accent Bar */}
+            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-purple-400 to-purple-600 rounded-r-full group-hover:from-purple-300 group-hover:to-purple-500 transition-all"></div>
+
+            {/* Hover Background Effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+            <FiPlay className="relative group-hover:scale-110 transition-transform duration-300" />
+
+            <span className="relative">Get to Know Me</span>
+          </Link>
+        </button>
                         </div>
                     </div>
 
