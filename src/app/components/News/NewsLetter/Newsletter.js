@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { FiEye, FiArrowRight, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 
 const NewsLetter = () => {
     const [newsletters, setNewsletters] = useState([]);
@@ -13,6 +14,8 @@ const NewsLetter = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6;
     const router = useRouter();
+
+   
 
     useEffect(() => {
         const fetchNewsletters = async () => {
@@ -27,7 +30,7 @@ const NewsLetter = () => {
             } catch (error) {
                 toast.error('Error loading newsletters');
             } finally {
-                setLoading(false);
+               setLoading(false); 
             }
         };
         fetchNewsletters();
@@ -110,10 +113,72 @@ const NewsLetter = () => {
         })),
     };
 
-    if (loading) {
+  if (loading) {
         return (
-            <div className="flex items-center justify-center h-screen bg-gray-900">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+            <div className="min-h-screen bg-gray-900 flex items-center justify-center py-12 sm:py-16">
+                <div className="text-center">
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                        className="flex justify-center mb-4 sm:mb-6"
+                    >
+                        <div className="relative w-16 h-16 sm:w-20 sm:h-20">
+                            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+                                <span className="text-white text-lg sm:text-2xl font-bold">Letter</span>
+                            </div>
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+                                className="absolute inset-0 border-4 border-purple-500 border-t-transparent rounded-2xl"
+                            />
+                        </div>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                    >
+                        <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
+                            Unlocking New Content
+                        </h3>
+                        <p className="text-gray-400 text-sm sm:text-base mb-4 sm:mb-6">
+                            Loading Newsletter...
+                        </p>
+                    </motion.div>
+
+                    <motion.div className="flex justify-center gap-1.5 sm:gap-2">
+                        {[0, 1, 2].map((index) => (
+                            <motion.div
+                                key={index}
+                                animate={{
+                                    scale: [1, 1.3, 1],
+                                    opacity: [0.5, 1, 0.5],
+                                }}
+                                transition={{
+                                    duration: 1,
+                                    repeat: Infinity,
+                                    delay: index * 0.2,
+                                }}
+                                className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-purple-500 rounded-full"
+                            />
+                        ))}
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: "80%" }}
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                        className="mt-4 sm:mt-6 h-1 bg-gray-700 rounded-full mx-auto max-w-[200px] sm:max-w-xs overflow-hidden"
+                    >
+                        <motion.div
+                            animate={{ x: ["-100%", "100%"] }}
+                            transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+                            className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 w-1/2"
+                        />
+                    </motion.div>
+                </div>
             </div>
         );
     }
@@ -135,13 +200,14 @@ const NewsLetter = () => {
                                 className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-700"
                             >
                                 {/* Image */}
-                                <div className="relative h-56 sm:h-64 w-full">
+                                <div className="relative w-full aspect-[16/9] sm:aspect-[4/3] md:aspect-[1200/630]">
                                     <Image
                                         src={newsletter.mainImage}
                                         alt={newsletter.imageAlt}
-                                        layout="fill"
-                                        objectFit="cover"
-                                        className="w-full h-full"
+                                        fill
+                                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 400px"
+                                        className="object-cover"
+                                        priority={false}
                                     />
                                 </div>
 

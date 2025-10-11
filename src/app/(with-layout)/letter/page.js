@@ -1,7 +1,8 @@
 
 //app/letter/page.js
 
-import NewsLetter from "@/app/components/News/LetterNews/LetterNews";
+import LetterNews from "@/app/components/News/LetterNews/LetterNews";
+
 
 export const metadata = {
     title: 'Letter | Ataullah Mesbah',
@@ -27,8 +28,8 @@ export const metadata = {
 };
 
 const page = () => {
-    
-    return <NewsLetter />;
+
+    return <LetterNews />;
 };
 
 export default page;

@@ -181,15 +181,17 @@ const NewsletterDetail = ({ newsletter }) => {
                             </time>
                         </div>
 
+
+
                         <div className="flex items-center gap-2">
                             <FiEye className="w-4 h-4" />
-                            <span>{(newsletter.views || 0).toLocaleString()} views</span>
+                            <span>{newsletter.views} views</span>
                         </div>
 
                         <div className="flex items-center gap-2">
                             <FiUser className="w-4 h-4" />
                             <span>
-                                By <UserLink author={newsletter.author} className="text-purple-400 hover:text-purple-300" />
+                                By <UserLink author={newsletter?.author} className="text-purple-400 hover:text-purple-300" />
                             </span>
                         </div>
                     </div>
@@ -198,17 +200,19 @@ const NewsletterDetail = ({ newsletter }) => {
                 {/* Featured Image */}
                 {newsletter.mainImage && (
                     <div className="mb-8 rounded-xl overflow-hidden">
-                        <Image
-                            src={newsletter.mainImage}
-                            alt={newsletter.imageAlt || newsletter.title || 'Newsletter Image'}
-                            width={1200}
-                            height={630}
-                            className="w-full h-auto object-cover"
-                            priority
-                            onError={(e) => {
-                                e.target.style.display = 'none';
-                            }}
-                        />
+                        <div className="relative w-full h-0 pb-[52.5%] md:pb-[52.5%]">
+                            <Image
+                                src={newsletter.mainImage}
+                                alt={newsletter.imageAlt || newsletter.title || 'Newsletter Image'}
+                                fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 1024px"
+                                className="object-cover"
+                                priority
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                }}
+                            />
+                        </div>
                     </div>
                 )}
 

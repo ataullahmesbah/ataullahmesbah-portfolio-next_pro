@@ -67,6 +67,11 @@ export async function POST(req) {
                     fetch_format: 'webp',
                     quality: 'auto',
                     flags: 'lossy',
+                    transformation: [
+                        { width: 1200, height: 630, crop: 'fill' },
+                        { quality: 'auto' },
+                        { format: 'webp' }
+                    ]
                 },
                 (error, result) => {
                     if (error) reject(error);
@@ -140,6 +145,11 @@ export async function PUT(req) {
                         fetch_format: 'webp',
                         quality: 'auto',
                         flags: 'lossy',
+                        transformation: [
+                            { width: 1200, height: 630, crop: 'fill' },
+                            { quality: 'auto' },
+                            { format: 'webp' }
+                        ]
                     },
                     (error, result) => {
                         if (error) reject(error);
