@@ -54,7 +54,7 @@ export default function TravelDetail({ travel, slug }) {
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 md:p-12">
                     <div className="max-w-4xl mx-auto">
-                        <span className="inline-block px-3 py-1 mb-4 text-sm font-medium rounded-full bg-blue-600/90 backdrop-blur-sm">
+                        <span className="inline-block px-3 py-1 mb-4 text-sm font-medium rounded-full bg-green-600/90 backdrop-blur-sm">
                             {travel.category}
                         </span>
                         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-4 drop-shadow-lg">
@@ -155,7 +155,7 @@ export default function TravelDetail({ travel, slug }) {
                         title={travel.title}
                         url={`https://ataullahmesbah.com/mesbahoffwego/${slug}`}
                     />
-                    <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full font-medium transition-colors">
+                    <button className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 rounded-full font-medium transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>

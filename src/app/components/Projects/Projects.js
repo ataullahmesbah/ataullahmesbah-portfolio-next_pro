@@ -8,6 +8,8 @@ import Head from 'next/head';
 import { FaArrowRight, FaChevronDown, FaTimes } from 'react-icons/fa'; // Import right arrow icon
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { FiPlay } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 
 const ProjectsPage = ({ projects: initialProjects = null }) => {
     const [projects, setProjects] = useState(initialProjects || []);
@@ -150,15 +152,25 @@ const ProjectsPage = ({ projects: initialProjects = null }) => {
                                             </span>
                                         ))}
                                     </div>
-
                                     {/* View Project Button */}
+
                                     <Link
                                         href={`/projects/${project.slug}`}
-                                        className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm transition duration-200 group"
+                                        className="group relative bg-gray-900/60 backdrop-blur-md border border-gray-600/30 text-white px-5 py-2.5 rounded-xl font-semibold flex items-center gap-2 transition-all duration-300 hover:bg-gray-800/80 hover:border-purple-400/40 hover:shadow-lg hover:shadow-purple-400/20 overflow-hidden w-fit"
                                     >
-                                        View
-                                        <FaArrowRight className="ml-2 w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                                        <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-400 to-indigo-500 rounded-r-full group-hover:h-10 transition-all duration-300" />
+                                        <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 via-indigo-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                        <motion.div
+                                            animate={{ rotate: [0, 10, 0] }}
+                                            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                                        >
+                                            <FiPlay className="relative group-hover:scale-110 transition-transform duration-300" />
+                                        </motion.div>
+                                        <span className="relative text-sm">View</span>
                                     </Link>
+
+                                    {/* View Project Button */}
+
                                 </div>
                             </div>
                         </div>

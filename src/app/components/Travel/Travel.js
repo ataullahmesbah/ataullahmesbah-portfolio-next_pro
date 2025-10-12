@@ -26,7 +26,21 @@ export default function MesbahOffWeGo({ travels = [] }) {
     if (!isMounted) {
         return (
             <div className="min-h-screen bg-gray-800 flex items-center justify-center">
-                <p className="text-white text-xl">Loading...</p>
+                {/* Short & Simple Loader */}
+                <div className="text-center">
+                    {/* Animated Logo/Text */}
+                    <div className="mb-4">
+                        <h2 className="text-2xl font-bold text-green-500 animate-pulse">
+                            Mesbah Off We Go
+                        </h2>
+                    </div>
+
+                    {/* Simple Spinner */}
+                    <div className="w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+
+                    {/* Loading Text */}
+                    <p className="text-gray-400 mt-3 text-sm">Loading adventures...</p>
+                </div>
             </div>
         );
     }

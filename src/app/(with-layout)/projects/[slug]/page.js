@@ -186,7 +186,7 @@ const ProjectDetailsPage = async ({ params }) => {
             <div className="sticky top-0 z-10 bg-gray-900/80 backdrop-blur-sm py-3 px-4">
                 <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2">
                     {/* Breadcrumbs - will truncate long text */}
-                    <nav className="flex items-center text-gray-300 text-sm min-w-0">
+                    <nav className="flex items-center text-gray-300 text-sm text-center min-w-0">
                         <Link href="/" className="hover:text-white transition-colors whitespace-nowrap">Home</Link>
                         <span className="mx-2">›</span>
                         <Link href="/projects" className="hover:text-white transition-colors whitespace-nowrap">Projects</Link>
@@ -241,7 +241,7 @@ const ProjectDetailsPage = async ({ params }) => {
 
                     {/* Project Meta */}
                     <div className="flex flex-wrap gap-3 items-center">
-                        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm font-medium">
+                        <span className="px-3 py-1 bg-indigo-700/20 hover:bg-indigo-800/40 text-white rounded-full text-sm font-medium">
                             {project.category}
                         </span>
                         <span className="text-gray-400 text-sm">
@@ -275,7 +275,7 @@ const ProjectDetailsPage = async ({ params }) => {
                         {/* Description */}
                         <section className="space-y-6">
 
-                    
+
                             <h2 className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-500 mb-2">Project Overview</h2>
                             <div className="prose prose-invert max-w-none">
                                 <p className="text-gray-300 text-lg leading-relaxed">
@@ -289,7 +289,7 @@ const ProjectDetailsPage = async ({ params }) => {
                             <section className="space-y-6">
                                 <h2 className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-500 mb-2">Project Details</h2>
 
-                        
+
                                 <div className="space-y-4">
                                     {project.content.map((section, index) => (
                                         <section key={index} className="space-y-4">
@@ -297,8 +297,8 @@ const ProjectDetailsPage = async ({ params }) => {
                                                 section.tag === 'h1' && index > 0 ? 'h2' : section.tag || 'p',
                                                 {
                                                     className: `${section.tag?.startsWith('h')
-                                                            ? 'text-xl font-semibold text-white'
-                                                            : 'text-gray-200 text-base leading-relaxed'
+                                                        ? 'text-xl font-semibold text-white'
+                                                        : 'text-gray-200 text-base leading-relaxed'
                                                         }`
                                                 },
                                                 section.content
@@ -321,9 +321,9 @@ const ProjectDetailsPage = async ({ params }) => {
                         {/* Key Features */}
                         {project.keyPoints && project.keyPoints.length > 0 && (
                             <section className="space-y-6">
-                                
 
-                                 <h2 className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-500 mb-2">Key Features</h2>
+
+                                <h2 className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-500 mb-2">Key Features</h2>
 
                                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {project.keyPoints.map((point, idx) => (
