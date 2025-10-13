@@ -10,63 +10,79 @@ import dbConnect from '@/lib/dbMongoose';
 
 
 export async function GET(request) {
-  try {
-    await dbConnect();
-    const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
-    const excludeId = searchParams.get('excludeId');
-    const limit = parseInt(searchParams.get('limit')) || 10;
+    try {
+        await dbConnect();
+        const { searchParams } = new URL(request.url);
+        const category = searchParams.get('category');
+        const excludeId = searchParams.get('excludeId');
+        const limit = parseInt(searchParams.get('limit')) || 10;
 
-    const query = { status: 'published' };
-    if (category) query.category = category;
-    if (excludeId) query._id = { $ne: excludeId };
+        const query = { status: 'published' };
+        if (category) query.category = category;
+        if (excludeId) query._id = { $ne: excludeId };
 
-    const stories = await FeaturedStory.find(query)
-      .limit(limit)
-      .lean()
-      .exec();
+        const stories = await FeaturedStory.find(query)
+            .limit(limit)
+            .lean()
+            .exec();
 
-    // Ensure contentBlocks is an array for each story
-    const sanitizedStories = stories.map(story => ({
-      ...story,
-      contentBlocks: Array.isArray(story.contentBlocks) ? story.contentBlocks : [],
-      views: story.views || 0,
-      category: story.category || 'featured',
-      tags: story.tags || [],
-      keyPoints: story.keyPoints || [],
-      author: story.author || 'Ataullah Mesbah',
-    }));
+        // Ensure contentBlocks is an array for each story
+        const sanitizedStories = stories.map(story => ({
+            ...story,
+            contentBlocks: Array.isArray(story.contentBlocks) ? story.contentBlocks : [],
+            views: story.views || 0,
+            category: story.category || 'featured',
+            tags: story.tags || [],
+            keyPoints: story.keyPoints || [],
+            author: story.author || 'Ataullah Mesbah',
+        }));
 
-    return NextResponse.json({ stories: sanitizedStories }, { status: 200 });
-  } catch (error) {
-    console.error('GET /api/feature error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+        return NextResponse.json({ stories: sanitizedStories }, { status: 200 });
+    } catch (error) {
+        console.error('GET /api/feature error:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
 }
 
-async function uploadImageToCloudinary(file) {
+// Enhanced image upload function with 800x450px resize
+async function uploadImageToCloudinary(file, options = {}) {
     try {
         let imageFile = file;
-        // Handle blob URLs if needed (though we expect File objects from FormData)
+
+        // Handle blob URLs if needed
         if (typeof file === 'string' && file.startsWith('blob:')) {
             const response = await fetch(file);
             imageFile = await response.blob();
         }
 
         const imageBuffer = await imageFile.arrayBuffer();
-        const uploadResult = await new Promise((resolve) => {
-            cloudinary.uploader.upload_stream(
+
+        const uploadOptions = {
+            resource_type: 'image',
+            format: 'webp',
+            quality: 'auto:good',
+            transformation: [
                 {
-                    resource_type: 'image',
-                    format: 'webp',
-                    quality: 'auto:good',
-                },
+                    width: 800,
+                    height: 450,
+                    crop: 'fill',
+                    gravity: 'auto',
+                    quality: 'auto',
+                    format: 'webp'
+                }
+            ],
+            ...options
+        };
+
+        const uploadResult = await new Promise((resolve, reject) => {
+            cloudinary.uploader.upload_stream(
+                uploadOptions,
                 (error, result) => {
                     if (error) {
                         console.error('Cloudinary upload error:', error);
-                        return resolve(null);
+                        return reject(error);
                     }
-                    resolve(result.secure_url);
+                    resolve(result);
                 }
             ).end(Buffer.from(new Uint8Array(imageBuffer)));
         });
@@ -76,6 +92,60 @@ async function uploadImageToCloudinary(file) {
         console.error('Image upload failed:', error);
         return null;
     }
+}
+
+// Function to optimize existing images in content blocks
+async function optimizeContentBlockImages(contentBlocks, formData) {
+    const processedBlocks = [];
+
+    for (const [index, block] of contentBlocks.entries()) {
+        if (block.type === 'image') {
+            console.log(`Processing image block ${index}:`, block);
+
+            // Get the image file from FormData using the imageKey
+            const imageFile = formData.get(block.imageKey);
+            if (!imageFile) {
+                console.error(`Image block ${index} missing image file`);
+                processedBlocks.push({
+                    type: 'image',
+                    imageUrl: '',
+                    caption: block.caption || ''
+                });
+                continue;
+            }
+
+            try {
+                const uploadResult = await uploadImageToCloudinary(imageFile);
+                if (!uploadResult) {
+                    throw new Error('Upload failed');
+                }
+
+                processedBlocks.push({
+                    type: 'image',
+                    imageUrl: uploadResult.secure_url,
+                    caption: block.caption || '',
+                    publicId: uploadResult.public_id,
+                    width: uploadResult.width,
+                    height: uploadResult.height
+                });
+                console.log(`Successfully uploaded image block ${index}:`, {
+                    url: uploadResult.secure_url,
+                    dimensions: `${uploadResult.width}x${uploadResult.height}`
+                });
+            } catch (error) {
+                console.error(`Failed to upload image block ${index}:`, error);
+                processedBlocks.push({
+                    type: 'image',
+                    imageUrl: '',
+                    caption: block.caption || ''
+                });
+            }
+        } else {
+            processedBlocks.push(block);
+        }
+    }
+
+    return processedBlocks;
 }
 
 export async function POST(request) {
@@ -128,57 +198,36 @@ export async function POST(request) {
         // Debug: Log parsed content blocks
         console.log('Parsed contentBlocks:', contentBlocks);
 
-        // Upload main image
-        const mainImageUrl = await uploadImageToCloudinary(mainImage);
-        if (!mainImageUrl) {
+        // Upload main image with 800x450px size
+        console.log('Uploading main image...');
+        const mainImageUpload = await uploadImageToCloudinary(mainImage, {
+            transformation: [
+                {
+                    width: 800,
+                    height: 450,
+                    crop: 'fill',
+                    gravity: 'auto',
+                    quality: 'auto:good',
+                    format: 'webp'
+                }
+            ]
+        });
+
+        if (!mainImageUpload) {
             return NextResponse.json(
                 { error: 'Failed to upload main image' },
                 { status: 500 }
             );
         }
 
-        // Process content blocks - upload images
-        const processedBlocks = [];
-        for (const [index, block] of contentBlocks.entries()) {
-            if (block.type === 'image') {
-                console.log(`Processing image block ${index}:`, block);
+        console.log('Main image uploaded:', {
+            url: mainImageUpload.secure_url,
+            dimensions: `${mainImageUpload.width}x${mainImageUpload.height}`
+        });
 
-                // Get the image file from FormData using the imageKey
-                const imageFile = formData.get(block.imageKey);
-                if (!imageFile) {
-                    console.error(`Image block ${index} missing image file`);
-                    processedBlocks.push({
-                        type: 'image',
-                        imageUrl: '',
-                        caption: block.caption || ''
-                    });
-                    continue;
-                }
-
-                try {
-                    const imageUrl = await uploadImageToCloudinary(imageFile);
-                    if (!imageUrl) {
-                        throw new Error('Upload failed');
-                    }
-
-                    processedBlocks.push({
-                        type: 'image',
-                        imageUrl: imageUrl,
-                        caption: block.caption || ''
-                    });
-                    console.log(`Successfully uploaded image block ${index}`);
-                } catch (error) {
-                    console.error(`Failed to upload image block ${index}:`, error);
-                    processedBlocks.push({
-                        type: 'image',
-                        imageUrl: '',
-                        caption: block.caption || ''
-                    });
-                }
-            } else {
-                processedBlocks.push(block);
-            }
-        }
+        // Process content blocks - upload images with optimization
+        console.log('Processing content block images...');
+        const processedBlocks = await optimizeContentBlockImages(contentBlocks, formData);
 
         // Create slug
         const slug = slugify(title, { lower: true, strict: true });
@@ -190,13 +239,19 @@ export async function POST(request) {
             metaTitle,
             metaDescription,
             shortDescription,
-            mainImage: mainImageUrl,
+            mainImage: mainImageUpload.secure_url,
             contentBlocks: processedBlocks,
             category,
             tags,
             keyPoints,
             author: session.user.name,
             status: 'published',
+            imageDimensions: {
+                mainImage: {
+                    width: mainImageUpload.width,
+                    height: mainImageUpload.height
+                }
+            }
         });
 
         await story.save();
@@ -209,7 +264,8 @@ export async function POST(request) {
                     title: story.title,
                     slug: story.slug,
                     contentBlocks: story.contentBlocks,
-                    mainImage: story.mainImage
+                    mainImage: story.mainImage,
+                    imageDimensions: story.imageDimensions
                 }
             },
             { status: 201 }
@@ -226,3 +282,4 @@ export async function POST(request) {
         );
     }
 }
+

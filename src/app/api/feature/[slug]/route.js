@@ -17,8 +17,8 @@ export async function GET(request, { params }) {
 
         console.log('Fetching story with slug:', slug);
 
-        const story = await FeaturedStory.findOne({ 
-            slug: { $regex: new RegExp(`^${slug}$`, 'i') } 
+        const story = await FeaturedStory.findOne({
+            slug: { $regex: new RegExp(`^${slug}$`, 'i') }
         }).lean();
 
         if (!story) {
@@ -41,22 +41,90 @@ export async function GET(request, { params }) {
 }
 
 
-async function uploadImageToCloudinary(file) {
+// Enhanced upload function with 800x450px resize
+async function uploadImageToCloudinary(file, options = {}) {
     try {
         const imageBuffer = await file.arrayBuffer();
+
+        const uploadOptions = {
+            resource_type: 'image',
+            format: 'webp',
+            quality: 'auto:good',
+            transformation: [
+                {
+                    width: 800,
+                    height: 450,
+                    crop: 'fill',
+                    gravity: 'auto',
+                    quality: 'auto:good',
+                    format: 'webp'
+                }
+            ],
+            ...options
+        };
+
         const uploadResult = await new Promise((resolve) => {
             cloudinary.uploader.upload_stream(
-                { resource_type: 'image', format: 'webp', quality: 'auto:good' },
-                (error, result) => error ? resolve(null) : resolve(result)
+                uploadOptions,
+                (error, result) => {
+                    if (error) {
+                        console.error('Cloudinary upload error:', error);
+                        return resolve(null);
+                    }
+                    resolve(result);
+                }
             ).end(Buffer.from(new Uint8Array(imageBuffer)));
         });
-        return uploadResult?.secure_url || null;
+
+        return uploadResult || null;
     } catch (error) {
         console.error('Image upload failed:', error);
         return null;
     }
 }
 
+// Function to optimize content block images
+async function optimizeContentBlockImages(contentBlocks, formData, existingBlocks = []) {
+    const processedBlocks = [];
+
+    for (const [index, block] of contentBlocks.entries()) {
+        if (block.type === 'image') {
+            const imageFile = formData.get(block.imageKey);
+            let imageUrl = block.imageUrl || existingBlocks[index]?.imageUrl || '';
+            let publicId = null;
+            let width = 800;
+            let height = 450;
+
+            // Upload new image if provided
+            if (imageFile && imageFile.size > 0) {
+                console.log(`Uploading new image for block ${index}`);
+                const uploadResult = await uploadImageToCloudinary(imageFile);
+                if (uploadResult) {
+                    imageUrl = uploadResult.secure_url;
+                    publicId = uploadResult.public_id;
+                    width = uploadResult.width;
+                    height = uploadResult.height;
+                    console.log(`Image uploaded successfully: ${width}x${height}`);
+                } else {
+                    console.error(`Failed to upload image for block ${index}`);
+                    imageUrl = '';
+                }
+            }
+
+            processedBlocks.push({
+                type: 'image',
+                imageUrl,
+                caption: block.caption || '',
+                publicId,
+                dimensions: { width, height }
+            });
+        } else {
+            processedBlocks.push(block);
+        }
+    }
+
+    return processedBlocks;
+}
 
 export async function PUT(request, { params }) {
     const session = await getServerSession(authOptions);
@@ -100,36 +168,31 @@ export async function PUT(request, { params }) {
             );
         }
 
-        // Process content blocks
-        const processedBlocks = [];
-        for (const [index, block] of contentBlocks.entries()) {
-            if (block.type === 'image') {
-                const imageFile = formData.get(block.imageKey);
-                let imageUrl = block.imageUrl || existingStory.contentBlocks[index]?.imageUrl || '';
+        // Process content blocks with image optimization
+        console.log('Processing content blocks with image optimization...');
+        const processedBlocks = await optimizeContentBlockImages(
+            contentBlocks,
+            formData,
+            existingStory.contentBlocks
+        );
 
-                if (imageFile && imageFile.size > 0) {
-                    imageUrl = await uploadImageToCloudinary(imageFile);
-                    if (!imageUrl) {
-                        console.error(`Failed to upload image for block ${index}`);
-                        imageUrl = '';
-                    }
-                }
-
-                processedBlocks.push({
-                    type: 'image',
-                    imageUrl,
-                    caption: block.caption || ''
-                });
-            } else {
-                processedBlocks.push(block);
-            }
-        }
-
-        // Handle main image
+        // Handle main image with 800x450px optimization
         let mainImageUrl = existingStory.mainImage;
+        let mainImagePublicId = existingStory.imageDimensions?.mainImage?.publicId;
+        let mainImageDimensions = existingStory.imageDimensions?.mainImage || { width: 800, height: 450 };
+
         if (mainImage && mainImage.size > 0) {
-            mainImageUrl = await uploadImageToCloudinary(mainImage);
-            if (!mainImageUrl) {
+            console.log('Uploading new main image with 800x450px optimization...');
+            const mainImageUpload = await uploadImageToCloudinary(mainImage);
+            if (mainImageUpload) {
+                mainImageUrl = mainImageUpload.secure_url;
+                mainImagePublicId = mainImageUpload.public_id;
+                mainImageDimensions = {
+                    width: mainImageUpload.width,
+                    height: mainImageUpload.height
+                };
+                console.log(`Main image uploaded: ${mainImageUpload.width}x${mainImageUpload.height}`);
+            } else {
                 return NextResponse.json(
                     { error: 'Failed to upload main image' },
                     { status: 500 }
@@ -142,36 +205,62 @@ export async function PUT(request, { params }) {
             ? slugify(title, { lower: true, strict: true })
             : slug;
 
+        // Prepare update data
+        const updateData = {
+            title,
+            slug: newSlug,
+            metaTitle,
+            metaDescription,
+            shortDescription,
+            mainImage: mainImageUrl,
+            contentBlocks: processedBlocks,
+            category,
+            tags,
+            keyPoints,
+            author: session.user.name,
+            imageDimensions: {
+                mainImage: mainImageDimensions,
+                publicId: mainImagePublicId
+            },
+            updatedAt: new Date()
+        };
+
         // Update story
         const updatedStory = await FeaturedStory.findOneAndUpdate(
             { slug },
+            { $set: updateData },
             {
-                title,
-                slug: newSlug,
-                metaTitle,
-                metaDescription,
-                shortDescription,
-                mainImage: mainImageUrl,
-                contentBlocks: processedBlocks,
-                category,
-                tags,
-                keyPoints,
-                author: session.user.name,
-            },
-            { new: true }
+                new: true,
+                runValidators: true
+            }
         );
 
         return NextResponse.json(
             {
                 message: 'Story updated successfully',
-                story: updatedStory
+                story: {
+                    _id: updatedStory._id,
+                    title: updatedStory.title,
+                    slug: updatedStory.slug,
+                    mainImage: updatedStory.mainImage,
+                    contentBlocks: updatedStory.contentBlocks,
+                    imageDimensions: updatedStory.imageDimensions,
+                    category: updatedStory.category,
+                    tags: updatedStory.tags,
+                    keyPoints: updatedStory.keyPoints,
+                    author: updatedStory.author,
+                    updatedAt: updatedStory.updatedAt
+                }
             },
             { status: 200 }
         );
     } catch (error) {
         console.error('PUT /api/feature/[slug] error:', error);
         return NextResponse.json(
-            { error: error.message || 'Internal server error' },
+            {
+                error: error.message || 'Internal server error',
+                details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            },
             { status: 500 }
         );
     }

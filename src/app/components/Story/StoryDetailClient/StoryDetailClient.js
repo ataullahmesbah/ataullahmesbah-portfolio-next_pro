@@ -93,17 +93,25 @@ export default function StoryDetailClient(props) {
             case 'image':
                 return (
                     <div key={index} className="my-6" data-aos="fade-up">
-                        <div className="relative w-full aspect-[16/9] rounded-lg overflow-hidden">
+                        {/* Content Block Image */}
+
+                        <div className="relative w-full aspect-[16/9] rounded-lg overflow-hidden bg-gray-700/30">
                             <Image
                                 src={block.imageUrl || '/images/placeholder.jpg'}
                                 alt={block.caption || 'Story image'}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 100vw, 800px"
-                                quality={90}
+                                width={800}
+                                height={450}
+                                className="object-cover w-full h-full"
+                                sizes="(max-width: 640px) 100vw, (max-width: 768px) 90vw, (max-width: 1024px) 800px, 800px"
+                                quality={85}
                                 loading="lazy"
                                 placeholder="blur"
                                 blurDataURL="/images/placeholder-blur.jpg"
+                                style={{
+                                    width: '100%',
+                                    height: 'auto',
+                                    aspectRatio: '16/9'
+                                }}
                             />
                         </div>
                         {block.caption && (
@@ -166,39 +174,7 @@ export default function StoryDetailClient(props) {
             <Toaster position="top-right" />
 
             {/* Navigation Header */}
-            <header className="fixed top-0 left-0 right-0 z-50 bg-gray-900/90 border-b border-gray-700">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <Link
-                            href="/featured-story"
-                            className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors font-medium"
-                            data-aos="fade-right"
-                        >
-                            <FiArrowLeft className="w-5 h-5" />
-                            <span className="text-sm">Back to Stories</span>
-                        </Link>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={toggleBookmark}
-                                className={`p-2 rounded-lg transition-all ${isBookmarked
-                                    ? 'text-purple-500'
-                                    : 'text-gray-400 hover:text-purple-500'
-                                    }`}
-                                aria-label={isBookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
-                            >
-                                <FiBookmark className="w-5 h-5" />
-                            </button>
-                            <button
-                                onClick={() => setShowShareModal(true)}
-                                className="p-2 rounded-lg text-gray-400 hover:text-purple-500 transition-all"
-                                aria-label="Share story"
-                            >
-                                <FiShare2 className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </header>
+
 
             {/* Main Content */}
             <main className="pt-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -307,18 +283,26 @@ export default function StoryDetailClient(props) {
 
                     {/* Featured Image */}
                     <div
-                        className="relative w-full aspect-[16/9] rounded-lg overflow-hidden mb-6"
+                        className="relative w-full aspect-[16/9] rounded-lg overflow-hidden mb-6 bg-gray-700/30"
                         data-aos="fade-up"
                         data-aos-delay="400"
                     >
                         <Image
                             src={story.mainImage || '/images/placeholder.jpg'}
                             alt={story.title || 'Story image'}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, 800px"
+                            width={800}
+                            height={450}
+                            className="object-cover w-full h-full"
+                            sizes="(max-width: 640px) 100vw, (max-width: 768px) 90vw, (max-width: 1024px) 800px, 800px"
                             quality={90}
                             priority
+                            placeholder="blur"
+                            blurDataURL="/images/placeholder-blur.jpg"
+                            style={{
+                                width: '100%',
+                                height: 'auto',
+                                aspectRatio: '16/9'
+                            }}
                         />
                     </div>
 
@@ -425,16 +409,26 @@ export default function StoryDetailClient(props) {
                                         data-aos="fade-up"
                                         data-aos-delay={index * 100}
                                     >
+
+                                        {/* Related Story Image */}
                                         <div className="border border-gray-700 rounded-lg overflow-hidden hover:border-purple-500/50 transition-colors h-full flex flex-col bg-gray-800/30">
-                                            <div className="relative w-full aspect-[4/3]">
+                                            <div className="relative w-full aspect-[16/9] bg-gray-700/30">
                                                 <Image
                                                     src={related.mainImage || '/images/placeholder.jpg'}
                                                     alt={related.title || 'Related story'}
-                                                    fill
-                                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                                    width={800}
+                                                    height={450}
+                                                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                                                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 45vw, (max-width: 1024px) 22vw, 280px"
                                                     quality={80}
                                                     loading="lazy"
+                                                    placeholder="blur"
+                                                    blurDataURL="/images/placeholder-blur.jpg"
+                                                    style={{
+                                                        width: '100%',
+                                                        height: 'auto',
+                                                        aspectRatio: '16/9'
+                                                    }}
                                                 />
                                             </div>
                                             <div className="p-3 flex flex-col flex-grow">
