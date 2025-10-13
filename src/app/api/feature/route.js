@@ -26,6 +26,7 @@ function calculateReadingTime(contentBlocks) {
     return readingTime > 0 ? readingTime : 1; // Minimum 1 minute
 }
 
+
 export async function GET(request) {
     try {
         await dbConnect();
@@ -33,12 +34,20 @@ export async function GET(request) {
         const category = searchParams.get('category');
         const excludeId = searchParams.get('excludeId');
         const limit = parseInt(searchParams.get('limit')) || 10;
+        const page = parseInt(searchParams.get('page')) || 1;
+        const skip = (page - 1) * limit;
 
         const query = { status: 'published' };
         if (category) query.category = category;
         if (excludeId) query._id = { $ne: excludeId };
 
+        // Get total count for pagination
+        const total = await FeaturedStory.countDocuments(query);
+
+        // Fetch stories with sorting by latest first (descending order)
         const stories = await FeaturedStory.find(query)
+            .sort({ createdAt: -1 }) // Latest stories first (newest to oldest)
+            .skip(skip)
             .limit(limit)
             .lean()
             .exec();
@@ -53,9 +62,17 @@ export async function GET(request) {
             tags: story.tags || [],
             keyPoints: story.keyPoints || [],
             author: story.author || 'Ataullah Mesbah',
+            // Ensure dates are properly formatted
+            createdAt: story.createdAt || new Date(),
+            publishedDate: story.publishedDate || story.createdAt || new Date(),
         }));
 
-        return NextResponse.json({ stories: sanitizedStories }, { status: 200 });
+        return NextResponse.json({
+            stories: sanitizedStories,
+            total,
+            page,
+            pages: Math.ceil(total / limit)
+        }, { status: 200 });
     } catch (error) {
         console.error('GET /api/feature error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -63,18 +80,10 @@ export async function GET(request) {
 }
 
 
-// Enhanced image upload function with 800x450px resize
+// Enhanced upload function with better error handling
 async function uploadImageToCloudinary(file, options = {}) {
     try {
-        let imageFile = file;
-
-        // Handle blob URLs if needed
-        if (typeof file === 'string' && file.startsWith('blob:')) {
-            const response = await fetch(file);
-            imageFile = await response.blob();
-        }
-
-        const imageBuffer = await imageFile.arrayBuffer();
+        const imageBuffer = await file.arrayBuffer();
 
         const uploadOptions = {
             resource_type: 'image',
@@ -86,7 +95,7 @@ async function uploadImageToCloudinary(file, options = {}) {
                     height: 450,
                     crop: 'fill',
                     gravity: 'auto',
-                    quality: 'auto',
+                    quality: 'auto:good',
                     format: 'webp'
                 }
             ],
@@ -109,11 +118,11 @@ async function uploadImageToCloudinary(file, options = {}) {
         return uploadResult;
     } catch (error) {
         console.error('Image upload failed:', error);
-        return null;
+        throw new Error('Image upload failed');
     }
 }
 
-// Function to optimize existing images in content blocks
+// Enhanced content block optimization with ALT text support
 async function optimizeContentBlockImages(contentBlocks, formData) {
     const processedBlocks = [];
 
@@ -128,7 +137,8 @@ async function optimizeContentBlockImages(contentBlocks, formData) {
                 processedBlocks.push({
                     type: 'image',
                     imageUrl: '',
-                    caption: block.caption || ''
+                    caption: block.caption || '',
+                    alt: block.alt || '' // Preserve ALT text
                 });
                 continue;
             }
@@ -143,24 +153,31 @@ async function optimizeContentBlockImages(contentBlocks, formData) {
                     type: 'image',
                     imageUrl: uploadResult.secure_url,
                     caption: block.caption || '',
+                    alt: block.alt || '', // Include ALT text
                     publicId: uploadResult.public_id,
                     width: uploadResult.width,
                     height: uploadResult.height
                 });
                 console.log(`Successfully uploaded image block ${index}:`, {
                     url: uploadResult.secure_url,
-                    dimensions: `${uploadResult.width}x${uploadResult.height}`
+                    dimensions: `${uploadResult.width}x${uploadResult.height}`,
+                    alt: block.alt || ''
                 });
             } catch (error) {
                 console.error(`Failed to upload image block ${index}:`, error);
                 processedBlocks.push({
                     type: 'image',
                     imageUrl: '',
-                    caption: block.caption || ''
+                    caption: block.caption || '',
+                    alt: block.alt || '' // Preserve ALT text even if upload fails
                 });
             }
         } else {
-            processedBlocks.push(block);
+            // For non-image blocks, include ALT text if provided
+            processedBlocks.push({
+                ...block,
+                alt: block.alt || '' // Ensure alt field exists
+            });
         }
     }
 
@@ -180,12 +197,13 @@ export async function POST(request) {
         // Debug: Log all form data keys
         console.log('Form data keys:', [...formData.keys()]);
 
-        // Extract fields
+        // Extract fields - ALT text সহ
         const title = formData.get('title');
         const metaTitle = formData.get('metaTitle');
         const metaDescription = formData.get('metaDescription');
         const shortDescription = formData.get('shortDescription');
         const mainImage = formData.get('mainImage');
+        const mainImageAlt = formData.get('mainImageAlt') || ''; // Main image ALT text
         const contentBlocksRaw = formData.get('contentBlocks');
         const category = formData.get('category') || 'featured';
         const tags = formData.get('tags')?.split(',').map(t => t.trim()).filter(t => t) || [];
@@ -193,11 +211,17 @@ export async function POST(request) {
 
         // Validate required fields
         if (!title || !metaTitle || !metaDescription || !shortDescription || !mainImage) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+            return NextResponse.json({
+                error: 'Missing required fields: title, metaTitle, metaDescription, shortDescription, mainImage'
+            }, { status: 400 });
         }
 
-        // Debug: Log contentBlocks before parsing
-        console.log('Raw contentBlocks:', contentBlocksRaw);
+        // Validate main image ALT text
+        if (!mainImageAlt.trim()) {
+            return NextResponse.json({
+                error: 'Main image ALT text is required for accessibility'
+            }, { status: 400 });
+        }
 
         // Parse content blocks
         let contentBlocks;
@@ -206,31 +230,39 @@ export async function POST(request) {
             if (!Array.isArray(contentBlocks)) {
                 throw new Error('Content blocks must be an array');
             }
+
+            // Validate content blocks have required fields
+            const invalidBlocks = contentBlocks.filter((block, index) => {
+                if (block.type === 'image' && !block.alt?.trim()) {
+                    throw new Error(`Image block ${index + 1} is missing ALT text`);
+                }
+                return false;
+            });
+
         } catch (error) {
             console.error('Content blocks parse error:', error);
             return NextResponse.json(
-                { error: 'Invalid content blocks format' },
+                { error: error.message || 'Invalid content blocks format' },
                 { status: 400 }
             );
         }
 
-        // Debug: Log parsed content blocks
-        console.log('Parsed contentBlocks:', contentBlocks);
+        // Check if slug already exists
+        const baseSlug = slugify(title, { lower: true, strict: true });
+        const existingSlug = await FeaturedStory.findOne({
+            slug: new RegExp(`^${baseSlug}`, 'i')
+        });
+
+        if (existingSlug) {
+            return NextResponse.json(
+                { error: 'A story with similar title already exists' },
+                { status: 400 }
+            );
+        }
 
         // Upload main image with 800x450px size
         console.log('Uploading main image...');
-        const mainImageUpload = await uploadImageToCloudinary(mainImage, {
-            transformation: [
-                {
-                    width: 800,
-                    height: 450,
-                    crop: 'fill',
-                    gravity: 'auto',
-                    quality: 'auto:good',
-                    format: 'webp'
-                }
-            ]
-        });
+        const mainImageUpload = await uploadImageToCloudinary(mainImage);
 
         if (!mainImageUpload) {
             return NextResponse.json(
@@ -248,21 +280,22 @@ export async function POST(request) {
         console.log('Processing content block images...');
         const processedBlocks = await optimizeContentBlockImages(contentBlocks, formData);
 
-        // Create slug
-        const slug = slugify(title, { lower: true, strict: true });
+        // Generate unique slug with timestamp
+        const slug = `${baseSlug}-${Date.now()}`;
 
-        // Create story
+        // Create story with all fields including ALT text
         const story = new FeaturedStory({
-            title,
+            title: title.trim(),
             slug,
-            metaTitle,
-            metaDescription,
-            shortDescription,
+            metaTitle: metaTitle.trim(),
+            metaDescription: metaDescription.trim(),
+            shortDescription: shortDescription.trim(),
             mainImage: mainImageUpload.secure_url,
+            mainImageAlt: mainImageAlt.trim(), // Include main image ALT
             contentBlocks: processedBlocks,
-            category,
-            tags,
-            keyPoints,
+            category: category.toLowerCase().trim(), // Normalize category
+            tags: tags,
+            keyPoints: keyPoints,
             author: session.user.name,
             status: 'published',
             imageDimensions: {
@@ -270,7 +303,8 @@ export async function POST(request) {
                     width: mainImageUpload.width,
                     height: mainImageUpload.height
                 }
-            }
+            },
+            // readingTime will be auto-calculated by pre-save hook
         });
 
         await story.save();
@@ -282,9 +316,16 @@ export async function POST(request) {
                     _id: story._id,
                     title: story.title,
                     slug: story.slug,
-                    contentBlocks: story.contentBlocks,
                     mainImage: story.mainImage,
-                    imageDimensions: story.imageDimensions
+                    mainImageAlt: story.mainImageAlt,
+                    contentBlocks: story.contentBlocks,
+                    category: story.category,
+                    tags: story.tags,
+                    keyPoints: story.keyPoints,
+                    author: story.author,
+                    readingTime: story.readingTime,
+                    imageDimensions: story.imageDimensions,
+                    publishedDate: story.publishedDate
                 }
             },
             { status: 201 }
@@ -292,10 +333,28 @@ export async function POST(request) {
 
     } catch (error) {
         console.error('POST /api/feature error:', error);
+
+        // Handle duplicate key error (unique slug)
+        if (error.code === 11000) {
+            return NextResponse.json(
+                { error: 'A story with this title already exists' },
+                { status: 400 }
+            );
+        }
+
+        // Handle validation errors
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(err => err.message);
+            return NextResponse.json(
+                { error: 'Validation failed', details: errors },
+                { status: 400 }
+            );
+        }
+
         return NextResponse.json(
             {
                 error: error.message || 'Internal server error',
-                details: error.errors
+                details: process.env.NODE_ENV === 'development' ? error.stack : undefined
             },
             { status: 500 }
         );

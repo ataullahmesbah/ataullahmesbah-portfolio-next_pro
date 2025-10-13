@@ -2,8 +2,6 @@
 import FeaturedSchema from '@/app/components/Schema/FeaturedSchema/FeaturedSchema';
 import StoriesClient from '@/app/components/Story/StoriesClient/StoriesClient';
 
-
-
 export async function generateMetadata() {
     return {
         title: 'Featured Stories | Ataullah Mesbah',
@@ -25,7 +23,7 @@ export async function generateMetadata() {
     };
 }
 
-async function fetchStories(page = 1, limit = 9) { // Increased limit
+async function fetchStories(page = 1, limit = 9) {
     try {
         const res = await fetch(`${process.env.NEXTAUTH_URL}/api/feature?page=${page}&limit=${limit}`, {
             method: 'GET',
@@ -33,6 +31,7 @@ async function fetchStories(page = 1, limit = 9) { // Increased limit
                 'Content-Type': 'application/json',
             },
             cache: 'no-store',
+            next: { revalidate: 60 } // Optional: revalidate every 60 seconds
         });
 
         if (!res.ok) {
@@ -50,7 +49,7 @@ async function fetchStories(page = 1, limit = 9) { // Increased limit
 export default async function FeaturedStories({ searchParams }) {
     const page = parseInt(searchParams.page) || 1;
     const data = await fetchStories(page);
-    const { stories, pages } = data;
+    const { stories, pages, total } = data;
 
     const schema = FeaturedSchema(stories);
 
@@ -61,6 +60,7 @@ export default async function FeaturedStories({ searchParams }) {
                 schema={schema}
                 currentPage={page}
                 totalPages={pages}
+                totalStories={total}
             />
         </div>
     );

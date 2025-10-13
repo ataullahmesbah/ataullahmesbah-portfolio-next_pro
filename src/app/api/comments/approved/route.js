@@ -21,7 +21,7 @@ export async function GET(request) {
 
         return NextResponse.json(processedComments, { status: 200 });
     } catch (error) {
-        console.error('Error fetching approved comments:', error);
+    
         return NextResponse.json(
             { error: 'Failed to fetch approved comments' },
             { status: 500 }

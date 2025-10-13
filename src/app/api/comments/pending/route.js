@@ -34,7 +34,7 @@ export async function GET(request) {
 
     return NextResponse.json(allPending, { status: 200 });
   } catch (error) {
-    console.error('Error fetching pending comments:', error);
+   
     return NextResponse.json(
       { error: 'Failed to fetch pending comments' },
       { status: 500 }

@@ -103,7 +103,7 @@ export default function AllFeaturedStories() {
                 placeholder="Search by title or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 rounded-lg bg-blue-800 text-white w-full focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                className="pl-10 pr-4 py-2 rounded-lg bg-white text-black w-full focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
               />
             </div>
             <div className="relative w-full sm:w-40">
@@ -111,7 +111,7 @@ export default function AllFeaturedStories() {
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="pl-10 pr-4 py-2 rounded-lg bg-blue-800 text-white w-full focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                className="pl-10 pr-4 py-2 rounded-lg bg-gray-800 text-white w-full focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
               >
                 <option value="">All Categories</option>
                 {categories.map((cat) => (
@@ -150,7 +150,7 @@ export default function AllFeaturedStories() {
               {filteredStories.map((story, index) => (
                 <div
                   key={story._id}
-                  className="bg-blue-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-blue-700"
+                  className="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-700"
                   data-aos="fade-up"
                   data-aos-delay={index * 100}
                 >
@@ -202,9 +202,9 @@ export default function AllFeaturedStories() {
 
             {/* Desktop View: Table Layout */}
             <div className="hidden md:block overflow-x-auto">
-              <table className="min-w-full bg-blue-800 rounded-xl shadow-lg">
+              <table className="min-w-full bg-gray-900 rounded-xl shadow-lg">
                 <thead>
-                  <tr className="bg-blue-900 text-white">
+                  <tr className="bg-gray-800/30 text-white">
                     <th className="py-4 px-6 text-left">Title</th>
                     <th className="py-4 px-6 text-left">Category</th>
                     <th className="py-4 px-6 text-left">Views</th>
@@ -215,7 +215,7 @@ export default function AllFeaturedStories() {
                   {filteredStories.map((story, index) => (
                     <tr
                       key={story._id}
-                      className="border-b border-blue-700 hover:bg-blue-750 transition"
+                      className="border-b border-gray-700 hover:bg-blue-750 transition"
                       data-aos="fade-up"
                       data-aos-delay={index * 50}
                     >

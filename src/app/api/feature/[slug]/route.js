@@ -83,7 +83,7 @@ async function uploadImageToCloudinary(file, options = {}) {
     }
 }
 
-// Function to optimize content block images
+// Enhanced function with ALT text support
 async function optimizeContentBlockImages(contentBlocks, formData, existingBlocks = []) {
     const processedBlocks = [];
 
@@ -94,6 +94,7 @@ async function optimizeContentBlockImages(contentBlocks, formData, existingBlock
             let publicId = null;
             let width = 800;
             let height = 450;
+            let alt = block.alt || existingBlocks[index]?.alt || ''; // ALT text preserve
 
             // Upload new image if provided
             if (imageFile && imageFile.size > 0) {
@@ -115,11 +116,16 @@ async function optimizeContentBlockImages(contentBlocks, formData, existingBlock
                 type: 'image',
                 imageUrl,
                 caption: block.caption || '',
+                alt: alt, // ALT text include
                 publicId,
                 dimensions: { width, height }
             });
         } else {
-            processedBlocks.push(block);
+            // For non-image blocks, preserve ALT text if exists
+            processedBlocks.push({
+                ...block,
+                alt: block.alt || '' // Ensure alt field exists for all blocks
+            });
         }
     }
 
@@ -142,16 +148,22 @@ export async function PUT(request, { params }) {
             return NextResponse.json({ error: 'Story not found' }, { status: 404 });
         }
 
-        // Extract fields
+        // Extract fields - ALT text সহ
         const title = formData.get('title');
         const metaTitle = formData.get('metaTitle');
         const metaDescription = formData.get('metaDescription');
         const shortDescription = formData.get('shortDescription');
         const mainImage = formData.get('mainImage');
+        const mainImageAlt = formData.get('mainImageAlt') || ''; // ALT text add করুন
         const contentBlocksRaw = formData.get('contentBlocks');
         const category = formData.get('category') || 'featured';
         const tags = formData.get('tags')?.split(',').map(t => t.trim()).filter(t => t) || [];
         const keyPoints = formData.get('keyPoints')?.split('\n').map(k => k.trim()).filter(k => k) || [];
+
+        // Validate required fields
+        if (!title || !metaTitle || !metaDescription || !shortDescription) {
+            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        }
 
         // Parse content blocks
         let contentBlocks;
@@ -168,7 +180,7 @@ export async function PUT(request, { params }) {
             );
         }
 
-        // Process content blocks with image optimization
+        // Process content blocks with image optimization এবং ALT text
         console.log('Processing content blocks with image optimization...');
         const processedBlocks = await optimizeContentBlockImages(
             contentBlocks,
@@ -205,7 +217,18 @@ export async function PUT(request, { params }) {
             ? slugify(title, { lower: true, strict: true })
             : slug;
 
-        // Prepare update data
+        // Check if slug already exists (different story)
+        if (newSlug !== slug) {
+            const existingSlug = await FeaturedStory.findOne({ slug: newSlug, _id: { $ne: existingStory._id } });
+            if (existingSlug) {
+                return NextResponse.json(
+                    { error: 'A story with this title already exists' },
+                    { status: 400 }
+                );
+            }
+        }
+
+        // Prepare update data - ALT text সহ
         const updateData = {
             title,
             slug: newSlug,
@@ -213,6 +236,7 @@ export async function PUT(request, { params }) {
             metaDescription,
             shortDescription,
             mainImage: mainImageUrl,
+            mainImageAlt: mainImageAlt || existingStory.mainImageAlt, // Existing ALT রাখুন যদি নতুন না থাকে
             contentBlocks: processedBlocks,
             category,
             tags,
@@ -243,6 +267,7 @@ export async function PUT(request, { params }) {
                     title: updatedStory.title,
                     slug: updatedStory.slug,
                     mainImage: updatedStory.mainImage,
+                    mainImageAlt: updatedStory.mainImageAlt,
                     contentBlocks: updatedStory.contentBlocks,
                     imageDimensions: updatedStory.imageDimensions,
                     category: updatedStory.category,

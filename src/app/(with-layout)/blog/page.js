@@ -270,15 +270,18 @@ export default function BlogList({ searchParams }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
       />
+ 
       <Suspense fallback={
         <div className="container mx-auto py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              
             {Array.from({ length: limit }).map((_, index) => (
               <BlogCardSkeleton key={index} />
             ))}
           </div>
         </div>
       }>
+      
         <BlogContent page={page} limit={limit} />
       </Suspense>
     </div>

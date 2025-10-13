@@ -9,6 +9,7 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import toast, { Toaster } from 'react-hot-toast';
 import UserLink from '../../Profile/ProfileLink/UserLink';
+import { IoArrowUndoSharp } from "react-icons/io5";
 
 export default function StoryDetailClient(props) {
     const { story, schema, relatedStories = [] } = props;
@@ -183,6 +184,17 @@ export default function StoryDetailClient(props) {
                     {/* Article Header */}
                     <div className="mb-8">
                         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+
+                            <span className='flex items-center gap-3  bg-purple-600/20 text-purple-300 px-3 py-1 rounded-full text-sm font-medium border border-purple-500/30'>
+                                <IoArrowUndoSharp />
+                                <Link
+                                    href="/featured-story"
+                                    className=""
+                                    data-aos="fade-up"
+                                >
+                                    Back To Story
+                                </Link>
+                            </span>
                             <span
                                 className="inline-block bg-purple-600/20 text-purple-300 px-3 py-1 rounded-full text-sm font-medium border border-purple-500/30"
                                 data-aos="fade-up"
@@ -227,7 +239,7 @@ export default function StoryDetailClient(props) {
                                             className="text-white hover:text-purple-300 transition-colors"
                                         />
                                     </p>
-                                    <p className="text-gray-400 text-xs">Author</p>
+
                                 </div>
 
                                 {/* Stats Grid */}

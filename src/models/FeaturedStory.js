@@ -1,3 +1,4 @@
+// models/FeaturedStory.js
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 
@@ -28,6 +29,11 @@ const ContentBlockSchema = new mongoose.Schema(
                 return this.type === 'image';
             },
         },
+        alt: {
+            type: String,
+            default: '',
+            maxlength: [125, 'ALT text cannot exceed 125 characters'],
+        },
         caption: {
             type: String,
             default: '',
@@ -49,9 +55,6 @@ const FeaturedStorySchema = new mongoose.Schema(
             required: true,
             unique: true,
             index: true,
-            default: function () {
-                return slugify(this.title, { lower: true, strict: true });
-            }
         },
         metaDescription: {
             type: String,
@@ -66,7 +69,11 @@ const FeaturedStorySchema = new mongoose.Schema(
         mainImage: {
             type: String,
             required: [true, 'Main image URL is required'],
-            match: [/^https?:\/\/.+\..+/, 'Please use a valid URL'],
+        },
+        mainImageAlt: {
+            type: String,
+            default: '',
+            maxlength: [125, 'ALT text cannot exceed 125 characters'],
         },
         publishedDate: {
             type: Date,
@@ -89,8 +96,9 @@ const FeaturedStorySchema = new mongoose.Schema(
         },
         category: {
             type: String,
-            enum: ['featured', 'tech', 'travel', 'seo', 'personal'],
             default: 'featured',
+            trim: true,
+            lowercase: true,
         },
         tags: {
             type: [String],
@@ -114,20 +122,49 @@ const FeaturedStorySchema = new mongoose.Schema(
             enum: ['draft', 'published', 'archived'],
             default: 'draft',
         },
+        readingTime: {
+            type: Number,
+            default: 5,
+            min: [1, 'Reading time must be at least 1 minute'],
+        },
     },
     { timestamps: true }
 );
 
+// Pre-save hook for slug generation and reading time calculation
 FeaturedStorySchema.pre('save', function (next) {
+    // Generate slug if not exists or title modified
     if (!this.slug || this.isModified('title')) {
-        this.slug = slugify(this.title, {
+        const baseSlug = slugify(this.title, {
             lower: true,
             strict: true,
             remove: /[*+~.()'"!:@]/g
         });
+
+        // Add timestamp to ensure uniqueness
+        this.slug = `${baseSlug}-${Date.now()}`;
     }
+
+    // Calculate reading time from content blocks
+    if (this.isModified('contentBlocks')) {
+        let totalWords = 0;
+        this.contentBlocks.forEach(block => {
+            if (['paragraph', 'heading'].includes(block.type) && block.content) {
+                const words = block.content.split(/\s+/).length;
+                totalWords += words;
+            }
+        });
+        this.readingTime = Math.max(1, Math.ceil(totalWords / 200)); // 200 words per minute
+    }
+
     next();
 });
+
+// Index for better query performance
+FeaturedStorySchema.index({ slug: 1 });
+FeaturedStorySchema.index({ category: 1 });
+FeaturedStorySchema.index({ status: 1 });
+FeaturedStorySchema.index({ publishedDate: -1 });
 
 export default mongoose.models.FeaturedStory ||
     mongoose.model('FeaturedStory', FeaturedStorySchema);

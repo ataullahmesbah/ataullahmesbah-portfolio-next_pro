@@ -16,18 +16,18 @@ export async function GET(request, { params }) {
       { new: true }
     );
     if (!blog) {
-      console.error('Blog not found for slug:', params.slug);
+
       return new Response(JSON.stringify({ error: 'Blog not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0' },
       });
     }
-    console.log('Fetched blog:', blog);
+
     return new Response(JSON.stringify(blog), {
       headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0' },
     });
   } catch (error) {
-    console.error('GET error:', error);
+
     return new Response(JSON.stringify({ error: 'Failed to fetch blog' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0' },
@@ -39,15 +39,15 @@ export async function GET(request, { params }) {
 export async function PUT(req, { params }) {
   await dbConnect();
   const { slug: oldSlug } = params;
-  console.log('PUT request for old slug:', oldSlug);
+
 
   try {
     const formData = await req.formData();
-    console.log('FormData keys:', [...formData.keys()]);
+
 
     const blog = await Blog.findOne({ slug: oldSlug });
     if (!blog) {
-      console.error('No blog found for old slug:', oldSlug);
+
       return NextResponse.json(
         { success: false, error: 'Blog not found' },
         { status: 404, headers: { 'Cache-Control': 'no-store, max-age=0' } }
@@ -76,7 +76,7 @@ export async function PUT(req, { params }) {
         );
       }
       blog.slug = newSlug;
-      console.log('Updated slug to:', blog.slug);
+
     }
 
     // Update basic fields
@@ -85,7 +85,7 @@ export async function PUT(req, { params }) {
     blog.metaDescription = formData.get('metaDescription');
     blog.author = formData.get('author');
     blog.imageAlt = formData.get('imageAlt') || '';
-    console.log('Updated basic fields:', { title: blog.title, metaTitle: blog.metaTitle, metaDescription: blog.metaDescription, author: blog.author, imageAlt: blog.imageAlt });
+
 
     // Handle JSON fields
     const jsonFields = ['shortDescriptions', 'keyPoints', 'tags', 'categories', 'faqs', 'lsiKeywords', 'semanticRelatedTerms', 'geoLocation', 'conversationalPhrases', 'directAnswers', 'citations'];
@@ -93,9 +93,9 @@ export async function PUT(req, { params }) {
       if (formData.has(field)) {
         try {
           blog[field] = JSON.parse(formData.get(field) || (field === 'geoLocation' ? '{}' : '[]'));
-          console.log(`Parsed ${field}:`, blog[field]);
+
         } catch (error) {
-          console.error(`Error parsing ${field}:`, error);
+
           return NextResponse.json(
             { success: false, error: `Invalid ${field} format` },
             { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
@@ -107,7 +107,7 @@ export async function PUT(req, { params }) {
     // Handle main image
     const mainImageFile = formData.get('mainImage');
     if (mainImageFile && mainImageFile.size > 0) {
-      console.log('Uploading new main image:', mainImageFile.name);
+
       const arrayBuffer = await mainImageFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       const result = await new Promise((resolve, reject) => {
@@ -124,7 +124,7 @@ export async function PUT(req, { params }) {
         ).end(buffer);
       });
       blog.mainImage = result.secure_url;
-      console.log('Updated mainImage:', blog.mainImage);
+
     }
 
     // Process content sections
@@ -132,9 +132,9 @@ export async function PUT(req, { params }) {
       let content;
       try {
         content = JSON.parse(formData.get('content') || '[]');
-        console.log('Parsed content:', content);
+
       } catch (error) {
-        console.error('Error parsing content:', error);
+
         return NextResponse.json(
           { success: false, error: 'Invalid content format' },
           { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
@@ -142,14 +142,14 @@ export async function PUT(req, { params }) {
       }
 
       const contentImages = formData.getAll('contentImages');
-      console.log('Content images count:', contentImages.length);
+
       let imageIndex = 0;
 
       blog.content = await Promise.all(
         content.map(async (item) => {
           if (item.type === 'image') {
             if (item.data && (item.data.startsWith('http://') || item.data.startsWith('https://'))) {
-              console.log('Keeping existing image URL:', item.data);
+
               return {
                 type: 'image',
                 data: item.data,
@@ -157,7 +157,7 @@ export async function PUT(req, { params }) {
                 tag: 'image'
               };
             } else {
-              console.log('Uploading new content image at index:', imageIndex);
+
               const imageFile = contentImages[imageIndex];
               imageIndex++;
               if (imageFile && imageFile.size > 0) {
@@ -214,7 +214,7 @@ export async function PUT(req, { params }) {
           }
         })
       );
-      console.log('Updated blog.content:', blog.content);
+
     }
 
     // Calculate read time
@@ -222,7 +222,7 @@ export async function PUT(req, { params }) {
       .filter(item => item.type === 'text')
       .reduce((count, item) => count + item.data.split(/\s+/).length, 0);
     blog.readTime = Math.max(1, Math.ceil(wordCount / 200));
-    console.log('Calculated readTime:', blog.readTime);
+
 
     // Update other fields
     if (formData.has('structuredData')) blog.structuredData = formData.get('structuredData');

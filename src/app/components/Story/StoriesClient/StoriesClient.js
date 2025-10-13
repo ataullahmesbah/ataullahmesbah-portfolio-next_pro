@@ -1,4 +1,4 @@
-// app/components/Story/StoriesClient.js
+// app/components/Story/StoriesClient/StoriesClient.js
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -9,28 +9,10 @@ import Image from 'next/image';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Pagination from '../../Pagination/Pagination';
-import { FiEye, FiCalendar, FiArrowRight, FiArrowUp, FiClock, FiPlay } from 'react-icons/fi';
+import { FiEye, FiCalendar, FiArrowRight, FiArrowUp, FiClock, FiPlay, FiStar } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
-
-function calculateReadingTime(contentBlocks) {
-    if (!Array.isArray(contentBlocks)) return 5;
-
-    let totalWords = 0;
-
-    contentBlocks.forEach(block => {
-        if (['paragraph', 'heading'].includes(block.type) && block.content) {
-            const words = block.content.split(/\s+/).length;
-            totalWords += words;
-        }
-    });
-
-    const readingTime = Math.ceil(totalWords / 200);
-    return readingTime > 0 ? readingTime : 1;
-}
-
-
-export default function StoriesClient({ initialStories, schema, currentPage = 1, totalPages = 1 }) {
+export default function StoriesClient({ initialStories, schema, currentPage = 1, totalPages = 1, totalStories = 0 }) {
     const router = useRouter();
     const { data: session } = useSession();
     const [stories, setStories] = useState(initialStories);
@@ -75,9 +57,25 @@ export default function StoriesClient({ initialStories, schema, currentPage = 1,
         }
     };
 
+    // Function to check if story is latest (published in last 7 days)
+    const isLatestStory = (publishedDate) => {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        return new Date(publishedDate) > sevenDaysAgo;
+    };
+
+    // Function to format date
+    const formatDate = (date) => {
+        return new Date(date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
+
     const SkeletonCard = () => (
-        <div className="">
-            <div className="relative w-full aspect-[16/9] bg-gray-700/50"></div>
+        <div className="animate-pulse">
+            <div className="relative w-full aspect-[16/9] bg-gray-700/50 rounded-xl"></div>
             <div className="p-5">
                 <div className="flex items-center justify-between mb-4">
                     <div className="h-5 bg-gray-700/50 rounded-full w-20"></div>
@@ -94,9 +92,6 @@ export default function StoriesClient({ initialStories, schema, currentPage = 1,
         </div>
     );
 
-
-
-
     return (
         <>
             <div className="min-h-screen py-8">
@@ -107,14 +102,19 @@ export default function StoriesClient({ initialStories, schema, currentPage = 1,
                             Featured Stories
                         </h1>
                         <p className="text-gray-300 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed font-light">
-                            Discover captivating stories about technology, innovation, and digital experiences
+                            Discover the latest captivating stories about technology, innovation, and digital experiences
                         </p>
-                        <div className="flex items-center justify-center mt-8">
-                            <div className="flex-1 border-t border-gray-700 max-w-xs"></div>
-                            <div className="mx-6 text-purple-500">
-                                <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
+
+                        {/* Stats */}
+                        <div className="flex flex-wrap justify-center gap-6 mt-8 text-gray-400">
+                            <div className="flex items-center gap-2">
+                                <FiStar className="w-5 h-5 text-purple-500" />
+                                <span>{totalStories}+ Stories</span>
                             </div>
-                            <div className="flex-1 border-t border-gray-700 max-w-xs"></div>
+                            <div className="flex items-center gap-2">
+                                <FiEye className="w-5 h-5 text-blue-500" />
+                                <span>Latest First</span>
+                            </div>
                         </div>
                     </div>
 
@@ -150,10 +150,20 @@ export default function StoriesClient({ initialStories, schema, currentPage = 1,
                                 {stories.map((story, index) => (
                                     <div
                                         key={story._id}
-                                        className="group bg-gray-800/30 rounded-2xl overflow-hidden border border-gray-700/50 hover:border-purple-500/50 transition-all duration-500 backdrop-blur-sm hover:transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/10"
+                                        className="group bg-gray-800/30 rounded-2xl overflow-hidden border border-gray-700/50 hover:border-purple-500/50 transition-all duration-500 backdrop-blur-sm hover:transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-500/10 relative"
                                         data-aos="fade-up"
                                         data-aos-delay={index * 100}
                                     >
+                                        {/* Latest Badge */}
+                                        {isLatestStory(story.publishedDate || story.createdAt) && (
+                                            <div className="absolute top-4 right-4 z-10">
+                                                <span className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm flex items-center gap-1 shadow-lg">
+                                                    <FiStar className="w-3 h-3" />
+                                                    Latest
+                                                </span>
+                                            </div>
+                                        )}
+
                                         {/* Image Container */}
                                         <div className="relative w-full aspect-[16/9] overflow-hidden bg-gray-700/30">
                                             <Image
@@ -178,25 +188,20 @@ export default function StoriesClient({ initialStories, schema, currentPage = 1,
                                             </div>
                                         </div>
 
-                                        {/* Content Section - Fix Height Issues */}
+                                        {/* Content Section */}
                                         <div className="p-6 flex flex-col min-h-[280px]">
                                             {/* Meta Info */}
                                             <div className="flex items-center justify-between text-gray-400 text-sm mb-4">
                                                 <div className="flex items-center gap-1">
                                                     <FiCalendar className="w-4 h-4 text-purple-400" />
                                                     <span>
-                                                        {new Date(story.publishedDate).toLocaleDateString('en-US', {
-                                                            month: 'short',
-                                                            day: 'numeric',
-                                                            year: 'numeric'
-                                                        })}
+                                                        {formatDate(story.publishedDate || story.createdAt)}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center gap-3">
-                                                    {/* Reading Time - Dynamic */}
                                                     <span className="flex items-center gap-1">
                                                         <FiClock className="w-4 h-4 text-blue-400" />
-                                                        {calculateReadingTime(story.contentBlocks)} min
+                                                        {story.readingTime || 5} min
                                                     </span>
                                                     <span className="flex items-center gap-1">
                                                         <FiEye className="w-4 h-4 text-green-400" />
@@ -212,13 +217,12 @@ export default function StoriesClient({ initialStories, schema, currentPage = 1,
                                                 </h2>
                                             </Link>
 
-                                            {/* Description - Fallback system */}
+                                            {/* Description */}
                                             <p className="text-gray-300 text-sm mb-4 line-clamp-3 leading-relaxed font-light flex-grow">
                                                 {story.shortDescription || story.metaDescription || 'Discover this amazing story...'}
                                             </p>
 
-
-                                            {/* Author Section - Conditional Display */}
+                                            {/* Author Section */}
                                             {(story.author || story.readingTime) && (
                                                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-auto pt-4 border-t border-gray-700/50">
                                                     {/* Author Info */}
@@ -229,7 +233,6 @@ export default function StoriesClient({ initialStories, schema, currentPage = 1,
                                                             </div>
                                                             <div className="min-w-0">
                                                                 <p className="text-white text-sm font-medium truncate">{story.author}</p>
-
                                                             </div>
                                                         </div>
                                                     )}
@@ -257,14 +260,16 @@ export default function StoriesClient({ initialStories, schema, currentPage = 1,
                             </div>
 
                             {/* Pagination */}
-                            <div className="mb-12" data-aos="fade-up">
-                                <Pagination
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
-                                    basePath="/featured-story"
-                                    onPageChange={handlePageChange}
-                                />
-                            </div>
+                            {totalPages > 1 && (
+                                <div className="mb-12" data-aos="fade-up">
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        basePath="/featured-story"
+                                        onPageChange={handlePageChange}
+                                    />
+                                </div>
+                            )}
                         </>
                     )}
                 </div>

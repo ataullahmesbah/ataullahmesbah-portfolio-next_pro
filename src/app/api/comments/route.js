@@ -50,7 +50,7 @@ export async function GET(request) {
 
         return NextResponse.json(filteredComments, { status: 200 });
     } catch (error) {
-        console.error('Error fetching comments:', error);
+
         return serverError('fetch comments');
     }
 }
@@ -94,7 +94,7 @@ export async function POST(request) {
             );
         }
     } catch (error) {
-        console.error('Error creating comment:', error);
+
         return serverError('submit comment');
     }
 }
@@ -146,7 +146,7 @@ export async function PATCH(request) {
             { status: 400 }
         );
     } catch (error) {
-        console.error('Error approving comment:', error);
+
         return serverError('approve comment');
     }
 }
@@ -189,7 +189,7 @@ export async function DELETE(request) {
             { status: 400 }
         );
     } catch (error) {
-        console.error('Error deleting comment:', error);
+
         return serverError('delete comment');
     }
 }
