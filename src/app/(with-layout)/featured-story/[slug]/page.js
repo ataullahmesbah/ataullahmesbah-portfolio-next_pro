@@ -1,9 +1,7 @@
 // app/(with-layout)/featured-story/[slug]/page.js
 
-
 import StoryDetailClient from '@/app/components/Story/StoryDetailClient/StoryDetailClient';
 import { notFound } from 'next/navigation';
-
 
 function calculateReadingTime(contentBlocks) {
     if (!Array.isArray(contentBlocks)) return 0;
@@ -14,21 +12,29 @@ function calculateReadingTime(contentBlocks) {
         return acc;
     }, '');
     const words = text.split(/\s+/).length;
-    return Math.ceil(words / 200); // 200 words per minute
+    return Math.ceil(words / 200);
 }
 
 async function fetchStory(slug) {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/feature/${slug}`, {
+        console.log('Fetching story for slug:', slug);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/feature/${slug}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             cache: 'no-store',
         });
+
+        console.log('Response status:', res.status);
         if (!res.ok) {
-            if (res.status === 404) return null;
+            if (res.status === 404) {
+                console.log('Story not found - 404');
+                return null;
+            }
             throw new Error(`HTTP error! status: ${res.status}`);
         }
+
         const story = await res.json();
+        console.log('Story fetched successfully:', story.title);
         story.contentBlocks = Array.isArray(story.contentBlocks) ? story.contentBlocks : [];
         return story;
     } catch (error) {
@@ -40,7 +46,7 @@ async function fetchStory(slug) {
 async function fetchRelatedStories(category, excludeId) {
     try {
         const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/feature?category=${encodeURIComponent(category)}&excludeId=${excludeId}&limit=3`,
+            `${process.env.NEXT_PUBLIC_SITE_URL}/api/feature?category=${encodeURIComponent(category)}&excludeId=${excludeId}&limit=3`,
             {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
@@ -52,6 +58,7 @@ async function fetchRelatedStories(category, excludeId) {
         return stories.map(story => ({
             ...story,
             contentBlocks: Array.isArray(story.contentBlocks) ? story.contentBlocks : [],
+            readingTime: calculateReadingTime(story.contentBlocks),
         }));
     } catch (error) {
         console.error('Error fetching related stories:', error);
@@ -92,7 +99,10 @@ export async function generateMetadata({ params }) {
 
 export default async function StoryDetail({ params }) {
     const story = await fetchStory(params.slug);
-    if (!story) notFound();
+    if (!story) {
+        console.log('Story not found, showing 404');
+        notFound();
+    }
 
     const relatedStories = await fetchRelatedStories(story.category || 'featured', story._id);
     const readingTime = calculateReadingTime(story.contentBlocks);

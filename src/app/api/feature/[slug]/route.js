@@ -9,13 +9,20 @@ import { authOptions } from '../../auth/[...nextauth]/route';
 import cloudinary from '@/utils/cloudinary';
 
 
+
 export async function GET(request, { params }) {
     try {
         await dbConnect();
         const { slug } = params;
 
-        const story = await FeaturedStory.findOne({ slug: { $regex: new RegExp(`^${slug}$`, 'i') } }).lean();
+        console.log('Fetching story with slug:', slug);
+
+        const story = await FeaturedStory.findOne({ 
+            slug: { $regex: new RegExp(`^${slug}$`, 'i') } 
+        }).lean();
+
         if (!story) {
+            console.log('Story not found for slug:', slug);
             return NextResponse.json({ error: 'Story not found' }, { status: 404 });
         }
 
@@ -25,9 +32,10 @@ export async function GET(request, { params }) {
         // Increment views
         await FeaturedStory.updateOne({ _id: story._id }, { $inc: { views: 1 } });
 
+        console.log('Story found:', story.title);
         return NextResponse.json(story, { status: 200 });
     } catch (error) {
-        console.error('GET /api/feature/[slug] error:', error);
+        console.error('GET /api/featured-story/[slug] error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
