@@ -1,47 +1,35 @@
 // app/(with-layout)/featured-story/[slug]/page.js
+
+
 import StoryDetailClient from '@/app/components/Story/StoryDetailClient/StoryDetailClient';
-import dbConnect from '@/lib/dbMongoose';
-import FeaturedStory from '@/models/FeaturedStory';
 import { notFound } from 'next/navigation';
 
-export async function generateMetadata({ params }) {
-    try {
-        await dbConnect();
-        const story = await FeaturedStory.findOne({ slug: params.slug.toLowerCase() }).lean();
-        if (!story) return { title: 'Story Not Found' };
 
-        return {
-            title: `${story.metaTitle || story.title} | Ataullah Mesbah`,
-            description: story.metaDescription,
-            keywords: story.tags.join(', '),
-            openGraph: {
-                title: story.metaTitle || story.title,
-                description: story.metaDescription,
-                images: [story.mainImage],
-                url: `https://ataullahmesbah.com/featured-story/${story.slug}`,
-                type: 'article',
-            },
-            twitter: {
-                card: 'summary_large_image',
-                title: story.metaTitle || story.title,
-                description: story.metaDescription,
-                images: [story.mainImage],
-            },
-        };
-    } catch (error) {
-        console.error('Metadata error:', error);
-        return { title: 'Story Not Found' };
-    }
+function calculateReadingTime(contentBlocks) {
+    if (!Array.isArray(contentBlocks)) return 0;
+    const text = contentBlocks.reduce((acc, block) => {
+        if (['paragraph', 'heading', 'code'].includes(block.type) && block.content) {
+            return acc + block.content;
+        }
+        return acc;
+    }, '');
+    const words = text.split(/\s+/).length;
+    return Math.ceil(words / 200); // 200 words per minute
 }
 
 async function fetchStory(slug) {
     try {
-        await dbConnect();
-        const story = await FeaturedStory.findOne({ slug: slug.toLowerCase() }).lean();
-        if (!story) return null;
-
-        // Increment views
-        await FeaturedStory.updateOne({ slug: slug.toLowerCase() }, { $inc: { views: 1 } });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/feature/${slug}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            cache: 'no-store',
+        });
+        if (!res.ok) {
+            if (res.status === 404) return null;
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const story = await res.json();
+        story.contentBlocks = Array.isArray(story.contentBlocks) ? story.contentBlocks : [];
         return story;
     } catch (error) {
         console.error('Error fetching story:', error);
@@ -49,44 +37,95 @@ async function fetchStory(slug) {
     }
 }
 
+async function fetchRelatedStories(category, excludeId) {
+    try {
+        const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/feature?category=${encodeURIComponent(category)}&excludeId=${excludeId}&limit=3`,
+            {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                cache: 'no-store',
+            }
+        );
+        if (!res.ok) throw new Error('Failed to fetch related stories');
+        const { stories } = await res.json();
+        return stories.map(story => ({
+            ...story,
+            contentBlocks: Array.isArray(story.contentBlocks) ? story.contentBlocks : [],
+        }));
+    } catch (error) {
+        console.error('Error fetching related stories:', error);
+        return [];
+    }
+}
+
+export async function generateMetadata({ params }) {
+    const story = await fetchStory(params.slug);
+    if (!story) {
+        return {
+            title: 'Story Not Found | Ataullah Mesbah',
+            description: 'The requested story could not be found.',
+        };
+    }
+
+    return {
+        title: story.metaTitle || `${story.title} | Ataullah Mesbah`,
+        description: story.metaDescription || story.shortDescription || 'Read this captivating story.',
+        keywords: story.tags?.join(', ') || 'story, tech, travel, seo, personal',
+        openGraph: {
+            title: story.metaTitle || story.title,
+            description: story.metaDescription || story.shortDescription || 'Read this captivating story.',
+            images: [story.mainImage || '/images/placeholder.jpg'],
+            url: `https://ataullahmesbah.com/featured-story/${story.slug}`,
+            type: 'article',
+            publishedTime: story.publishedDate,
+            authors: [story.author || 'Ataullah Mesbah'],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: story.metaTitle || story.title,
+            description: story.metaDescription || story.shortDescription || 'Read this captivating story.',
+            images: [story.mainImage || '/images/placeholder.jpg'],
+        },
+    };
+}
+
 export default async function StoryDetail({ params }) {
     const story = await fetchStory(params.slug);
     if (!story) notFound();
 
-    // Get related stories (same category)
-    const relatedStories = await FeaturedStory.find({
-        status: 'published',
-        category: story.category,
-        _id: { $ne: story._id }
-    })
-        .sort({ publishedDate: -1 })
-        .limit(3)
-        .lean();
+    const relatedStories = await fetchRelatedStories(story.category || 'featured', story._id);
+    const readingTime = calculateReadingTime(story.contentBlocks);
 
-    // Schema Markup for Article
     const schema = {
         '@context': 'https://schema.org',
         '@type': 'Article',
-        headline: story.title,
-        description: story.metaDescription,
-        image: story.mainImage,
-        author: { '@type': 'Person', name: story.author },
+        headline: story.metaTitle || story.title,
+        description: story.metaDescription || story.shortDescription || 'A captivating story from Ataullah Mesbah.',
+        image: story.mainImage || '/images/placeholder.jpg',
+        author: { '@type': 'Person', name: story.author || 'Ataullah Mesbah' },
         publisher: {
             '@type': 'Organization',
-            name: 'Your Site Name',
+            name: 'Ataullah Mesbah',
             logo: { '@type': 'ImageObject', url: 'https://ataullahmesbah.com/images/logo.png' },
         },
-        datePublished: story.publishedDate,
-        dateModified: story.updatedAt || story.publishedDate,
+        datePublished: new Date(story.publishedDate).toISOString(),
+        dateModified: story.updatedAt
+            ? new Date(story.updatedAt).toISOString()
+            : new Date(story.publishedDate).toISOString(),
         mainEntityOfPage: {
             '@type': 'WebPage',
             '@id': `https://ataullahmesbah.com/featured-story/${story.slug}`,
         },
+        wordCount: Array.isArray(story.contentBlocks)
+            ? story.contentBlocks.reduce((acc, block) => acc + (block.content?.split(/\s+/).length || 0), 0)
+            : 0,
+        keywords: story.tags || [],
     };
 
     return (
         <StoryDetailClient
-            story={story}
+            story={{ ...story, readingTime }}
             schema={schema}
             relatedStories={relatedStories}
         />

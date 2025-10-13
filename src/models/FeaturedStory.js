@@ -49,7 +49,7 @@ const FeaturedStorySchema = new mongoose.Schema(
             required: true,
             unique: true,
             index: true,
-            default: function () { // Add default function
+            default: function () {
                 return slugify(this.title, { lower: true, strict: true });
             }
         },
@@ -102,7 +102,7 @@ const FeaturedStorySchema = new mongoose.Schema(
             maxlength: [60, 'Meta title cannot exceed 60 characters'],
         },
         author: {
-            type: String,  // Changed from ObjectId to String
+            type: String,
             required: [true, 'Author is required'],
         },
         keyPoints: {
@@ -118,7 +118,6 @@ const FeaturedStorySchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-// Improved slug generation
 FeaturedStorySchema.pre('save', function (next) {
     if (!this.slug || this.isModified('title')) {
         this.slug = slugify(this.title, {

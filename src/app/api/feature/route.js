@@ -1,3 +1,5 @@
+// api/feature/route.js
+
 import { NextResponse } from 'next/server';
 import cloudinary from '@/utils/cloudinary';
 import FeaturedStory from '@/models/FeaturedStory';
@@ -7,22 +9,39 @@ import { authOptions } from '../auth/[...nextauth]/route';
 import dbConnect from '@/lib/dbMongoose';
 
 
+export async function GET(request) {
+  try {
+    await dbConnect();
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category');
+    const excludeId = searchParams.get('excludeId');
+    const limit = parseInt(searchParams.get('limit')) || 10;
 
+    const query = { status: 'published' };
+    if (category) query.category = category;
+    if (excludeId) query._id = { $ne: excludeId };
 
+    const stories = await FeaturedStory.find(query)
+      .limit(limit)
+      .lean()
+      .exec();
 
-export async function GET() {
-    try {
-        await dbConnect();
-        const stories = await FeaturedStory.find({ status: 'published' })
-            .sort({ publishedDate: -1 });
-        return NextResponse.json(stories, { status: 200 });
-    } catch (error) {
-        console.error('GET /api/feature error:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch stories' },
-            { status: 500 }
-        );
-    }
+    // Ensure contentBlocks is an array for each story
+    const sanitizedStories = stories.map(story => ({
+      ...story,
+      contentBlocks: Array.isArray(story.contentBlocks) ? story.contentBlocks : [],
+      views: story.views || 0,
+      category: story.category || 'featured',
+      tags: story.tags || [],
+      keyPoints: story.keyPoints || [],
+      author: story.author || 'Ataullah Mesbah',
+    }));
+
+    return NextResponse.json({ stories: sanitizedStories }, { status: 200 });
+  } catch (error) {
+    console.error('GET /api/feature error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
 
 async function uploadImageToCloudinary(file) {

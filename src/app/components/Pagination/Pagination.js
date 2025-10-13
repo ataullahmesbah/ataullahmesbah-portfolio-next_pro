@@ -30,8 +30,8 @@ export default function Pagination({ currentPage, totalPages, basePath }) {
                         key={page}
                         href={`${basePath}?page=${page}`}
                         className={`px-4 py-2 rounded-lg transition ${page === currentPage
-                                ? 'bg-indigo-700 text-white'
-                                : 'text-gray-300 hover:bg-gray-800'
+                            ? 'bg-indigo-700 text-white'
+                            : 'text-gray-300 hover:bg-gray-800'
                             }`}
                     >
                         {page}

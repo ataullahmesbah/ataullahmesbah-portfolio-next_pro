@@ -1,4 +1,5 @@
-// app/components/Schema/TravelSchema.jsx
+// Schema/TravelSchema.jsx
+
 export default function TravelSchema({ data }) {
     const { pageTitle, description, travels, author, siteUrl, pageUrl } = data;
 

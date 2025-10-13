@@ -22,7 +22,13 @@ export async function generateMetadata() {
         return {
             title: "Mesbah Off We Go - Travel Adventures & Global Explorations",
             description: "Join Ataullah Mesbah (MesbahOffwego) on global travel adventures. Discover historical sites, cultural experiences, and stunning photo galleries from around the world.",
-            keywords: ["Mesbah Off We Go", "Ataullah Mesbah travel", "global adventures", "historical sites", "travel photography"],
+            keywords: [
+                "Mesbah Off We Go",
+                "Ataullah Mesbah travel",
+                "global adventures",
+                "historical sites",
+                "travel photography"
+            ],
             openGraph: {
                 title: "Mesbah Off We Go - Travel Adventures",
                 description: "Travel with Ataullah Mesbah: Exploring world cultures, historical sites, and unforgettable adventures",

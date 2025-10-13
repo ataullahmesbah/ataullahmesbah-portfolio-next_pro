@@ -1,3 +1,5 @@
+// api/feature/[slug]/route.js
+
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import slugify from 'slugify';
@@ -12,25 +14,21 @@ export async function GET(request, { params }) {
         await dbConnect();
         const { slug } = params;
 
-        console.log(`Fetching story with slug: ${slug}`); // Debug log
-
-        // Normalize slug to handle case sensitivity
-        const story = await FeaturedStory.findOne({ slug: slug.toLowerCase() });
+        const story = await FeaturedStory.findOne({ slug: { $regex: new RegExp(`^${slug}$`, 'i') } }).lean();
         if (!story) {
-            console.log(`No story found for slug: ${slug}`);
             return NextResponse.json({ error: 'Story not found' }, { status: 404 });
         }
 
-        story.views += 1;
-        await story.save();
+        // Ensure contentBlocks is an array
+        story.contentBlocks = Array.isArray(story.contentBlocks) ? story.contentBlocks : [];
+
+        // Increment views
+        await FeaturedStory.updateOne({ _id: story._id }, { $inc: { views: 1 } });
 
         return NextResponse.json(story, { status: 200 });
     } catch (error) {
         console.error('GET /api/feature/[slug] error:', error);
-        return NextResponse.json(
-            { error: 'Internal server error' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
 
