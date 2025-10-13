@@ -9,6 +9,23 @@ import { authOptions } from '../auth/[...nextauth]/route';
 import dbConnect from '@/lib/dbMongoose';
 
 
+function calculateReadingTime(contentBlocks) {
+    if (!Array.isArray(contentBlocks)) return 5;
+
+    let totalWords = 0;
+
+    contentBlocks.forEach(block => {
+        if (['paragraph', 'heading'].includes(block.type) && block.content) {
+            const words = block.content.split(/\s+/).length;
+            totalWords += words;
+        }
+    });
+
+    // Average reading speed: 200 words per minute
+    const readingTime = Math.ceil(totalWords / 200);
+    return readingTime > 0 ? readingTime : 1; // Minimum 1 minute
+}
+
 export async function GET(request) {
     try {
         await dbConnect();
@@ -26,10 +43,11 @@ export async function GET(request) {
             .lean()
             .exec();
 
-        // Ensure contentBlocks is an array for each story
+        // Ensure contentBlocks is an array and calculate reading time
         const sanitizedStories = stories.map(story => ({
             ...story,
             contentBlocks: Array.isArray(story.contentBlocks) ? story.contentBlocks : [],
+            readingTime: calculateReadingTime(story.contentBlocks),
             views: story.views || 0,
             category: story.category || 'featured',
             tags: story.tags || [],
@@ -43,6 +61,7 @@ export async function GET(request) {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
+
 
 // Enhanced image upload function with 800x450px resize
 async function uploadImageToCloudinary(file, options = {}) {

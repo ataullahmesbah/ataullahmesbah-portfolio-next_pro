@@ -13,6 +13,22 @@ import { FiEye, FiCalendar, FiArrowRight, FiArrowUp, FiClock, FiPlay } from 'rea
 import { motion } from 'framer-motion';
 
 
+function calculateReadingTime(contentBlocks) {
+    if (!Array.isArray(contentBlocks)) return 5;
+
+    let totalWords = 0;
+
+    contentBlocks.forEach(block => {
+        if (['paragraph', 'heading'].includes(block.type) && block.content) {
+            const words = block.content.split(/\s+/).length;
+            totalWords += words;
+        }
+    });
+
+    const readingTime = Math.ceil(totalWords / 200);
+    return readingTime > 0 ? readingTime : 1;
+}
+
 
 export default function StoriesClient({ initialStories, schema, currentPage = 1, totalPages = 1 }) {
     const router = useRouter();
@@ -77,6 +93,9 @@ export default function StoriesClient({ initialStories, schema, currentPage = 1,
             </div>
         </div>
     );
+
+
+
 
     return (
         <>
@@ -174,9 +193,10 @@ export default function StoriesClient({ initialStories, schema, currentPage = 1,
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center gap-3">
+                                                    {/* Reading Time - Dynamic */}
                                                     <span className="flex items-center gap-1">
                                                         <FiClock className="w-4 h-4 text-blue-400" />
-                                                        {story.readingTime || 5} min
+                                                        {calculateReadingTime(story.contentBlocks)} min
                                                     </span>
                                                     <span className="flex items-center gap-1">
                                                         <FiEye className="w-4 h-4 text-green-400" />
