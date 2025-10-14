@@ -1,51 +1,72 @@
 // src/app/api/blog/categories/[category]/route.js
+
+import { NextResponse } from 'next/server';
 import dbConnect from "@/lib/dbMongoose";
 import Blog from "@/models/Blog";
 
-export const revalidate = 3600; // Revalidate every hour
 
 export async function GET(request, { params }) {
-    await dbConnect();
-
     try {
+        await dbConnect();
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page')) || 1;
-        const limit = parseInt(searchParams.get('limit')) || 10;
+        const limit = parseInt(searchParams.get('limit')) || 9;
+        const skip = (page - 1) * limit;
 
-        // Decode the category name (replace hyphens with spaces)
         const categoryName = decodeURIComponent(params.category).replace(/-/g, ' ');
+        console.log(`🔍 Fetching blogs for category: "${categoryName}"`);
 
-        // Create index if it doesn't exist
-        await Blog.collection.createIndex({ categories: 1 });
-
-        // Fetch blogs filtered by category (case-insensitive)
+        // ✅ Remove status condition
         const blogs = await Blog.find({
             categories: {
-                $regex: new RegExp(`^${categoryName}$`, 'i')
+                $elemMatch: {
+                    $regex: new RegExp(categoryName, 'i')
+                }
             }
         })
-            .skip((page - 1) * limit)
+            .select('title slug mainImage metaDescription categories publishDate views readTime')
+            .skip(skip)
             .limit(limit)
-            .sort({ publishDate: -1 });
+            .sort({ publishDate: -1 })
+            .lean();
 
-        // Get total count
         const total = await Blog.countDocuments({
             categories: {
-                $regex: new RegExp(`^${categoryName}$`, 'i')
+                $elemMatch: {
+                    $regex: new RegExp(categoryName, 'i')
+                }
             }
         });
 
-        return new Response(JSON.stringify({ blogs, total }), {
-            headers: { 'Content-Type': 'application/json' },
+        console.log(`✅ Fetched ${blogs.length} blogs for category "${categoryName}", total: ${total}`);
+
+        // Add default values
+        const blogsWithDefaults = blogs.map(blog => ({
+            ...blog,
+            views: blog.views || 0,
+            readingTime: blog.readTime ? `${blog.readTime} min read` : '5 min read',
+            categories: blog.categories || ['Uncategorized']
+        }));
+
+        return NextResponse.json({
+            success: true,
+            blogs: blogsWithDefaults,
+            total,
+            currentPage: page,
+            totalPages: Math.ceil(total / limit)
+        }, {
+            headers: {
+                'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=1800'
+            }
         });
     } catch (error) {
-        console.error("API Error:", error);
-        return new Response(JSON.stringify({
-            error: error.message || 'Failed to fetch blogs',
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        console.error('❌ GET /api/blog/categories/[category] error:', error);
+        return NextResponse.json({
+            success: false,
+            blogs: [],
+            total: 0,
+            error: 'Failed to fetch blogs',
+            details: error.message
+        }, { status: 500 });
     }
 }

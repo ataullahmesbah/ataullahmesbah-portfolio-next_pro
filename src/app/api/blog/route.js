@@ -5,36 +5,61 @@ import Blog from "@/models/Blog";
 import cloudinary from "@/utils/cloudinary";
 import { NextResponse } from 'next/server';
 
+
 export async function GET(request) {
-    await dbConnect();
     try {
+        await dbConnect();
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page')) || 1;
-        const limit = parseInt(searchParams.get('limit')) || 6; // Default 6 blogs per page
+        const limit = parseInt(searchParams.get('limit')) || 9;
         const skip = (page - 1) * limit;
 
-        // Fetch blogs with pagination
+        console.log('🔍 Fetching all blogs from database...');
+
+        // ✅ Remove status condition since it doesn't exist in your model
         const blogs = await Blog.find({})
+            .select('title slug mainImage metaDescription categories publishDate views readTime')
             .skip(skip)
             .limit(limit)
-            .sort({ publishDate: -1 });
+            .sort({ publishDate: -1 })
+            .lean();
 
-        // Get total blogs count for pagination
-        const totalBlogs = await Blog.countDocuments();
+        const totalBlogs = await Blog.countDocuments({});
 
-        return new Response(JSON.stringify({
-            blogs,
-            totalBlogs,
+        console.log(`✅ Fetched ${blogs.length} blogs, total: ${totalBlogs}`);
+
+        if (blogs.length > 0) {
+            console.log('📝 Blog titles:', blogs.map(blog => blog.title));
+        } else {
+            console.log('📝 No blogs found in database');
+        }
+
+        // Add default values if needed
+        const blogsWithDefaults = blogs.map(blog => ({
+            ...blog,
+            views: blog.views || 0,
+            readingTime: blog.readTime ? `${blog.readTime} min read` : '5 min read',
+            categories: blog.categories || ['Uncategorized']
+        }));
+
+        return NextResponse.json({
+            success: true,
+            blogs: blogsWithDefaults,
             currentPage: page,
             totalPages: Math.ceil(totalBlogs / limit),
-        }), {
-            headers: { 'Content-Type': 'application/json' },
+            totalBlogs
+        }, {
+            headers: {
+                'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=1800'
+            }
         });
     } catch (error) {
-        return new Response(JSON.stringify({ error: 'Failed to fetch blogs' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
+        console.error('❌ GET /api/blog error:', error);
+        return NextResponse.json({
+            success: false,
+            error: 'Failed to fetch blogs',
+            details: error.message
+        }, { status: 500 });
     }
 }
 

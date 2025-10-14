@@ -66,6 +66,12 @@ const BlogSchema = new mongoose.Schema({
   categories: [{ type: String }],
   views: { type: Number, default: 0 },
   readTime: { type: Number, default: 1 },
+  //  Add this status field
+  status: {
+    type: String,
+    enum: ['draft', 'published', 'archived'],
+    default: 'published'
+  },
   structuredData: { type: String },
   faqs: [{
     question: { type: String },
