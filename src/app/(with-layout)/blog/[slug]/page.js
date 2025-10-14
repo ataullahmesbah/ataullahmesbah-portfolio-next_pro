@@ -25,7 +25,7 @@ async function getBlogBySlug(slug) {
 export async function generateMetadata({ params }) {
     const blog = await getBlogBySlug(params.slug);
 
-    // Structured Data জন্য metadata
+
     const metadata = {
         title: blog.metaTitle || blog.title,
         description: blog.metaDescription || blog.shortDescriptions.join(' '),
@@ -57,7 +57,7 @@ export async function generateMetadata({ params }) {
         },
     };
 
-    // GEO targeting জন্য metadata যোগ করুন
+
     if (blog.geoLocation && blog.geoLocation.targetCountry) {
         metadata.alternates.languages = {
             'x-default': `${process.env.NEXTAUTH_URL}/blog/${params.slug}`,

@@ -1,19 +1,22 @@
 // app/components/Blog/BlogHeader.js
+
+
+
 export default function BlogHeader({ totalBlogs, currentPage, error }) {
     return (
-        <div className="text-center" data-aos="fade-down">
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 bg-clip-text text-transparent mb-4">
-                Latest Blogs
+        <div className="text-center mb-12" data-aos="fade-down">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-200 mb-6 font-serif">
+                Latest Blogs & Articles
             </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-300 max-w-3xl mx-auto leading-relaxed font-sans">
                 {error ? (
-                    <span className="text-red-400">Error loading blogs. Please try again.</span>
+                    <span className="text-red-500">Error loading blogs. Please try again.</span>
                 ) : (
-                    `Explore ${totalBlogs} cutting-edge insights on AI, quantum computing, web development, and technology trends.`
+                    `Discover ${totalBlogs} insightful articles on AI, quantum computing, web development, and cutting-edge technology trends.`
                 )}
             </p>
             {currentPage > 1 && (
-                <p className="text-gray-400 mt-2">Page {currentPage}</p>
+                <p className="text-gray-500 mt-4 font-medium">Page {currentPage}</p>
             )}
         </div>
     );

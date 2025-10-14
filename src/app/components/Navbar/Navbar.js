@@ -9,6 +9,7 @@ import CartSlider from '@/app/Dashboard/Shop/CartSlider/CartSlider';
 
 const Navbar = () => {
     const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
+    const [isInsightsDropdownOpen, setIsInsightsDropdownOpen] = useState(false); // ✅ আলাদা state
     const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [cartCount, setCartCount] = useState(0);
@@ -49,6 +50,18 @@ const Navbar = () => {
         }, 300);
     };
 
+    // Handlers for Insights dropdown hover
+    let insightsTimeout;
+    const handleInsightsEnter = () => {
+        clearTimeout(insightsTimeout);
+        setIsInsightsDropdownOpen(true);
+    };
+    const handleInsightsLeave = () => {
+        insightsTimeout = setTimeout(() => {
+            setIsInsightsDropdownOpen(false);
+        }, 300);
+    };
+
     // Handlers for SEO dropdown hover
     let seoTimeout;
     const handleSEOEnter = () => {
@@ -80,8 +93,19 @@ const Navbar = () => {
     // Toggle Services dropdown for mobile
     const toggleServicesDropdown = () => {
         setIsServicesDropdownOpen((prevState) => !prevState);
+        setIsInsightsDropdownOpen(false); // ✅ Close insights when services opens
         setIsUserDropdownOpen(false);
         setIsCartOpen(false);
+        setIsSEODropdownOpen(false);
+    };
+
+    // Toggle Insights dropdown for mobile
+    const toggleInsightsDropdown = () => {
+        setIsInsightsDropdownOpen((prevState) => !prevState);
+        setIsServicesDropdownOpen(false); // ✅ Close services when insights opens
+        setIsUserDropdownOpen(false);
+        setIsCartOpen(false);
+        setIsSEODropdownOpen(false);
     };
 
     // Toggle SEO dropdown for mobile
@@ -95,6 +119,7 @@ const Navbar = () => {
     const toggleUserDropdown = () => {
         setIsUserDropdownOpen((prevState) => !prevState);
         setIsServicesDropdownOpen(false);
+        setIsInsightsDropdownOpen(false); // ✅ Close insights
         setIsSEODropdownOpen(false);
         setIsCartOpen(false);
     };
@@ -102,6 +127,7 @@ const Navbar = () => {
     // Close all dropdowns
     const closeAllDropdowns = () => {
         setIsServicesDropdownOpen(false);
+        setIsInsightsDropdownOpen(false); // ✅ Close insights
         setIsSEODropdownOpen(false);
         setIsUserDropdownOpen(false);
         setIsCartOpen(false);
@@ -117,6 +143,7 @@ const Navbar = () => {
     const closeMobileMenu = () => {
         setIsMobileMenuOpen(false);
         setIsServicesDropdownOpen(false);
+        setIsInsightsDropdownOpen(false); // ✅ Close insights
         setIsSEODropdownOpen(false);
     };
 
@@ -291,7 +318,7 @@ const Navbar = () => {
                                                         className="block px-4 py-2 text-gray-100 hover:bg-gray-800 border-b border-gray-600"
                                                         onClick={closeMobileMenu}
                                                     >
-                                                    SEO Strategy
+                                                        SEO Strategy
                                                     </Link>
                                                     <Link
                                                         href="/seo/geo-sge-optimization"
@@ -307,7 +334,7 @@ const Navbar = () => {
                                                     >
                                                         Technical SEO
                                                     </Link>
-                                                  
+
                                                     <Link
                                                         href="/seo/ecommerce-seo"
                                                         className="block px-4 py-2 text-gray-100 hover:bg-gray-800"
@@ -336,9 +363,47 @@ const Navbar = () => {
                             <Link href="/blog" className={`${isActiveLink('/blog')} px-4`} onClick={closeMobileMenu}>
                                 Blog
                             </Link>
-                            <Link href="/letter" className={`${isActiveLink('/letter')} px-4`} onClick={closeMobileMenu}>
-                                Letter
-                            </Link>
+
+                            {/* Insights Dropdown - ✅ আলাদা State ব্যবহার করছি */}
+                            <div
+                                className="relative"
+                                onMouseEnter={isDesktop ? handleInsightsEnter : null}
+                                onMouseLeave={isDesktop ? handleInsightsLeave : null}
+                            >
+                                <button
+                                    onClick={!isDesktop ? toggleInsightsDropdown : null}
+                                    className="flex items-center focus:outline-none px-4"
+                                >
+                                    Insights
+                                    {isInsightsDropdownOpen ? <FaCaretUp className="ml-1" /> : <FaCaretDown className="ml-1" />}
+                                </button>
+
+                                {isInsightsDropdownOpen && (
+                                    <div
+                                        className={`${isDesktop ? 'absolute left-0 mt-2' : 'relative'} ${isDesktop ? 'w-48' : 'w-full'
+                                            } bg-gray-700 shadow-lg rounded-lg py-2 z-20`}
+                                        onMouseEnter={isDesktop ? handleInsightsEnter : null}
+                                        onMouseLeave={isDesktop ? handleInsightsLeave : null}
+                                    >
+                                        <Link
+                                            href="/letter"
+                                            className="block px-4 py-2 text-gray-100 hover:bg-gray-800"
+                                            onClick={closeMobileMenu}
+                                        >
+                                            Letter
+                                        </Link>
+
+                                        <Link
+                                            href="/featured-story"
+                                            className="block px-4 py-2 w-full text-gray-100 hover:bg-gray-800"
+                                            onClick={closeMobileMenu}
+                                        >
+                                            Featured Story
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
+
                             <Link href="/about" className={`${isActiveLink('/about')} px-4`} onClick={closeMobileMenu}>
                                 About
                             </Link>

@@ -1,4 +1,4 @@
-// app/components/Blog/BlogCard.jsx
+// app/components/Blog/BlogCard.jsx (Responsive Version)
 'use client';
 
 import Image from 'next/image';
@@ -28,7 +28,7 @@ export default function BlogCard({ blog, index, priority = false }) {
 
     return (
         <article
-            className="group bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-700 hover:border-purple-500/30 flex flex-col h-full"
+            className="group bg-gray-800 rounded-xl lg:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-700 hover:border-purple-500/30 flex flex-col h-full"
             data-aos="fade-up"
             data-aos-delay={index * 100}
         >
@@ -52,33 +52,33 @@ export default function BlogCard({ blog, index, priority = false }) {
                 )}
 
                 {/* Category Badge */}
-                <div className="absolute top-3 left-3">
-                    <span className="inline-block px-3 py-1 text-xs font-medium bg-purple-600/90 text-white rounded-full backdrop-blur-sm border border-purple-400/20">
-                        {category}
+                <div className="absolute top-2 lg:top-3 left-2 lg:left-3">
+                    <span className="inline-block px-2 lg:px-3 py-1 text-xs bg-purple-600/90 text-white rounded-full backdrop-blur-sm border border-purple-400/20">
+                        {category.length > 15 ? category.substring(0, 15) + '...' : category}
                     </span>
                 </div>
             </div>
 
             {/* Content */}
-            <div className="p-6 flex flex-col flex-grow">
+            <div className="p-3 lg:p-4 xl:p-6 flex flex-col flex-grow">
                 {/* Date and Reading Time */}
-                <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
-                    <div className="flex items-center space-x-4">
+                <div className="flex items-center justify-between text-xs lg:text-sm text-gray-400 mb-2 lg:mb-3">
+                    <div className="flex items-center space-x-2 lg:space-x-4">
                         <div className="flex items-center">
                             <FiCalendar className="w-3 h-3 mr-1" />
-                            <time dateTime={blog.publishDate}>
+                            <time dateTime={blog.publishDate} className="text-xs lg:text-sm">
                                 {formatDate(blog.publishDate)}
                             </time>
                         </div>
                         <div className="flex items-center">
                             <FiClock className="w-3 h-3 mr-1" />
-                            <span>{readingTime}</span>
+                            <span className="text-xs lg:text-sm">{readingTime}</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Title */}
-                <h2 className="text-xl font-bold mb-3 line-clamp-2 group-hover:text-purple-300 transition-colors duration-300">
+                <h2 className="text-base lg:text-lg xl:text-xl font-bold mb-2 lg:mb-3 line-clamp-2 group-hover:text-purple-300 transition-colors duration-300">
                     <Link
                         href={`/blog/${blog.slug}`}
                         className="text-white hover:text-purple-300 transition-colors"
@@ -89,23 +89,23 @@ export default function BlogCard({ blog, index, priority = false }) {
                 </h2>
 
                 {/* Description */}
-                <p className="text-gray-300 text-sm mb-4 line-clamp-3 flex-grow">
+                <p className="text-gray-300 text-xs lg:text-sm mb-3 lg:mb-4 line-clamp-3 flex-grow">
                     {metaDescription || 'No description available.'}
                 </p>
 
                 {/* Footer */}
-                <div className="flex justify-between items-center mt-auto pt-4 border-t border-gray-700">
-                    <div className="flex items-center text-sm text-gray-400">
-                        <FiEye className="w-4 h-4 mr-1" />
+                <div className="flex justify-between items-center mt-auto pt-2 lg:pt-3 xl:pt-4 border-t border-gray-700">
+                    <div className="flex items-center text-xs lg:text-sm text-gray-400">
+                        <FiEye className="w-3 h-3 lg:w-4 lg:h-4 mr-1" />
                         <span>{blog.views || 0} views</span>
                     </div>
                     <Link
                         href={`/blog/${blog.slug}`}
-                        className="flex items-center text-sm font-medium text-purple-400 hover:text-purple-300 transition-all duration-300 group-hover:translate-x-1"
+                        className="flex items-center text-xs lg:text-sm font-medium text-purple-400 hover:text-purple-300 transition-all duration-300 group-hover:translate-x-1"
                         prefetch={false}
                     >
                         Read More
-                        <FiArrowRight className="w-4 h-4 ml-1 transition-transform duration-300 group-hover:translate-x-1" />
+                        <FiArrowRight className="w-3 h-3 lg:w-4 lg:h-4 ml-1 transition-transform duration-300 group-hover:translate-x-1" />
                     </Link>
                 </div>
             </div>
