@@ -94,9 +94,8 @@ async function optimizeContentBlockImages(contentBlocks, formData, existingBlock
             let publicId = null;
             let width = 800;
             let height = 450;
-            let alt = block.alt || existingBlocks[index]?.alt || ''; // ALT text preserve
+            let alt = block.alt || existingBlocks[index]?.alt || '';
 
-            // Upload new image if provided
             if (imageFile && imageFile.size > 0) {
                 console.log(`Uploading new image for block ${index}`);
                 const uploadResult = await uploadImageToCloudinary(imageFile);
@@ -116,15 +115,14 @@ async function optimizeContentBlockImages(contentBlocks, formData, existingBlock
                 type: 'image',
                 imageUrl,
                 caption: block.caption || '',
-                alt: alt, // ALT text include
+                alt: alt,
                 publicId,
                 dimensions: { width, height }
             });
         } else {
-            // For non-image blocks, preserve ALT text if exists
             processedBlocks.push({
                 ...block,
-                alt: block.alt || '' // Ensure alt field exists for all blocks
+                alt: block.alt || ''
             });
         }
     }
@@ -143,26 +141,30 @@ export async function PUT(request, { params }) {
         const { slug } = params;
         const formData = await request.formData();
 
-        const existingStory = await FeaturedStory.findOne({ slug });
-        if (!existingStory) {
-            return NextResponse.json({ error: 'Story not found' }, { status: 404 });
-        }
-
-        // Extract fields - ALT text সহ
+        // Extract fields
         const title = formData.get('title');
         const metaTitle = formData.get('metaTitle');
         const metaDescription = formData.get('metaDescription');
         const shortDescription = formData.get('shortDescription');
         const mainImage = formData.get('mainImage');
-        const mainImageAlt = formData.get('mainImageAlt') || ''; // ALT text add করুন
+        const mainImageAlt = formData.get('mainImageAlt') || '';
         const contentBlocksRaw = formData.get('contentBlocks');
         const category = formData.get('category') || 'featured';
         const tags = formData.get('tags')?.split(',').map(t => t.trim()).filter(t => t) || [];
         const keyPoints = formData.get('keyPoints')?.split('\n').map(k => k.trim()).filter(k => k) || [];
+        const providedSlug = formData.get('slug');
 
         // Validate required fields
         if (!title || !metaTitle || !metaDescription || !shortDescription) {
-            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+            return NextResponse.json({
+                error: 'Missing required fields: title, metaTitle, metaDescription, shortDescription'
+            }, { status: 400 });
+        }
+
+        if (!mainImageAlt.trim()) {
+            return NextResponse.json({
+                error: 'Main image ALT text is required for accessibility'
+            }, { status: 400 });
         }
 
         // Parse content blocks
@@ -172,115 +174,143 @@ export async function PUT(request, { params }) {
             if (!Array.isArray(contentBlocks)) {
                 throw new Error('Content blocks must be an array');
             }
+
+            contentBlocks.forEach((block, index) => {
+                if (block.type === 'image' && !block.alt?.trim()) {
+                    throw new Error(`Image block ${index + 1} is missing ALT text`);
+                }
+            });
         } catch (error) {
             console.error('Content blocks parse error:', error);
             return NextResponse.json(
-                { error: 'Invalid content blocks format' },
+                { error: error.message || 'Invalid content blocks format' },
                 { status: 400 }
             );
         }
 
-        // Process content blocks with image optimization এবং ALT text
-        console.log('Processing content blocks with image optimization...');
-        const processedBlocks = await optimizeContentBlockImages(
-            contentBlocks,
-            formData,
-            existingStory.contentBlocks
-        );
-
-        // Handle main image with 800x450px optimization
-        let mainImageUrl = existingStory.mainImage;
-        let mainImagePublicId = existingStory.imageDimensions?.mainImage?.publicId;
-        let mainImageDimensions = existingStory.imageDimensions?.mainImage || { width: 800, height: 450 };
-
-        if (mainImage && mainImage.size > 0) {
-            console.log('Uploading new main image with 800x450px optimization...');
-            const mainImageUpload = await uploadImageToCloudinary(mainImage);
-            if (mainImageUpload) {
-                mainImageUrl = mainImageUpload.secure_url;
-                mainImagePublicId = mainImageUpload.public_id;
-                mainImageDimensions = {
-                    width: mainImageUpload.width,
-                    height: mainImageUpload.height
-                };
-                console.log(`Main image uploaded: ${mainImageUpload.width}x${mainImageUpload.height}`);
-            } else {
-                return NextResponse.json(
-                    { error: 'Failed to upload main image' },
-                    { status: 500 }
-                );
-            }
+        // Find the existing story
+        const existingStory = await FeaturedStory.findOne({ slug });
+        if (!existingStory) {
+            return NextResponse.json({ error: 'Story not found' }, { status: 404 });
         }
 
-        // Generate new slug if title changed
-        const newSlug = title !== existingStory.title
-            ? slugify(title, { lower: true, strict: true })
-            : slug;
+        // Generate or validate slug
+        let finalSlug = providedSlug ? slugify(providedSlug, {
+            lower: true,
+            strict: true,
+            remove: /[*+~.()'"!:@]/g
+        }) : slugify(title, {
+            lower: true,
+            strict: true,
+            remove: /[*+~.()'"!:@]/g
+        });
 
-        // Check if slug already exists (different story)
-        if (newSlug !== slug) {
-            const existingSlug = await FeaturedStory.findOne({ slug: newSlug, _id: { $ne: existingStory._id } });
-            if (existingSlug) {
+        // Ensure slug uniqueness (skip if it's the same as the current slug)
+        if (finalSlug !== slug) {
+            let counter = 1;
+            let isUnique = false;
+
+            while (!isUnique && counter <= 100) {
+                const existingOtherStory = await FeaturedStory.findOne({ slug: finalSlug });
+                if (!existingOtherStory || existingOtherStory._id.toString() === existingStory._id.toString()) {
+                    isUnique = true;
+                } else {
+                    finalSlug = `${slugify(providedSlug || title, {
+                        lower: true,
+                        strict: true,
+                        remove: /[*+~.()'"!:@]/g
+                    })}-${counter}`;
+                    counter++;
+                }
+            }
+
+            if (!isUnique) {
                 return NextResponse.json(
-                    { error: 'A story with this title already exists' },
+                    { error: 'Unable to generate a unique slug after multiple attempts. Please try a different title.' },
                     { status: 400 }
                 );
             }
         }
 
-        // Prepare update data - ALT text সহ
-        const updateData = {
-            title,
-            slug: newSlug,
-            metaTitle,
-            metaDescription,
-            shortDescription,
-            mainImage: mainImageUrl,
-            mainImageAlt: mainImageAlt || existingStory.mainImageAlt, // Existing ALT রাখুন যদি নতুন না থাকে
-            contentBlocks: processedBlocks,
-            category,
-            tags,
-            keyPoints,
-            author: session.user.name,
-            imageDimensions: {
-                mainImage: mainImageDimensions,
-                publicId: mainImagePublicId
-            },
-            updatedAt: new Date()
-        };
+        // Handle main image
+        let mainImageUrl = existingStory.mainImage;
+        let mainImageDimensions = existingStory.imageDimensions?.mainImage || { width: 800, height: 450 };
+
+        if (mainImage && mainImage.size > 0) {
+            console.log('Uploading new main image...');
+            const uploadResult = await uploadImageToCloudinary(mainImage);
+            if (!uploadResult) {
+                return NextResponse.json(
+                    { error: 'Failed to upload main image' },
+                    { status: 500 }
+                );
+            }
+            mainImageUrl = uploadResult.secure_url;
+            mainImageDimensions = { width: uploadResult.width, height: uploadResult.height };
+            console.log(`Main image uploaded successfully: ${mainImageDimensions.width}x${mainImageDimensions.height}`);
+        }
+
+        // Process content blocks
+        console.log('Processing content block images...');
+        const processedBlocks = await optimizeContentBlockImages(contentBlocks, formData, existingStory.contentBlocks);
 
         // Update story
-        const updatedStory = await FeaturedStory.findOneAndUpdate(
-            { slug },
-            { $set: updateData },
-            {
-                new: true,
-                runValidators: true
-            }
-        );
+        existingStory.title = title.trim();
+        existingStory.slug = finalSlug;
+        existingStory.metaTitle = metaTitle.trim();
+        existingStory.metaDescription = metaDescription.trim();
+        existingStory.shortDescription = shortDescription.trim();
+        existingStory.mainImage = mainImageUrl;
+        existingStory.mainImageAlt = mainImageAlt.trim();
+        existingStory.contentBlocks = processedBlocks;
+        existingStory.category = category.toLowerCase().trim();
+        existingStory.tags = tags;
+        existingStory.keyPoints = keyPoints;
+        existingStory.author = session.user.name;
+        existingStory.imageDimensions = { mainImage: mainImageDimensions };
+
+        await existingStory.save();
 
         return NextResponse.json(
             {
                 message: 'Story updated successfully',
                 story: {
-                    _id: updatedStory._id,
-                    title: updatedStory.title,
-                    slug: updatedStory.slug,
-                    mainImage: updatedStory.mainImage,
-                    mainImageAlt: updatedStory.mainImageAlt,
-                    contentBlocks: updatedStory.contentBlocks,
-                    imageDimensions: updatedStory.imageDimensions,
-                    category: updatedStory.category,
-                    tags: updatedStory.tags,
-                    keyPoints: updatedStory.keyPoints,
-                    author: updatedStory.author,
-                    updatedAt: updatedStory.updatedAt
+                    _id: existingStory._id,
+                    title: existingStory.title,
+                    slug: existingStory.slug,
+                    mainImage: existingStory.mainImage,
+                    mainImageAlt: existingStory.mainImageAlt,
+                    contentBlocks: existingStory.contentBlocks,
+                    category: existingStory.category,
+                    tags: existingStory.tags,
+                    keyPoints: existingStory.keyPoints,
+                    author: existingStory.author,
+                    readingTime: existingStory.readingTime,
+                    imageDimensions: existingStory.imageDimensions,
+                    publishedDate: existingStory.publishedDate
                 }
             },
             { status: 200 }
         );
+
     } catch (error) {
         console.error('PUT /api/feature/[slug] error:', error);
+
+        if (error.code === 11000) {
+            return NextResponse.json(
+                { error: 'A story with this slug already exists. Please choose a different title.' },
+                { status: 400 }
+            );
+        }
+
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(err => err.message);
+            return NextResponse.json(
+                { error: 'Validation failed', details: errors },
+                { status: 400 }
+            );
+        }
+
         return NextResponse.json(
             {
                 error: error.message || 'Internal server error',

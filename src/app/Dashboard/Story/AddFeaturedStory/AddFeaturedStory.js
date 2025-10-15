@@ -4,6 +4,8 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { FiPlus, FiTrash2, FiImage, FiType, FiCode, FiVideo, FiSave, FiArrowLeft, FiTag } from 'react-icons/fi';
+import { useDebounce } from '@/app/components/hooks/useDebounce';
+import slugify from 'slugify';
 
 // Predefined categories
 const PREDEFINED_CATEGORIES = ['featured', 'tech', 'travel', 'seo', 'personal', 'lifestyle', 'business'];
@@ -15,6 +17,9 @@ export default function CreateFeaturedStory() {
     const [showNewCategory, setShowNewCategory] = useState(false);
     const [newCategory, setNewCategory] = useState('');
     const [categories, setCategories] = useState(PREDEFINED_CATEGORIES);
+    const [slugError, setSlugError] = useState('');
+    const [slugLoading, setSlugLoading] = useState(false);
+    const [generatedSlug, setGeneratedSlug] = useState('');
 
     const [formData, setFormData] = useState({
         title: '',
@@ -33,6 +38,58 @@ export default function CreateFeaturedStory() {
             alt: ''
         }],
     });
+
+    // Use the debounce hook
+    const debouncedTitle = useDebounce(formData.title, 500);
+
+    // Load categories from localStorage on component mount
+    useEffect(() => {
+        const savedCategories = localStorage.getItem('customCategories');
+        if (savedCategories) {
+            const customCategories = JSON.parse(savedCategories);
+            setCategories([...PREDEFINED_CATEGORIES, ...customCategories]);
+        }
+    }, []);
+
+    // Generate slug and check availability
+    useEffect(() => {
+        if (debouncedTitle.trim()) {
+            generateAndCheckSlug(debouncedTitle);
+        } else {
+            setGeneratedSlug('');
+            setSlugError('');
+        }
+    }, [debouncedTitle]);
+
+    const generateAndCheckSlug = async (title) => {
+        const baseSlug = slugify(title, {
+            lower: true,
+            strict: true,
+            remove: /[*+~.()'"!:@]/g
+        });
+
+        setGeneratedSlug(baseSlug);
+        setSlugLoading(true);
+        setSlugError('');
+
+        try {
+            const response = await fetch(`/api/feature/check-slug?slug=${encodeURIComponent(baseSlug)}`);
+            if (response.ok) {
+                const data = await response.json();
+
+                if (data.exists) {
+                    setSlugError(`"${baseSlug}" slug is already taken. A unique version will be generated automatically.`);
+                } else {
+                    setSlugError('');
+                }
+            }
+        } catch (error) {
+            console.error('Error checking slug:', error);
+            setSlugError('Error checking slug availability');
+        } finally {
+            setSlugLoading(false);
+        }
+    };
 
     // Load categories from localStorage on component mount
     useEffect(() => {
@@ -96,6 +153,7 @@ export default function CreateFeaturedStory() {
         formDataToSend.append('category', formData.category);
         formDataToSend.append('tags', formData.tags);
         formDataToSend.append('keyPoints', formData.keyPoints);
+        formDataToSend.append('slug', generatedSlug); // Add the generated slug to FormData
 
         // Prepare content blocks with image references and ALT text
         const blocksForSubmission = formData.contentBlocks.map((block, index) => {
@@ -287,6 +345,33 @@ export default function CreateFeaturedStory() {
                                         placeholder="Enter story title"
                                         required
                                     />
+
+                                    {/* Slug Preview & Validation */}
+                                    {formData.title && (
+                                        <div className="mt-3 p-3 bg-gray-800/30 rounded-lg border border-gray-700/50">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="text-gray-400 text-sm">Generated Slug:</span>
+                                                <code className="text-purple-300 bg-purple-900/30 px-2 py-1 rounded text-xs font-mono">
+                                                    {generatedSlug}
+                                                </code>
+                                                {slugLoading && (
+                                                    <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                                                )}
+                                            </div>
+                                            {slugError && (
+                                                <p className="text-yellow-400 text-xs flex items-center gap-1">
+                                                    <span>⚠️</span>
+                                                    {slugError}
+                                                </p>
+                                            )}
+                                            {!slugError && generatedSlug && !slugLoading && (
+                                                <p className="text-green-400 text-xs flex items-center gap-1">
+                                                    <span>✓</span>
+                                                    Slug is available
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div>
@@ -309,8 +394,6 @@ export default function CreateFeaturedStory() {
                                     </p>
                                 </div>
                             </div>
-
-
                         </div>
 
                         <div className="space-y-4">

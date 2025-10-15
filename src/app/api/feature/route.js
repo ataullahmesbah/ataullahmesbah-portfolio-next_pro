@@ -194,20 +194,18 @@ export async function POST(request) {
         await dbConnect();
         const formData = await request.formData();
 
-        // Debug: Log all form data keys
-        console.log('Form data keys:', [...formData.keys()]);
-
-        // Extract fields - ALT text সহ
+        // Extract fields
         const title = formData.get('title');
         const metaTitle = formData.get('metaTitle');
         const metaDescription = formData.get('metaDescription');
         const shortDescription = formData.get('shortDescription');
         const mainImage = formData.get('mainImage');
-        const mainImageAlt = formData.get('mainImageAlt') || ''; // Main image ALT text
+        const mainImageAlt = formData.get('mainImageAlt') || '';
         const contentBlocksRaw = formData.get('contentBlocks');
         const category = formData.get('category') || 'featured';
         const tags = formData.get('tags')?.split(',').map(t => t.trim()).filter(t => t) || [];
         const keyPoints = formData.get('keyPoints')?.split('\n').map(k => k.trim()).filter(k => k) || [];
+        const providedSlug = formData.get('slug'); // Get the slug from FormData
 
         // Validate required fields
         if (!title || !metaTitle || !metaDescription || !shortDescription || !mainImage) {
@@ -216,7 +214,6 @@ export async function POST(request) {
             }, { status: 400 });
         }
 
-        // Validate main image ALT text
         if (!mainImageAlt.trim()) {
             return NextResponse.json({
                 error: 'Main image ALT text is required for accessibility'
@@ -231,12 +228,11 @@ export async function POST(request) {
                 throw new Error('Content blocks must be an array');
             }
 
-            // Validate content blocks have required fields
-            const invalidBlocks = contentBlocks.filter((block, index) => {
+            // Validate ALT text for image blocks
+            contentBlocks.forEach((block, index) => {
                 if (block.type === 'image' && !block.alt?.trim()) {
                     throw new Error(`Image block ${index + 1} is missing ALT text`);
                 }
-                return false;
             });
 
         } catch (error) {
@@ -247,20 +243,45 @@ export async function POST(request) {
             );
         }
 
-        // Check if slug already exists
-        const baseSlug = slugify(title, { lower: true, strict: true });
-        const existingSlug = await FeaturedStory.findOne({
-            slug: new RegExp(`^${baseSlug}`, 'i')
+        // Generate or validate slug
+        let finalSlug = providedSlug ? slugify(providedSlug, {
+            lower: true,
+            strict: true,
+            remove: /[*+~.()'"!:@]/g
+        }) : slugify(title, {
+            lower: true,
+            strict: true,
+            remove: /[*+~.()'"!:@]/g
         });
 
-        if (existingSlug) {
+        // Ensure slug uniqueness
+        let counter = 1;
+        let isUnique = false;
+
+        while (!isUnique && counter <= 100) {
+            const existingStory = await FeaturedStory.findOne({ slug: finalSlug });
+
+            if (!existingStory) {
+                isUnique = true;
+            } else {
+                // If slug exists, append counter to make it unique
+                finalSlug = `${slugify(providedSlug || title, {
+                    lower: true,
+                    strict: true,
+                    remove: /[*+~.()'"!:@]/g
+                })}-${counter}`;
+                counter++;
+            }
+        }
+
+        if (!isUnique) {
             return NextResponse.json(
-                { error: 'A story with similar title already exists' },
+                { error: 'Unable to generate a unique slug after multiple attempts. Please try a different title.' },
                 { status: 400 }
             );
         }
 
-        // Upload main image with 800x450px size
+        // Upload main image
         console.log('Uploading main image...');
         const mainImageUpload = await uploadImageToCloudinary(mainImage);
 
@@ -276,24 +297,21 @@ export async function POST(request) {
             dimensions: `${mainImageUpload.width}x${mainImageUpload.height}`
         });
 
-        // Process content blocks - upload images with optimization
+        // Process content blocks
         console.log('Processing content block images...');
         const processedBlocks = await optimizeContentBlockImages(contentBlocks, formData);
 
-        // Generate unique slug with timestamp
-        const slug = `${baseSlug}-${Date.now()}`;
-
-        // Create story with all fields including ALT text
+        // Create story
         const story = new FeaturedStory({
             title: title.trim(),
-            slug,
+            slug: finalSlug, // Use the validated unique slug
             metaTitle: metaTitle.trim(),
             metaDescription: metaDescription.trim(),
             shortDescription: shortDescription.trim(),
             mainImage: mainImageUpload.secure_url,
-            mainImageAlt: mainImageAlt.trim(), // Include main image ALT
+            mainImageAlt: mainImageAlt.trim(),
             contentBlocks: processedBlocks,
-            category: category.toLowerCase().trim(), // Normalize category
+            category: category.toLowerCase().trim(),
             tags: tags,
             keyPoints: keyPoints,
             author: session.user.name,
@@ -303,8 +321,7 @@ export async function POST(request) {
                     width: mainImageUpload.width,
                     height: mainImageUpload.height
                 }
-            },
-            // readingTime will be auto-calculated by pre-save hook
+            }
         });
 
         await story.save();
@@ -334,15 +351,13 @@ export async function POST(request) {
     } catch (error) {
         console.error('POST /api/feature error:', error);
 
-        // Handle duplicate key error (unique slug)
         if (error.code === 11000) {
             return NextResponse.json(
-                { error: 'A story with this title already exists' },
+                { error: 'A story with this slug already exists. Please choose a different title.' },
                 { status: 400 }
             );
         }
 
-        // Handle validation errors
         if (error.name === 'ValidationError') {
             const errors = Object.values(error.errors).map(err => err.message);
             return NextResponse.json(
@@ -360,4 +375,3 @@ export async function POST(request) {
         );
     }
 }
-

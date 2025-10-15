@@ -4,8 +4,10 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { FiPlus, FiTrash2, FiImage, FiType, FiCode, FiVideo, FiSave, FiArrowLeft, FiTag } from 'react-icons/fi';
+import { useDebounce } from '@/app/components/hooks/useDebounce';
+import slugify from 'slugify';
 
-// Predefined categories - Create page এর সাথে consistent রাখুন
+
 const PREDEFINED_CATEGORIES = ['featured', 'tech', 'travel', 'seo', 'personal', 'lifestyle', 'business'];
 
 export default function EditFeaturedStory() {
@@ -16,6 +18,9 @@ export default function EditFeaturedStory() {
     const [showNewCategory, setShowNewCategory] = useState(false);
     const [newCategory, setNewCategory] = useState('');
     const [categories, setCategories] = useState(PREDEFINED_CATEGORIES);
+    const [slugError, setSlugError] = useState('');
+    const [slugLoading, setSlugLoading] = useState(false);
+    const [generatedSlug, setGeneratedSlug] = useState('');
 
     const [formData, setFormData] = useState({
         title: '',
@@ -35,6 +40,9 @@ export default function EditFeaturedStory() {
         }],
     });
 
+    // Use the debounce hook
+    const debouncedTitle = useDebounce(formData.title, 500);
+
     // Load categories from localStorage
     useEffect(() => {
         const savedCategories = localStorage.getItem('customCategories');
@@ -44,6 +52,7 @@ export default function EditFeaturedStory() {
         }
     }, []);
 
+    // Fetch story data
     useEffect(() => {
         const fetchStory = async () => {
             try {
@@ -65,9 +74,10 @@ export default function EditFeaturedStory() {
                         ...block,
                         imageFile: null,
                         imageUrl: block.type === 'image' ? block.imageUrl : '',
-                        alt: block.alt || '' // Ensure alt field exists
+                        alt: block.alt || ''
                     }))
                 });
+                setGeneratedSlug(data.slug); // Initialize with current slug
             } catch (error) {
                 console.error('Error fetching story:', error);
                 toast.error('Error loading story');
@@ -77,6 +87,43 @@ export default function EditFeaturedStory() {
         };
         fetchStory();
     }, [slug]);
+
+    // Generate and check slug
+    useEffect(() => {
+        if (debouncedTitle.trim() && debouncedTitle !== formData.title) {
+            generateAndCheckSlug(debouncedTitle);
+        }
+    }, [debouncedTitle]);
+
+    const generateAndCheckSlug = async (title) => {
+        const baseSlug = slugify(title, {
+            lower: true,
+            strict: true,
+            remove: /[*+~.()'"!:@]/g
+        });
+
+        setGeneratedSlug(baseSlug);
+        setSlugLoading(true);
+        setSlugError('');
+
+        try {
+            const response = await fetch(`/api/feature/check-slug?slug=${encodeURIComponent(baseSlug)}`);
+            if (response.ok) {
+                const data = await response.json();
+
+                if (data.exists && data.slug !== slug) {
+                    setSlugError(`"${baseSlug}" slug is already taken. A unique version will be generated automatically.`);
+                } else {
+                    setSlugError('');
+                }
+            }
+        } catch (error) {
+            console.error('Error checking slug:', error);
+            setSlugError('Error checking slug availability');
+        } finally {
+            setSlugLoading(false);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -131,6 +178,7 @@ export default function EditFeaturedStory() {
         formDataToSend.append('category', formData.category);
         formDataToSend.append('tags', formData.tags);
         formDataToSend.append('keyPoints', formData.keyPoints);
+        formDataToSend.append('slug', generatedSlug); // Add the generated slug
 
         // Prepare content blocks with image references and ALT text
         const blocksForSubmission = formData.contentBlocks.map((block, index) => {
@@ -217,7 +265,7 @@ export default function EditFeaturedStory() {
         setFormData(prev => ({
             ...prev,
             mainImage: e.target.files[0],
-            mainImageAlt: prev.mainImageAlt || '' // Keep existing ALT if available
+            mainImageAlt: prev.mainImageAlt || ''
         }));
     };
 
@@ -234,7 +282,7 @@ export default function EditFeaturedStory() {
                 imageUrl: previewUrl,
                 imageFile: file,
                 caption: updatedBlocks[index].caption || '',
-                alt: updatedBlocks[index].alt || '' // Keep existing ALT
+                alt: updatedBlocks[index].alt || ''
             };
             setFormData(prev => ({ ...prev, contentBlocks: updatedBlocks }));
             toast.success('Image added successfully');
@@ -287,7 +335,6 @@ export default function EditFeaturedStory() {
             <Toaster position="top-right" />
 
             <div className="max-w-4xl mx-auto">
-                {/* Header */}
                 <div className="mb-8">
                     <button
                         onClick={() => router.back()}
@@ -304,7 +351,6 @@ export default function EditFeaturedStory() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
-                    {/* Basic Information Section */}
                     <div className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50 backdrop-blur-sm">
                         <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
                             <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
@@ -327,6 +373,31 @@ export default function EditFeaturedStory() {
                                         placeholder="Enter story title"
                                         required
                                     />
+                                    {formData.title && (
+                                        <div className="mt-3 p-3 bg-gray-800/30 rounded-lg border border-gray-700/50">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="text-gray-400 text-sm">Generated Slug:</span>
+                                                <code className="text-purple-300 bg-purple-900/30 px-2 py-1 rounded text-xs font-mono">
+                                                    {generatedSlug}
+                                                </code>
+                                                {slugLoading && (
+                                                    <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                                                )}
+                                            </div>
+                                            {slugError && (
+                                                <p className="text-yellow-400 text-xs flex items-center gap-1">
+                                                    <span>⚠️</span>
+                                                    {slugError}
+                                                </p>
+                                            )}
+                                            {!slugError && generatedSlug && !slugLoading && (
+                                                <p className="text-green-400 text-xs flex items-center gap-1">
+                                                    <span>✓</span>
+                                                    Slug is available
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div>
@@ -394,7 +465,6 @@ export default function EditFeaturedStory() {
                         </div>
                     </div>
 
-                    {/* Main Image Section */}
                     <div className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50 backdrop-blur-sm">
                         <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
                             <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
@@ -425,7 +495,7 @@ export default function EditFeaturedStory() {
                                         <div>
                                             <p className="text-gray-400 text-sm mb-2">Current Image:</p>
                                             <img
-                                                src={`/api/feature/${slug}`} // Current image from API
+                                                src={`/api/feature/${slug}`}
                                                 alt="Current main image"
                                                 className="max-h-48 rounded-xl border border-gray-600"
                                                 onError={(e) => {
@@ -455,7 +525,6 @@ export default function EditFeaturedStory() {
                         </div>
                     </div>
 
-                    {/* Content Blocks Section */}
                     <div className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50 backdrop-blur-sm">
                         <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
                             <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
@@ -505,7 +574,7 @@ export default function EditFeaturedStory() {
                                             >
                                                 <option value="paragraph">Paragraph</option>
                                                 <option value="heading">Heading</option>
-                                                <option value="image">Image</option>
+                                                <option value="image">Image (800*450 Px)</option>
                                                 <option value="video">Video</option>
                                                 <option value="code">Code</option>
                                             </select>
@@ -597,7 +666,6 @@ export default function EditFeaturedStory() {
                                 </div>
                             ))}
 
-                            {/* Add Block Buttons */}
                             <div className="flex flex-wrap gap-3">
                                 <button
                                     type="button"
@@ -635,7 +703,6 @@ export default function EditFeaturedStory() {
                         </div>
                     </div>
 
-                    {/* Additional Information Section */}
                     <div className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50 backdrop-blur-sm">
                         <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
                             <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
@@ -643,7 +710,6 @@ export default function EditFeaturedStory() {
                         </h2>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {/* Category Section */}
                             <div className="space-y-4">
                                 <div>
                                     <label className="block text-gray-300 mb-2 font-medium" htmlFor="category">
@@ -664,7 +730,6 @@ export default function EditFeaturedStory() {
                                     </select>
                                 </div>
 
-                                {/* Add New Category */}
                                 {!showNewCategory ? (
                                     <button
                                         type="button"
@@ -741,7 +806,6 @@ export default function EditFeaturedStory() {
                         </div>
                     </div>
 
-                    {/* Submit Button */}
                     <div className="flex justify-center">
                         <button
                             type="submit"

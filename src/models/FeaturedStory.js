@@ -1,4 +1,3 @@
-// models/FeaturedStory.js
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 
@@ -133,7 +132,7 @@ const FeaturedStorySchema = new mongoose.Schema(
 
 // Pre-save hook for slug generation and reading time calculation
 FeaturedStorySchema.pre('save', function (next) {
-    // Generate slug if not exists or title modified
+    // Only generate slug if it doesn't exist or is being modified
     if (!this.slug || this.isModified('title')) {
         const baseSlug = slugify(this.title, {
             lower: true,
@@ -141,8 +140,8 @@ FeaturedStorySchema.pre('save', function (next) {
             remove: /[*+~.()'"!:@]/g
         });
 
-        // Add timestamp to ensure uniqueness
-        this.slug = `${baseSlug}-${Date.now()}`;
+        // Set the base slug without timestamp
+        this.slug = baseSlug;
     }
 
     // Calculate reading time from content blocks
@@ -154,7 +153,7 @@ FeaturedStorySchema.pre('save', function (next) {
                 totalWords += words;
             }
         });
-        this.readingTime = Math.max(1, Math.ceil(totalWords / 200)); // 200 words per minute
+        this.readingTime = Math.max(1, Math.ceil(totalWords / 200));
     }
 
     next();
