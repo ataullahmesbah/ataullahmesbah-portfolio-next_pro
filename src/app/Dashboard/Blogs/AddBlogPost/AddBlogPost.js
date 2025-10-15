@@ -620,7 +620,7 @@ const AddBlogPostPage = () => {
           </div>
 
           <div>
-            <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image *</label>
+            <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image * (1200*628 Pixels)</label>
             <input
               type="file"
               name="mainImage"
@@ -735,7 +735,7 @@ const AddBlogPostPage = () => {
                 {section.contentType === 'image' && (
                   <>
                     <div className="mb-4">
-                      <label className="block text-gray-300 mb-2 text-sm">Image *</label>
+                      <label className="block text-gray-300 mb-2 text-sm">Image * (800*600 Px)</label>
                       <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center">
                         <input
                           type="file"

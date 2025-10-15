@@ -185,7 +185,7 @@ const Footer = () => {
                             </ul>
                             <ul className="space-y-1">
                                 {[
-                                    { href: "/featured-story", label: "Feature Story" },
+                                    { href: "/featured-story", label: "Featured Story" },
                                     { href: "/content-creation", label: "Content Story" },
                                     { href: "/faq", label: "Need Help?" },
                                     { href: "/contact", label: "Contact" },
