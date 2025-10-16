@@ -87,7 +87,9 @@ const NewsletterInfoPage = () => {
                                     <td className="p-4">{new Date(newsletter.publishDate).toLocaleDateString()}</td>
                                     <td className="p-4">{newsletter.views}</td>
                                     <td className="p-4 flex space-x-3">
-                                        <Link href={`/letter/${newsletter.slug}`}>
+                                        <Link
+                                            href={`/newsletter/${newsletter.slug}`}
+                                        >
                                             <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300">
                                                 View
                                             </button>

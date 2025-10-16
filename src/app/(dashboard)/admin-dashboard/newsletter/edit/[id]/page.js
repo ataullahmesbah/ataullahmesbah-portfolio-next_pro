@@ -284,7 +284,7 @@ const EditNewsletterPage = ({ params }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Main Image */}
                         <div>
-                            <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image</label>
+                            <label className="block text-gray-300 mb-2 text-sm font-medium">Main Image (1200*630 Px)</label>
                             <div className="border-2 border-dashed border-gray-700 rounded-lg p-4">
                                 {formData.existingImage && (
                                     <div className="mb-4">
