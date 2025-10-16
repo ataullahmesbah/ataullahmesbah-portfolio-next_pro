@@ -126,7 +126,7 @@ export default function AllBlogs() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
                     <div>
-                        <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-600 mb-2">
+                        <h2 className="text-3xl text-white font-bold text-transparent  mb-2">
                             📝 All Blog Posts
                         </h2>
                         <p className="text-gray-400">Total Blogs: {blogs.length}</p>
