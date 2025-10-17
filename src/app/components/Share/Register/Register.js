@@ -1,105 +1,159 @@
 import Image from "next/image";
 import Link from "next/link";
-import { FaBackward, FaForward } from "react-icons/fa";
+import { FaBackward, FaForward, FaUserPlus, FaShieldAlt } from "react-icons/fa";
 import Registerform from "../Registerform/Registerform";
 
 export const metadata = {
     title: 'Sign Up | ataullah mesbah',
-    description: '',
+    description: 'Create your account and join our community',
 };
 
 const Register = () => {
     return (
-        <div className="container mx-auto py-20">
+        <>
+            {/* Background Elements */}
+            <div className="fixed inset-0 overflow-hidden">
+                {/* Main Background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"></div>
 
-            <div className=" font-semibold flex justify-between items-center p-4">
-                <Link href='/' className="flex items-center gap-4" ><FaBackward /> <h3>Back to Home</h3></Link>
-                <Link href='/login' className="flex items-center gap-4"><h3>Already have an Account</h3> <FaForward /></Link>
+                {/* Purple Accent Circles */}
+                <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-600/10 rounded-full blur-3xl"></div>
+                <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-600/10 rounded-full blur-3xl"></div>
 
+                {/* Grid Pattern */}
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]"></div>
             </div>
-            {/* img optimize */}
-            <div className="flex justify-center items-center bg-gray-900 py-10 rounded-md">
-                <div className="flex flex-col items-center bg-gray-800 rounded-lg shadow-lg px-8 py-6 w-full max-w-lg">
-                   
 
-                    <div className="flex items-center justify-center gap-5">
-                    <p className="text-white text-base font-semibold">Sign Up into</p>
-                        <svg
-                            id="Layer_1"
-                            data-name="Layer 1"
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 700.15 57.69"
-                            className="w-48 sm:w-56 md:w-64 lg:w-72 h-auto"
-                        >
-                            <defs>
-                                <style>
-                                    {`.cls-1, .cls-3, .cls-4 { fill: #fff; }
-              .cls-1 { stroke: #e6e6e6; stroke-miterlimit: 10; stroke-width: 2px; }
-              .cls-2 { font-size: 31px; font-family: BritannicBold, Britannic; }
-              .cls-3 { font-size: 38px; font-family: BritannicBold, Britannic Regular; }`}
-                                </style>
-                            </defs>
-                            <rect className="cls-1" x="150.01" y="4.95" width="49" height="36.35" rx="8.75" />
-                            <text className="cls-2" transform="translate(155.72 31.58) scale(0.96 1)">am</text>
-                            <text className="cls-3" transform="translate(0 33.34) scale(1.03 1)">ataullah</text>
-                            <text className="cls-3" transform="translate(205 33.34)">mesbah</text>
-                            <polygon className="cls-4" points="47.06 49.22 284.59 49.22 57.65 57.69 47.06 49.22" />
-                        </svg>
-                        
-                    </div>
-                </div>
-            </div>
-            {/* img optimize */}
+            <div className="relative min-h-screen flex flex-col justify-center py-8 px-4 sm:px-6 lg:px-8 z-10">
 
-
-
-
-            {/* Log section */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-between items-center mx-auto mt-8 p-4 lg:w-3/4">
-
-                <Registerform />
-
-                {/* Or */}
-
-                <div className="hidden lg:flex items-center justify-center flex-col mx-auto space-y-5">
-                    <div className="border-l items-center justify-center border-gray-600 h-10"></div>
-                    <div className="text-gray-500">OR</div>
-                    <div className="border-l items-center justify-center border-gray-600 h-10"></div>
-                </div>
-
-                {/* Social Login Section */}
-                <div className="space-y-3">
-                    <div className="flex items-center border-gray-700 border rounded-md justify-between px-8 mx-auto md:px-15 lg:px-16 p-2">
-                        <Image width={32} height={8} src="https://i.ibb.co/SKdhz0J/image.png" alt="Login Google" />
-                        <p className="text-xs font-semibold">Sign In With Google</p>
-                    </div>
-                    <div className="flex items-center border-gray-700 border rounded-md justify-between px-8 mx-auto md:px-15 lg:px-16 p-2">
-                        <Image width={32} height={8} src="https://i.ibb.co/9qXCrfs/image.png" alt="Login Google" />
-                        <p className="text-xs font-semibold">Sign In With Facebook</p>
-                    </div>
-                    <div className="flex items-center border-gray-700 border rounded-md justify-between px-8 mx-auto md:px-15 lg:px-16 p-2">
-                        <Image width={32} height={8} src="https://i.ibb.co/JnD2t8y/image.png" alt="Login Google" />
-                        <p className="text-xs font-semibold">Sign In With Github</p>
+                {/* Header Navigation */}
+                <div className="absolute top-0 left-0 right-0 z-20 bg-gray-900/80 backdrop-blur-md border-b border-gray-700">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between items-center py-4">
+                            <Link href='/' className="flex items-center gap-3 text-gray-300 hover:text-white transition-all duration-300 group">
+                                <div className="p-2 bg-gray-800 rounded-lg group-hover:bg-purple-600 transition-colors duration-300">
+                                    <FaBackward className="text-sm" />
+                                </div>
+                                <span className="text-sm font-medium">Back to Home</span>
+                            </Link>
+                            <Link href='/login' className="flex items-center gap-3 text-gray-300 hover:text-white transition-all duration-300 group">
+                                <span className="text-sm font-medium">Already have an Account</span>
+                                <div className="p-2 bg-gray-800 rounded-lg group-hover:bg-purple-600 transition-colors duration-300">
+                                    <FaForward className="text-sm" />
+                                </div>
+                            </Link>
+                        </div>
                     </div>
                 </div>
 
+                {/* Main Content */}
+                <div className="max-w-4xl mx-auto w-full">
+                    {/* Compact Welcome Card */}
+                    <div className="flex justify-center mb-8">
+                        <div className="bg-gray-800/60 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50 shadow-xl">
+                            <div className="flex flex-col items-center text-center">
+                                {/* User Plus Icon */}
+                                <div className="mb-4 flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl shadow-lg">
+                                    <FaUserPlus className="text-2xl text-white" />
+                                </div>
+
+                                {/* Title */}
+                                <h1 className="text-2xl font-bold text-white mb-2">
+                                    Create Account
+                                </h1>
+
+                                {/* Subtitle */}
+                                <div className="flex items-center justify-center gap-2 text-purple-400 mb-4">
+                                    <FaShieldAlt className="text-sm" />
+                                    <p className="text-sm font-semibold">Secure Registration</p>
+                                </div>
+
+                                {/* Simple Divider */}
+                                <div className="w-16 h-1 bg-gradient-to-r from-purple-600 to-transparent rounded-full mb-4"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Register Section */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                        {/* Register Form */}
+                        <div className="lg:col-span-2">
+                            <div className="bg-gray-800/60 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50 shadow-xl">
+                                <Registerform />
+                            </div>
+                        </div>
+
+                        {/* Social Register Sidebar */}
+                        <div className="flex flex-col">
+                            {/* Divider for Desktop */}
+                            <div className="hidden lg:flex items-center justify-center my-4 w-full">
+                                <div className="flex-grow h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
+                                <span className="mx-3 text-gray-400 font-medium text-xs uppercase tracking-wider">Quick Sign Up</span>
+                                <div className="flex-grow h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
+                            </div>
+
+                            {/* Social Register */}
+                            <div className="w-full space-y-3">
+                                <button className="w-full flex items-center justify-center gap-3 bg-gray-700/50 hover:bg-gray-600/50 backdrop-blur-lg border border-gray-600/50 rounded-xl p-3 transition-all duration-300 hover:scale-[1.02] hover:border-purple-500/30 group">
+                                    <div className="p-1.5 bg-white rounded-lg">
+                                        <Image width={16} height={16} src="https://i.ibb.co/SKdhz0J/image.png" alt="Register Google" className="w-4 h-4" />
+                                    </div>
+                                    <span className="text-white text-sm font-medium">Google</span>
+                                </button>
+
+                                <button className="w-full flex items-center justify-center gap-3 bg-gray-700/50 hover:bg-gray-600/50 backdrop-blur-lg border border-gray-600/50 rounded-xl p-3 transition-all duration-300 hover:scale-[1.02] hover:border-blue-500/30 group">
+                                    <div className="p-1.5 bg-blue-600 rounded-lg">
+                                        <Image width={16} height={16} src="https://i.ibb.co/9qXCrfs/image.png" alt="Register Facebook" className="w-4 h-4" />
+                                    </div>
+                                    <span className="text-white text-sm font-medium">Facebook</span>
+                                </button>
+
+                                <button className="w-full flex items-center justify-center gap-3 bg-gray-700/50 hover:bg-gray-600/50 backdrop-blur-lg border border-gray-600/50 rounded-xl p-3 transition-all duration-300 hover:scale-[1.02] hover:border-gray-500/30 group">
+                                    <div className="p-1.5 bg-gray-800 rounded-lg">
+                                        <Image width={16} height={16} src="https://i.ibb.co/JnD2t8y/image.png" alt="Register Github" className="w-4 h-4" />
+                                    </div>
+                                    <span className="text-white text-sm font-medium">Github</span>
+                                </button>
+                            </div>
+
+                            {/* Security Note */}
+                            <div className="mt-4 p-3 bg-gray-800/40 rounded-xl border border-gray-700/30 text-center">
+                                <p className="text-gray-400 text-xs">
+                                    🔒 Secure & Encrypted Registration
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Additional Links */}
+                    <div className="mt-8 text-center space-y-4">
+                        {/* Footer */}
+                        <div className="space-y-2">
+                            <div className="flex justify-center gap-4">
+                                <Link href='/terms-of-service'>
+                                    <span className="text-gray-500 hover:text-gray-300 transition-colors duration-300 text-xs">
+                                        Terms
+                                    </span>
+                                </Link>
+                                <Link href='/privacy-policy'>
+                                    <span className="text-gray-500 hover:text-gray-300 transition-colors duration-300 text-xs">
+                                        Privacy
+                                    </span>
+                                </Link>
+                                <Link href='/security'>
+                                    <span className="text-gray-500 hover:text-gray-300 transition-colors duration-300 text-xs">
+                                        Security
+                                    </span>
+                                </Link>
+                            </div>
+                            <p className="text-gray-600 text-xs">
+                                Protected by reCAPTCHA
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            {/* Forgotten Password */}
-            <Link href='/'> <p className="text-center mt-16  uppercase font-medium">Forgotten password?</p></Link>
-
-            <div className="text-center mt-10 mb-10">
-                <p>Secure Login with reCAPTCHA subject to Google</p>
-                <Link href='/terms-conditions'>
-                    <p>Terms & Privacy</p>
-                </Link>
-
-            </div>
-
-
-
-
-        </div>
+        </>
     );
 };
 

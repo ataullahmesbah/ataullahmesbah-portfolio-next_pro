@@ -1,3 +1,5 @@
+// api/auth/send-otp/route.js
+
 import { NextResponse } from 'next/server';
 import { generateOTP, sendOTP } from '@/lib/otpUtils';
 import User from '@/models/User';
@@ -10,8 +12,8 @@ export async function POST(req) {
         const { email, password } = await req.json();
 
         // Check if user exists and password matches
-        const user = await User.findOne({ email });
-        if (!user || !bcrypt.compareSync(password, user.password)) {
+        const user = await User.findOne({ email: email.toLowerCase() });
+        if (!user || !(await bcrypt.compare(password, user.password))) {
             return NextResponse.json({ message: 'Invalid email or password' }, { status: 400 });
         }
 
@@ -33,6 +35,7 @@ export async function POST(req) {
         await sendOTP(email, otp);
 
         return NextResponse.json({ message: 'OTP sent successfully' });
+
     } catch (error) {
         console.error('Error sending OTP:', error);
         return NextResponse.json({ message: 'Failed to send OTP' }, { status: 500 });

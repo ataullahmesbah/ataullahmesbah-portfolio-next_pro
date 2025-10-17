@@ -1,8 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers/Providers";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import Script from 'next/script'; // Import the Script component
 
 const inter = Inter({ subsets: ["latin"] });
@@ -34,7 +32,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <Providers>
           {children}
-          <ToastContainer />
+          
         </Providers>
       </body>
     </html>
