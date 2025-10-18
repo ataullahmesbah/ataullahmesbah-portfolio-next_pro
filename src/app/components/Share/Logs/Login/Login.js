@@ -1,12 +1,19 @@
+// app/login/page.js
 'use client';
 
 import Image from "next/image";
 import Link from "next/link";
-import { FaArrowLeft, FaArrowRight, FaBackward, FaForward, FaLock, FaShieldAlt } from "react-icons/fa";
-import LoginForm from "../LoginForm/LoginForm";
+import { FaBackward, FaForward, FaLock, FaShieldAlt, FaTimes } from "react-icons/fa";
 import { ToastContainer } from 'react-toastify';
+import { useState } from 'react';
+import ForgotPasswordModal from "../ForgotPasswordModal/ForgotPasswordModal";
+import LoginForm from "../LoginForm/LoginForm";
+
 
 const Login = () => {
+    const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
+
+
     return (
         <>
             <ToastContainer
@@ -20,6 +27,12 @@ const Login = () => {
                 draggable
                 pauseOnHover
                 theme="dark"
+            />
+
+            {/* Forgot Password Modal */}
+            <ForgotPasswordModal
+                isOpen={isForgotPasswordOpen}
+                onClose={() => setIsForgotPasswordOpen(false)}
             />
 
             {/* Background that won't interfere with layout */}
@@ -142,11 +155,12 @@ const Login = () => {
                         <div className="mt-12 text-center space-y-6">
                             {/* Forgot Password */}
                             <div>
-                                <Link href='/forgot-password'>
-                                    <span className="text-purple-400 hover:text-purple-300 transition-colors duration-200 font-medium text-sm border-b border-transparent hover:border-purple-300 pb-1">
-                                        Forgot your password?
-                                    </span>
-                                </Link>
+                                <button
+                                    onClick={() => setIsForgotPasswordOpen(true)}
+                                    className="text-purple-400 hover:text-purple-300 transition-colors duration-200 font-medium text-sm border-b border-transparent hover:border-purple-300 pb-1"
+                                >
+                                    Forgot your password?
+                                </button>
                             </div>
 
                             {/* Legal Links */}

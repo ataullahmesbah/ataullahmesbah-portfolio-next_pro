@@ -1,25 +1,17 @@
 
+// providers/Providers.jsx
 'use client';
+
 import { SessionProvider } from "next-auth/react";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 export default function Providers({ children }) {
     return (
-        <SessionProvider>
+        <SessionProvider
+            refetchInterval={5 * 60} // Refetch session every 5 minutes
+            refetchOnWindowFocus={true}
+        >
             {children}
-            <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="dark"
-            />
+            {/* ToastProvider is now in layout.js outside of SessionProvider but inside Providers */}
         </SessionProvider>
     );
 }

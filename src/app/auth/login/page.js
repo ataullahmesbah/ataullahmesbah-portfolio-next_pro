@@ -1,4 +1,4 @@
-import LoginForm from "@/app/components/Share/LoginForm/LoginForm";
+import LoginForm from "@/app/components/Share/Logs/LoginForm/LoginForm";
 
 
 const page = () => {

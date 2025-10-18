@@ -1,0 +1,32 @@
+// components/Share/ToastProvider/ToastProvider.jsx
+'use client';
+
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+export default function ToastProvider() {
+    return (
+        <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark"
+            style={{
+                fontSize: '14px',
+                zIndex: 9999
+            }}
+            toastStyle={{
+                background: '#1f2937',
+                color: '#f9fafb',
+                borderRadius: '8px',
+                border: '1px solid #374151'
+            }}
+        />
+    );
+}

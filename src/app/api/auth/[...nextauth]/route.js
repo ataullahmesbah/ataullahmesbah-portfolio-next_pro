@@ -7,7 +7,6 @@ import User from '@/models/User';
 import dbConnect from '@/lib/dbMongoose';
 import UserProfile from '@/models/UserProfile';
 
-
 export const authOptions = {
     providers: [
         CredentialsProvider({
@@ -30,10 +29,9 @@ export const authOptions = {
                         throw new Error('Invalid email or password');
                     }
 
-                    // Check force logout
+                    // ✅ FIX: Check force logout but don't clear it during login attempt
                     if (user.forceLogout) {
-                        user.forceLogout = false;
-                        await user.save();
+                        // Don't clear forceLogout here, let the session callback handle it
                         throw new Error('Your session has been terminated by admin. Please login again.');
                     }
 
@@ -48,13 +46,13 @@ export const authOptions = {
                         throw new Error('Invalid email or password');
                     }
 
-                    // Update last login info - FIXED VERSION
+                    // Update last login info
                     user.lastLogin = new Date();
                     user.lastLoginIP = req.headers?.['x-forwarded-for']?.split(',')[0] ||
                         req.headers?.['x-real-ip'] ||
                         'unknown';
 
-                    // ✅ FIX: Ensure loginHistory exists before pushing
+                    // Ensure loginHistory exists before pushing
                     if (!user.loginHistory) {
                         user.loginHistory = [];
                     }
@@ -95,14 +93,17 @@ export const authOptions = {
                 token.id = user.id;
             }
 
-            // Check force logout on each request (only for authenticated users)
+            // ✅ FIX: Check force logout but handle it properly
             if (token.id) {
                 try {
                     await dbConnect();
                     const user = await User.findById(token.id);
                     if (user && user.forceLogout) {
-                        user.forceLogout = false;
-                        await user.save();
+                        // Only clear forceLogout if this is a new session (not during login)
+                        if (trigger !== 'signIn') {
+                            user.forceLogout = false;
+                            await user.save();
+                        }
                         token.error = 'Force logout by admin';
                     }
                 } catch (error) {
@@ -127,12 +128,11 @@ export const authOptions = {
                 try {
                     await dbConnect();
 
-                    // Check force logout again in session callback
+                    // ✅ FIX: Check force logout but don't clear during session creation
                     const user = await User.findById(token.id);
                     if (user && user.forceLogout) {
-                        user.forceLogout = false;
-                        await user.save();
                         session.error = 'Force logout by admin';
+                        // Don't clear forceLogout here, let the middleware handle it
                     }
 
                     // Fetch user profile data

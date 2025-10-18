@@ -2,6 +2,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers/Providers";
 import Script from 'next/script'; // Import the Script component
+import SessionChecker from "@/providers/SessionChecker/SessionChecker";
+import ToastProvider from "./components/Share/ToastProvider/ToastProvider";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,9 +34,11 @@ export default function RootLayout({ children }) {
 
       <body className={inter.className}>
         <Providers>
+          <SessionChecker />
           {children}
-          
+          <ToastProvider />
         </Providers>
+
       </body>
     </html>
   );

@@ -24,12 +24,14 @@ export async function POST(req) {
         // Hash the new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-        // Update password and set force logout
+        // ✅ FIX: Update password and set force logout, but don't clear it immediately
         user.password = hashedPassword;
         user.forceLogout = true; // Force user to logout
         await user.save();
 
-        return NextResponse.json({ message: 'Password reset successfully. User will be logged out.' });
+        return NextResponse.json({
+            message: 'Password reset successfully. User will be logged out on next request.'
+        });
     } catch (error) {
         console.error('Reset password error:', error);
         return NextResponse.json({ message: 'Failed to reset password' }, { status: 500 });

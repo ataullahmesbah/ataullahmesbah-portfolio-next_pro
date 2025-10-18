@@ -1,4 +1,5 @@
-import Login from "@/app/components/Share/Login/Login";
+import Login from "@/app/components/Share/Logs/Login/Login";
+
 
 
 const page = () => {
