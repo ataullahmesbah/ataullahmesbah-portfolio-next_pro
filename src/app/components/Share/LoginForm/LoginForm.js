@@ -84,12 +84,14 @@ const LoginForm = () => {
         }
     };
 
+    // In your handleVerifyOTP function, add better error handling
     const handleVerifyOTP = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
 
         try {
+            // Step 1: Verify OTP
             const res = await fetch('/api/auth/verify-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -99,15 +101,27 @@ const LoginForm = () => {
             const data = await res.json();
 
             if (res.ok && data.verified) {
+                // ✅ FIX: Now login with credentials after OTP verification
                 const result = await signIn('credentials', {
                     redirect: false,
                     email,
                     password,
                 });
 
+                console.log('SignIn result:', result);
+
                 if (result?.error) {
-                    setError(result.error);
-                    showErrorToast(result.error);
+                    // Handle specific errors
+                    if (result.error.includes('force logout') || result.error.includes('session terminated')) {
+                        setError('Your session was terminated. Please login again.');
+                        showErrorToast('Session terminated. Please login again.');
+                    } else if (result.error.includes('inactive')) {
+                        setError('Your account is inactive. Please contact admin.');
+                        showErrorToast('Account inactive. Please contact admin.');
+                    } else {
+                        setError(result.error);
+                        showErrorToast(result.error);
+                    }
                 } else {
                     showSuccessToast('Login successful!');
                     router.push('/');
@@ -117,13 +131,13 @@ const LoginForm = () => {
                 showErrorToast(data.message || 'Invalid OTP code');
             }
         } catch (error) {
+            console.error('Error verifying OTP:', error);
             setError('An unexpected error occurred. Please try again.');
             showErrorToast('An unexpected error occurred. Please try again.');
         } finally {
             setIsLoading(false);
         }
     };
-
     // Show loading state while checking session
     if (status === 'loading') {
         return (

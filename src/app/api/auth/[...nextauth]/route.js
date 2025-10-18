@@ -7,6 +7,7 @@ import User from '@/models/User';
 import dbConnect from '@/lib/dbMongoose';
 import UserProfile from '@/models/UserProfile';
 
+
 export const authOptions = {
     providers: [
         CredentialsProvider({
@@ -15,53 +16,157 @@ export const authOptions = {
                 email: { label: 'Email', type: 'text' },
                 password: { label: 'Password', type: 'password' },
             },
-            async authorize(credentials) {
-                await dbConnect(); // Connect to MongoDB
-                const user = await User.findOne({ email: credentials.email });
+            async authorize(credentials, req) {
+                try {
+                    await dbConnect();
 
-                // Check if user exists, password matches, and user is active
-                if (user && bcrypt.compareSync(credentials.password, user.password)) {
-                    if (user.status === 'active') {
-                        return { id: user._id, name: user.username, email: user.email, role: user.role };
-                    } else {
+                    if (!credentials.email || !credentials.password) {
+                        throw new Error('Email and password are required');
+                    }
+
+                    const user = await User.findOne({ email: credentials.email.toLowerCase() });
+
+                    if (!user) {
+                        throw new Error('Invalid email or password');
+                    }
+
+                    // Check force logout
+                    if (user.forceLogout) {
+                        user.forceLogout = false;
+                        await user.save();
+                        throw new Error('Your session has been terminated by admin. Please login again.');
+                    }
+
+                    // Check if user is active
+                    if (user.status !== 'active') {
                         throw new Error('Your account is inactive. Please contact the admin.');
                     }
+
+                    // Verify password
+                    const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+                    if (!isPasswordValid) {
+                        throw new Error('Invalid email or password');
+                    }
+
+                    // Update last login info - FIXED VERSION
+                    user.lastLogin = new Date();
+                    user.lastLoginIP = req.headers?.['x-forwarded-for']?.split(',')[0] ||
+                        req.headers?.['x-real-ip'] ||
+                        'unknown';
+
+                    // ✅ FIX: Ensure loginHistory exists before pushing
+                    if (!user.loginHistory) {
+                        user.loginHistory = [];
+                    }
+
+                    user.loginHistory.push({
+                        timestamp: new Date(),
+                        ip: user.lastLoginIP,
+                        userAgent: req.headers?.['user-agent'] || 'unknown'
+                    });
+
+                    // Keep only last 10 login records
+                    if (user.loginHistory.length > 10) {
+                        user.loginHistory = user.loginHistory.slice(-10);
+                    }
+
+                    await user.save();
+
+                    return {
+                        id: user._id.toString(),
+                        name: user.username,
+                        email: user.email,
+                        role: user.role
+                    };
+
+                } catch (error) {
+                    console.error('Auth error:', error.message);
+                    throw new Error(error.message || 'Authentication failed');
                 }
-                throw new Error('Invalid email or password');
             },
         }),
     ],
 
-
-
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user, trigger, session }) {
+            // Add user info to token on sign in
             if (user) {
-                token.role = user.role; // Add role to the token
-                token.id = user.id; // Add user ID to the token
+                token.role = user.role;
+                token.id = user.id;
             }
+
+            // Check force logout on each request (only for authenticated users)
+            if (token.id) {
+                try {
+                    await dbConnect();
+                    const user = await User.findById(token.id);
+                    if (user && user.forceLogout) {
+                        user.forceLogout = false;
+                        await user.save();
+                        token.error = 'Force logout by admin';
+                    }
+                } catch (error) {
+                    console.error('JWT force logout check error:', error);
+                }
+            }
+
             return token;
         },
+
         async session({ session, token }) {
-            await dbConnect();
+            // Pass error to session if exists
+            if (token.error) {
+                session.error = token.error;
+            }
 
-            // Fetch user image & intro from userProfiles collection
+            // Add user info to session
+            if (token.id) {
+                session.user.id = token.id;
+                session.user.role = token.role;
 
-            const userProfile = await UserProfile.findOne({ userId: token.id });
+                try {
+                    await dbConnect();
 
-            session.user.role = token.role; // Add role to the session
-            session.user.id = token.id; // Add user ID to the session
-            session.user.image = userProfile?.image || null; // Add image
-            session.user.intro = userProfile?.intro || null; // Add intro
-            session.user.displayName = userProfile?.displayName || null; // Add intro
+                    // Check force logout again in session callback
+                    const user = await User.findById(token.id);
+                    if (user && user.forceLogout) {
+                        user.forceLogout = false;
+                        await user.save();
+                        session.error = 'Force logout by admin';
+                    }
+
+                    // Fetch user profile data
+                    const userProfile = await UserProfile.findOne({ userId: token.id });
+                    session.user.image = userProfile?.image || null;
+                    session.user.intro = userProfile?.intro || null;
+                    session.user.displayName = userProfile?.displayName || null;
+
+                } catch (error) {
+                    console.error('Session callback error:', error);
+                }
+            }
 
             return session;
         },
+
+        async redirect({ url, baseUrl }) {
+            // Redirect to home page after login
+            return baseUrl;
+        }
     },
+
+    pages: {
+        signIn: '/login',
+        signOut: '/',
+        error: '/login',
+    },
+
     secret: process.env.NEXTAUTH_SECRET,
     session: {
         strategy: 'jwt',
+        maxAge: 30 * 24 * 60 * 60, // 30 days
     },
+    debug: process.env.NODE_ENV === 'development',
 };
 
 const handler = NextAuth(authOptions);
