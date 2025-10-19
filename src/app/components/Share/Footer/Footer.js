@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { FaFacebookF, FaTwitter, FaLinkedinIn, FaGithub } from 'react-icons/fa';
 import { FiPlay } from 'react-icons/fi';
+import { IoCallOutline } from "react-icons/io5";
 
 const Footer = () => {
     return (
@@ -99,8 +100,9 @@ const Footer = () => {
                                 </a>
                             </li>
                         </ul>
-                        <p className="text-xs text-gray-400 mt-4 text-center md:text-left">
-                            Follow me on social media for daily updates and insights.
+                        <p className="text-base text-gray-100 mt-4 text-center md:text-left flex items-center gap-3">
+                            <IoCallOutline />
+                            +8809638844036
                         </p>
                         {/* Newsletter Section */}
                         <div className="lg:col-span-1 mt-2">

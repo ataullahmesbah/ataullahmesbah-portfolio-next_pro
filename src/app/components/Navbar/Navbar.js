@@ -364,7 +364,7 @@ const Navbar = () => {
                                 Blog
                             </Link>
 
-                            {/* Insights Dropdown - ✅ আলাদা State ব্যবহার করছি */}
+                            {/* Insights Dropdown */}
                             <div
                                 className="relative"
                                 onMouseEnter={isDesktop ? handleInsightsEnter : null}
@@ -399,6 +399,13 @@ const Navbar = () => {
                                             onClick={closeMobileMenu}
                                         >
                                             Featured Story
+                                        </Link>
+                                        <Link
+                                            href="/mesbahoffwego"
+                                            className="block px-4 py-2 w-full text-gray-100 hover:bg-gray-800"
+                                            onClick={closeMobileMenu}
+                                        >
+                                            Travel Story
                                         </Link>
                                     </div>
                                 )}
