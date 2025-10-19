@@ -4,6 +4,7 @@ import Providers from "@/providers/Providers";
 import Script from 'next/script'; // Import the Script component
 import SessionChecker from "@/providers/SessionChecker/SessionChecker";
 import ToastProvider from "./components/Share/ToastProvider/ToastProvider";
+import AdsModal from "./components/Ads/AdsModal/AdsModal";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -36,6 +37,7 @@ export default function RootLayout({ children }) {
         <Providers>
           <SessionChecker />
           {children}
+          <AdsModal />
           <ToastProvider />
         </Providers>
 
