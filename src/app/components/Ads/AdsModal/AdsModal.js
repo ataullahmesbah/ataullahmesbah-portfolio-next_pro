@@ -1,232 +1,246 @@
 // components/AdsModal/AdsModal.js
-
 'use client';
+import { useState, useEffect, useCallback } from 'react';
+import { X, Play } from 'lucide-react';
 
-import { useState, useEffect } from 'react';
-import { FaTimes, FaChevronLeft, FaChevronRight, FaShare, FaCopy, FaClock, FaCalendarAlt } from 'react-icons/fa';
+export default function AdsModal() {
+  const [ads, setAds] = useState([]);
+  const [currentAdIndex, setCurrentAdIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
-const AdsModal = () => {
-    const [ads, setAds] = useState([]);
-    const [currentAdIndex, setCurrentAdIndex] = useState(0);
-    const [isVisible, setIsVisible] = useState(false);
-    const [showCountdown, setShowCountdown] = useState(true);
-    const [countdown, setCountdown] = useState(0);
+  // Safe current ad access
+  const currentAd = ads[currentAdIndex] || {};
 
-    // Fetch active ads
-    useEffect(() => {
-        const fetchAds = async () => {
-            try {
-                const res = await fetch('/api/ads/active');
-                const data = await res.json();
-                if (data.length > 0) {
-                    setAds(data);
-                    setIsVisible(true);
-                    setCurrentAdIndex(0);
-                }
-            } catch (error) {
-                console.error('Failed to fetch ads:', error);
-            }
-        };
+  // Get user views from localStorage
+  const getUserAdViews = () => {
+    if (typeof window === 'undefined') return {};
+    try {
+      return JSON.parse(localStorage.getItem('userAdViews') || '{}');
+    } catch {
+      return {};
+    }
+  };
 
-        fetchAds();
-    }, []);
+  const setUserAdViews = (views) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('userAdViews', JSON.stringify(views));
+    }
+  };
 
-    // Handle auto-close countdown
-    useEffect(() => {
-        if (isVisible && ads.length > 0) {
-            const currentAd = ads[currentAdIndex];
-            setCountdown(currentAd.autoCloseDelay);
+  const fetchAds = useCallback(async () => {
+    try {
+      const currentPage = window.location.pathname;
+      const res = await fetch(`/api/ads?page=${currentPage}`);
+      const data = await res.json();
 
-            const timer = setInterval(() => {
-                setCountdown(prev => {
-                    if (prev <= 1) {
-                        handleClose();
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
+      if (data.success && data.data && data.data.length > 0) {
+        const userAdViews = getUserAdViews();
+        
+        // Filter ads based on user view count
+        const filteredAds = data.data.filter(ad => {
+          const viewCount = userAdViews[ad._id] || 0;
+          const isWithinDate = new Date() >= new Date(ad.startDate) && new Date() <= new Date(ad.endDate);
+          const canShow = viewCount < (ad.displayLimit || 3) && ad.isActive && isWithinDate;
+          return canShow;
+        });
 
-            return () => clearInterval(timer);
+        setAds(filteredAds);
+
+        // AUTO SHOW - Always show if there are ads
+        if (filteredAds.length > 0 && mounted && !isVisible) {
+          showAd(0);
         }
-    }, [isVisible, currentAdIndex, ads]);
+      }
+    } catch (error) {
+      console.error('Error fetching ads:', error);
+    }
+  }, [mounted, isVisible]);
 
-    const handleClose = () => {
-        setIsVisible(false);
-        // Store in localStorage to prevent showing again today
-        const today = new Date().toDateString();
-        localStorage.setItem('lastAdShown', today);
-    };
+  const trackImpression = async (adId) => {
+    try {
+      await fetch('/api/ads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adId })
+      });
+    } catch (error) {
+      // Silent fail - don't break the user experience
+      console.log('Impression tracking failed (non-critical)');
+    }
+  };
 
-    const handleNext = () => {
-        setCurrentAdIndex(prev => (prev + 1) % ads.length);
-        setShowCountdown(true);
-    };
+  const showAd = (index) => {
+    if (ads[index]) {
+      const ad = ads[index];
+      setCurrentAdIndex(index);
+      setTimeLeft(ad.displayTime || 10);
+      setIsVisible(true);
+      
+      // Track impression (non-blocking)
+      trackImpression(ad._id);
+      
+      // Update user view count
+      const userAdViews = getUserAdViews();
+      userAdViews[ad._id] = (userAdViews[ad._id] || 0) + 1;
+      setUserAdViews(userAdViews);
+    }
+  };
 
-    const handlePrev = () => {
-        setCurrentAdIndex(prev => (prev - 1 + ads.length) % ads.length);
-        setShowCountdown(true);
-    };
+  const handleClose = () => {
+    setIsVisible(false);
+    setTimeLeft(0);
+  };
 
-    const handleCouponCopy = (couponCode) => {
-        navigator.clipboard.writeText(couponCode);
-        // You can add a toast notification here
-        alert(`Coupon code ${couponCode} copied to clipboard!`);
-    };
+  const handleAdClick = async (adId, link) => {
+    try {
+      // Track click (non-blocking)
+      fetch(`/api/admin/ads/${adId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ $inc: { clicks: 1 } })
+      }).catch(err => console.log('Click tracking failed'));
+      
+      window.open(link, '_blank');
+      handleClose();
+    } catch (error) {
+      console.error('Error handling click:', error);
+    }
+  };
 
-    const handleAdClick = async (adId, type = 'click') => {
-        try {
-            await fetch(`/api/ads/${adId}/track`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type })
-            });
-        } catch (error) {
-            console.error('Tracking error:', error);
-        }
-    };
+  // Auto-close timer
+  useEffect(() => {
+    if (timeLeft > 0 && isVisible) {
+      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (timeLeft === 0 && isVisible) {
+      handleClose();
+    }
+  }, [timeLeft, isVisible]);
 
-    if (!isVisible || ads.length === 0) return null;
+  // Auto-slide for multiple ads
+  useEffect(() => {
+    if (ads.length > 1 && isVisible && currentAd.displayTime) {
+      const slideTimer = setTimeout(() => {
+        const nextIndex = (currentAdIndex + 1) % ads.length;
+        showAd(nextIndex);
+      }, (currentAd.displayTime || 10) * 1000);
+      
+      return () => clearTimeout(slideTimer);
+    }
+  }, [ads, currentAdIndex, isVisible, currentAd.displayTime]);
 
-    const currentAd = ads[currentAdIndex];
+  // Initial setup
+  useEffect(() => {
+    setMounted(true);
+    
+    // Wait for page to load then fetch ads
+    const timer = setTimeout(() => {
+      fetchAds();
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-70 backdrop-blur-sm">
-            <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-scale-in">
+  // Re-fetch on route changes
+  useEffect(() => {
+    if (mounted) {
+      const handleRouteChange = () => {
+        setTimeout(() => fetchAds(), 500);
+      };
 
-                {/* Header with Countdown and Close */}
-                <div className="flex justify-between items-center p-4 border-b border-gray-200">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <FaClock className="text-purple-500" />
-                        {showCountdown && (
-                            <span>Auto closes in {countdown}s</span>
-                        )}
-                    </div>
+      window.addEventListener('popstate', handleRouteChange);
+      return () => window.removeEventListener('popstate', handleRouteChange);
+    }
+  }, [mounted, fetchAds]);
 
-                    <button
-                        onClick={handleClose}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                    >
-                        <FaTimes className="text-gray-500 hover:text-gray-700 text-lg" />
-                    </button>
-                </div>
+  // Don't render if not mounted or no ads visible
+  if (!mounted || !isVisible || ads.length === 0) {
+    return null;
+  }
 
-                {/* Ad Content */}
-                <div className="p-6">
-                    {/* Image */}
-                    {currentAd.image && (
-                        <div className="mb-4 rounded-xl overflow-hidden">
-                            <img
-                                src={currentAd.image}
-                                alt={currentAd.title || 'Promotional Ad'}
-                                className="w-full h-48 object-cover"
-                                onClick={() => handleAdClick(currentAd._id, 'impression')}
-                            />
-                        </div>
-                    )}
-
-                    {/* Title */}
-                    {currentAd.title && (
-                        <h2
-                            className="text-2xl font-bold text-gray-900 mb-3 text-center"
-                            style={{ color: currentAd.textColor }}
-                        >
-                            {currentAd.title}
-                        </h2>
-                    )}
-
-                    {/* Description */}
-                    {currentAd.description && (
-                        <p
-                            className="text-gray-600 mb-4 text-center leading-relaxed"
-                            style={{ color: currentAd.textColor }}
-                        >
-                            {currentAd.description}
-                        </p>
-                    )}
-
-                    {/* Coupon Code */}
-                    {currentAd.couponCode && (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 text-center">
-                            <div className="flex items-center justify-center gap-3">
-                                <span className="text-lg font-semibold text-yellow-800">
-                                    Use Code: {currentAd.couponCode}
-                                </span>
-                                <button
-                                    onClick={() => handleCouponCopy(currentAd.couponCode)}
-                                    className="p-2 bg-yellow-500 hover:bg-yellow-600 rounded-lg transition-colors duration-200"
-                                >
-                                    <FaCopy className="text-white text-sm" />
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Date Range */}
-                    {(currentAd.startDate || currentAd.endDate) && (
-                        <div className="flex items-center justify-center gap-2 text-sm text-gray-500 mb-4">
-                            <FaCalendarAlt />
-                            <span>
-                                {currentAd.startDate && new Date(currentAd.startDate).toLocaleDateString()}
-                                {currentAd.endDate && ` - ${new Date(currentAd.endDate).toLocaleDateString()}`}
-                            </span>
-                        </div>
-                    )}
-
-                    {/* Action Button */}
-                    {currentAd.buttonLink && (
-                        <div className="text-center">
-                            <a
-                                href={currentAd.buttonLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={() => handleAdClick(currentAd._id, 'click')}
-                                className="inline-flex items-center gap-2 px-8 py-3 rounded-lg text-white font-semibold transition-all duration-200 transform hover:scale-105 hover:shadow-lg"
-                                style={{ backgroundColor: currentAd.buttonColor }}
-                            >
-                                {currentAd.buttonText || 'Shop Now'}
-                                <FaShare className="text-sm" />
-                            </a>
-                        </div>
-                    )}
-                </div>
-
-                {/* Navigation for multiple ads */}
-                {ads.length > 1 && (
-                    <div className="flex justify-between items-center p-4 border-t border-gray-200">
-                        <button
-                            onClick={handlePrev}
-                            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200"
-                        >
-                            <FaChevronLeft />
-                            Previous
-                        </button>
-
-                        <div className="flex gap-1">
-                            {ads.map((_, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setCurrentAdIndex(index)}
-                                    className={`w-2 h-2 rounded-full transition-colors duration-200 ${index === currentAdIndex
-                                            ? 'bg-purple-500'
-                                            : 'bg-gray-300'
-                                        }`}
-                                />
-                            ))}
-                        </div>
-
-                        <button
-                            onClick={handleNext}
-                            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200"
-                        >
-                            Next
-                            <FaChevronRight />
-                        </button>
-                    </div>
-                )}
-            </div>
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div className="relative bg-gradient-to-br from-gray-900 to-black border border-gray-700/50 rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+        
+        {/* Close Button */}
+        <button
+          onClick={handleClose}
+          className="absolute -top-3 -right-3 z-50 group"
+        >
+          <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+            <X className="w-5 h-5 text-white" />
+          </div>
+        </button>
+        
+        {/* Timer Progress */}
+        <div className="w-full bg-gray-800 h-1.5">
+          <div 
+            className="bg-gradient-to-r from-purple-500 to-indigo-500 h-1.5 transition-all duration-1000 ease-linear rounded-full"
+            style={{ width: `${(timeLeft / (currentAd.displayTime || 10)) * 100}%` }}
+          />
         </div>
-    );
-};
-
-export default AdsModal;
+        
+        {/* Ad Content */}
+        <div className="p-1">
+          <div className="relative overflow-hidden rounded-xl mb-4">
+            <img
+              src={currentAd.imageUrl}
+              alt={currentAd.title || 'Advertisement'}
+              className="w-full h-auto object-cover rounded-xl"
+              style={{ maxHeight: '500px', minHeight: '400px' }}
+              onError={(e) => {
+                e.target.src = 'https://via.placeholder.com/300x500/1f2937/8b5cf6?text=Ad+Image';
+              }}
+            />
+          </div>
+          
+          {/* Button */}
+          <div className="px-4 pb-6">
+            <button
+              onClick={() => handleAdClick(currentAd._id, currentAd.buttonLink)}
+              className="group relative bg-gray-800/80 backdrop-blur-md border border-gray-600/30 text-white w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-3 transition-all duration-300 hover:bg-gray-700/80 hover:border-purple-400/40 hover:shadow-lg hover:shadow-purple-400/20 overflow-hidden"
+            >
+              {/* Left Border */}
+              <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-purple-400 to-indigo-500 rounded-r-full group-hover:h-10 transition-all duration-300" />
+              
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 via-indigo-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              {/* Play Icon */}
+              <Play className="w-5 h-5 relative group-hover:scale-110 transition-transform duration-300" />
+              
+              {/* Button Text */}
+              <span className="relative text-lg font-bold">
+                {currentAd.buttonText || 'Get Started'}
+              </span>
+              
+              {/* Timer Badge */}
+              <div className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+                {timeLeft}s
+              </div>
+            </button>
+          </div>
+        </div>
+        
+        {/* Navigation Dots */}
+        {ads.length > 1 && (
+          <div className="flex justify-center space-x-3 pb-6">
+            {ads.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => showAd(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === currentAdIndex 
+                    ? 'bg-gradient-to-r from-purple-500 to-indigo-500 scale-125' 
+                    : 'bg-gray-600 hover:bg-gray-500'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

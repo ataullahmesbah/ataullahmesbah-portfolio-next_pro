@@ -7,6 +7,9 @@ import ToastProvider from "./components/Share/ToastProvider/ToastProvider";
 import AdsModal from "./components/Ads/AdsModal/AdsModal";
 
 
+
+
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -36,9 +39,14 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <Providers>
           <SessionChecker />
+
+
+
           {children}
           <AdsModal />
+
           <ToastProvider />
+
         </Providers>
 
       </body>
