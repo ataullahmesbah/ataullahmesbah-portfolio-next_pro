@@ -1,7 +1,7 @@
 // app/api/test/check-ads/route.js
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbMongoose';
-import Ads from '@/models/Ads';
+import Ads from '@/models/Ad';
 
 export async function GET() {
     await dbConnect();

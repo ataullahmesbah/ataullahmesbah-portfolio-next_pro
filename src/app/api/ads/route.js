@@ -1,67 +1,78 @@
-// app/api/ads/route.js - COMPLETE FIXED VERSION
+// api/ads/route.js
+
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbMongoose';
-import Ads from '@/models/Ads';
+import Ad from '@/models/Ad';
 
 export async function GET(req) {
     await dbConnect();
+    const { searchParams } = new URL(req.url);
+    let currentPage = searchParams.get('page') || '/';
+    currentPage = currentPage.trim().replace(/\/$/, '');
 
     try {
-        const { searchParams } = new URL(req.url);
-        const currentPage = searchParams.get('page') || '/';
-        const currentDate = new Date();
+        const now = new Date();
 
-        console.log('🔍 Fetching ads for page:', currentPage);
-
-        const ads = await Ads.find({
+        // Direct database query with all filters
+        const ads = await Ad.find({
             isActive: true,
-            startDate: { $lte: currentDate },
-            endDate: { $gte: currentDate },
             $or: [
-                { targetPages: '*' },
-                { targetPages: currentPage },
-                { targetPages: { $in: [currentPage] } }
+                { pages: '*' },
+                { pages: currentPage },
+                { pages: { $in: [currentPage] } }
+            ],
+            $and: [
+                {
+                    $or: [
+                        { startDate: { $lte: now } },
+                        { startDate: null }
+                    ]
+                },
+                {
+                    $or: [
+                        { endDate: { $gte: now } },
+                        { endDate: null }
+                    ]
+                }
             ]
-        }).sort({ createdAt: -1 });
+        }).sort({
+            priority: -1, // Higher priority first
+            createdAt: -1 // Then newest first
+        });
 
-        console.log('✅ Found ads:', ads.length);
+        console.log('Production API - Active ads:', ads.length);
 
         return NextResponse.json({
             success: true,
             data: ads
         });
     } catch (error) {
-        console.error('❌ API Error:', error);
+        console.error('Production Error fetching ads:', error);
         return NextResponse.json({
-            error: error.message,
-            success: false
+            error: 'Failed to fetch ads'
         }, { status: 500 });
     }
 }
 
-// FIXED POST METHOD - Track impressions
 export async function POST(req) {
     await dbConnect();
-
     try {
-        const { adId } = await req.json();
+        const { adId, type } = await req.json();
 
-        console.log('📈 Tracking impression for ad:', adId);
+        const update = type === 'impression'
+            ? { $inc: { impressions: 1 } }
+            : { $inc: { clicks: 1 } };
 
-        // Update impressions count
-        await Ads.findByIdAndUpdate(adId, {
-            $inc: { impressions: 1 }
-        });
+        await Ad.findByIdAndUpdate(adId, update);
 
         return NextResponse.json({
             success: true,
-            message: 'Impression tracked successfully'
+            message: `${type} tracked successfully`
         });
     } catch (error) {
-        console.error('❌ POST Error:', error);
+        console.error('Production Error tracking:', error);
         return NextResponse.json({
-            error: error.message,
-            success: false
+            error: 'Failed to track'
         }, { status: 500 });
     }
 }

@@ -1,6 +1,6 @@
 // api/admin/ads/track/route.js
 import dbConnect from "@/lib/dbMongoose";
-import Ad from "@/models/Ads";
+import Ad from "@/models/Ad";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {

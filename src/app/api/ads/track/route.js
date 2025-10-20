@@ -1,17 +1,21 @@
 // app/api/ads/track/route.js
+
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbMongoose';
-import Ads from '@/models/Ads';
+import Ads from '@/models/Ad';
+
+
 
 export async function POST(request) {
     await dbConnect();
 
     try {
         const { adId, type } = await request.json();
+        console.log(`Tracking ${type} for ad:`, adId);
 
         if (type === 'impression') {
             await Ads.findByIdAndUpdate(adId, {
-                $inc: { currentImpressions: 1 }
+                $inc: { impressions: 1 } // ফিল্ড ঠিক করা
             });
         } else if (type === 'click') {
             await Ads.findByIdAndUpdate(adId, {
