@@ -22,6 +22,13 @@ const AdminDashboardLayout = ({ children }) => {
             ],
         },
         {
+            label: 'ADS',
+            children: [
+                { label: 'Ads', link: '/admin-dashboard/ads' },
+
+            ],
+        },
+        {
             label: 'BLOGS',
             children: [
                 { label: 'Add Blogs', link: '/admin-dashboard/blog/addblogpost' },
