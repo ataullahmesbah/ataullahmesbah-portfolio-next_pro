@@ -193,18 +193,16 @@ export default function AdsAdmin() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             onClick={() => setActiveTab('create')}
-            className={`flex-1 py-3 px-4 rounded-md text-center font-medium transition-all ${
-              activeTab === 'create' ? 'bg-purple-600 text-white shadow' : 'text-gray-300 hover:text-white'
-            }`}
+            className={`flex-1 py-3 px-4 rounded-md text-center font-medium transition-all ${activeTab === 'create' ? 'bg-purple-600 text-white shadow' : 'text-gray-300 hover:text-white'
+              }`}
           >
             {editingId ? 'Edit Ad' : 'Create New Ad'}
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.05 }}
             onClick={() => setActiveTab('list')}
-            className={`flex-1 py-3 px-4 rounded-md text-center font-medium transition-all ${
-              activeTab === 'list' ? 'bg-purple-600 text-white shadow' : 'text-gray-300 hover:text-white'
-            }`}
+            className={`flex-1 py-3 px-4 rounded-md text-center font-medium transition-all ${activeTab === 'list' ? 'bg-purple-600 text-white shadow' : 'text-gray-300 hover:text-white'
+              }`}
           >
             All Ads
           </motion.button>
@@ -238,6 +236,25 @@ export default function AdsAdmin() {
                   </div>
                 )}
                 <p className="text-xs text-gray-400 mt-1">Image must be exactly 300 pixels wide and 500 pixels tall</p>
+              </div>
+
+              {/* Admin panel - form section এ viewLimitPerUser field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  View Limit Per User *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  value={formData.viewLimitPerUser}
+                  onChange={(e) => setFormData({ ...formData, viewLimitPerUser: parseInt(e.target.value) || 1 })}
+                  className="w-full p-3 bg-white/10 border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white"
+                  required
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  How many times a user can see this ad (1-50)
+                </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -402,9 +419,8 @@ export default function AdsAdmin() {
                         />
                       </div>
                       <div
-                        className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-semibold ${
-                          ad.isActive ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'
-                        }`}
+                        className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-semibold ${ad.isActive ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'
+                          }`}
                       >
                         {ad.isActive ? 'Active' : 'Inactive'}
                       </div>
@@ -449,9 +465,8 @@ export default function AdsAdmin() {
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           onClick={() => toggleActive(ad._id, ad.isActive)}
-                          className={`flex-1 py-2 px-3 rounded text-sm transition-colors ${
-                            ad.isActive ? 'bg-orange-500 text-white hover:bg-orange-600' : 'bg-green-500 text-white hover:bg-green-600'
-                          }`}
+                          className={`flex-1 py-2 px-3 rounded text-sm transition-colors ${ad.isActive ? 'bg-orange-500 text-white hover:bg-orange-600' : 'bg-green-500 text-white hover:bg-green-600'
+                            }`}
                         >
                           {ad.isActive ? 'Deactivate' : 'Activate'}
                         </motion.button>

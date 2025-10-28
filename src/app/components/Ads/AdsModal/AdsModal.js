@@ -10,23 +10,53 @@ export default function AdsModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const [isAutoSlide, setIsAutoSlide] = useState(true);
-  const [hasViewed, setHasViewed] = useState(false);
   const pathname = usePathname();
   const timerRef = useRef(null);
   const autoSlideRef = useRef(null);
 
+  // User view tracking system
+  const getUserAdViews = useCallback(() => {
+    if (typeof window === 'undefined') return {};
+    return JSON.parse(localStorage.getItem('userAdViews') || '{}');
+  }, []);
+
+  const updateUserAdViews = useCallback((adId) => {
+    if (typeof window === 'undefined') return;
+
+    const userViews = getUserAdViews();
+    const currentCount = userViews[adId] || 0;
+    userViews[adId] = currentCount + 1;
+    localStorage.setItem('userAdViews', JSON.stringify(userViews));
+
+    return userViews[adId];
+  }, [getUserAdViews]);
+
+  const canShowAd = useCallback((ad) => {
+    const userViews = getUserAdViews();
+    const viewCount = userViews[ad._id] || 0;
+    return viewCount < ad.viewLimitPerUser;
+  }, [getUserAdViews]);
+
   // Check if user has viewed the page
-  useEffect(() => {
-    const viewedAds = JSON.parse(localStorage.getItem('adViews') || '{}');
-    setHasViewed(!!viewedAds[pathname]);
+  const hasViewedPage = useCallback(() => {
+    if (typeof window === 'undefined') return true;
+    const viewedPages = JSON.parse(localStorage.getItem('viewedPages') || '{}');
+    return !!viewedPages[pathname];
   }, [pathname]);
 
-  // Fetch ads with PRIORITY sorting
+  const markPageAsViewed = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const viewedPages = JSON.parse(localStorage.getItem('viewedPages') || '{}');
+    viewedPages[pathname] = true;
+    localStorage.setItem('viewedPages', JSON.stringify(viewedPages));
+  }, [pathname]);
+
+  // Fetch ads with user view limit check
   useEffect(() => {
-    if (!hasViewed) {
+    if (!hasViewedPage()) {
       fetchAds();
     }
-  }, [pathname, hasViewed]);
+  }, [pathname, hasViewedPage]);
 
   const fetchAds = async () => {
     try {
@@ -34,35 +64,35 @@ export default function AdsModal() {
       const { data } = await res.json();
 
       if (data && data.length > 0) {
-        // Priority-based sorting: Higher priority first, then by creation date
-        const activeAds = data
-          .filter(ad => {
-            return ad.isActive;
-          })
-          .sort((a, b) => {
-            // First sort by priority (descending)
-            if (b.priority !== a.priority) {
-              return b.priority - a.priority;
-            }
-            // If same priority, sort by creation date (newest first)
-            return new Date(b.createdAt) - new Date(a.createdAt);
-          });
+        // Filter ads that user hasn't exceeded view limit
+        const availableAds = data.filter(ad => canShowAd(ad));
 
-        console.log('Sorted ads by priority:', activeAds.map(ad => ({
-          id: ad._id,
-          priority: ad.priority,
-          buttonText: ad.buttonText
-        })));
+        if (availableAds.length > 0) {
+          // Priority-based sorting
+          const sortedAds = availableAds
+            .sort((a, b) => {
+              if (b.priority !== a.priority) {
+                return b.priority - a.priority;
+              }
+              return new Date(b.createdAt) - new Date(a.createdAt);
+            });
 
-        if (activeAds.length > 0) {
-          setAds(activeAds);
+          console.log('Available ads after view limit check:', sortedAds.map(ad => ({
+            id: ad._id,
+            priority: ad.priority,
+            buttonText: ad.buttonText,
+            viewLimit: ad.viewLimitPerUser,
+            userViews: getUserAdViews()[ad._id] || 0
+          })));
+
+          setAds(sortedAds);
           setIsOpen(true);
-          setTimeLeft(activeAds[0].displaySeconds);
-          trackImpression(activeAds[0]._id);
+          setTimeLeft(sortedAds[0].displaySeconds);
+          trackImpression(sortedAds[0]._id);
 
-          const viewedAds = JSON.parse(localStorage.getItem('adViews') || '{}');
-          viewedAds[pathname] = true;
-          localStorage.setItem('adViews', JSON.stringify(viewedAds));
+          // Update user view count for this ad
+          updateUserAdViews(sortedAds[0]._id);
+          markPageAsViewed();
         }
       }
     } catch (error) {
@@ -112,41 +142,58 @@ export default function AdsModal() {
   const nextSlide = useCallback(() => {
     if (ads.length === 0) return;
 
-    // Priority-based next slide logic
-    let nextIndex;
-    if (currentIndex === ads.length - 1) {
-      // If last ad, check if we should restart from highest priority
-      const highestPriority = Math.max(...ads.map(ad => ad.priority));
-      const highestPriorityAds = ads.filter(ad => ad.priority === highestPriority);
-      nextIndex = ads.indexOf(highestPriorityAds[0]);
-    } else {
-      nextIndex = (currentIndex + 1) % ads.length;
+    let nextIndex = (currentIndex + 1) % ads.length;
+
+    // Check if next ad can be shown (view limit not exceeded)
+    const nextAd = ads[nextIndex];
+    if (!canShowAd(nextAd)) {
+      // Find next available ad
+      const availableIndex = ads.findIndex((ad, index) =>
+        index > currentIndex && canShowAd(ad)
+      );
+
+      if (availableIndex === -1) {
+        // No more ads to show
+        closeModal();
+        return;
+      }
+
+      nextIndex = availableIndex;
     }
 
     setCurrentIndex(nextIndex);
     setTimeLeft(ads[nextIndex].displaySeconds);
     trackImpression(ads[nextIndex]._id);
+    updateUserAdViews(ads[nextIndex]._id);
     startTimer(ads[nextIndex].displaySeconds);
-  }, [ads, currentIndex, startTimer]);
+  }, [ads, currentIndex, startTimer, canShowAd, updateUserAdViews, closeModal]);
 
   const prevSlide = useCallback(() => {
     if (ads.length === 0) return;
 
-    let prevIndex;
-    if (currentIndex === 0) {
-      // If first ad, go to last highest priority ad
-      const highestPriority = Math.max(...ads.map(ad => ad.priority));
-      const highestPriorityAds = ads.filter(ad => ad.priority === highestPriority);
-      prevIndex = ads.indexOf(highestPriorityAds[highestPriorityAds.length - 1]);
-    } else {
-      prevIndex = (currentIndex - 1 + ads.length) % ads.length;
+    let prevIndex = (currentIndex - 1 + ads.length) % ads.length;
+
+    // Check if previous ad can be shown
+    const prevAd = ads[prevIndex];
+    if (!canShowAd(prevAd)) {
+      // Find previous available ad
+      const availableIndex = ads.findIndex((ad, index) =>
+        index < currentIndex && canShowAd(ad)
+      );
+
+      if (availableIndex === -1) {
+        return; // No available previous ad
+      }
+
+      prevIndex = availableIndex;
     }
 
     setCurrentIndex(prevIndex);
     setTimeLeft(ads[prevIndex].displaySeconds);
     trackImpression(ads[prevIndex]._id);
+    updateUserAdViews(ads[prevIndex]._id);
     startTimer(ads[prevIndex].displaySeconds);
-  }, [ads, currentIndex, startTimer]);
+  }, [ads, currentIndex, startTimer, canShowAd, updateUserAdViews]);
 
   const trackImpression = async (adId) => {
     try {
@@ -199,6 +246,8 @@ export default function AdsModal() {
   if (!isOpen || ads.length === 0) return null;
 
   const currentAd = ads[currentIndex];
+  const userViews = getUserAdViews();
+  const currentAdViews = userViews[currentAd._id] || 0;
 
   return (
     <AnimatePresence>
@@ -209,7 +258,6 @@ export default function AdsModal() {
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-3 md:p-4"
         >
-          {/* Main Container - Fully Responsive with Scroll */}
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -220,7 +268,7 @@ export default function AdsModal() {
                       h-[95vh] max-h-[800px]
                       flex flex-col"
           >
-            {/* Header */}
+            {/* Header with View Count */}
             <div className="flex-shrink-0 flex justify-between items-center p-3 sm:p-4 bg-gradient-to-r from-slate-900 to-purple-900">
               <div className="flex items-center space-x-2">
                 <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-emerald-400 rounded-full animate-pulse"></div>
@@ -228,6 +276,10 @@ export default function AdsModal() {
                 {/* Priority Badge */}
                 <span className="bg-yellow-500 text-black text-xs px-2 py-0.5 rounded-full font-bold">
                   P{currentAd.priority}
+                </span>
+                {/* View Count Badge */}
+                <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
+                  Views: {currentAdViews}/{currentAd.viewLimitPerUser}
                 </span>
               </div>
               <div className="flex items-center space-x-2 sm:space-x-3">
@@ -265,6 +317,8 @@ export default function AdsModal() {
                 </motion.button>
               </div>
             </div>
+
+
 
             {/* Progress Bar */}
             <div className="flex-shrink-0 w-full h-1 sm:h-1.5 bg-gray-100">
@@ -345,8 +399,8 @@ export default function AdsModal() {
                             trackImpression(ads[index]._id);
                           }}
                           className={`rounded-full transition-all duration-300 ${index === currentIndex
-                              ? 'bg-white shadow-lg'
-                              : 'bg-white/50 hover:bg-white/80'
+                            ? 'bg-white shadow-lg'
+                            : 'bg-white/50 hover:bg-white/80'
                             }`}
                           style={{
                             width: index === currentIndex ? '10px' : '6px',

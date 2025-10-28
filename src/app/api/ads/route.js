@@ -40,7 +40,7 @@ export async function GET(req) {
             createdAt: -1 // Then newest first
         });
 
-        console.log('Production API - Active ads:', ads.length);
+        console.log('API - Found ads:', ads.length);
 
         return NextResponse.json({
             success: true,
