@@ -1,4 +1,5 @@
 
+import ShopAds from '@/app/Dashboard/Shop/ShopAds/ShopAds';
 import ShopClient from '@/app/Dashboard/Shop/ShopClient/ShopClient';
 import ShopHeroSection from '@/app/Dashboard/Shop/ShopHeroSection/ShopHeroSection';
 import { Suspense } from 'react';
@@ -83,6 +84,11 @@ export default async function Shop() {
                 background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
             }}
         >
+
+            {/* Shop Ads */}
+
+            <ShopAds />
+
             {/* Hero Banner */}
             <ShopHeroSection />
 
