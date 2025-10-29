@@ -209,8 +209,8 @@ export default function ShopAds() {
                                     </div>
                                 )}
 
-                                {/* Optional Button (Hidden on small mobile) */}
-                                {currentAd.buttonLink && (
+                                {/* Button - Show only if buttonLink exists */}
+                                {currentAd.buttonLink && currentAd.buttonLink.trim() !== '' && (
                                     <motion.a
                                         href={currentAd.buttonLink}
                                         target="_blank"
@@ -218,9 +218,9 @@ export default function ShopAds() {
                                         onClick={() => trackClick(currentAd._id)}
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        className="hidden xs:flex items-center space-x-1 bg-white text-purple-900 px-2 sm:px-3 py-1 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm hover:bg-gray-100 transition-colors shadow-lg whitespace-nowrap"
+                                        className="flex items-center space-x-1 bg-white text-purple-900 px-2 sm:px-3 py-1 sm:py-2 rounded-lg font-semibold text-xs sm:text-sm hover:bg-gray-100 transition-colors shadow-lg whitespace-nowrap"
                                     >
-                                        <span>{currentAd.buttonText}</span>
+                                        <span>{currentAd.buttonText || 'Shop Now'}</span>
                                         <ExternalLink size={12} className="sm:w-3 sm:h-3" />
                                     </motion.a>
                                 )}

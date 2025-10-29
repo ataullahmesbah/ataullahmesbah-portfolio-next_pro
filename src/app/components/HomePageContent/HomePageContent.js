@@ -17,6 +17,7 @@ import Sponser from '../Sponser/Sponser';
 import MesbahCustomLoader from "../MesbahCustomLoader/MesbahCustomLoader";
 import { useEffect, useState } from "react";
 import SuccessSection from "../Home/SuccessSection/SuccessSection";
+import ShopAds from "@/app/Dashboard/Shop/ShopAds/ShopAds";
 
 export default function HomePageContent() {
 
@@ -48,6 +49,9 @@ export default function HomePageContent() {
                 background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
             }}
         >
+            {/* Shop Ads */}
+
+            <ShopAds />
             <Banner />
             <Sponser />
             <AboutUs />
