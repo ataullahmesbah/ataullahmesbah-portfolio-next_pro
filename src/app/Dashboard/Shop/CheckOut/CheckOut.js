@@ -98,7 +98,7 @@ export default function Checkout() {
         const fetchData = async () => {
             try {
                 const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
-              
+
                 setCart(storedCart);
 
                 const districtsResponse = await axios.get('/api/products/districts-thanas');
@@ -120,7 +120,7 @@ export default function Checkout() {
                     setShippingCharge(Number.isFinite(charge) ? charge : 0);
                 }
             } catch (error) {
-               
+
                 setError('Failed to load checkout data. Please refresh the page.');
                 showCustomToast('Failed to load checkout data. Please refresh the page.', 'error');
             }
@@ -131,7 +131,7 @@ export default function Checkout() {
     const validateCart = async () => {
         setValidatingCart(true);
         try {
-           
+
             const validationPromises = cart.map(async (item) => {
                 try {
                     const response = await axios.post('/api/products/cart/validate', {
@@ -141,7 +141,7 @@ export default function Checkout() {
                     });
                     return { ...response.data, productId: item._id, size: item.size || null, title: item.title };
                 } catch (error) {
-                   
+
                     return {
                         valid: false,
                         message: error.response?.data?.message || 'Error validating item',
@@ -167,7 +167,7 @@ export default function Checkout() {
                     }
                     return item;
                 });
-              
+
                 setCart(updatedCart);
                 localStorage.setItem('cart', JSON.stringify(updatedCart));
                 window.dispatchEvent(new Event('cartUpdated'));
@@ -184,7 +184,7 @@ export default function Checkout() {
 
             return true;
         } catch (error) {
-            
+
             showCustomToast('Failed to validate cart items', 'error');
             return false;
         } finally {
@@ -268,7 +268,7 @@ export default function Checkout() {
                 }
             }
         } catch (error) {
-          
+
             showCustomToast('Error checking product availability', 'error');
         }
     };
@@ -327,7 +327,7 @@ export default function Checkout() {
                 showCustomToast(response.data.message || 'Invalid coupon code.', 'error');
             }
         } catch (err) {
-           
+
             setCouponError('Error applying coupon. Please try again.');
             showCustomToast('Error applying coupon. Please try again.', 'error');
         }
@@ -458,7 +458,7 @@ export default function Checkout() {
             }
         } catch (err) {
             const errorMessage = err.response?.data?.error || err.message || 'Payment processing failed';
-          
+
             setError(errorMessage);
             showCustomToast(errorMessage, 'error');
             setLoading(false);
@@ -484,9 +484,20 @@ export default function Checkout() {
                     </h1>
 
                     {/* Subtitle with brand */}
-                    <p className="text-gray-300 text-sm mb-2">
-                        Complete your order with <span className="text-purple-300 font-semibold">Sooqra One</span>
-                    </p>
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-center justify-center py-2 sm:py-3 px-2">
+                        <p className="text-gray-300 text-sm sm:text-base mb-0 text-center sm:text-left">
+                            Complete your order with
+                        </p>
+
+                        <div className="bg-purple-900/20 border border-purple-700/30 rounded-lg px-3 py-2 w-full sm:w-auto">
+                            <h4 className="text-purple-300 text-sm sm:text-base flex items-center justify-center gap-1 poppins-regular">
+                                <span className="bg-gradient-to-r from-purple-600/40 to-transparent px-2 sm:px-3 rounded-md">SOOQRA</span>
+                                <span className="bg-gradient-to-r from-purple-600/40 to-transparent text-purple-300 px-2 sm:px-3 py-1 rounded-sm transform -rotate-2 shadow-md">
+                                    One
+                                </span>
+                            </h4>
+                        </div>
+                    </div>
 
                     {/* Mini progress bar */}
                     <div className="w-16 h-0.5 bg-gray-700 rounded-full mx-auto overflow-hidden">
