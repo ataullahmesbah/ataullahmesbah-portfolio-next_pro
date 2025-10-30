@@ -132,7 +132,7 @@ export default function ShopAds() {
                         <div className="flex items-center justify-between py-2 sm:py-3">
 
                             {/* Left Side - Shop Name (Hidden on mobile) */}
-                            <div className="hidden sm:flex items-center flex-shrink-0">
+                            {/* <div className="hidden sm:flex items-center flex-shrink-0">
                                 <motion.span
                                     initial={{ scale: 0.8 }}
                                     animate={{ scale: 1 }}
@@ -140,7 +140,18 @@ export default function ShopAds() {
                                 >
                                     {currentAd.shopName}
                                 </motion.span>
+                            </div> */}
+
+                            <div className="hidden sm:flex items-center flex-shrink-0">
+                                <motion.span
+                                    initial={{ scale: 0.8 }}
+                                    animate={{ scale: 1 }}
+                                    className="text-sm md:text-lg font-bold  tracking-wider bg-gradient-to-br from-purple-900/90 via-purple-800/80 to-purple-700/70 px-3 py-1 md:px-4 md:py-2 rounded-xl backdrop-blur-md whitespace-nowrap  text-purple-50 shadow-md shadow-purple-800/50"
+                                >
+                                    {currentAd.shopName}
+                                </motion.span>
                             </div>
+
 
                             {/* Middle - Ad Text & Coupon Code */}
                             <div className="flex-1 flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-3 md:space-x-4 mx-2 sm:mx-4 md:mx-8 min-h-[40px] sm:min-h-0">
