@@ -146,7 +146,7 @@ export default function ShopAds() {
                                 <motion.span
                                     initial={{ scale: 0.8 }}
                                     animate={{ scale: 1 }}
-                                    className="text-sm md:text-lg font-bold  tracking-wider bg-gradient-to-br from-purple-900/90 via-purple-800/80 to-purple-700/70 px-3 py-1 md:px-4 md:py-2 rounded-xl backdrop-blur-md whitespace-nowrap  text-purple-50 shadow-md shadow-purple-800/50"
+                                    className="text-sm md:text-lg Poppins-regular font-bold px-4 py-2 md:px-5 bg-gradient-to-r from-purple-900/80 to-purple-700/80 rounded-xl shadow-xl text-white backdrop-blur-md border border-white/10 hover:bg-purple-800/90 transition-all duration-300"
                                 >
                                     {currentAd.shopName}
                                 </motion.span>
