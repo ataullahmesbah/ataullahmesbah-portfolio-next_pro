@@ -138,7 +138,10 @@ const AboutUs = () => {
                             {animatedText}<span className="animate-pulse">|</span>
                         </h2>
 
-                        <div className="space-y-5 text-gray-300 leading-relaxed">
+                        <div className="space-y-3 text-gray-300 leading-relaxed">
+                            <h2 className='text-gray-100 font-semibold text-2xl'>
+                                A Web Developer, Video Editor, Content Creator & Digital Strategist
+                            </h2>
                             <p
                                 className="text-base  animate-on-scroll"
                                 style={{
@@ -165,11 +168,11 @@ const AboutUs = () => {
                         {/* Get Started button */}
                         <div
                             className="py-5 animate-on-scroll"
-                            // style={{
-                            //     transform: 'translateY(20px)',
-                            //     opacity: 0,
-                            //     transition: 'all 0.6s ease-out 1s'
-                            // }}
+                        // style={{
+                        //     transform: 'translateY(20px)',
+                        //     opacity: 0,
+                        //     transition: 'all 0.6s ease-out 1s'
+                        // }}
                         >
                             {/* <div className="grid gap-8 justify-start items-start">
                                 <div className="relative group">
@@ -180,23 +183,23 @@ const AboutUs = () => {
                                 </div>
                             </div> */}
 
-                             <button>
-          <Link
-            href="/about"
-            className="group relative bg-gray-900/50 backdrop-blur-md border border-gray-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition-all duration-300 hover:bg-gray-800/70 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 overflow-hidden"
-            aria-label="About Ataullah Mesbah"
-          >
-            {/* Left Accent Bar */}
-            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-purple-400 to-purple-600 rounded-r-full group-hover:from-purple-300 group-hover:to-purple-500 transition-all"></div>
+                            <button>
+                                <Link
+                                    href="/about"
+                                    className="group relative bg-gray-900/50 backdrop-blur-md border border-gray-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition-all duration-300 hover:bg-gray-800/70 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/20 overflow-hidden"
+                                    aria-label="About Ataullah Mesbah"
+                                >
+                                    {/* Left Accent Bar */}
+                                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-purple-400 to-purple-600 rounded-r-full group-hover:from-purple-300 group-hover:to-purple-500 transition-all"></div>
 
-            {/* Hover Background Effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    {/* Hover Background Effect */}
+                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-            <FiPlay className="relative group-hover:scale-110 transition-transform duration-300" />
+                                    <FiPlay className="relative group-hover:scale-110 transition-transform duration-300" />
 
-            <span className="relative">Get to Know Me</span>
-          </Link>
-        </button>
+                                    <span className="relative">Get to Know Me</span>
+                                </Link>
+                            </button>
                         </div>
                     </div>
 
