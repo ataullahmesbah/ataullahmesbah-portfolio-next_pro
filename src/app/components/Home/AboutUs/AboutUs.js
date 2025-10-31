@@ -143,25 +143,34 @@ const AboutUs = () => {
                                 A Web Developer, Video Editor, Content Creator & Digital Strategist
                             </h2>
                             <p
-                                className="text-base  animate-on-scroll"
+                                className="text-base poppins-regular animate-on-scroll"
                                 style={{
                                     transform: 'translateY(20px)',
                                     opacity: 0,
                                     transition: 'all 0.6s ease-out 0.4s'
                                 }}
                             >
-                                Delivering high-performance, scalable full stack digital solutions that drive real business growth. Leveraging expertise in Next.js, React, Java, Node.js, and both <span className="text-purple-400 font-medium">frontend</span> and <span className="text-purple-400 font-medium">backend</span> technologies to build fast, secure, and tailored web applications
+                                <p>
+                                    Passionate about building high-performance, scalable digital solutions that drive real growth.
+                                    I specialize in Next.js, React, Java, and Node.js, crafting fast, secure, and user-focused web applications —
+                                    leveraging expertise in both
+                                    <span className="text-purple-400 font-medium"> frontend </span>
+                                    and
+                                    <span className="text-purple-400 font-medium"> backend </span>
+                                    technologies.
+                                </p>
+
                             </p>
 
                             <p
-                                className="text-base  animate-on-scroll"
+                                className="text-base poppins-regular animate-on-scroll"
                                 style={{
                                     transform: 'translateY(20px)',
                                     opacity: 0,
                                     transition: 'all 0.6s ease-out 0.8s'
                                 }}
                             >
-                                My travel experiences have taken me to unique and lesser-known destinations — hidden gems that inspire fresh perspectives and innovative approaches in crafting creative digital solutions.
+                                Inspired by my travels to unique and lesser-known destinations, I bring fresh perspectives, creativity, and strategic thinking to every project — whether as a Web Developer, Video Editor, Content Creator, or Digital Strategist.
                             </p>
                         </div>
 
