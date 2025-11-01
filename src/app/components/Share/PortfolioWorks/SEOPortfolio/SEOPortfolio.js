@@ -207,8 +207,8 @@ const SEOPortfolio = () => {
                 key={key}
                 onClick={() => setActiveTab(key)}
                 className={`px-3 py-2 rounded-lg font-medium text-xs sm:text-sm transition-all duration-300 flex items-center gap-1 min-w-[70px] justify-center ${activeTab === key
-                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
+                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                   }`}
               >
                 <span className="text-sm">{tab.icon}</span>

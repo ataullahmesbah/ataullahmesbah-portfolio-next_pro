@@ -5,6 +5,8 @@ import Image from 'next/image';
 import axios from 'axios';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import CheckoutPayment from '../CheckoutPayment/CheckoutPayment';
+
 
 export default function Checkout() {
     const [isCouponOpen, setIsCouponOpen] = useState(false);
@@ -33,6 +35,11 @@ export default function Checkout() {
     const [userId, setUserId] = useState('mock-user-id');
     const [appliedCoupon, setAppliedCoupon] = useState(null);
     const [validatingCart, setValidatingCart] = useState(false);
+
+    // New states for payment
+    const [bkashNumber, setBkashNumber] = useState('');
+    const [transactionId, setTransactionId] = useState('');
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
 
     const toggleCoupon = () => {
         setIsCouponOpen(!isCouponOpen);
@@ -120,7 +127,6 @@ export default function Checkout() {
                     setShippingCharge(Number.isFinite(charge) ? charge : 0);
                 }
             } catch (error) {
-
                 setError('Failed to load checkout data. Please refresh the page.');
                 showCustomToast('Failed to load checkout data. Please refresh the page.', 'error');
             }
@@ -131,7 +137,6 @@ export default function Checkout() {
     const validateCart = async () => {
         setValidatingCart(true);
         try {
-
             const validationPromises = cart.map(async (item) => {
                 try {
                     const response = await axios.post('/api/products/cart/validate', {
@@ -141,7 +146,6 @@ export default function Checkout() {
                     });
                     return { ...response.data, productId: item._id, size: item.size || null, title: item.title };
                 } catch (error) {
-
                     return {
                         valid: false,
                         message: error.response?.data?.message || 'Error validating item',
@@ -163,7 +167,7 @@ export default function Checkout() {
                             `Adjusted quantity to ${validation.availableQuantity} for ${item.title}${item.size ? ` (size: ${item.size})` : ''}`,
                             'info'
                         );
-                        return { ...item, quantity: validation.availableQuantity, size: item.size || null }; // Ensure size is preserved
+                        return { ...item, quantity: validation.availableQuantity, size: item.size || null };
                     }
                     return item;
                 });
@@ -184,7 +188,6 @@ export default function Checkout() {
 
             return true;
         } catch (error) {
-
             showCustomToast('Failed to validate cart items', 'error');
             return false;
         } finally {
@@ -268,7 +271,6 @@ export default function Checkout() {
                 }
             }
         } catch (error) {
-
             showCustomToast('Error checking product availability', 'error');
         }
     };
@@ -327,7 +329,6 @@ export default function Checkout() {
                 showCustomToast(response.data.message || 'Invalid coupon code.', 'error');
             }
         } catch (err) {
-
             setCouponError('Error applying coupon. Please try again.');
             showCustomToast('Error applying coupon. Please try again.', 'error');
         }
@@ -344,6 +345,30 @@ export default function Checkout() {
         setError('');
         setLoading(true);
 
+        // Validate terms acceptance
+        if (!acceptedTerms) {
+            setError('Please accept the Terms & Conditions to proceed.');
+            showCustomToast('Please accept the Terms & Conditions to proceed.', 'error');
+            setLoading(false);
+            return;
+        }
+
+        // Validate Bkash payment details
+        if (paymentMethod === 'bkash') {
+            if (!bkashNumber || !transactionId) {
+                setError('Please provide both Bkash number and Transaction ID.');
+                showCustomToast('Please provide both Bkash number and Transaction ID.', 'error');
+                setLoading(false);
+                return;
+            }
+            if (bkashNumber.length !== 11) {
+                setError('Please enter a valid 11-digit Bkash number.');
+                showCustomToast('Please enter a valid 11-digit Bkash number.', 'error');
+                setLoading(false);
+                return;
+            }
+        }
+
         const isCartValid = await validateCart();
         if (!isCartValid) {
             setLoading(false);
@@ -357,9 +382,9 @@ export default function Checkout() {
             return;
         }
 
-        if (paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' && (!customerInfo.district || !customerInfo.thana)) {
-            setError('Please select district and thana for COD.');
-            showCustomToast('Please select district and thana for COD.', 'error');
+        if ((paymentMethod === 'cod' || paymentMethod === 'bkash') && customerInfo.country === 'Bangladesh' && (!customerInfo.district || !customerInfo.thana)) {
+            setError('Please select district and thana for delivery.');
+            showCustomToast('Please select district and thana for delivery.', 'error');
             setLoading(false);
             return;
         }
@@ -379,17 +404,25 @@ export default function Checkout() {
                 quantity: item.quantity || 1,
                 price: getBDTPrice(item),
                 mainImage: item.mainImage || null,
-                size: item.size || null // Ensure size is included
+                size: item.size || null
             })),
-            customerInfo,
+            customerInfo: {
+                ...customerInfo,
+                // Include Bkash details if payment method is Bkash
+                ...(paymentMethod === 'bkash' && {
+                    bkashNumber,
+                    transactionId
+                })
+            },
             paymentMethod,
-            status: paymentMethod === 'cod' ? 'pending' : 'pending_payment',
+            status: paymentMethod === 'cod' || paymentMethod === 'bkash' ? 'pending' : 'pending_payment',
             total: Number.isFinite(payableAmount) ? payableAmount : 0,
             discount,
-            shippingCharge: paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' ? (Number.isFinite(shippingCharge) ? shippingCharge : 0) : 0,
+            shippingCharge: (paymentMethod === 'cod' || paymentMethod === 'bkash') && customerInfo.country === 'Bangladesh' ? (Number.isFinite(shippingCharge) ? shippingCharge : 0) : 0,
             couponCode: appliedCoupon ? appliedCoupon.code : null,
+            acceptedTerms: true,
+            termsAcceptedAt: new Date().toISOString()
         };
-
 
         try {
             const orderResponse = await axios.post('/api/products/orders', orderData);
@@ -402,11 +435,11 @@ export default function Checkout() {
                         phone: customerInfo.phone,
                     });
                 }
-                if (paymentMethod === 'cod') {
+                if (paymentMethod === 'cod' || paymentMethod === 'bkash') {
                     localStorage.removeItem('cart');
                     window.dispatchEvent(new Event('cartUpdated'));
                     showCustomToast(`Order ${orderData.orderId} placed successfully!`, 'success');
-                    setLoading(true); // Keep button disabled during redirect
+                    setLoading(true);
                     router.push(`/checkout/cod-success?orderId=${orderData.orderId}`);
                 } else {
                     const sslcommerzData = {
@@ -447,7 +480,7 @@ export default function Checkout() {
 
                     if (response.data.status === 'SUCCESS' && response.data.GatewayPageURL) {
                         showCustomToast('Redirecting to payment gateway...', 'info');
-                        setLoading(true); // Keep button disabled during redirect
+                        setLoading(true);
                         window.location.href = response.data.GatewayPageURL;
                     } else {
                         throw new Error(response.data.error || 'Payment initiation failed');
@@ -458,32 +491,40 @@ export default function Checkout() {
             }
         } catch (err) {
             const errorMessage = err.response?.data?.error || err.message || 'Payment processing failed';
-
             setError(errorMessage);
             showCustomToast(errorMessage, 'error');
             setLoading(false);
         }
     };
 
+    // Calculate if submit button should be disabled
+    const isSubmitDisabled = () => {
+        if (loading || validatingCart || cart.length === 0 || !acceptedTerms) {
+            return true;
+        }
+
+        if (paymentMethod === 'bkash' && (!bkashNumber || !transactionId)) {
+            return true;
+        }
+
+        return false;
+    };
+
     return (
         <div className="min-h-screen bg-gray-900 text-gray-200 py-8 px-4 sm:px-6 lg:px-8 border-b border-b-gray-800">
             <div className="max-w-6xl mx-auto">
 
-
                 <div className="text-center poppins-regular mb-8 py-5 bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-xl border border-gray-700/60 backdrop-blur-md shadow-xl">
-                    {/* Animated icon */}
                     <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl mb-3 shadow-lg animate-pulse hover:animate-none hover:scale-110 transition-transform duration-300">
                         <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                         </svg>
                     </div>
 
-                    {/* Main heading */}
                     <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">
                         Secure Checkout
                     </h1>
 
-                    {/* Subtitle with brand */}
                     <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 items-center justify-center py-2 sm:py-3 px-2">
                         <p className="text-gray-300 text-sm sm:text-base mb-0 text-center sm:text-left">
                             Complete your order with
@@ -499,7 +540,6 @@ export default function Checkout() {
                         </div>
                     </div>
 
-                    {/* Mini progress bar */}
                     <div className="w-16 h-0.5 bg-gray-700 rounded-full mx-auto overflow-hidden">
                         <div className="w-3/4 h-full bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full"></div>
                     </div>
@@ -600,7 +640,7 @@ export default function Checkout() {
                                 </select>
                             </div>
 
-                            {paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' && (
+                            {(paymentMethod === 'cod' || paymentMethod === 'bkash') && customerInfo.country === 'Bangladesh' && (
                                 <>
                                     <div>
                                         <label className="block text-sm mb-1">District *</label>
@@ -754,7 +794,7 @@ export default function Checkout() {
                                             <span>Subtotal</span>
                                             <span>৳{(subtotal || 0).toLocaleString()}</span>
                                         </div>
-                                        {paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' && (
+                                        {(paymentMethod === 'cod' || paymentMethod === 'bkash') && customerInfo.country === 'Bangladesh' && (
                                             <div className="flex justify-between text-sm">
                                                 <span>Shipping</span>
                                                 <span>৳{(Number.isFinite(shippingCharge) ? shippingCharge : 0).toLocaleString()}</span>
@@ -773,47 +813,26 @@ export default function Checkout() {
                             )}
                         </div>
 
-                        <div className="bg-gray-800 rounded-lg p-6">
-                            <h2 className="text-xl font-medium mb-4">Payment Method</h2>
-                            <div className="space-y-3">
-                                {customerInfo.country === 'Bangladesh' && (
-                                    <label className="flex items-center gap-3 p-3 border border-gray-700 rounded-md cursor-pointer hover:border-purple-500">
-                                        <input
-                                            type="radio"
-                                            name="paymentMethod"
-                                            value="cod"
-                                            checked={paymentMethod === 'cod'}
-                                            onChange={() => setPaymentMethod('cod')}
-                                            className="text-purple-500 focus:ring-purple-500"
-                                        />
-                                        <div>
-                                            <span className="block">Cash on Delivery</span>
-                                            <span className="text-gray-400 text-xs">Pay when you receive your order</span>
-                                        </div>
-                                    </label>
-                                )}
-                                <label className="flex items-center gap-3 p-3 border border-gray-700 rounded-md cursor-pointer hover:border-purple-500">
-                                    <input
-                                        type="radio"
-                                        name="paymentMethod"
-                                        value="pay_first"
-                                        checked={paymentMethod === 'pay_first'}
-                                        onChange={() => setPaymentMethod('pay_first')}
-                                        className="text-purple-500 focus:ring-purple-500"
-                                    />
-                                    <div>
-                                        <span className="block">Online Payment</span>
-                                        <span className="text-gray-400 text-xs">Cards, Mobile Banking, etc.</span>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
+                        {/* Payment System */}
+                        <CheckoutPayment
+                            paymentMethod={paymentMethod}
+                            setPaymentMethod={setPaymentMethod}
+                            customerInfo={customerInfo}
+                            loading={loading || validatingCart}
+                            bkashNumber={bkashNumber}
+                            setBkashNumber={setBkashNumber}
+                            transactionId={transactionId}
+                            setTransactionId={setTransactionId}
+                            acceptedTerms={acceptedTerms}
+                            setAcceptedTerms={setAcceptedTerms}
+                        />
 
                         <button
                             type="submit"
                             onClick={handleCheckout}
-                            disabled={loading || cart.length === 0 || validatingCart}
-                            className={`w-full py-3 bg-purple-600 text-white rounded-md font-medium hover:bg-purple-700 transition ${loading || validatingCart ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            disabled={isSubmitDisabled()}
+                            className={`w-full py-3 bg-purple-600 text-white rounded-md font-medium hover:bg-purple-700 transition ${isSubmitDisabled() ? 'opacity-70 cursor-not-allowed' : ''
+                                }`}
                         >
                             {loading || validatingCart ? (
                                 <span className="flex items-center justify-center">
@@ -906,7 +925,7 @@ export default function Checkout() {
                     color: #fff;
                     background: rgba(255,255,255,0.1);
                 }
-                    .coupon-box {
+                .coupon-box {
                     transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
                 }
                 .coupon-box.max-h-0 {
@@ -914,10 +933,10 @@ export default function Checkout() {
                     opacity: 0;
                 }
                 .coupon-box.max-h-40 {
-                    max-height: 10rem; /* Adjust based on content height */
+                    max-height: 10rem;
                 }
                 .coupon-box input {
-                    padding-right: 2.5rem; /* Space for close icon */
+                    padding-right: 2.5rem;
                 }
                 .coupon-box button:hover {
                     transform: scale(1.05);
