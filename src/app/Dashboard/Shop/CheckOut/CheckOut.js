@@ -338,7 +338,14 @@ export default function Checkout() {
         return 'ORDER_' + Math.random().toString(36).substr(2, 9).toUpperCase();
     };
 
-    const payableAmount = subtotal - discount + (paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' ? (Number.isFinite(shippingCharge) ? shippingCharge : 0) : 0);
+    // Fix the payableAmount calculation
+    const payableAmount = subtotal - discount + (
+        // For Bangladesh customers, add shipping charge for COD, Bkash, and Online payment
+        customerInfo.country === 'Bangladesh' &&
+            (paymentMethod === 'cod' || paymentMethod === 'bkash' || paymentMethod === 'pay_first')
+            ? (Number.isFinite(shippingCharge) ? shippingCharge : 0)
+            : 0
+    );
 
     const handleCheckout = async (e) => {
         e.preventDefault();
@@ -794,16 +801,20 @@ export default function Checkout() {
                                             <span>Subtotal</span>
                                             <span>৳{(subtotal || 0).toLocaleString()}</span>
                                         </div>
-                                        {(paymentMethod === 'cod' || paymentMethod === 'bkash') && customerInfo.country === 'Bangladesh' && (
+
+                                        {/* Show shipping for all payment methods for Bangladesh */}
+                                        {customerInfo.country === 'Bangladesh' && (paymentMethod === 'cod' || paymentMethod === 'bkash' || paymentMethod === 'pay_first') && (
                                             <div className="flex justify-between text-sm">
                                                 <span>Shipping</span>
                                                 <span>৳{(Number.isFinite(shippingCharge) ? shippingCharge : 0).toLocaleString()}</span>
                                             </div>
                                         )}
+
                                         <div className="flex justify-between text-sm">
                                             <span>Discount</span>
                                             <span>-৳{(discount || 0).toLocaleString()}</span>
                                         </div>
+
                                         <div className="flex justify-between font-medium pt-2 border-t border-gray-700">
                                             <span>Total</span>
                                             <span>৳{(Number.isFinite(payableAmount) ? payableAmount : 0).toLocaleString()}</span>
@@ -825,6 +836,10 @@ export default function Checkout() {
                             setTransactionId={setTransactionId}
                             acceptedTerms={acceptedTerms}
                             setAcceptedTerms={setAcceptedTerms}
+                            payableAmount={payableAmount}
+                            subtotal={subtotal}
+                            discount={discount}
+                            shippingCharge={shippingCharge}
                         />
 
                         <button
