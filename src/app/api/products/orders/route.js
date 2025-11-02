@@ -53,7 +53,7 @@ export async function POST(request) {
             couponCode,
         } = await request.json();
 
-        
+
         // Validate required fields
         if (!orderId || !products || !customerInfo || !paymentMethod || !status || total == null) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -64,8 +64,19 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Missing required customer information (name, email, phone, address)' }, { status: 400 });
         }
 
-        if (paymentMethod === 'cod' && customerInfo.country === 'Bangladesh' && (!customerInfo.district || !customerInfo.thana)) {
-            return NextResponse.json({ error: 'District and thana required for COD orders' }, { status: 400 });
+        // Add Bkash validation
+        if (paymentMethod === 'bkash') {
+            if (!customerInfo.bkashNumber || !customerInfo.transactionId) {
+                return NextResponse.json({ error: 'Bkash number and Transaction ID required for Bkash payment' }, { status: 400 });
+            }
+            if (customerInfo.bkashNumber.length !== 11) {
+                return NextResponse.json({ error: 'Invalid Bkash number. Must be 11 digits.' }, { status: 400 });
+            }
+        }
+
+        // Update the COD validation to include Bkash
+        if ((paymentMethod === 'cod' || paymentMethod === 'bkash') && customerInfo.country === 'Bangladesh' && (!customerInfo.district || !customerInfo.thana)) {
+            return NextResponse.json({ error: 'District and thana required for COD and Bkash orders in Bangladesh' }, { status: 400 });
         }
 
         // Validate product quantities and sizes
@@ -158,11 +169,11 @@ export async function POST(request) {
 
         // Debug: Log saved order
         const savedOrder = await Order.findById(order._id).lean();
-       
+
 
         return NextResponse.json({ message: 'Order created', orderId }, { status: 200 });
     } catch (error) {
-       
+
         return NextResponse.json({ error: `Failed to create order: ${error.message}` }, { status: 500 });
     }
 }

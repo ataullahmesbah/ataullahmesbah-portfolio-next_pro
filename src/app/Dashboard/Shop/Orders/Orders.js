@@ -425,9 +425,12 @@ export default function OrdersPage() {
                                                     <td className="py-4">
                                                         <span className={`px-2 py-1 rounded-full text-xs ${order.paymentMethod === 'cod'
                                                             ? 'bg-yellow-500/20 text-yellow-400'
-                                                            : 'bg-green-500/20 text-green-400'
+                                                            : order.paymentMethod === 'bkash'
+                                                                ? 'bg-green-500/20 text-green-400'
+                                                                : 'bg-blue-500/20 text-blue-400'
                                                             }`}>
-                                                            {order.paymentMethod === 'cod' ? 'COD' : 'Prepaid'}
+                                                            {order.paymentMethod === 'cod' ? 'COD' :
+                                                                order.paymentMethod === 'bkash' ? 'bKash' : 'Online'}
                                                         </span>
                                                     </td>
                                                     <td className="py-4 text-sm text-gray-400">{formatDate(order.createdAt)}</td>
@@ -604,7 +607,13 @@ export default function OrdersPage() {
                                                 {selectedOrder.status.replace('_', ' ')}
                                             </span>
                                         </p>
-                                        <p><strong>Payment Method:</strong> {selectedOrder.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Prepaid'}</p>
+
+                                        <p><strong>Payment Method:</strong>
+                                            {selectedOrder.paymentMethod === 'cod' ? 'Cash on Delivery' :
+                                                selectedOrder.paymentMethod === 'bkash' ? 'bKash Payment' :
+                                                    'Online Payment'}
+                                        </p>
+
                                         {selectedOrder.couponCode && (
                                             <p><strong>Coupon Code:</strong> {selectedOrder.couponCode}</p>
                                         )}

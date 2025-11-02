@@ -24,10 +24,12 @@ const OrderSchema = new mongoose.Schema({
         country: String,
         district: String,
         thana: String,
+        bkashNumber: { type: String, required: false },
+        transactionId: { type: String, required: false }
     },
     paymentMethod: {
         type: String,
-        enum: ['cod', 'pay_first'],
+        enum: ['cod', 'pay_first', 'bkash'],
         required: true,
     },
     status: {
