@@ -448,21 +448,55 @@ export default function CartPage() {
                             <div className="lg:col-span-2">
                                 <div className="bg-gray-800 rounded-lg p-6">
                                     <h2 className="text-xl font-semibold mb-6">Cart Items ({getTotalQuantity()} items)</h2>
-                                    <div className="space-y-6">
+
+                                    <div className="space-y-4 sm:space-y-6">
                                         {cart.map((item, index) => (
-                                            <div key={`${item._id}-${getItemSizeKey(item)}-${index}`} className="flex items-center gap-4 pb-6 border-b border-gray-700 last:border-0 last:pb-0">
-                                                <div className="relative w-20 h-20 flex-shrink-0">
-                                                    <Image
-                                                        src={item.mainImage}
-                                                        alt={item.mainImageAlt || item.title}
-                                                        width={80}
-                                                        height={80}
-                                                        className="object-cover rounded-md"
-                                                        sizes="80px"
-                                                    />
+                                            <div
+                                                key={`${item._id}-${getItemSizeKey(item)}-${index}`}
+                                                className="flex flex-col xs:flex-row xs:items-center gap-3 sm:gap-4 pb-4 sm:pb-6 border-b border-gray-700 last:border-0 last:pb-0"
+                                            >
+                                                {/* Product Image */}
+                                                <div className="flex items-center gap-3 sm:gap-4 xs:w-auto">
+                                                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
+                                                        <Image
+                                                            src={item.mainImage}
+                                                            alt={item.mainImageAlt || item.title}
+                                                            width={80}
+                                                            height={80}
+                                                            className="object-cover rounded-md"
+                                                            sizes="(max-width: 640px) 64px, 80px"
+                                                        />
+                                                    </div>
+
+                                                    {/* Product Info - Mobile Layout */}
+                                                    <div className="xs:hidden flex-1 min-w-0">
+                                                        <h3 className="text-sm font-medium text-white line-clamp-2">{item.title}</h3>
+                                                        <p className="text-indigo-400 font-medium mt-1 text-sm">৳{item.price.toLocaleString()}</p>
+
+                                                        {/* Size Selector - Mobile */}
+                                                        {item.size && availableSizesMap[item._id] && availableSizesMap[item._id].length > 0 && (
+                                                            <div className="mt-2">
+                                                                <label className="text-xs text-gray-400 mr-2">Size:</label>
+                                                                <select
+                                                                    value={item.size}
+                                                                    onChange={(e) => handleSizeChange(item._id, item.size, e.target.value)}
+                                                                    className="text-xs bg-gray-700 border border-gray-600 rounded px-2 py-1 text-white max-w-[120px]"
+                                                                    disabled={isLoading}
+                                                                >
+                                                                    {availableSizesMap[item._id].map(size => (
+                                                                        <option key={size} value={size}>{size}</option>
+                                                                    ))}
+                                                                </select>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <h3 className="text-sm font-medium truncate">{item.title}</h3>
+
+                                                {/* Product Info - Desktop Layout */}
+                                                <div className="hidden xs:block flex-1 min-w-0">
+                                                    <h3 className="text-sm font-medium text-white line-clamp-2">{item.title}</h3>
+
+                                                    {/* Size Selector - Desktop */}
                                                     {item.size && availableSizesMap[item._id] && availableSizesMap[item._id].length > 0 && (
                                                         <div className="mt-2">
                                                             <label className="text-xs text-gray-400 mr-2">Size:</label>
@@ -480,39 +514,51 @@ export default function CartPage() {
                                                     )}
                                                     <p className="text-indigo-400 font-medium mt-2 text-sm">৳{item.price.toLocaleString()}</p>
                                                 </div>
-                                                <div className="flex flex-col items-end">
-                                                    <div className="flex items-center border border-gray-600 rounded-md overflow-hidden mb-2">
+
+                                                {/* Quantity Controls & Actions */}
+                                                <div className="flex items-center justify-between xs:justify-end xs:items-center gap-3 sm:gap-4 xs:flex-col xs:flex-nowrap sm:flex-row">
+                                                    {/* Quantity Controls */}
+                                                    <div className="flex items-center border border-gray-600 rounded-md overflow-hidden">
                                                         <button
                                                             onClick={() => handleQuantityChange(item._id, item.quantity - 1, item.size)}
                                                             disabled={item.quantity <= 1 || isLoading}
-                                                            className="px-3 py-1 bg-gray-700 text-white hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            className="px-2 sm:px-3 py-1 sm:py-1 bg-gray-700 text-white hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                                                         >
                                                             −
                                                         </button>
-                                                        <span className="px-3 py-1 bg-gray-800 min-w-[2rem] text-center">{item.quantity}/3</span>
+                                                        <span className="px-2 sm:px-3 py-1 sm:py-1 bg-gray-800 min-w-[2rem] text-center text-sm">
+                                                            {item.quantity}/3
+                                                        </span>
                                                         <button
                                                             onClick={() => handleQuantityChange(item._id, item.quantity + 1, item.size)}
                                                             disabled={isLoading || item.quantity >= 3}
-                                                            className="px-3 py-1 bg-gray-700 text-white hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            className="px-2 sm:px-3 py-1 sm:py-1 bg-gray-700 text-white hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                                                         >
                                                             {isLoading ? '...' : '+'}
                                                         </button>
                                                     </div>
-                                                    <p className="text-indigo-400 font-medium">৳{(item.price * item.quantity).toLocaleString()}</p>
-                                                    <button
-                                                        onClick={() => confirmDelete(item._id, item.size, item.title)}
-                                                        className="mt-2 text-gray-400 hover:text-red-400 transition-colors"
-                                                        disabled={isLoading}
-                                                        title="Remove item"
-                                                    >
-                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                        </svg>
-                                                    </button>
+
+                                                    {/* Price & Delete */}
+                                                    <div className="flex items-center gap-3 sm:gap-4">
+                                                        <p className="text-indigo-400 font-medium text-sm sm:text-base whitespace-nowrap">
+                                                            ৳{(item.price * item.quantity).toLocaleString()}
+                                                        </p>
+                                                        <button
+                                                            onClick={() => confirmDelete(item._id, item.size, item.title)}
+                                                            className="text-gray-400 hover:text-red-400 transition-colors flex-shrink-0"
+                                                            disabled={isLoading}
+                                                            title="Remove item"
+                                                        >
+                                                            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
+
                                 </div>
                             </div>
 

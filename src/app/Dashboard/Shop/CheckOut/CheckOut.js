@@ -40,6 +40,7 @@ export default function Checkout() {
     const [bkashNumber, setBkashNumber] = useState('');
     const [transactionId, setTransactionId] = useState('');
     const [acceptedTerms, setAcceptedTerms] = useState(false);
+    const [orderData, setOrderData] = useState(null);
 
     const toggleCoupon = () => {
         setIsCouponOpen(!isCouponOpen);
@@ -415,7 +416,6 @@ export default function Checkout() {
             })),
             customerInfo: {
                 ...customerInfo,
-                // Include Bkash details if payment method is Bkash
                 ...(paymentMethod === 'bkash' && {
                     bkashNumber,
                     transactionId
@@ -431,70 +431,45 @@ export default function Checkout() {
             termsAcceptedAt: new Date().toISOString()
         };
 
+        setOrderData(orderData);
+
         try {
-            const orderResponse = await axios.post('/api/products/orders', orderData);
-            if (orderResponse.data.message === 'Order created') {
-                if (appliedCoupon) {
-                    await axios.post('/api/products/coupons/record-usage', {
-                        userId,
-                        couponCode: appliedCoupon.code,
-                        email: customerInfo.email,
-                        phone: customerInfo.phone,
-                    });
-                }
-                if (paymentMethod === 'cod' || paymentMethod === 'bkash') {
+            // ✅ COD & Bkash: Create order immediately
+            if (paymentMethod === 'cod' || paymentMethod === 'bkash') {
+                const orderResponse = await axios.post('/api/products/orders', orderData);
+                if (orderResponse.data.message === 'Order created') {
+                    if (appliedCoupon) {
+                        await axios.post('/api/products/coupons/record-usage', {
+                            userId,
+                            couponCode: appliedCoupon.code,
+                            email: customerInfo.email,
+                            phone: customerInfo.phone,
+                        });
+                    }
                     localStorage.removeItem('cart');
                     window.dispatchEvent(new Event('cartUpdated'));
                     showCustomToast(`Order ${orderData.orderId} placed successfully!`, 'success');
                     setLoading(true);
                     router.push(`/checkout/cod-success?orderId=${orderData.orderId}`);
                 } else {
-                    const sslcommerzData = {
-                        store_id: process.env.NEXT_PUBLIC_SSLCZ_STORE_ID,
-                        store_passwd: process.env.SSLCZ_STORE_PASSWORD,
-                        total_amount: Number.isFinite(payableAmount) ? payableAmount : 0,
-                        currency: 'BDT',
-                        tran_id: orderData.orderId,
-                        success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success`,
-                        fail_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/fail`,
-                        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/cancel`,
-                        ipn_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/ipn`,
-                        cus_name: customerInfo.name,
-                        cus_email: customerInfo.email,
-                        cus_add1: customerInfo.address,
-                        cus_city: customerInfo.city || 'Unknown',
-                        cus_postcode: customerInfo.postcode || '0000',
-                        cus_country: customerInfo.country,
-                        cus_phone: customerInfo.phone,
-                        shipping_method: 'NO',
-                        product_name: 'Online Purchase',
-                        product_category: 'General',
-                        product_profile: 'general',
-                    };
-
-                    const formData = new URLSearchParams();
-                    Object.keys(sslcommerzData).forEach((key) => {
-                        formData.append(key, sslcommerzData[key]);
-                    });
-
-                    const response = await axios.post(
-                        process.env.NEXT_PUBLIC_SSLCZ_IS_SANDBOX === 'true'
-                            ? 'https://sandbox.sslcommerz.com/gwprocess/v4/api.php'
-                            : 'https://securepay.sslcommerz.com/gwprocess/v4/api.php',
-                        formData,
-                        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-                    );
-
-                    if (response.data.status === 'SUCCESS' && response.data.GatewayPageURL) {
-                        showCustomToast('Redirecting to payment gateway...', 'info');
-                        setLoading(true);
-                        window.location.href = response.data.GatewayPageURL;
-                    } else {
-                        throw new Error(response.data.error || 'Payment initiation failed');
-                    }
+                    throw new Error('Order creation failed');
                 }
-            } else {
-                throw new Error('Order creation failed');
+            }
+            //  Online Payment: Use API Route
+            else if (paymentMethod === 'pay_first') {
+                const response = await axios.post('/api/payment/sslcommerz-initiate', {
+                    total_amount: payableAmount,
+                    customerInfo: customerInfo,
+                    orderData: orderData
+                });
+
+                if (response.data.status === 'SUCCESS' && response.data.GatewayPageURL) {
+                    showCustomToast('Redirecting to payment gateway...', 'info');
+                    setLoading(true);
+                    window.location.href = response.data.GatewayPageURL;
+                } else {
+                    throw new Error(response.data.failedreason || 'Payment initiation failed');
+                }
             }
         } catch (err) {
             const errorMessage = err.response?.data?.error || err.message || 'Payment processing failed';
@@ -502,6 +477,15 @@ export default function Checkout() {
             showCustomToast(errorMessage, 'error');
             setLoading(false);
         }
+
+    };
+
+
+
+    // ✅ ADD: Payment error handler
+    const handlePaymentError = (error) => {
+        showCustomToast(error, 'error');
+        setLoading(false);
     };
 
     // Calculate if submit button should be disabled
@@ -840,13 +824,14 @@ export default function Checkout() {
                             subtotal={subtotal}
                             discount={discount}
                             shippingCharge={shippingCharge}
+
                         />
 
                         <button
                             type="submit"
                             onClick={handleCheckout}
                             disabled={isSubmitDisabled()}
-                            className={`w-full py-3 bg-purple-600 text-white rounded-md font-medium hover:bg-purple-700 transition ${isSubmitDisabled() ? 'opacity-70 cursor-not-allowed' : ''
+                            className={`w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white rounded-md transition-all duration-300 shadow-lg hover:shadow-purple-800/30 disabled:opacity-50 disabled:cursor-not-allowed ${isSubmitDisabled() ? 'opacity-70 cursor-not-allowed' : ''
                                 }`}
                         >
                             {loading || validatingCart ? (
