@@ -456,19 +456,33 @@ export default function Checkout() {
                 }
             }
             //  Online Payment: Use API Route
+            // Online Payment section e order create koro
             else if (paymentMethod === 'pay_first') {
-                const response = await axios.post('/api/payment/sslcommerz-initiate', {
-                    total_amount: payableAmount,
-                    customerInfo: customerInfo,
-                    orderData: orderData
+                // ✅ FIRST: Create order in database with pending status
+                const orderResponse = await axios.post('/api/products/orders', {
+                    ...orderData,
+                    status: 'pending_payment' // Temporary status
                 });
 
-                if (response.data.status === 'SUCCESS' && response.data.GatewayPageURL) {
-                    showCustomToast('Redirecting to payment gateway...', 'info');
-                    setLoading(true);
-                    window.location.href = response.data.GatewayPageURL;
+                if (orderResponse.data.message === 'Order created') {
+                    console.log('✅ Order created with pending status:', orderData.orderId);
+
+                    // ✅ THEN: Initiate payment
+                    const response = await axios.post('/api/payment/sslcommerz-initiate', {
+                        total_amount: payableAmount,
+                        customerInfo: customerInfo,
+                        orderData: orderData
+                    });
+
+                    if (response.data.status === 'SUCCESS' && response.data.GatewayPageURL) {
+                        showCustomToast('Redirecting to payment gateway...', 'info');
+                        setLoading(true);
+                        window.location.href = response.data.GatewayPageURL;
+                    } else {
+                        throw new Error(response.data.failedreason || 'Payment initiation failed');
+                    }
                 } else {
-                    throw new Error(response.data.failedreason || 'Payment initiation failed');
+                    throw new Error('Order creation failed');
                 }
             }
         } catch (err) {
