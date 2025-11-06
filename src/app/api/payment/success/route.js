@@ -21,52 +21,42 @@ export async function POST(request) {
             console.log('✅ Payment validated for order:', tran_id);
 
             try {
-                // First check if order exists
-                const checkOrderResponse = await fetch(
-                    `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/orders?orderId=${tran_id}`
-                );
-
-                if (checkOrderResponse.ok) {
-                    const orders = await checkOrderResponse.json();
-
-                    if (orders.length > 0) {
-                        // Order exists, update status
-                        const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/orders/update-status`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                orderId: tran_id,
-                                status: 'accepted',
-                                paymentDetails: {
-                                    paymentStatus: 'paid',
-                                    paymentMethod: 'online',
-                                    transactionId: val_id,
-                                    bankTransactionId: bank_tran_id,
-                                    amount: amount,
-                                    cardType: card_type
-                                }
-                            }),
-                        });
-
-                        if (updateResponse.ok) {
-                            console.log('✅ Order status updated successfully');
-                        } else {
-                            console.log('⚠️ Order exists but status update failed');
+                // Update order status to 'accepted'
+                const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products/orders/update-status`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        orderId: tran_id,
+                        status: 'accepted',
+                        paymentDetails: {
+                            paymentStatus: 'paid',
+                            paymentMethod: 'online',
+                            transactionId: val_id,
+                            bankTransactionId: bank_tran_id,
+                            amount: amount,
+                            cardType: card_type
                         }
-                    } else {
-                        console.log('⚠️ Order not found in database, but payment was successful');
-                        // You might want to create the order here if it doesn't exist
-                    }
+                    }),
+                });
+
+                if (updateResponse.ok) {
+                    console.log('✅ Order status updated successfully');
+
+                    // ✅ FIX: Clear cart from localStorage
+                    // This will clear the cart for the user
+                    // Note: This happens on the client side after redirect
+                } else {
+                    console.log('⚠️ Order status update failed, but payment was successful');
                 }
             } catch (updateError) {
                 console.error('❌ Order update error:', updateError);
             }
 
-            // ✅ FIX: Use simple redirect without URL constructor
+            // ✅ FIX: Use simple redirect
             const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-            const redirectUrl = `${baseUrl}/checkout/success?orderId=${tran_id}&payment=success`;
+            const redirectUrl = `${baseUrl}/checkout/success?orderId=${tran_id}&payment=success&clearCart=true`;
 
             console.log('🔗 Redirecting to:', redirectUrl);
             return NextResponse.redirect(redirectUrl);
@@ -99,7 +89,7 @@ export async function GET(request) {
 
         if (tran_id && status === 'VALID') {
             const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-            const redirectUrl = `${baseUrl}/checkout/success?orderId=${tran_id}`;
+            const redirectUrl = `${baseUrl}/checkout/success?orderId=${tran_id}&clearCart=true`;
 
             return NextResponse.redirect(redirectUrl);
         }

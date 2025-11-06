@@ -455,8 +455,9 @@ export default function Checkout() {
                     throw new Error('Order creation failed');
                 }
             }
+
             //  Online Payment: Use API Route
-            // Online Payment section e order create koro
+            // Online Payment section - Remove cart clearing from here
             else if (paymentMethod === 'pay_first') {
                 // ✅ FIRST: Create order in database with pending status
                 const orderResponse = await axios.post('/api/products/orders', {
