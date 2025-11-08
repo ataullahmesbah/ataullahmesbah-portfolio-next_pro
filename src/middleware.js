@@ -11,8 +11,8 @@ import { NextResponse } from 'next/server';
 const ipStats = new Map(); // { ip: { routeCounts: Map, warnings: number, blockUntil: number, permanent: boolean } }
 
 const WINDOW_MS = 60 * 1000; // 1 minute
-const SOFT_LIMIT = 30; // 30 hits per route in 1 minute
-const TEMP_LIMIT = 100; // 100 total hits in 1 minute
+const SOFT_LIMIT = 100; // 30 hits per route in 1 minute
+const TEMP_LIMIT = 500; // 100 total hits in 1 minute
 const TEMP_BLOCK_DURATION = 30 * 60 * 1000; // 30 minutes
 const MAX_WARNINGS = 3; // 3 warnings or temp blocks lead to permanent block
 
@@ -33,35 +33,24 @@ const ADMIN_ONLY_API_ROUTES = [
 
 export async function middleware(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  const url = req.nextUrl;
-  const { pathname, hostname } = url;
-  // const { pathname } = req.nextUrl;
+  // const url = req.nextUrl;
+  // const { pathname, hostname } = req.nextUrl;
+  const { pathname } = req.nextUrl;
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || req.ip || 'unknown';
 
+  // === 1. BLOCK SUBDOMAINS IN LOCALHOST (DEV MODE) ===
+  // if (process.env.NODE_ENV === 'development') {
+  //   const host = req.headers.get('host') || '';
+  //   const isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
 
-  // 3. .env domain Local + Production
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-  const SHOP_SUBDOMAIN = process.env.NEXT_PUBLIC_SHOP_SUBDOMAIN || 'sooqraone.localhost';
+  //   if (isLocalhost && !host.startsWith('localhost:') && !host.startsWith('127.0.0.1:')) {
 
-  const isShopSubdomain = hostname === SHOP_SUBDOMAIN;
-  const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
-
-  // Main domain (e.g., localhost:3000 or ataullahmesbah.com)
-  const MAIN_DOMAIN = new URL(BASE_URL).host;
-
-  // Subdomain check
-  // const isShopSubdomain = hostname === SHOP_SUBDOMAIN || hostname.startsWith(`${SHOP_SUBDOMAIN}:`);
-
-  // 4. /shop or /cart → subdomain-এ রিডাইরেক্ট
-  if (!isShopSubdomain && (pathname.startsWith('/shop') || pathname.startsWith('/cart'))) {
-    const redirectUrl = new URL(pathname, `${protocol}://${SHOP_SUBDOMAIN}:3000`);
-    return NextResponse.redirect(redirectUrl, 301);
-  }
-
-  if (isShopSubdomain && !pathname.startsWith('/shop') && !pathname.startsWith('/cart')) {
-    const redirectUrl = new URL(pathname, `${protocol}://localhost:3000`);
-    return NextResponse.redirect(redirectUrl, 301);
-  }
+  //     return new NextResponse(
+  //       JSON.stringify({ error: 'Subdomains are disabled in development. Use: http://localhost:3000' }),
+  //       { status: 403, headers: { 'Content-Type': 'application/json' } }
+  //     );
+  //   }
+  // }
 
 
   // Initialize IP stats if not present
@@ -164,7 +153,15 @@ export async function middleware(req) {
   }
 
   // === 3. Auth Redirects ===
-  if (token && (pathname === '/login' || pathname === '/register')) {
+  // if (token && (pathname === '/login' || pathname === '/register')) {
+  //   return NextResponse.redirect(new URL('/', req.url));
+  // }
+
+  // if (pathname.startsWith('/u/')) {
+  //   return NextResponse.next();
+  // }
+
+  if (token && (pathname.startsWith('/login') || pathname.startsWith('/register'))) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
@@ -193,14 +190,15 @@ export async function middleware(req) {
     }
   }
 
+
   // All other /api/** routes are public
   if (pathname.startsWith('/api/')) {
-    return NextResponse.next();f
+    return NextResponse.next();
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/', '/login', '/register', '/u/:username*', '/shop/:path*', '/cart/:path*', '/api/:path*'],
+  matcher: ['/', '/login', '/register', '/u/:username*', '/api/:path*'],
 };

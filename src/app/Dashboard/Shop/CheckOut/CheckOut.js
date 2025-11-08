@@ -10,6 +10,15 @@ import CheckoutPayment from '../CheckoutPayment/CheckoutPayment';
 
 export default function Checkout() {
     const [isCouponOpen, setIsCouponOpen] = useState(false);
+    const [validationErrors, setValidationErrors] = useState({
+        email: '',
+        phone: ''
+    });
+    const [isFormValid, setIsFormValid] = useState(false);
+
+    const [emailTouched, setEmailTouched] = useState(false);
+
+
     const [cart, setCart] = useState([]);
     const [paymentMethod, setPaymentMethod] = useState('cod');
     const [customerInfo, setCustomerInfo] = useState({
@@ -45,6 +54,21 @@ export default function Checkout() {
     const toggleCoupon = () => {
         setIsCouponOpen(!isCouponOpen);
     };
+
+    // Add this useEffect for better email validation
+    useEffect(() => {
+        if (emailTouched && customerInfo.email) {
+            if (!validateEmail(customerInfo.email)) {
+                setValidationErrors(prev => ({
+                    ...prev,
+                    email: 'Please enter a valid email address'
+                }));
+            } else {
+                setValidationErrors(prev => ({ ...prev, email: '' }));
+            }
+        }
+        validateForm();
+    }, [customerInfo.email, emailTouched]);
 
     // Custom Toast Function
     const showCustomToast = (message, type = 'info') => {
@@ -202,8 +226,30 @@ export default function Checkout() {
         return item.price * (item.currency === 'USD' ? 120 : 130);
     };
 
+
+    // ✅ ADD: Email validation function
+    const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        setValidationErrors(prev => ({ ...prev, [name]: '' }));
+
+        // Set touched state
+        if (name === 'email') {
+            setEmailTouched(true);
+            // Real-time email validation
+            if (value && !validateEmail(value)) {
+                setValidationErrors(prev => ({
+                    ...prev,
+                    email: 'Please enter a valid email address'
+                }));
+            }
+        }
+
         if (name === 'district') {
             setCustomerInfo((prev) => ({ ...prev, thana: '', district: value }));
             const charge = value === 'Dhaka' || value === 'Chattogram' || value === 'Chittagong'
@@ -213,10 +259,86 @@ export default function Checkout() {
         } else {
             setCustomerInfo((prev) => ({ ...prev, [name]: value }));
         }
+
+        // Validate form
+        validateForm();
     };
 
-    const handlePhoneChange = (phone) => {
-        setCustomerInfo((prev) => ({ ...prev, phone }));
+
+
+
+    // Replace the validateForm function:
+    const validateForm = () => {
+        const errors = {};
+
+        // Email validation
+        if (customerInfo.email && !validateEmail(customerInfo.email)) {
+            errors.email = 'Please enter a valid email address';
+        }
+
+        // Phone validation - ONLY for Bangladesh
+        if (customerInfo.country === 'Bangladesh' && customerInfo.phone) {
+            if (customerInfo.phone.length !== 11 || !/^01[3-9]/.test(customerInfo.phone)) {
+                errors.phone = 'Enter valid 11-digit number (01XXXXXXXXX)';
+            }
+        }
+
+        // For other countries, basic phone validation
+        if (customerInfo.country !== 'Bangladesh' && customerInfo.phone) {
+            const cleanPhone = customerInfo.phone.replace(/\D/g, '');
+            if (cleanPhone.length < 7) {
+                errors.phone = 'Please enter a valid phone number';
+            }
+        }
+
+        setValidationErrors(errors);
+
+        // Check if form is valid
+        const isValid =
+            customerInfo.name &&
+            customerInfo.email &&
+            validateEmail(customerInfo.email) &&
+            customerInfo.phone &&
+            customerInfo.address &&
+            Object.keys(errors).length === 0; // No validation errors
+
+        setIsFormValid(isValid);
+        return isValid;
+    };
+
+
+
+    // Replace getStorablePhoneNumber function:
+    const getStorablePhoneNumber = (phone) => {
+        if (!phone) return '';
+
+        const cleanPhone = phone.replace(/\D/g, '');
+
+        // For Bangladesh: convert 01123456789 to 8801123456789
+        if (cleanPhone.length === 11 && cleanPhone.startsWith('01')) {
+            return `880${cleanPhone.slice(1)}`; // Remove the first 0 and add 880
+        }
+
+        return cleanPhone;
+    };
+
+
+    // Replace the handlePhoneChange function:
+    const handlePhoneChange = (e) => {
+        const value = e.target.value.replace(/\D/g, '').slice(0, 11);
+        setCustomerInfo((prev) => ({ ...prev, phone: value }));
+
+        // Clear any existing phone errors
+        setValidationErrors(prev => ({ ...prev, phone: '' }));
+
+        validateForm();
+    };
+    // Replace validateBangladeshPhone function:
+    const validateBangladeshPhone = (phone) => {
+        if (!phone) return false;
+        const cleanPhone = phone.replace(/\D/g, '');
+        // Must be 11 digits and start with 01 (01XXXXXXXXX)
+        return cleanPhone.length === 11 && /^01[3-9]/.test(cleanPhone);
     };
 
     const handleQuantityChange = async (productId, newQuantity) => {
@@ -353,6 +475,17 @@ export default function Checkout() {
         setError('');
         setLoading(true);
 
+
+
+        // In handleCheckout function, replace the phone validation:
+        if (customerInfo.country === 'Bangladesh') {
+            if (!customerInfo.phone || customerInfo.phone.length !== 11 || !/^01[3-9]/.test(customerInfo.phone)) {
+                setError('Please enter a valid 11-digit Bangladesh phone number (01XXXXXXXXX)');
+                setLoading(false);
+                return;
+            }
+        }
+
         // Validate terms acceptance
         if (!acceptedTerms) {
             setError('Please accept the Terms & Conditions to proceed.');
@@ -416,6 +549,7 @@ export default function Checkout() {
             })),
             customerInfo: {
                 ...customerInfo,
+                phone: getStorablePhoneNumber(customerInfo.phone),
                 ...(paymentMethod === 'bkash' && {
                     bkashNumber,
                     transactionId
@@ -503,12 +637,21 @@ export default function Checkout() {
         setLoading(false);
     };
 
-    // Calculate if submit button should be disabled
+
+    // Replace isSubmitDisabled function:
     const isSubmitDisabled = () => {
-        if (loading || validatingCart || cart.length === 0 || !acceptedTerms) {
+        if (loading || validatingCart || cart.length === 0 || !acceptedTerms || !isFormValid) {
             return true;
         }
 
+        // Additional validation for Bangladesh phone numbers
+        if (customerInfo.country === 'Bangladesh') {
+            if (!customerInfo.phone || customerInfo.phone.length !== 11 || !/^01[3-9]/.test(customerInfo.phone)) {
+                return true;
+            }
+        }
+
+        // Bkash specific validation
         if (paymentMethod === 'bkash' && (!bkashNumber || !transactionId)) {
             return true;
         }
@@ -579,24 +722,60 @@ export default function Checkout() {
                                     name="email"
                                     value={customerInfo.email}
                                     onChange={handleInputChange}
-                                    className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:border-purple-500"
+                                    onBlur={() => setEmailTouched(true)} // ✅ ADD: onBlur for touch
+                                    className={`w-full bg-gray-700 border rounded-md p-2 focus:outline-none ${validationErrors.email && emailTouched
+                                        ? 'border-red-500 focus:border-red-500'
+                                        : 'border-gray-600 focus:border-purple-500'
+                                        }`}
                                     required
+                                    placeholder="example@gmail.com"
                                 />
+                                {validationErrors.email && emailTouched && (
+                                    <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                                        <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                        </svg>
+                                        {validationErrors.email}
+                                    </p>
+                                )}
                             </div>
+
+
+
 
                             <div>
                                 <label className="block text-sm mb-1">Phone Number *</label>
-                                <PhoneInput
-                                    country={'bd'}
-                                    value={customerInfo.phone}
-                                    onChange={handlePhoneChange}
-                                    inputClass="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:border-purple-500"
-                                    buttonClass="bg-gray-700 border-gray-600"
-                                    dropdownClass="bg-gray-800 border-gray-600"
-                                    containerClass="w-full"
-                                    required
-                                />
+                                <div className="flex">
+                                    <span className="inline-flex items-center px-3 text-sm bg-gray-700 border border-r-0 border-gray-600 rounded-l-md">
+                                        +88
+                                    </span>
+                                    <input
+                                        type="text"
+                                        name="phone"
+                                        value={customerInfo.phone}
+                                        onChange={handlePhoneChange}
+                                        className="w-full bg-gray-700 border border-gray-600 rounded-r-md p-2 focus:outline-none focus:border-purple-500"
+                                        placeholder="01XXXXXXXXX"
+                                        maxLength={11}
+                                        required
+                                    />
+                                </div>
+                                {customerInfo.phone && customerInfo.phone.length === 11 && /^01[3-9]/.test(customerInfo.phone) && (
+                                    <p className="text-green-400 text-xs mt-1">
+                                        ✅ Valid: +88{customerInfo.phone}
+                                    </p>
+                                )}
+                                {validationErrors.phone && (
+                                    <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                                        <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                        </svg>
+                                        {validationErrors.phone}
+                                    </p>
+                                )}
                             </div>
+
+
 
                             <div>
                                 <label className="block text-sm mb-1">Address *</label>
@@ -861,6 +1040,7 @@ export default function Checkout() {
                                 `Place Order - ৳${(Number.isFinite(payableAmount) ? payableAmount : 0).toLocaleString()}`
                             )}
                         </button>
+
                     </div>
                 </div>
             </div>
