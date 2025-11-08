@@ -33,8 +33,36 @@ const ADMIN_ONLY_API_ROUTES = [
 
 export async function middleware(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  const { pathname } = req.nextUrl;
+  const url = req.nextUrl;
+  const { pathname, hostname } = url;
+  // const { pathname } = req.nextUrl;
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || req.ip || 'unknown';
+
+
+  // 3. .env domain Local + Production
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const SHOP_SUBDOMAIN = process.env.NEXT_PUBLIC_SHOP_SUBDOMAIN || 'sooqraone.localhost';
+
+  const isShopSubdomain = hostname === SHOP_SUBDOMAIN;
+  const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+
+  // Main domain (e.g., localhost:3000 or ataullahmesbah.com)
+  const MAIN_DOMAIN = new URL(BASE_URL).host;
+
+  // Subdomain check
+  // const isShopSubdomain = hostname === SHOP_SUBDOMAIN || hostname.startsWith(`${SHOP_SUBDOMAIN}:`);
+
+  // 4. /shop or /cart → subdomain-এ রিডাইরেক্ট
+  if (!isShopSubdomain && (pathname.startsWith('/shop') || pathname.startsWith('/cart'))) {
+    const redirectUrl = new URL(pathname, `${protocol}://${SHOP_SUBDOMAIN}:3000`);
+    return NextResponse.redirect(redirectUrl, 301);
+  }
+
+  if (isShopSubdomain && !pathname.startsWith('/shop') && !pathname.startsWith('/cart')) {
+    const redirectUrl = new URL(pathname, `${protocol}://localhost:3000`);
+    return NextResponse.redirect(redirectUrl, 301);
+  }
+
 
   // Initialize IP stats if not present
   if (!ipStats.has(ip)) {
@@ -147,7 +175,6 @@ export async function middleware(req) {
   // Admin-only API route protection
   // if (ADMIN_ONLY_API_ROUTES.includes(pathname)) {
   //   if (!token || !token.role || token.role !== 'admin') {
-  //     console.error(`Access denied to ${pathname} from IP ${ip}. Token: ${JSON.stringify(token)}`);
   //     return new NextResponse(
   //       JSON.stringify({ error: 'Access denied: Admin role required' }),
   //       { status: 403, headers: { 'Content-Type': 'application/json' } }
@@ -168,12 +195,12 @@ export async function middleware(req) {
 
   // All other /api/** routes are public
   if (pathname.startsWith('/api/')) {
-    return NextResponse.next();
+    return NextResponse.next();f
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/', '/login', '/register', '/u/:username*', '/api/:path*'],
+  matcher: ['/', '/login', '/register', '/u/:username*', '/shop/:path*', '/cart/:path*', '/api/:path*'],
 };
