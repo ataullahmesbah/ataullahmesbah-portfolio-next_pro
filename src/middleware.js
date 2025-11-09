@@ -32,43 +32,43 @@ const ADMIN_ONLY_API_ROUTES = [
 ];
 
 export async function middleware(req) {
-   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = req.nextUrl;
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || req.ip || 'unknown';
   const now = Date.now();
   const host = req.headers.get('host') || '';
 
-  
 
 
-// === STRICT SUBDOMAIN BLOCKING ===
+
+  // === STRICT SUBDOMAIN BLOCKING ===
   // Development environment e subdomain block
   if (process.env.NODE_ENV === 'development') {
     // All subdomain patterns block
     if (host.match(/^[a-zA-Z0-9-]+\.localhost(:[0-9]+)?$/)) {
       console.log(`🚫 Blocked subdomain: ${host}`);
       return new NextResponse(
-        JSON.stringify({ 
-          error: 'Subdomain access is disabled. Use http://localhost:3000' 
+        JSON.stringify({
+          error: 'Subdomain access is disabled. Use http://localhost:3000'
         }),
-        { 
-          status: 403, 
-          headers: { 
+        {
+          status: 403,
+          headers: {
             'Content-Type': 'application/json',
-          } 
+          }
         }
       );
     }
-    
+
     // 127.0.0.1 er subdomain block
     if (host.match(/^[a-zA-Z0-9-]+\.127\.0\.0\.1(:[0-9]+)?$/)) {
       return new NextResponse(
-        JSON.stringify({ 
-          error: 'Subdomain access is disabled. Use http://127.0.0.1:3000' 
+        JSON.stringify({
+          error: 'Subdomain access is disabled. Use http://127.0.0.1:3000'
         }),
-        { 
-          status: 403, 
-          headers: { 'Content-Type': 'application/json' } 
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' }
         }
       );
     }

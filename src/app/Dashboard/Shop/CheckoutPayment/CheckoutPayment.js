@@ -49,7 +49,7 @@ export default function CheckoutPayment({
                             disabled={loading}
                         />
                         <div className="flex-1 min-w-0">
-                            <span className="block font-medium text-white text-sm sm:text-base">Cash on Delivery</span>
+                            <span className="block font-medium text-white text-sm sm:text-base">Cash On Delivery</span>
                             <span className="text-gray-400 text-xs sm:text-sm break-words">
                                 Pay ৳{(Number.isFinite(payableAmount) ? payableAmount : 0).toLocaleString()} when you receive your order
                                 {shippingCharge > 0 && ` (Includes ৳${shippingCharge.toLocaleString()} shipping)`}
@@ -219,8 +219,10 @@ export default function CheckoutPayment({
                     </label>
                 )}
 
+
                 {/* Online Payment - Simple Radio Button */}
-                <label className="flex items-start gap-3 p-3 border border-gray-700 rounded-md cursor-pointer hover:border-purple-500 transition-colors">
+
+                {/* <label className="flex items-start gap-3 p-3 border border-gray-700 rounded-md cursor-pointer hover:border-purple-500 transition-colors">
                     <input
                         type="radio"
                         name="paymentMethod"
@@ -237,7 +239,7 @@ export default function CheckoutPayment({
                             {shippingCharge > 0 && ` (Includes ৳${shippingCharge.toLocaleString()} shipping)`}
                         </span>
                     </div>
-                </label>
+                </label> */}
             </div>
 
             {/* Terms and Conditions */}
