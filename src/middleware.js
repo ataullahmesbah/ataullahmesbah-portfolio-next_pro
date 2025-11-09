@@ -8,7 +8,7 @@ import { NextResponse } from 'next/server';
 // import RequestLog from './models/RequestLog';
 
 // In-memory storage for rate limiting and blocks
-const ipStats = new Map(); // { ip: { routeCounts: Map, warnings: number, blockUntil: number, permanent: boolean } }
+const ipStats = new Map();
 
 const WINDOW_MS = 60 * 1000; // 1 minute
 const SOFT_LIMIT = 100; // 30 hits per route in 1 minute
@@ -32,39 +32,64 @@ const ADMIN_ONLY_API_ROUTES = [
 ];
 
 export async function middleware(req) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  // const url = req.nextUrl;
-  // const { pathname, hostname } = req.nextUrl;
+   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = req.nextUrl;
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || req.ip || 'unknown';
+  const now = Date.now();
+  const host = req.headers.get('host') || '';
 
-  // === 1. BLOCK SUBDOMAINS IN LOCALHOST (DEV MODE) ===
-  // if (process.env.NODE_ENV === 'development') {
-  //   const host = req.headers.get('host') || '';
-  //   const isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
+  
 
-  //   if (isLocalhost && !host.startsWith('localhost:') && !host.startsWith('127.0.0.1:')) {
 
-  //     return new NextResponse(
-  //       JSON.stringify({ error: 'Subdomains are disabled in development. Use: http://localhost:3000' }),
-  //       { status: 403, headers: { 'Content-Type': 'application/json' } }
-  //     );
-  //   }
-  // }
-
+// === STRICT SUBDOMAIN BLOCKING ===
+  // Development environment e subdomain block
+  if (process.env.NODE_ENV === 'development') {
+    // All subdomain patterns block
+    if (host.match(/^[a-zA-Z0-9-]+\.localhost(:[0-9]+)?$/)) {
+      console.log(`🚫 Blocked subdomain: ${host}`);
+      return new NextResponse(
+        JSON.stringify({ 
+          error: 'Subdomain access is disabled. Use http://localhost:3000' 
+        }),
+        { 
+          status: 403, 
+          headers: { 
+            'Content-Type': 'application/json',
+          } 
+        }
+      );
+    }
+    
+    // 127.0.0.1 er subdomain block
+    if (host.match(/^[a-zA-Z0-9-]+\.127\.0\.0\.1(:[0-9]+)?$/)) {
+      return new NextResponse(
+        JSON.stringify({ 
+          error: 'Subdomain access is disabled. Use http://127.0.0.1:3000' 
+        }),
+        { 
+          status: 403, 
+          headers: { 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+  }
 
   // Initialize IP stats if not present
+
   if (!ipStats.has(ip)) {
     ipStats.set(ip, {
-      routeCounts: new Map(), // Track hits per route
+      routeCounts: new Map(),
       warnings: 0,
       blockUntil: 0,
       permanent: false,
+      lastHit: {}
     });
   }
+
   const ipData = ipStats.get(ip);
 
   // Check if IP is permanently blocked
+
   if (ipData.permanent) {
     return new NextResponse(
       JSON.stringify({ error: 'IP permanently blocked due to repeated violations.' }),
@@ -81,18 +106,21 @@ export async function middleware(req) {
   }
 
   // Update route count
-  const now = Date.now();
   const routeCount = (ipData.routeCounts.get(pathname) || 0) + 1;
   ipData.routeCounts.set(pathname, routeCount);
+  ipData.lastHit[pathname] = now;
 
   // Clean old entries
+  // Clean old entries (1 minute window)
   ipData.routeCounts.forEach((count, route) => {
-    if (now - WINDOW_MS > (ipData.lastHit?.[route] || 0)) {
+    const lastHitTime = ipData.lastHit[route] || 0;
+    if (now - lastHitTime > WINDOW_MS) {
       ipData.routeCounts.delete(route);
+      delete ipData.lastHit[route];
     }
   });
-  ipData.lastHit = ipData.lastHit || {};
-  ipData.lastHit[pathname] = now;
+
+
 
   const totalHits = Array.from(ipData.routeCounts.values()).reduce((a, b) => a + b, 0);
 
@@ -119,28 +147,7 @@ export async function middleware(req) {
     );
   }
 
-  // Log request to MongoDB
-  // try {
-  //   await dbConnect();
-  //   await RequestLog.create({
-  //     ip,
-  //     endpoint: pathname,
-  //     method: req.method,
-  //     userId: token?.id || null,
-  //   });
 
-  // Check if IP is blocked in DB (e.g., manually blocked by admin)
-  //   const blockedIP = await BlockedIP.findOne({ ip });
-  //   if (blockedIP) {
-  //     ipData.permanent = true;
-  //     return new NextResponse(
-  //       JSON.stringify({ error: 'IP permanently blocked by admin.' }),
-  //       { status: 403, headers: { 'Content-Type': 'application/json' } }
-  //     );
-  //   }
-  // } catch (error) {
-  //   console.error(`Middleware error for IP ${ip}: ${error.message}`);
-  // }
 
   // Affiliate tracking, redirects, and API protection
 
