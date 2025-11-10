@@ -28,14 +28,16 @@ const ProjectsPage = ({ projects: initialProjects = null }) => {
         });
 
         // Set initial window width
-        setWindowWidth(window.innerWidth);
-        
-        const handleResize = () => {
+        if (typeof window !== 'undefined') {
             setWindowWidth(window.innerWidth);
-        };
 
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+            const handleResize = () => {
+                setWindowWidth(window.innerWidth);
+            };
+
+            window.addEventListener('resize', handleResize);
+            return () => window.removeEventListener('resize', handleResize);
+        }
     }, []);
 
     useEffect(() => {
@@ -112,7 +114,7 @@ const ProjectsPage = ({ projects: initialProjects = null }) => {
                 <meta name="keywords" content="projects, portfolio, marketing, ecommerce, travel, blog, personal portfolio" />
                 <meta name="robots" content="index, follow" />
             </Head>
-            
+
             {/* Header Section */}
             <div className="max-w-4xl mx-auto mb-8 sm:mb-12 px-4">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl amsfonts text-white mb-4 sm:mb-6 text-center tracking-tight">
@@ -125,7 +127,7 @@ const ProjectsPage = ({ projects: initialProjects = null }) => {
 
             {/* Projects Grid */}
             <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8">
+                <div className="grid grid-cols-1 gap-6 sm:gap-8">
                     {currentProjects.map((project, index) => (
                         <div
                             key={project._id}
@@ -133,68 +135,72 @@ const ProjectsPage = ({ projects: initialProjects = null }) => {
                             data-aos="fade-up"
                             data-aos-delay={index * 100}
                         >
-                            <div className="flex flex-col lg:flex-row h-full">
+                            <div className="flex flex-col lg:flex-row">
                                 {/* Project Image - Top on mobile, Left on desktop */}
-                                <div className="lg:w-1/2 relative h-48 sm:h-56 md:h-64 lg:h-80 xl:h-96 lg:min-h-[320px]">
-                                    <Image
-                                        src={project.mainImage}
-                                        alt={project.imageAlt}
-                                        fill
-                                        className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-                                        quality={85}
-                                        priority={index < 2}
-                                        sizes="(max-width: 1024px) 100vw, 50vw"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/50 to-transparent lg:bg-gradient-to-r lg:from-gray-900/70 lg:to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-300" />
+                                {/* Fixed Image Container with 16:9 aspect ratio */}
+                                <div className="lg:w-1/2 relative">
+                                    <div className="aspect-[16/9] w-full relative overflow-hidden">
+                                        <Image
+                                            src={project.mainImage}
+                                            alt={project.imageAlt}
+                                            fill
+                                            className="object-contain"
+                                            quality={90}
+                                            priority={index < 2}
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                        />
+                                        {/* Subtle gradient overlay for better text readability */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent lg:bg-gradient-to-r lg:from-gray-900/30 lg:to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-300" />
+                                    </div>
                                 </div>
 
                                 {/* Project Content - Bottom on mobile, Right on desktop */}
-                                <div className="lg:w-1/2 p-4 sm:p-6 lg:p-8 flex flex-col">
+                                <div className="lg:w-1/2 p-6 sm:p-8 flex flex-col">
                                     <div className="flex-grow">
                                         {/* Title */}
-                                        <h2 className="text-lg sm:text-xl lg:text-2xl amsfonts text-white mb-2 sm:mb-3 lg:mb-4 line-clamp-2">
+                                        <h2 className="text-xl sm:text-2xl lg:text-3xl amsfonts text-white mb-3 sm:mb-4 lg:mb-6 line-clamp-2">
                                             {project.title}
                                         </h2>
-                                        
+
                                         {/* Description */}
-                                        <p className="text-gray-400 text-xs sm:text-sm lg:text-base mb-3 sm:mb-4 lg:mb-6 leading-relaxed">
+                                        <p className="text-gray-400 text-sm sm:text-base lg:text-lg mb-4 sm:mb-6 lg:mb-8 leading-relaxed sm:leading-loose">
                                             {getTruncatedDescription(project.description)}
                                         </p>
                                     </div>
 
                                     {/* Footer with Category and Button */}
-                                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-gray-700/50">
+                                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-6 pt-4 sm:pt-6 border-t border-gray-700/50">
                                         {/* Categories */}
-                                        <div className="flex flex-wrap gap-1 sm:gap-2">
-                                            {project.categories?.slice(0, 2).map((category) => (
+                                        <div className="flex flex-wrap gap-2 sm:gap-3">
+                                            {project.categories?.slice(0, 3).map((category) => (
                                                 <span
                                                     key={category}
-                                                    className="px-2 sm:px-3 py-1 bg-purple-900/60 text-purple-100 rounded-full text-xs sm:text-sm"
+                                                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-purple-900/70 text-purple-100 rounded-full text-xs sm:text-sm font-medium"
                                                 >
                                                     {category}
                                                 </span>
                                             ))}
-                                            {project.categories?.length > 2 && (
-                                                <span className="px-2 sm:px-3 py-1 bg-gray-700/60 text-gray-300 rounded-full text-xs sm:text-sm">
-                                                    +{project.categories.length - 2}
+                                            {project.categories?.length > 3 && (
+                                                <span className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-700/60 text-gray-300 rounded-full text-xs sm:text-sm">
+                                                    +{project.categories.length - 3}
                                                 </span>
                                             )}
                                         </div>
-                                        
+
                                         {/* View Project Button */}
                                         <Link
                                             href={`/projects/${project.slug}`}
-                                            className="group/btn relative bg-gray-900/60 backdrop-blur-md border border-gray-600/30 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-medium sm:font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:bg-gray-800/80 hover:border-purple-400/40 hover:shadow-lg hover:shadow-purple-400/20 overflow-hidden w-full sm:w-auto min-w-[120px]"
+                                            className="group/btn relative bg-gray-900/80 backdrop-blur-md border border-gray-600/50 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold flex items-center justify-center gap-3 transition-all duration-300 hover:bg-gray-800/90 hover:border-purple-400/60 hover:shadow-2xl hover:shadow-purple-500/30 overflow-hidden w-full sm:w-auto"
                                         >
-                                            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-6 sm:h-8 bg-gradient-to-b from-purple-400 to-indigo-500 rounded-r-full group-hover/btn:h-7 sm:group-hover/btn:h-10 transition-all duration-300" />
-                                            <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 via-indigo-500/10 to-blue-500/10 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500" />
+                                            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-1.5 h-8 sm:h-10 bg-gradient-to-b from-purple-400 to-indigo-500 rounded-r-full group-hover/btn:h-12 transition-all duration-300" />
+                                            <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-indigo-500/20 to-blue-500/20 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500" />
                                             <motion.div
                                                 animate={{ rotate: [0, 10, 0] }}
                                                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                                             >
-                                                <FiPlay className="relative text-sm sm:text-base group-hover/btn:scale-110 transition-transform duration-300" />
+                                                <FiPlay className="relative text-lg sm:text-xl group-hover/btn:scale-110 transition-transform duration-300" />
                                             </motion.div>
-                                            <span className="relative text-xs sm:text-sm">View Project</span>
+                                            <span className="relative text-sm sm:text-base">View Project</span>
                                         </Link>
                                     </div>
                                 </div>
@@ -206,40 +212,40 @@ const ProjectsPage = ({ projects: initialProjects = null }) => {
 
             {/* Pagination Controls */}
             {totalProjects > projectsPerPage && (
-                <div className="flex justify-center mt-8 sm:mt-12 px-4">
-                    <nav className="flex flex-wrap justify-center gap-2 sm:gap-3">
+                <div className="flex justify-center mt-12 sm:mt-16 px-4">
+                    <nav className="flex flex-wrap justify-center gap-3 sm:gap-4">
                         {/* Previous Button */}
                         <div className="relative group">
                             <div className={`absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 ${currentPage === 1 ? 'opacity-50' : ''}`}></div>
                             <button
                                 onClick={() => handlePageChange(currentPage - 1)}
                                 disabled={currentPage === 1}
-                                className={`relative px-4 sm:px-6 py-2 sm:py-3 bg-gray-900 rounded-lg font-medium text-white transition-colors text-sm sm:text-base ${currentPage === 1 ? 'cursor-not-allowed opacity-75' : 'hover:text-gray-100'}`}
+                                className={`relative px-6 sm:px-8 py-3 bg-gray-900 rounded-lg font-medium text-white transition-colors text-sm sm:text-base ${currentPage === 1 ? 'cursor-not-allowed opacity-75' : 'hover:text-gray-100'}`}
                             >
                                 Previous
                             </button>
                         </div>
-                        
+
                         {/* Page Numbers */}
                         {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
                             <div key={page} className="relative group">
                                 <div className={`absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 ${currentPage === page ? 'opacity-100' : 'opacity-50'}`}></div>
                                 <button
                                     onClick={() => handlePageChange(page)}
-                                    className={`relative px-3 sm:px-4 py-2 bg-gray-900 rounded-lg font-medium transition-colors text-sm sm:text-base ${currentPage === page ? 'text-white' : 'text-gray-400 hover:text-gray-100'}`}
+                                    className={`relative px-4 sm:px-5 py-2 sm:py-3 bg-gray-900 rounded-lg font-medium transition-colors text-sm sm:text-base ${currentPage === page ? 'text-white' : 'text-gray-400 hover:text-gray-100'}`}
                                 >
                                     {page}
                                 </button>
                             </div>
                         ))}
-                        
+
                         {/* Next Button */}
                         <div className="relative group">
                             <div className={`absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 ${currentPage === totalPages ? 'opacity-50' : ''}`}></div>
                             <button
                                 onClick={() => handlePageChange(currentPage + 1)}
                                 disabled={currentPage === totalPages}
-                                className={`relative px-4 sm:px-6 py-2 sm:py-3 bg-gray-900 rounded-lg font-medium text-white transition-colors text-sm sm:text-base ${currentPage === totalPages ? 'cursor-not-allowed opacity-75' : 'hover:text-gray-100'}`}
+                                className={`relative px-6 sm:px-8 py-3 bg-gray-900 rounded-lg font-medium text-white transition-colors text-sm sm:text-base ${currentPage === totalPages ? 'cursor-not-allowed opacity-75' : 'hover:text-gray-100'}`}
                             >
                                 Next
                             </button>
