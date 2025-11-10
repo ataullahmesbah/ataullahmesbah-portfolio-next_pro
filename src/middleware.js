@@ -11,9 +11,9 @@ import { NextResponse } from 'next/server';
 const ipStats = new Map();
 
 const WINDOW_MS = 60 * 1000; // 1 minute
-const SOFT_LIMIT = 100; // 30 hits per route in 1 minute
-const TEMP_LIMIT = 500; // 100 total hits in 1 minute
-const TEMP_BLOCK_DURATION = 30 * 60 * 1000; // 30 minutes
+const SOFT_LIMIT = 300; // 30 hits per route in 1 minute
+const TEMP_LIMIT = 1500; // 100 total hits in 1 minute
+const TEMP_BLOCK_DURATION = 0 * 60 * 1000; // 30 minutes 30 * 60 * 1000;
 const MAX_WARNINGS = 3; // 3 warnings or temp blocks lead to permanent block
 
 // List of admin-only API routes
