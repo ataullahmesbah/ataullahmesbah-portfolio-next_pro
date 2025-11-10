@@ -854,7 +854,7 @@ export default function Checkout() {
                                             className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:border-purple-500"
                                         >
                                             <option value="Bangladesh">Bangladesh</option>
-                                            <option value="Other">Other</option>
+                                            {/* <option value="Other">Other</option> */}
                                         </select>
                                     </div>
 

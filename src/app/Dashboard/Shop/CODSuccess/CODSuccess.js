@@ -157,32 +157,46 @@ export default function CodSuccess() {
                     </div>
                 </div>
 
-                <div className="bg-gray-800 border border-purple-600 rounded-xl p-6 mb-6 shadow-lg">
-                    <h3 className="text-white font-bold text-lg mb-4">🧾 Order Summary</h3>
-                    <div className="space-y-2">
-                        {order.products.map((item, index) => (
-                            <div key={index} className="flex justify-between text-sm text-gray-300">
-                                <span>{item.title} (x{item.quantity})</span>
-                                <span>৳{(item.price * item.quantity).toLocaleString()}</span>
-                            </div>
-                        ))}
-                        <hr className="border-gray-600 my-3" />
-                        <div className="flex justify-between text-sm text-gray-300">
-                            <span>Shipping Charge</span>
-                            <span>৳{(order.shippingCharge || 0).toLocaleString()}</span>
+               <div className="bg-gray-800 border border-purple-600 rounded-xl p-6 mb-6 shadow-lg">
+    <h3 className="text-white font-bold text-lg mb-4">🧾 Order Summary</h3>
+    <div className="space-y-3">
+        {order.products.map((item, index) => (
+            <div key={index} className="flex justify-between items-start text-sm">
+                <div className="text-gray-300 flex-1">
+                    <div className="font-medium">{item.title}</div>
+                    {/* ✅ EI LINE TA ADD KOREN - Size Display */}
+                    {item.size && (
+                        <div className="text-xs text-purple-400 mt-1">
+                            Size: <span className="text-gray-300">{item.size}</span>
                         </div>
-                        {order.discount > 0 && (
-                            <div className="flex justify-between text-sm text-red-400">
-                                <span>Discount ({order.couponCode})</span>
-                                <span>-৳{(order.discount).toLocaleString()}</span>
-                            </div>
-                        )}
-                        <div className="flex justify-between text-base text-green-400 font-bold">
-                            <span>Total</span>
-                            <span>৳{order.total.toLocaleString()}</span>
-                        </div>
+                    )}
+                    <div className="text-xs text-gray-400 mt-1">
+                        Quantity: {item.quantity} × ৳{item.price.toLocaleString()}
                     </div>
                 </div>
+                <span className="text-gray-300 font-medium ml-4 whitespace-nowrap">
+                    ৳{(item.price * item.quantity).toLocaleString()}
+                </span>
+            </div>
+        ))}
+        
+        <hr className="border-gray-600 my-3" />
+        <div className="flex justify-between text-sm text-gray-300">
+            <span>Shipping Charge</span>
+            <span>৳{(order.shippingCharge || 0).toLocaleString()}</span>
+        </div>
+        {order.discount > 0 && (
+            <div className="flex justify-between text-sm text-red-400">
+                <span>Discount ({order.couponCode})</span>
+                <span>-৳{(order.discount).toLocaleString()}</span>
+            </div>
+        )}
+        <div className="flex justify-between text-base text-green-400 font-bold">
+            <span>Total</span>
+            <span>৳{order.total.toLocaleString()}</span>
+        </div>
+    </div>
+</div>
 
                 <div className="bg-gray-800 border border-purple-600 rounded-xl p-6 mb-6 shadow-lg">
                     <h3 className="text-white font-bold text-lg mb-4">🚚 Shipping Details</h3>

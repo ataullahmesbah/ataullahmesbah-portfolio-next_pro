@@ -294,7 +294,8 @@ export default function CartSlider({ isOpen, setIsOpen, conversionRates }) {
                                 </svg>
                             </button>
                         </div>
-                        <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(100vh-140px)]">
+
+                        <div className="p-4  space-y-4 overflow-y-auto max-h-[calc(100vh-140px)]">
                             {cart.length === 0 ? (
                                 <p className="text-gray-400 text-center text-sm font-medium">Your cart is empty</p>
                             ) : (
@@ -351,7 +352,7 @@ export default function CartSlider({ isOpen, setIsOpen, conversionRates }) {
                                 ))
                             )}
                         </div>
-                        <div className="p-4 border-t border-gray-700 bg-gray-900/80 backdrop-blur-sm fixed bottom-0 w-full sm:w-80 md:w-96">
+                        <div className=" p-4 border-t border-gray-700 bg-gray-900/80 backdrop-blur-sm fixed bottom-0 w-full sm:w-80 md:w-96">
                             <div className="flex justify-between text-sm font-semibold text-white mb-3">
                                 <span>Subtotal</span>
                                 <span>৳{getSubtotal().toLocaleString()}</span>
