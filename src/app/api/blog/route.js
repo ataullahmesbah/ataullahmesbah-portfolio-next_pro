@@ -14,7 +14,7 @@ export async function GET(request) {
         const limit = parseInt(searchParams.get('limit')) || 9;
         const skip = (page - 1) * limit;
 
-        console.log('🔍 Fetching all blogs from database...');
+
 
         // ✅ Remove status condition since it doesn't exist in your model
         const blogs = await Blog.find({})
@@ -26,13 +26,7 @@ export async function GET(request) {
 
         const totalBlogs = await Blog.countDocuments({});
 
-        console.log(`✅ Fetched ${blogs.length} blogs, total: ${totalBlogs}`);
 
-        if (blogs.length > 0) {
-            console.log('📝 Blog titles:', blogs.map(blog => blog.title));
-        } else {
-            console.log('📝 No blogs found in database');
-        }
 
         // Add default values if needed
         const blogsWithDefaults = blogs.map(blog => ({
@@ -54,7 +48,7 @@ export async function GET(request) {
             }
         });
     } catch (error) {
-        console.error('❌ GET /api/blog error:', error);
+
         return NextResponse.json({
             success: false,
             error: 'Failed to fetch blogs',

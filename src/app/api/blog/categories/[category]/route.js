@@ -14,7 +14,7 @@ export async function GET(request, { params }) {
         const skip = (page - 1) * limit;
 
         const categoryName = decodeURIComponent(params.category).replace(/-/g, ' ');
-        console.log(`🔍 Fetching blogs for category: "${categoryName}"`);
+
 
         // ✅ Remove status condition
         const blogs = await Blog.find({
@@ -38,7 +38,7 @@ export async function GET(request, { params }) {
             }
         });
 
-        console.log(`✅ Fetched ${blogs.length} blogs for category "${categoryName}", total: ${total}`);
+
 
         // Add default values
         const blogsWithDefaults = blogs.map(blog => ({
@@ -60,7 +60,7 @@ export async function GET(request, { params }) {
             }
         });
     } catch (error) {
-        console.error('❌ GET /api/blog/categories/[category] error:', error);
+
         return NextResponse.json({
             success: false,
             blogs: [],

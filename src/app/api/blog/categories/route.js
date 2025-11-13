@@ -8,9 +8,9 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     await dbConnect();
-    console.log('🔍 Fetching categories from database...');
 
-    // ✅ Remove status condition
+
+    //  Remove status condition
     const categories = await Blog.distinct('categories', {});
 
     // Filter out null/undefined and ensure array
@@ -18,7 +18,7 @@ export async function GET() {
       cat && typeof cat === 'string' && cat.trim().length > 0
     );
 
-    console.log('✅ Fetched categories:', validCategories);
+
 
     return NextResponse.json(validCategories, {
       headers: {
@@ -26,7 +26,7 @@ export async function GET() {
       }
     });
   } catch (error) {
-    console.error('❌ GET /api/blog/categories error:', error);
+
     return NextResponse.json([], {
       status: 500,
       headers: { 'Cache-Control': 'no-store' }
