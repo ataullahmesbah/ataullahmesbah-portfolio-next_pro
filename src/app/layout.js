@@ -20,7 +20,10 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         {/* Favicon */}
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+         {/* <link rel="icon" href="/favicon.png" type="image/png" /> */}
+
+        <link rel="icon" href="/log.svg" type="image/svg+xml" />
 
         {/* Viewport */}
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />

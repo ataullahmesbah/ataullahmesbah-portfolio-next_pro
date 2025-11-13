@@ -1,12 +1,7 @@
-import LetterHero from "@/app/components/News/LetterHero/LetterHero";
-
-
-
-
 const page = () => {
   return (
     <div>
-      <LetterHero />
+     Barca
     </div>
   );
 };
