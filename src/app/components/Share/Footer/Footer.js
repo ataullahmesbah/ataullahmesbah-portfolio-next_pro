@@ -104,6 +104,10 @@ const Footer = () => {
                             <IoCallOutline />
                             +8809638844036
                         </p>
+                        <p className="text-base text-gray-100 mt-2 text-center md:text-left flex items-center gap-3">
+                            <IoCallOutline />
+                           +8801571083401
+                        </p>
                         {/* Newsletter Section */}
                         <div className="lg:col-span-1 mt-2">
                             {/* <h6 className="font-semibold text-white mb-3 amsfonts text-center md:text-left">Stay Updated</h6> */}

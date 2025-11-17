@@ -21,7 +21,7 @@ const ContactPage = () => {
             icon: <FaPhone className="text-2xl" />,
             title: "Phone Numbers",
             content: "+8809638844036",
-            additionalContent: "+8801732-183389",
+            additionalContent: "+8801571083401",
             color: "blue",
             link: "tel:+8809638844036"
         },
@@ -141,7 +141,7 @@ const ContactPage = () => {
                                                         {item.content}
                                                     </a>
                                                     <a
-                                                        href="tel:+8801732183389"
+                                                        href="tel:+8801571083401"
                                                         className="block text-xs sm:text-sm text-gray-300 hover:text-white transition-colors duration-200"
                                                     >
                                                         {item.additionalContent}

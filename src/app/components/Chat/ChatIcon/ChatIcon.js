@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
-// একটি নতুন এবং উন্নত WhatsApp আইকন (SVG)
+
 const WhatsAppIcon = () => (
   <svg
     width="24"
@@ -19,7 +19,7 @@ export default function ChatIcon() {
   const [isHovered, setIsHovered] = useState(false);
 
   // আপনার WhatsApp নম্বরটি এখানে দিন (কান্ট্রি কোডসহ, কিন্তু '+' ছাড়া)
-  const YOUR_PHONE_NUMBER = '8801627346245';
+  const YOUR_PHONE_NUMBER = '8801571083401';
 
   // ব্যবহারকারীকে দেখানোর জন্য একটি পূর্ব-নির্ধারিত মেসেজ
   const PRE_FILLED_MESSAGE = 'Hello, I would like to know more about your services.';
@@ -47,7 +47,7 @@ export default function ChatIcon() {
       >
         Chat on WhatsApp
       </motion.div>
-      
+
       {/* WhatsApp Button */}
       <motion.button
         whileHover={{ scale: 1.1 }}
