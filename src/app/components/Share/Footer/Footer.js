@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { FaFacebookF, FaTwitter, FaLinkedinIn, FaGithub } from 'react-icons/fa';
 import { FiPlay } from 'react-icons/fi';
 import { IoCallOutline } from "react-icons/io5";
+import MainLogo from '../MainLogo/MainLogo';
 
 const Footer = () => {
     return (
@@ -11,61 +12,11 @@ const Footer = () => {
                     {/* Logo and Description */}
                     <div className="lg:col-span-1">
                         <div className="flex justify-center md:justify-start">
-                            <svg
-                                id="Layer_1"
-                                data-name="Layer 1"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 700.15 57.69"
-                                className="w-full max-w-xs h-auto"
-                            >
-                                <defs>
-                                    <style>
-                                        {`.cls-1, .cls-3, .cls-4 {
-                                            fill: #fff;
-                                        }
-                                        .cls-1 {
-                                            stroke: #e6e6e6;
-                                            stroke-miterlimit: 10;
-                                            stroke-width: 2px;
-                                        }
-                                        .cls-2 {
-                                            font-size: 31px;
-                                            font-family: BritannicBold, Britannic;
-                                        }
-                                        .cls-3 {
-                                            font-size: 38px;
-                                            font-family: BritannicBold, Britannic Regular;
-                                        }`}
-                                    </style>
-                                </defs>
-                                <rect
-                                    className="cls-1"
-                                    x="150.01"
-                                    y="4.95"
-                                    width="49"
-                                    height="36.35"
-                                    rx="8.75"
-                                />
-                                <text
-                                    className="cls-2"
-                                    transform="translate(155.72 31.58) scale(0.96 1)"
-                                >
-                                    am
-                                </text>
-                                <text
-                                    className="cls-3"
-                                    transform="translate(0 33.34) scale(1.03 1)"
-                                >
-                                    ataullah
-                                </text>
-                                <text className="cls-3" transform="translate(205 33.34)">
-                                    mesbah
-                                </text>
-                                <polygon
-                                    className="cls-4"
-                                    points="47.06 49.22 284.59 49.22 57.65 57.69 47.06 49.22"
-                                />
-                            </svg>
+
+
+
+
+                            <MainLogo />
                         </div>
                         <p className="text-sm mt-3 text-center md:text-left">Web Developer | SEO Specialist | Traveler</p>
                         <p className="text-xs text-gray-400 mt-2 text-center md:text-left">
@@ -106,7 +57,7 @@ const Footer = () => {
                         </p>
                         <p className="text-base text-gray-100 mt-2 text-center md:text-left flex items-center gap-3">
                             <IoCallOutline />
-                           +8801571083401
+                            +8801571083401
                         </p>
                         {/* Newsletter Section */}
                         <div className="lg:col-span-1 mt-2">

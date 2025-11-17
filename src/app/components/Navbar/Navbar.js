@@ -6,6 +6,7 @@ import { FaBars, FaTimes, FaCaretUp, FaCaretDown, FaUserGraduate, FaShoppingCart
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
 import CartSlider from '@/app/Dashboard/Shop/CartSlider/CartSlider';
+import MainLogo from '../Share/MainLogo/MainLogo';
 
 const Navbar = () => {
     const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
@@ -178,7 +179,7 @@ const Navbar = () => {
                 <nav className="flex poppins-regular container mx-auto justify-between text-white items-center px-4">
                     {/* Logo */}
                     <Link href="/">
-                        <h1 className="flex justify-center items-center">
+                        <h1 className="flex justify-center items-center ">
                             <svg
                                 id="Layer_1"
                                 data-name="Layer 1"
@@ -234,6 +235,9 @@ const Navbar = () => {
                                     points="47.06 49.22 284.59 49.22 57.65 57.69 47.06 49.22"
                                 />
                             </svg>
+
+
+                            {/* <MainLogo /> */}
                         </h1>
                     </Link>
 
