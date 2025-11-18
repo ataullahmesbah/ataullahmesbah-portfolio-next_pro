@@ -13,7 +13,15 @@ export const metadata = {
         "WordPress customization",
         "web performance optimization",
         "Ataullah Mesbah",
-        "MERN stack development",
+        "Full stack development",
+        "React developer Bangladesh",
+        "Next.js developer Dhaka"
+    ],
+    authors: [
+        {
+            name: "Ataullah Mesbah",
+            url: "https://www.ataullahmesbah.com"
+        }
     ],
     alternates: {
         canonical: "https://www.ataullahmesbah.com/web-development",
@@ -53,6 +61,11 @@ export const metadata = {
             "max-snippet": -1,
         },
     },
+    other: {
+        "contact": "+8801571083401",
+        "email": "contact@ataullahmesbah.com",
+        "location": "Dhaka, Bangladesh"
+    }
 };
 
 export const revalidate = 3600; // Revalidate every hour for ISR

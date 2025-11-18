@@ -28,12 +28,89 @@ const WebSchemaWrapper = ({ page }) => {
                     "https://www.linkedin.com/in/ataullah-mesbah",
                     "https://x.com/ataullah_mesbah"
                 ],
-                "contactPoint": {
+                "contactPoint":
+
+                {
                     "@type": "ContactPoint",
-                    "contactType": "customer support",
+                    "telephone": "+8801571083401",
                     "email": "info@ataullahmesbah.com",
-                    "url": "https://www.ataullahmesbah.com/contact"
+                    "url": "https://www.ataullahmesbah.com/contact",
+                    "contactType": ["customer service", "technical support"],
+                    "areaServed": "BD",
+                    "availableLanguage": ["English", "Bengali"],
+                    "hoursAvailable": {
+                        "@type": "OpeningHoursSpecification",
+                        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+                        "opens": "09:00",
+                        "closes": "22:00"
+                    }
                 }
+
+            },
+
+            {
+                "@type": "LocalBusiness",
+                "name": "Ataullah Mesbah Web Solutions",
+                "description": "Professional Full Stack Web Developer specializing in React, Next.js, and scalable web applications",
+                "url": "https://www.ataullahmesbah.com",
+                "telephone": "+8801571083401",
+                "email": "contact@ataullahmesbah.com",
+                "address": {
+                    "@type": "PostalAddress",
+                    "addressCountry": "BD",
+                    "addressRegion": "Dhaka",
+                    "addressLocality": "Dhaka"
+                },
+                "geo": {
+                    "@type": "GeoCoordinates",
+                    "latitude": "23.8103",
+                    "longitude": "90.4125"
+                },
+                "openingHours": "Mo-Su 09:00-22:00",
+                "priceRange": "$$",
+                "areaServed": "Worldwide",
+                "sameAs": [
+                    "https://www.linkedin.com/in/ataullah-mesbah",
+                    "https://x.com/ataullah_mesbah"
+                ],
+                "serviceArea": {
+                    "@type": "GeoCircle",
+                    "geoMidpoint": {
+                        "@type": "GeoCoordinates",
+                        "latitude": "23.8103",
+                        "longitude": "90.4125"
+                    },
+                    "geoRadius": "50000"
+                }
+            },
+
+
+
+            //  Person Schema এ contact info 
+            {
+                "@type": "Person",
+                "name": "Ataullah Mesbah",
+                "url": "https://www.ataullahmesbah.com",
+                "telephone": "+8801571083401",
+                "email": "contact@ataullahmesbah.com",
+                "jobTitle": "Full Stack Developer",
+                "skills": "React, Next.js, Node.js, MongoDB, Express.js, CSS, SaaS, API Integration, Database Design",
+                "knowsAbout": [
+                    "Web Development",
+                    "Full Stack Development",
+                    "Ecommerce Solutions",
+                    "SEO Optimization",
+                    "Responsive Design",
+                    "Database Management",
+                    "API Integration",
+                    "Performance Optimization"
+                ],
+                "sameAs": [
+                    "https://www.linkedin.com/in/ataullah-mesbah",
+                    "https://x.com/ataullah_mesbah",
+                    "https://github.com/ataullahmesbah"
+                ],
+                "description": "Professional Full Stack Developer specializing in building scalable, responsive websites and web applications with modern technologies."
             },
 
             // ✅ Main Service

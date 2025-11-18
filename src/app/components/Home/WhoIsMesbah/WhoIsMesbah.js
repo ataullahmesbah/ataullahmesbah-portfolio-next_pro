@@ -63,16 +63,15 @@ const WhoIsMesbah = () => {
                         </div>
 
                         <div className="space-y-5 text-gray-300 leading-relaxed">
+                            <div className="p">
+                                Beginning in a rural <span className="text-purple-400 font-medium">Bangladeshi village</span>, Ataullah’s curiosity for technology sparked an extraordinary journey from local classrooms to global digital landscapes.
+                            </div>
                             <p>
-                                Beginning in the rural village of <span className="text-purple-400 font-medium">Sirajpur, Bangladesh</span>,
-                                Ataullah’s curiosity for technology sparked an extraordinary journey from local
-                                classrooms to global digital landscapes.
+                                EEE engineer turned <span className="text-purple-400 font-medium">Full Stack Developer</span>  and <span className="text-purple-400 font-medium">SEO Specialist</span>.
+                                Develops digital solutions powered by <span className="text-sky-400">AI Automation</span> for global clients, blending engineering excellence with cutting-edge innovation.
+
                             </p>
-                            <p>
-                                His academic foundation at <span className="text-sky-400">Southeast University</span> propelled him into becoming
-                                a <span className="text-purple-400 font-medium">Full Stack Developer</span> and <span className="text-purple-400 font-medium">SEO Specialist</span>,
-                                crafting solutions for international clients while maintaining his roots in Bangladeshi culture.
-                            </p>
+                            
                             <p>
                                 This unique blend of rural beginnings and global tech experience informs his innovative
                                 approach to digital problem-solving.
@@ -82,7 +81,7 @@ const WhoIsMesbah = () => {
                         {/* Key Metrics */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
                             {[
-                                { value: "Sirajpur", label: "Roots", color: "text-purple-400" },
+                                { value: "BD", label: "Roots", color: "text-purple-400" },
                                 { value: "100+", label: "Projects", color: "text-sky-400" },
                                 { value: "15+", label: "Countries", color: "text-purple-400" },
                                 { value: "6+", label: "Years Exp", color: "text-sky-400" }

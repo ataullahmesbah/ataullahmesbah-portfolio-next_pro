@@ -4,83 +4,115 @@ import BlogSkeleton from '@/app/components/Blog/BlogSkeleton/BlogSkeleton';
 import { Suspense } from 'react';
 
 export async function generateMetadata({ searchParams }) {
-  const page = parseInt(searchParams.page) || 1;
-  const isFirstPage = page === 1;
+  try {
 
-  // Dynamic titles and descriptions
-  const title = isFirstPage
-    ? 'Blog | Ataullah Mesbah - AI, Tech & Web Deves'
-    : `Blog - Page ${page} | Ataullah Mesbah - Technology Insights`;
+    const page = parseInt(searchParams.page) || 1;
+    const isFirstPage = page === 1;
 
-  const description = isFirstPage
-    ? 'Explore expert insights on AI, quantum computing, web development, and emerging technologies. Latest tutorials, guides, and tech trends by Ataullah Mesbah.'
-    : `Page ${page} of technology blog featuring AI, quantum computing, and web development insights. Discover cutting-edge tutorials and guides.`;
+    // Dynamic titles and descriptions
+    const title = isFirstPage
+      ? 'Blog | Ataullah Mesbah - AI, Tech & Web Development'
+      : `Blog - Page ${page} | Ataullah Mesbah - Technology Insights`;
 
-  const keywords = isFirstPage
-    ? 'blog, Ataullah Mesbah, AI artificial intelligence, quantum computing, web development, next.js, react, technology blog, programming tutorials, tech insights'
-    : `blog page ${page}, technology articles, AI tutorials, web development guides, quantum computing insights`;
+    const description = isFirstPage
+      ? 'Explore expert insights on AI, quantum computing, web development, and emerging technologies. Latest tutorials, guides, and tech trends by Ataullah Mesbah.'
+      : `Page ${page} of technology blog featuring AI, quantum computing, and web development insights. Discover cutting-edge tutorials and guides.`;
 
-  const canonicalUrl = isFirstPage
-    ? 'https://ataullahmesbah.com/blog'
-    : `https://ataullahmesbah.com/blog?page=${page}`;
+    const keywords = isFirstPage
+      ? 'blog, Ataullah Mesbah, AI artificial intelligence, quantum computing, web development, next.js, react, technology blog, programming tutorials, tech insights'
+      : `blog page ${page}, technology articles, AI tutorials, web development guides, quantum computing insights`;
 
-  return {
-    title,
-    description,
-    keywords,
-    authors: [{ name: 'Ataullah Mesbah' }],
-    creator: 'Ataullah Mesbah',
-    publisher: 'Ataullah Mesbah',
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
-    alternates: {
-      canonical: canonicalUrl,
-      languages: {
-        'en-US': canonicalUrl,
-      },
-    },
-    openGraph: {
+    const canonicalUrl = isFirstPage
+      ? 'https://ataullahmesbah.com/blog'
+      : `https://ataullahmesbah.com/blog?page=${page}`;
+
+    return {
       title,
       description,
-      url: canonicalUrl,
-      type: 'website',
-      siteName: 'Ataullah Mesbah',
-      locale: 'en_US',
-      images: [
-        {
+      keywords,
+      authors: [{ name: 'Ataullah Mesbah' }],
+      creator: 'Ataullah Mesbah',
+      publisher: 'Ataullah Mesbah',
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+        },
+      },
+      alternates: {
+        canonical: canonicalUrl,
+        languages: {
+          'en-US': canonicalUrl,
+        },
+      },
+      openGraph: {
+        title,
+        description,
+        url: canonicalUrl,
+        type: 'website',
+        siteName: 'Ataullah Mesbah',
+        locale: 'en_US',
+        images: [
+          {
+            url: 'https://ataullahmesbah.com/images/og-blog.jpg',
+            width: 1200,
+            height: 630,
+            alt: 'Ataullah Mesbah Blog - Technology Insights & Tutorials',
+            type: 'image/jpeg',
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        site: '@ataullahmesbah',
+        creator: '@ataullahmesbah',
+        title,
+        description,
+        images: ['https://ataullahmesbah.com/images/og-blog.jpg'],
+      },
+      verification: {
+        // Add your verification codes here
+        google: 'your-google-verification-code',
+        yandex: 'your-yandex-verification-code',
+        yahoo: 'your-yahoo-verification-code',
+      },
+    };
+  } catch (error) {
+
+    // ✅ Simple fallback metadata without console.log
+    return {
+      title: 'Blog | Ataullah Mesbah - Technology Insights & Tutorials',
+      description: 'Explore expert insights on AI, quantum computing, web development, and emerging technologies. Latest tutorials and tech trends by Ataullah Mesbah.',
+      keywords: 'blog, Ataullah Mesbah, AI, quantum computing, web development, technology blog',
+      authors: [{ name: 'Ataullah Mesbah' }],
+      robots: {
+        index: true,
+        follow: true,
+      },
+      alternates: {
+        canonical: 'https://ataullahmesbah.com/blog',
+      },
+      openGraph: {
+        title: 'Blog | Ataullah Mesbah - Technology Insights',
+        description: 'Explore expert insights on AI, quantum computing, web development, and emerging technologies.',
+        url: 'https://ataullahmesbah.com/blog',
+        siteName: 'Ataullah Mesbah',
+        images: [{
           url: 'https://ataullahmesbah.com/images/og-blog.jpg',
           width: 1200,
           height: 630,
-          alt: 'Ataullah Mesbah Blog - Technology Insights & Tutorials',
-          type: 'image/jpeg',
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      site: '@ataullahmesbah',
-      creator: '@ataullahmesbah',
-      title,
-      description,
-      images: ['https://ataullahmesbah.com/images/og-blog.jpg'],
-    },
-    verification: {
-      // Add your verification codes here
-      google: 'your-google-verification-code',
-      yandex: 'your-yandex-verification-code',
-      yahoo: 'your-yahoo-verification-code',
-    },
-  };
+          alt: 'Ataullah Mesbah Blog',
+        }],
+      },
+    };
+  }
 }
+
 
 // Generate static params for better SEO (SSG)
 export async function generateStaticParams() {
@@ -105,6 +137,7 @@ export default function BlogPage({ searchParams }) {
   const page = parseInt(searchParams.page) || 1;
 
   // Breadcrumb schema for better SEO
+  // Replace current breadcrumb with this:
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -119,8 +152,14 @@ export default function BlogPage({ searchParams }) {
         '@type': 'ListItem',
         'position': 2,
         'name': 'Blog',
-        'item': `https://ataullahmesbah.com/blog${page > 1 ? `?page=${page}` : ''}`
-      }
+        'item': 'https://ataullahmesbah.com/blog'
+      },
+      ...(page > 1 ? [{
+        '@type': 'ListItem',
+        'position': 3,
+        'name': `Page ${page}`,
+        'item': `https://ataullahmesbah.com/blog?page=${page}`
+      }] : [])
     ]
   };
 
@@ -141,3 +180,4 @@ export default function BlogPage({ searchParams }) {
     </>
   );
 }
+

@@ -68,6 +68,22 @@ export default async function BlogContent({ searchParams }) {
         }
     };
 
+    //  Add this schema
+    const blogSchema = {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "Ataullah Mesbah Blog",
+        "description": "Technology blog featuring AI, quantum computing, and web development insights",
+        "url": "https://ataullahmesbah.com/blog",
+        "publisher": {
+            "@type": "Person",
+            "name": "Ataullah Mesbah",
+            "url": "https://ataullahmesbah.com"
+        },
+        "inLanguage": "en-US",
+        "isFamilyFriendly": true
+    };
+
     const collectionSchema = {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
