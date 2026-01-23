@@ -33,7 +33,7 @@ export async function GET(req) {
             headers: { 'Content-Type': 'application/json' }
         });
     } catch (error) {
-        console.error("Error fetching user profile statistics:", error);
+   
         return new Response(JSON.stringify({
             error: 'Failed to fetch statistics',
             message: error.message

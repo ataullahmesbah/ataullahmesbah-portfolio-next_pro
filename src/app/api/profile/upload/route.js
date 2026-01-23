@@ -59,7 +59,7 @@ export async function POST(req) {
 
     return NextResponse.json({ profile: userProfile }, { status: 200 });
   } catch (error) {
-    console.error('Error in API route:', error);
+  
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
   }
 }

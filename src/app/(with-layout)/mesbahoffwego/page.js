@@ -87,14 +87,14 @@ export async function generateMetadata() {
                 images: [featuredImage],
             },
             verification: {
-                google: "your-google-verification-code", // Add from Google Search Console
+                google: "your-google-verification-code", 
                 yandex: "your-yandex-verification-code",
                 yahoo: "your-yahoo-verification-code",
             },
             category: "Travel",
         };
     } catch (error) {
-        console.error('Metadata generation error:', error);
+      
         return {
             title: "Mesbah Off We Go - Travel Adventures & Global Explorations",
             description: "Join Ataullah Mesbah on global travel adventures. Discover historical sites, cultural experiences, and stunning photo galleries.",

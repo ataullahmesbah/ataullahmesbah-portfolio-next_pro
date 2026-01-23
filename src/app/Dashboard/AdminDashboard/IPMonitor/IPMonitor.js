@@ -30,7 +30,7 @@ export default function IPMonitor() {
         });
         if (!res.ok) throw new Error('Failed to fetch IP logs');
         const data = await res.json();
-        console.log('Fetched data:', data);
+       
         setLogs(data.logs || []);
         setIpCounts(data.ipCounts || []);
         setBlockedIPs(data.blockedIPs || []);

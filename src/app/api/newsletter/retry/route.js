@@ -103,7 +103,7 @@ export async function POST(request) {
         });
 
     } catch (error) {
-        console.error("Retry process failed:", error);
+     
         return NextResponse.json(
             {
                 error: "Retry process failed",

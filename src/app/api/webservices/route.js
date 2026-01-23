@@ -10,7 +10,7 @@ export async function GET() {
         const webservices = await db.collection("webservices").find({}).toArray();
 
         if (!webservices.length) {
-            console.warn("⚠️ No web services found in the database.");
+
         }
 
         return new Response(JSON.stringify(webservices), {
@@ -18,7 +18,7 @@ export async function GET() {
             headers: { "Content-Type": "application/json" },
         });
     } catch (error) {
-        console.error("❌ Failed to fetch web services:", error);
+
         return new Response(
             JSON.stringify({ message: "Failed to fetch web services" }),
             { status: 500 }

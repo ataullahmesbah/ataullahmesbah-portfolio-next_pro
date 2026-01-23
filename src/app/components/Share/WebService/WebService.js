@@ -15,13 +15,13 @@ const WebService = () => {
                 if (!res.ok) throw new Error('Network response was not ok');
 
                 const data = await res.json();
-                console.log('Fetched Data:', data);  // Log to inspect the data structure
+
 
                 const groupedServices = data.map(section => ({
                     title: section.category,
                     services: section.services,
                 }));
-                console.log('Grouped Sections:', groupedServices);  // Log the grouped data
+
 
                 setServiceSections(groupedServices);
             } catch (error) {

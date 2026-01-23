@@ -32,11 +32,11 @@ export async function PUT(request) {
             affiliate.affiliateCode = shortUUID.generate();
         }
         await affiliate.save();
-        console.log('Affiliate updated:', affiliate); // Debug update
+       
 
         return NextResponse.json({ message: `Affiliate ${status}`, affiliate });
     } catch (error) {
-        console.error('Manage affiliate error:', error);
+    
         return NextResponse.json({ message: 'Failed to manage affiliate', error: error.message }, { status: 500 });
     }
 }

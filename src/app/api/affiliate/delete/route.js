@@ -28,11 +28,11 @@ export async function DELETE(request) {
         // Delete affiliate and related transactions
         await Affiliate.deleteOne({ _id: id });
         await AffiliateTransaction.deleteMany({ affiliateId: id });
-        console.log('Affiliate deleted:', { id }); // Debug
+      
 
         return NextResponse.json({ message: 'Affiliate deleted successfully' });
     } catch (error) {
-        console.error('Delete affiliate error:', error);
+    
         return NextResponse.json({ message: 'Failed to delete affiliate', error: error.message }, { status: 500 });
     }
 }

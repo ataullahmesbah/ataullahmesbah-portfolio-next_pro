@@ -57,7 +57,7 @@ const ProjectsPage = ({ projects: initialProjects = null }) => {
                 );
                 setProjects(sortedProjects);
             } catch (err) {
-                console.error('Error fetching projects:', err);
+             
                 setError(err.message);
             } finally {
                 setLoading(false);

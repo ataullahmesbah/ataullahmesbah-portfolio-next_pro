@@ -14,7 +14,7 @@ export const showSuccessToast = (message) => {
             theme: "dark",
         });
     } else {
-        console.log('✅', message);
+        // console.log('✅', message);
     }
 };
 

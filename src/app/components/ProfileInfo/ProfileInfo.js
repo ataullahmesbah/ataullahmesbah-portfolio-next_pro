@@ -44,7 +44,7 @@ export default function ProfileInfo() {
     const fetchProfile = async () => {
         if (status === 'authenticated' && session?.user?.id) {
             try {
-                console.log('Fetching profile for user:', session.user.id);
+
                 const response = await fetch(`/api/profile/${session.user.id}`);
 
                 if (!response.ok) {
@@ -52,16 +52,16 @@ export default function ProfileInfo() {
                 }
 
                 const data = await response.json();
-                console.log('Profile data:', data);
+
 
                 if (data.profile || data.user) {
                     setProfile(data.profile || {});
                     setUser(data.user || {});
                 } else {
-                    console.error('No profile or user data received');
+                    //
                 }
             } catch (error) {
-                console.error('Error fetching profile:', error);
+
                 toast.error('Failed to load profile');
             }
         }
@@ -110,7 +110,7 @@ export default function ProfileInfo() {
             }
         } catch (error) {
             setLoading(false);
-            console.error('Error submitting verification:', error);
+
             toast.error('Something went wrong');
         }
     };

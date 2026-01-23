@@ -18,7 +18,7 @@ export async function GET(request) {
             .limit(limit)
             .lean();
 
-        console.log(`✅ Fetched ${trendingBlogs.length} trending blogs`);
+
 
         return NextResponse.json({
             success: true,
@@ -29,7 +29,7 @@ export async function GET(request) {
             }
         });
     } catch (error) {
-        console.error('❌ GET /api/blog/trending error:', error);
+
 
         // Fallback dummy data if database fails
         const fallbackBlogs = [

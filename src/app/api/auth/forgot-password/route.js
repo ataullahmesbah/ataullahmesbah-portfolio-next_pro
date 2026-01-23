@@ -36,7 +36,7 @@ export async function POST(req) {
 
         return NextResponse.json({ message: 'Verification code sent successfully' });
     } catch (error) {
-        console.error('Forgot password error:', error);
+      
         return NextResponse.json({ message: 'Failed to process request' }, { status: 500 });
     }
 }

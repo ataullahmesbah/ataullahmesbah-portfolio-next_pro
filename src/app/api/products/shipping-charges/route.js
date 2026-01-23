@@ -8,19 +8,19 @@ export async function GET() {
     try {
         await dbConnect(); // Use dbConnect instead of direct mongoose.connect
         const charges = await ShippingCharge.find({}).lean();
-        console.log('Fetched Shipping Charges:', charges);
+
         if (charges.length === 0) {
             await ShippingCharge.insertMany([
                 { type: 'Dhaka-Chattogram', charge: 100 },
                 { type: 'Others', charge: 150 }
             ]);
             const defaultCharges = await ShippingCharge.find({}).lean();
-            console.log('Initialized Default Shipping Charges:', defaultCharges);
+
             return NextResponse.json(defaultCharges, { status: 200 });
         }
         return NextResponse.json(charges, { status: 200 });
     } catch (error) {
-        console.error('Error fetching shipping charges:', error);
+
         return NextResponse.json({ error: 'Failed to fetch shipping charges' }, { status: 500 });
     }
 }
@@ -51,7 +51,7 @@ export async function POST(request) {
 
         return NextResponse.json({ message: 'Shipping charges updated' }, { status: 200 });
     } catch (error) {
-        console.error('Error updating shipping charges:', error);
+
         return NextResponse.json({ error: 'Failed to update shipping charges: ' + error.message }, { status: 500 });
     }
 }

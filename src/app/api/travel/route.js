@@ -25,7 +25,7 @@ export async function GET(req) {
       return new Response(JSON.stringify(travels), { status: 200 });
     }
   } catch (error) {
-    console.error('GET Error:', error);
+
     return new Response(
       JSON.stringify({ error: 'Failed to fetch travel data' }),
       { status: 500 }

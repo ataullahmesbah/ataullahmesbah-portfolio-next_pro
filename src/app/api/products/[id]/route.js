@@ -39,7 +39,7 @@ export async function GET(request, { params }) {
         }
         return Response.json(product, { status: 200 });
     } catch (error) {
-        console.error('Error fetching product:', error);
+
         return Response.json({ error: `Failed to fetch product: ${error.message}` }, { status: 500 });
     }
 }
@@ -97,7 +97,7 @@ export async function PUT(request, { params }) {
         }
 
         const formData = await request.formData();
-        console.log('Received formData keys:', [...formData.keys()]);
+
 
         // Extract form data
         const title = formData.get('title');
@@ -417,10 +417,12 @@ export async function PUT(request, { params }) {
             return Response.json({ error: 'Product not found' }, { status: 404 });
         }
 
-        console.log('Updated product:', JSON.stringify(product, null, 2));
+
+
         return Response.json({ message: 'Product updated', product }, { status: 200 });
     } catch (error) {
-        console.error('Error updating product:', error);
+
+
         if (error.name === 'ValidationError') {
             const errors = Object.values(error.errors).map((err) => err.message);
             return Response.json({ error: `Validation failed: ${errors.join(', ')}` }, { status: 400 });

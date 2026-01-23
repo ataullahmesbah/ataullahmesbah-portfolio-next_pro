@@ -153,7 +153,7 @@ export async function POST(req) {
                     // Optional: Validate markdown syntax (basic check for [text](url))
                     const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
                     if (item.data.match(markdownLinkRegex)) {
-                        console.log('Markdown hyperlinks detected in text:', item.data);
+
                     }
                     return {
                         type: 'text',
@@ -206,7 +206,7 @@ export async function POST(req) {
             { status: 201 }
         );
     } catch (error) {
-        console.error('Blog creation error:', error);
+
         return NextResponse.json(
             { success: false, error: error.message || 'Failed to create blog post' },
             { status: 500 }
@@ -235,7 +235,7 @@ export async function DELETE(request) {
             headers: { 'Content-Type': 'application/json' },
         });
     } catch (error) {
-        console.error("Error deleting blog:", error);
+
         return new Response(JSON.stringify({ error: 'Failed to delete blog' }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' },

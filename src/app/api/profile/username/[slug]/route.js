@@ -26,7 +26,7 @@ export async function GET(request, { params }) {
 
         return Response.json({ success: true, data: responseData });
     } catch (error) {
-        console.error('Error fetching profile:', error);
+      
         return Response.json({ success: false, message: 'Internal server error' }, { status: 500 });
     }
 }

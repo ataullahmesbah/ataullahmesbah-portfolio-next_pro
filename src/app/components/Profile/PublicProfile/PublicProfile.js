@@ -54,7 +54,7 @@ export default function PublicProfile({ username: propUsername }) {
                 // Update tab title dynamically
                 document.title = `${data.user.displayName || data.user.username} - ${data.profile?.title || 'Professional'} in ${data.profile?.location || 'Unknown Location'} | Ataullah Mesbah`;
             } catch (error) {
-                console.error('Error:', error);
+             
             } finally {
                 setLoading(false);
             }

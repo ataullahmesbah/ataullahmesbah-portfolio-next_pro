@@ -108,7 +108,7 @@ export async function GET() {
             metaDescExceeding,
         }, { status: 200 });
     } catch (error) {
-        console.error('Error fetching project stats:', error);
+       
         return NextResponse.json({ error: 'Failed to fetch statistics', message: error.message }, { status: 500 });
     }
 }

@@ -59,10 +59,10 @@ export async function GET(request) {
             },
         ]);
 
-        console.log('All affiliates fetched:', affiliates); // Debug
+      
         return NextResponse.json(affiliates);
     } catch (error) {
-        console.error('Fetch all affiliates error:', error);
+     
         return NextResponse.json({ message: 'Failed to fetch affiliates', error: error.message }, { status: 500 });
     }
 }

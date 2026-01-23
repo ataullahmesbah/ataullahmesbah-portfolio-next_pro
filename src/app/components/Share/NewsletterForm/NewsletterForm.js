@@ -36,7 +36,7 @@ const NewsletterForm = () => {
             e.target.reset();
 
         } catch (error) {
-            console.error('Subscription error:', error);
+       
 
             let errorMessage = error.message;
 

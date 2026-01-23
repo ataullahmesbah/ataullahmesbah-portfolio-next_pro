@@ -61,7 +61,7 @@ const ProjectsTabs = ({ projects: initialProjects = null }) => {
 
         if (retryCount.current < maxRetries) {
           retryCount.current += 1;
-          console.log(`Retrying fetch... Attempt ${retryCount.current}`);
+         
           setTimeout(fetchProjects, 1000 * retryCount.current);
         } else {
           setError('Failed to load projects. Please try again later.');

@@ -65,7 +65,7 @@ export async function POST(request) {
 
     try {
         const formData = await request.formData();
-        console.log('Received formData keys:', [...formData.keys()]); // ইতিমধ্যে আছে
+      
         if (formData.get('isGlobal') !== 'true') {
             if (!formData.get('targetCountry')?.trim()) {
                 return Response.json({ error: 'Target country is required when not global' }, { status: 400 });
@@ -229,8 +229,7 @@ export async function POST(request) {
         // Upload additional images (max 5) and pair with ALT texts
         let additionalImagesFiles = formData.getAll('additionalImages').filter((file) => file instanceof File && file.size > 0);
         const additionalAlts = formData.getAll('additionalAlts') || [];
-        console.log('additionalImagesFiles:', additionalImagesFiles.map(f => f.name)); // Debug log
-        console.log('additionalAlts:', additionalAlts); // Debug log
+        
 
         const additionalImages = await Promise.all(
             additionalImagesFiles.slice(0, 5).map(async (file, index) => {
@@ -261,7 +260,7 @@ export async function POST(request) {
                 };
             })
         );
-        console.log('Processed additionalImages:', additionalImages); // Debug log
+
 
         // Process bullet points
         const bulletPoints = formData.get('bulletPoints')
@@ -387,7 +386,7 @@ export async function POST(request) {
             isGlobal: formData.get('isGlobal') === 'true',
         });
 
-        console.log('Product to save:', JSON.stringify(product, null, 2)); // Debug log
+     
         await product.save();
         return Response.json(product, { status: 201 });
     } catch (error) {

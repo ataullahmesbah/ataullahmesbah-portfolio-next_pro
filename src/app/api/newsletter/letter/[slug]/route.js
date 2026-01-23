@@ -34,7 +34,7 @@ export async function GET(request, { params }) {
 
     return NextResponse.json(newsletter, { status: 200 });
   } catch (error) {
-    console.error('Error fetching newsletter:', error);
+
     return NextResponse.json(
       { error: 'Failed to fetch newsletter', message: error.message },
       { status: 500 }

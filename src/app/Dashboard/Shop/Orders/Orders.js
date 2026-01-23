@@ -563,8 +563,7 @@ export default function OrdersPage() {
                                 </button>
                             </div>
 
-                            {/* Debug: Log products to check size field */}
-                            {console.log('Selected Order Products:', JSON.stringify(selectedOrder.products, null, 2))}
+                           
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
                                 {/* Divider for Desktop */}

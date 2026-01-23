@@ -41,7 +41,7 @@ async function fetchStories(page = 1, limit = 9) {
         const data = await res.json();
         return data;
     } catch (error) {
-        console.error('Error fetching stories:', error);
+    
         return { stories: [], total: 0, page: 1, pages: 1 };
     }
 }

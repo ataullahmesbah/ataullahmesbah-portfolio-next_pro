@@ -28,12 +28,11 @@ export async function GET(request) {
         const affiliate = await Affiliate.findOne({ userId }).populate('userId', 'name email');
         const transactions = await AffiliateTransaction.find({ userId }).populate('productId', 'name');
 
-        console.log('User session:', session); // Debug
-        console.log('Affiliate data:', { affiliate, transactions }); // Debug
+
 
         return NextResponse.json({ affiliate, transactions });
     } catch (error) {
-        console.error('Fetch affiliate user error:', error);
+
         return NextResponse.json({ message: 'Failed to fetch affiliate data', error: error.message }, { status: 500 });
     }
 }

@@ -53,7 +53,7 @@ export async function generateMetadata({ params }) {
       },
     };
   } catch (error) {
-    console.error('Error generating metadata:', error);
+    // console.error('Error generating metadata:', error);
     return {
       title: 'Error - Ataullah Mesbah',
       description: 'An error occurred while fetching product details.',
@@ -88,7 +88,7 @@ export default async function ProductDetails({ params }) {
   try {
     [product, latestProducts] = await Promise.all([getProduct(slug), getLatestProducts()]);
   } catch (error) {
-    console.error('Error fetching data:', error);
+    // console.error('Error fetching data:', error);
     return (
       <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">

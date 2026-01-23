@@ -21,11 +21,11 @@ export async function POST(req) {
 
     // 2. Connect to DB
     await dbConnect();
-    console.log('Database connected');
+
 
     // 3. Parse request body
     const formData = await req.json();
-    console.log('Received form data:', formData);
+
 
     // 4. Basic validation
     if (!formData.title || !formData.location) {
@@ -39,7 +39,7 @@ export async function POST(req) {
     let imageUrl = '';
     if (formData.image && formData.image.startsWith('data:image')) {
       try {
-        console.log('Uploading image to Cloudinary with WebP conversion...');
+
         const uploadResult = await cloudinary.uploader.upload(formData.image, {
           folder: 'profile_images',
           public_id: `profile_${session.user.id}`,
@@ -53,9 +53,9 @@ export async function POST(req) {
           ]
         });
         imageUrl = uploadResult.secure_url;
-        console.log('WebP image uploaded:', imageUrl);
+
       } catch (uploadError) {
-        console.error('WebP image upload failed:', uploadError);
+
         return NextResponse.json(
           { success: false, message: 'Image upload failed' },
           { status: 500 }
@@ -141,7 +141,7 @@ export async function POST(req) {
     });
 
   } catch (error) {
-    console.error('Profile update error:', error);
+
     return NextResponse.json(
       {
         success: false,

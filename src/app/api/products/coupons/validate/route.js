@@ -61,7 +61,7 @@ export async function POST(request) {
 
         return NextResponse.json({ valid: false, message: 'Invalid coupon code' }, { status: 400 });
     } catch (error) {
-        console.error('Coupon validation error:', error);
+      
         return NextResponse.json({ valid: false, message: `Failed to validate coupon: ${error.message}` }, { status: 500 });
     }
 }

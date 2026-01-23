@@ -78,7 +78,7 @@ export const authOptions = {
                     };
 
                 } catch (error) {
-                    console.error('Auth error:', error.message);
+
                     throw new Error(error.message || 'Authentication failed');
                 }
             },
@@ -107,7 +107,7 @@ export const authOptions = {
                         token.error = 'Force logout by admin';
                     }
                 } catch (error) {
-                    console.error('JWT force logout check error:', error);
+
                 }
             }
 
@@ -142,7 +142,7 @@ export const authOptions = {
                     session.user.displayName = userProfile?.displayName || null;
 
                 } catch (error) {
-                    console.error('Session callback error:', error);
+
                 }
             }
 

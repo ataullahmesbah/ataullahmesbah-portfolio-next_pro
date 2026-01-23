@@ -15,14 +15,14 @@ export default function Config() {
         try {
             setError('');
             const response = await axios.get('/api/products/config');
-            console.log('Fetch config response:', response.data);
+          
             if (response.data && response.data.code) {
                 setCode(response.data.code);
                 setDiscountAmount(response.data.discountAmount ? response.data.discountAmount.toString() : '');
                 setMinCartTotal(response.data.minCartTotal ? response.data.minCartTotal.toString() : '');
                 setExpiresAt(response.data.expiresAt ? new Date(response.data.expiresAt).toISOString().slice(0, 16) : '');
             } else {
-                console.log('No global coupon found, setting defaults');
+               
                 setCode('');
                 setDiscountAmount('');
                 setMinCartTotal('');
@@ -76,7 +76,7 @@ export default function Config() {
                 minCartTotal: Number(minCartTotal),
                 expiresAt: expiresAtDate.toISOString(),
             });
-            console.log('Update config response:', response.data);
+           
             alert('Global coupon updated successfully');
             fetchConfig();
         } catch (error) {

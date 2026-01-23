@@ -67,7 +67,7 @@ export default async function Shop() {
     try {
         products = await getProducts();
     } catch (error) {
-        console.error('Error fetching products:', error);
+        // console.error('Error fetching products:', error);
         return (
             <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">

@@ -5,6 +5,7 @@ import useAOS from '../hooks/useAOS';
 
 const sponsors = [
   { name: 'Hyascka', category: 'Digital Services' },
+  { name: 'SOOQRA ONE', category: 'E-commerce' },
   { name: 'Trekking Diaries', category: 'Adventure Community' },
   { name: 'Trek Explore Travel', category: 'Tour Operator' },
   { name: 'Mesbah Off We Go', category: 'Travel Vlog' },
@@ -17,8 +18,8 @@ const sponsors = [
 
 const Sponser = () => {
 
-   useAOS({ duration: 1000 });
-   
+  useAOS({ duration: 1000 });
+
   return (
     <section className="py-12 md:py-16 overflow-hidden relative bg-gradient-to-b from-gray-900/30 to-gray-900/10">
       {/* Section border */}
@@ -44,7 +45,7 @@ const Sponser = () => {
             <p
               data-aos="flip-left"
               className="text-gray-400/80 max-w-xl mx-auto text-xs md:text-sm relative z-10 px-2">
-              Premium brands I've collaborated with to create exceptional digital experiences
+              Premium brands I’ve collaborated with to create exceptional digital experiences
             </p>
             {/* Single dotted line */}
             <div className="absolute bottom-0 left-0 right-0 h-px overflow-hidden mt-2">
@@ -67,7 +68,7 @@ const Sponser = () => {
             {[...sponsors, ...sponsors].map((sponsor, index) => (
               <motion.div
                 key={`sponsor-${index}`}
-                className="inline-flex mx-2 px-4 py-3 bg-gray-900/60 backdrop-blur-sm rounded-lg border border-gray-800/60 items-center justify-center min-w-[160px] h-[80px] relative group hover:border-sky-400/40 hover:shadow-[0_0_15px_rgba(56,182,255,0.08)] transition-all duration-300"
+                className="inline-flex mx-2 px-4 py-3 bg-gray-900/60 backdrop-blur-sm rounded-lg border border-gray-800/60 items-center justify-center min-w-[160px] h-[80px] relative group hover:border-purple-400/40 hover:shadow-[0_0_15px_rgba(56,182,255,0.08)] transition-all duration-300"
                 whileHover={{
                   y: -3,
                   backgroundColor: 'rgba(17, 24, 39, 0.7)',

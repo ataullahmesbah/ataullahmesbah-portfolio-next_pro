@@ -27,7 +27,7 @@ export default function AllAffiliateProgramListPage() {
         try {
             const res = await fetch(`/api/affiliate/all${searchTerm ? `?search=${encodeURIComponent(searchTerm)}` : ''}`);
             const data = await res.json();
-            console.log('Fetch all affiliates response:', data); // Debug
+
             if (res.ok) {
                 setAffiliates(data);
             } else {
@@ -56,7 +56,7 @@ export default function AllAffiliateProgramListPage() {
                 body: JSON.stringify({ id }),
             });
             const data = await res.json();
-            console.log('Delete affiliate response:', data); // Debug
+
             if (res.ok) {
                 toast.success('Affiliate deleted successfully');
                 fetchAffiliates(search); // Refresh list
@@ -73,7 +73,7 @@ export default function AllAffiliateProgramListPage() {
         try {
             const res = await fetch(`/api/affiliate/user?id=${id}`);
             const data = await res.json();
-            console.log('Affiliate details response:', data); // Debug
+
             if (res.ok) {
                 setSelectedAffiliate(data);
             } else {

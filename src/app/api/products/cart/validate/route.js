@@ -41,7 +41,7 @@ export async function POST(request) {
 
         return Response.json({ valid: true }, { status: 200 });
     } catch (error) {
-        console.error('Error validating cart:', error);
+      
         return Response.json({ valid: false, message: `Failed to validate cart: ${error.message}` }, { status: 500 });
     }
 }

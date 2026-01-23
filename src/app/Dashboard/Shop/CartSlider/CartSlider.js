@@ -70,7 +70,7 @@ export default function CartSlider({ isOpen, setIsOpen, conversionRates }) {
             });
             return response.data;
         } catch (error) {
-            console.error('Error validating quantity:', error);
+            // console.error('Error validating quantity:', error);
             return {
                 valid: false,
                 message: error.response?.data?.message || 'Error checking product availability'
@@ -106,7 +106,7 @@ export default function CartSlider({ isOpen, setIsOpen, conversionRates }) {
                 showCustomToast(`Quantity updated to ${newQuantity}`, 'success');
             }
         } catch (error) {
-            console.error('Error updating quantity:', error);
+            // console.error('Error updating quantity:', error);
             showCustomToast('Failed to update quantity', 'error');
         } finally {
             setIsLoading(false);
@@ -247,7 +247,7 @@ export default function CartSlider({ isOpen, setIsOpen, conversionRates }) {
                             }
                             return item;
                         } catch (error) {
-                            console.error(`Error updating product ${item._id}:`, error);
+                            // console.error(`Error updating product ${item._id}:`, error);
                             return item;
                         }
                     })
@@ -264,7 +264,7 @@ export default function CartSlider({ isOpen, setIsOpen, conversionRates }) {
             setIsOpen(false);
             router.push('/cart');
         } catch (error) {
-            console.error('Error validating cart:', error);
+            // console.error('Error validating cart:', error);
             showCustomToast('Failed to validate cart items', 'error');
         } finally {
             setIsLoading(false);

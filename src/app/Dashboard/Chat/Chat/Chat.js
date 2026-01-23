@@ -66,12 +66,12 @@ export default function AdminChatPanel() {
     socketRef.current.on('connect', () => {
       setIsConnected(true);
       socketRef.current.emit('join-admin-room');
-      console.log('✅ Admin Socket Connected');
+      
     });
 
     socketRef.current.on('disconnect', () => {
       setIsConnected(false);
-      console.log('⚠️ Admin Socket Disconnected');
+  
       toast.warn('সার্ভার থেকে সংযোগ বিচ্ছিন্ন');
     });
 

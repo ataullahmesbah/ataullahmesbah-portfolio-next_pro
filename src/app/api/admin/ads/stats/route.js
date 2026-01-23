@@ -31,7 +31,7 @@ export async function GET() {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Production Error fetching stats:', error);
+  
     return NextResponse.json({ 
       totalImpressions: 0, 
       totalClicks: 0, 

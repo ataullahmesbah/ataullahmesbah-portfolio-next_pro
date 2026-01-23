@@ -159,7 +159,7 @@ export async function POST(request) {
             },
         });
     } catch (error) {
-        console.error("Error generating invoice:", error);
+       
         return NextResponse.json(
             { error: `Failed to generate invoice: ${error.message}` },
             { status: 500 }

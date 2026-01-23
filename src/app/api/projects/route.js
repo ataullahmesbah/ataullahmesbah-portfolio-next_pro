@@ -44,7 +44,7 @@ export async function GET(request) {
         return NextResponse.json(projects);
 
     } catch (error) {
-        console.error("API Error:", error);
+
         return NextResponse.json(
             { error: "Failed to fetch projects", message: error.message },
             { status: 500 }
@@ -59,7 +59,7 @@ export async function POST(request) {
 
     try {
         const formData = await request.formData();
-        console.log("Form Data Received:", Object.fromEntries(formData));
+
 
         const title = formData.get('title');
         const subtitle = formData.get('subtitle');
@@ -84,7 +84,7 @@ export async function POST(request) {
 
         // Validate required fields
         if (!title || !subtitle || !description || !contentShort || !category || !metaDescription || !imageAlt || !mainImageFile) {
-            console.error("Missing required fields:", { title, subtitle, description, contentShort, category, metaDescription, imageAlt, mainImageFile });
+
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
@@ -105,7 +105,7 @@ export async function POST(request) {
                     },
                     (error, result) => {
                         if (error) {
-                            console.error("Cloudinary Main Image Upload Error:", error);
+
                             reject(error);
                         } else {
                             resolve(result.secure_url);
@@ -114,7 +114,7 @@ export async function POST(request) {
                 ).end(mainImageBuffer);
             });
         } else {
-            console.error("Main image file is empty or invalid");
+
             return NextResponse.json({ error: "Main image is required" }, { status: 400 });
         }
 
@@ -134,7 +134,7 @@ export async function POST(request) {
                         },
                         (error, result) => {
                             if (error) {
-                                console.error("Cloudinary Gallery Image Upload Error:", error);
+
                                 reject(error);
                             } else {
                                 resolve(result.secure_url);
@@ -158,7 +158,7 @@ export async function POST(request) {
         }));
 
         // Debug: Log the gallery data before saving
-        console.log("Gallery data before saving:", gallery);
+
 
         // Create new project
         const projectData = {
@@ -180,15 +180,15 @@ export async function POST(request) {
             projectLinkText: projectLinkText || 'Visit Project Site' // Ensure default is set
         };
 
-        console.log("Saving project with data:", projectData); // Debug log
+
 
         const project = new Project(projectData);
         await project.save();
 
-        console.log("Saved project:", project); // Verify link was saved
+
         return NextResponse.json({ message: "Project created successfully", project }, { status: 201 });
     } catch (error) {
-        console.error("Error details:", error);
+
         return NextResponse.json({
             error: "Failed to create project",
             message: error.message,

@@ -8,7 +8,7 @@ export async function POST(req) {
 
     try {
         const { email, image } = await req.json();
-        console.log('Updating profile image for:', email, 'with URL:', image);
+
 
         // Find the user by email and update the image field
         const user = await User.findOneAndUpdate(
@@ -18,14 +18,14 @@ export async function POST(req) {
         );
 
         if (!user) {
-            console.error('User not found');
+
             return NextResponse.json({ message: 'User not found' }, { status: 404 });
         }
 
-        console.log('Updated user:', user);
+
         return NextResponse.json(user, { status: 200 });
     } catch (err) {
-        console.error('Error updating profile image:', err);
+
         return NextResponse.json({ message: 'Failed to update profile image' }, { status: 500 });
     }
 }

@@ -15,7 +15,7 @@ export async function GET(request, { params }) {
         }
         return Response.json(product, { status: 200 });
     } catch (error) {
-        console.error('Error fetching product:', error);
+     
         return Response.json({ error: `Failed to fetch product: ${error.message}` }, { status: 500 });
     }
 }

@@ -84,7 +84,7 @@ export async function generateStaticParams() {
             slug: newsletter.slug,
         }));
     } catch (error) {
-        console.error('Error generating static params:', error);
+
         return [];
     }
 }

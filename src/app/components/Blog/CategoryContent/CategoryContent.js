@@ -8,7 +8,7 @@ import BlogGrid from '../BlogGrid/BlogGrid';
 
 async function getCategoryData(category, page = 1) {
     try {
-        console.log('📡 Fetching category data:', { category, page });
+        // console.log('📡 Fetching category data:', { category, page });
 
         const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
         const [categoryRes, categoriesRes] = await Promise.all([
@@ -20,7 +20,7 @@ async function getCategoryData(category, page = 1) {
             })
         ]);
 
-        console.log('📊 Category response status:', categoryRes.status);
+        // console.log('📊 Category response status:', categoryRes.status);
 
         if (!categoryRes.ok) {
             throw new Error(`Category API failed with status: ${categoryRes.status}`);
@@ -29,11 +29,11 @@ async function getCategoryData(category, page = 1) {
         const categoryData = await categoryRes.json();
         const categories = await categoriesRes.json();
 
-        console.log('✅ Category data received:', {
-            blogsCount: categoryData.blogs?.length || 0,
-            total: categoryData.total || 0,
-            success: categoryData.success
-        });
+        // console.log('✅ Category data received:', {
+        //     blogsCount: categoryData.blogs?.length || 0,
+        //     total: categoryData.total || 0,
+        //     success: categoryData.success
+        // });
 
         return {
             blogs: categoryData.blogs || [],
@@ -44,7 +44,7 @@ async function getCategoryData(category, page = 1) {
             error: categoryData.error || null
         };
     } catch (error) {
-        console.error('❌ Error in getCategoryData:', error);
+        // console.error('❌ Error in getCategoryData:', error);
         return {
             blogs: [],
             total: 0,

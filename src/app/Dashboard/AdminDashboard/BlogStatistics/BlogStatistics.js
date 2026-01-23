@@ -42,7 +42,7 @@ const BlogStatisticsDashboard = () => {
         const response = await fetch('/api/blog/statistics');
         if (!response.ok) throw new Error('Failed to fetch statistics');
         const data = await response.json();
-        console.log('Fetched Data:', data);
+
 
         setStatistics({
           totalBlogs: data.totalBlogs || 0,
@@ -94,7 +94,7 @@ const BlogStatisticsDashboard = () => {
       },
     ],
   };
-  console.log('Category Chart Data:', categoryChartData);
+
 
   // Popular Blogs (Views) Chart Data
   const popularBlogsChartData = {
@@ -113,7 +113,7 @@ const BlogStatisticsDashboard = () => {
       },
     ],
   };
-  console.log('Popular Blogs Chart Data:', popularBlogsChartData);
+
 
   // Recent Blogs (by Date) Chart Data
   const latestBlogsChartData = {
@@ -134,7 +134,7 @@ const BlogStatisticsDashboard = () => {
       },
     ],
   };
-  console.log('Latest Blogs Chart Data:', latestBlogsChartData);
+
 
   const chartOptions = {
     responsive: true,

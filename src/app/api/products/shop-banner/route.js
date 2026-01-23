@@ -15,7 +15,7 @@ export async function GET() {
     const banners = await ShopBanner.find({}).sort({ createdAt: -1 });
     return NextResponse.json({ success: true, data: banners }, { status: 200 });
   } catch (error) {
-    console.error('GET error:', error);
+ 
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
@@ -72,7 +72,7 @@ export async function POST(request) {
 
         data.image = uploadRes.secure_url;
       } catch (err) {
-        console.error('Cloudinary upload error:', err);
+      
         return NextResponse.json({ success: false, error: 'Image upload failed' }, { status: 500 });
       }
     } else {
@@ -82,7 +82,7 @@ export async function POST(request) {
     const banner = await ShopBanner.create(data);
     return NextResponse.json({ success: true, data: banner }, { status: 201 });
   } catch (error) {
-    console.error('POST error:', error);
+  
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
@@ -136,7 +136,7 @@ export async function PUT(request) {
 
         data.image = uploadRes.secure_url;
       } catch (err) {
-        console.error('Cloudinary upload error:', err);
+   
         return NextResponse.json({ success: false, error: 'Image upload failed' }, { status: 500 });
       }
     }
@@ -148,7 +148,7 @@ export async function PUT(request) {
 
     return NextResponse.json({ success: true, data: banner }, { status: 200 });
   } catch (error) {
-    console.error('PUT error:', error);
+    
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
@@ -171,12 +171,12 @@ export async function DELETE(request) {
       const publicId = banner.image.split('/').pop().split('.')[0];
       await cloudinary.uploader.destroy(`shop_banners/${publicId}`);
     } catch (err) {
-      console.error('Cloudinary delete error:', err);
+   
     }
 
     return NextResponse.json({ success: true, message: 'Banner deleted successfully' }, { status: 200 });
   } catch (error) {
-    console.error('DELETE error:', error);
+
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

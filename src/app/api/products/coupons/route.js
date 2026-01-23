@@ -9,7 +9,7 @@ export async function GET() {
         const coupons = await Coupon.find({ isActive: true }).populate('productId', 'title');
         return NextResponse.json(coupons, { status: 200 });
     } catch (error) {
-        console.error('Error fetching coupons:', error);
+     
         return NextResponse.json({ error: 'Failed to fetch coupons' }, { status: 500 });
     }
 }
@@ -49,7 +49,7 @@ export async function POST(request) {
         }
         return NextResponse.json({ message: 'Coupon updated' }, { status: 200 });
     } catch (error) {
-        console.error('Error updating coupon:', error);
+        
         return NextResponse.json({ error: 'Failed to update coupon: ' + error.message }, { status: 500 });
     }
 }
@@ -64,7 +64,7 @@ export async function DELETE(request) {
         await Coupon.deleteOne({ code });
         return NextResponse.json({ message: 'Coupon deleted' }, { status: 200 });
     } catch (error) {
-        console.error('Error deleting coupon:', error);
+      
         return NextResponse.json({ error: 'Failed to delete coupon' }, { status: 500 });
     }
 }

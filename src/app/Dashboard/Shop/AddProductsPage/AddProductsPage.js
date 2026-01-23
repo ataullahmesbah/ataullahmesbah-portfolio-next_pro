@@ -183,21 +183,21 @@ export default function AddProduct() {
         data.append('targetCity', formData.targetCity || '');
 
         // Log FormData to debug
-        console.log('FormData entries:');
+
         for (let [key, value] of data.entries()) {
-            console.log(`${key}:`, value instanceof File ? value.name : value);
+            // console.log(`${key}:`, value instanceof File ? value.name : value);
         }
 
         formData.additionalImages.forEach((img, index) => {
             if (img) {
                 data.append('additionalImages', img);
-                console.log(`Appending additionalImage[${index}]:`, img.name);
+
             }
         });
         formData.additionalAlts.forEach((alt, index) => {
             if (alt) {
                 data.append('additionalAlts', alt);
-                console.log(`Appending additionalAlts[${index}]:`, alt);
+
             }
         });
         data.append('quantity', formData.quantity);

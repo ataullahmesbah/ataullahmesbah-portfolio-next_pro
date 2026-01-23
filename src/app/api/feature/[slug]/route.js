@@ -15,14 +15,14 @@ export async function GET(request, { params }) {
         await dbConnect();
         const { slug } = params;
 
-        console.log('Fetching story with slug:', slug);
+
 
         const story = await FeaturedStory.findOne({
             slug: { $regex: new RegExp(`^${slug}$`, 'i') }
         }).lean();
 
         if (!story) {
-            console.log('Story not found for slug:', slug);
+
             return NextResponse.json({ error: 'Story not found' }, { status: 404 });
         }
 
@@ -32,10 +32,10 @@ export async function GET(request, { params }) {
         // Increment views
         await FeaturedStory.updateOne({ _id: story._id }, { $inc: { views: 1 } });
 
-        console.log('Story found:', story.title);
+
         return NextResponse.json(story, { status: 200 });
     } catch (error) {
-        console.error('GET /api/featured-story/[slug] error:', error);
+
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
@@ -68,7 +68,7 @@ async function uploadImageToCloudinary(file, options = {}) {
                 uploadOptions,
                 (error, result) => {
                     if (error) {
-                        console.error('Cloudinary upload error:', error);
+
                         return resolve(null);
                     }
                     resolve(result);
@@ -78,7 +78,7 @@ async function uploadImageToCloudinary(file, options = {}) {
 
         return uploadResult || null;
     } catch (error) {
-        console.error('Image upload failed:', error);
+
         return null;
     }
 }
@@ -97,16 +97,16 @@ async function optimizeContentBlockImages(contentBlocks, formData, existingBlock
             let alt = block.alt || existingBlocks[index]?.alt || '';
 
             if (imageFile && imageFile.size > 0) {
-                console.log(`Uploading new image for block ${index}`);
+
                 const uploadResult = await uploadImageToCloudinary(imageFile);
                 if (uploadResult) {
                     imageUrl = uploadResult.secure_url;
                     publicId = uploadResult.public_id;
                     width = uploadResult.width;
                     height = uploadResult.height;
-                    console.log(`Image uploaded successfully: ${width}x${height}`);
+
                 } else {
-                    console.error(`Failed to upload image for block ${index}`);
+
                     imageUrl = '';
                 }
             }
@@ -181,7 +181,7 @@ export async function PUT(request, { params }) {
                 }
             });
         } catch (error) {
-            console.error('Content blocks parse error:', error);
+
             return NextResponse.json(
                 { error: error.message || 'Invalid content blocks format' },
                 { status: 400 }
@@ -237,7 +237,7 @@ export async function PUT(request, { params }) {
         let mainImageDimensions = existingStory.imageDimensions?.mainImage || { width: 800, height: 450 };
 
         if (mainImage && mainImage.size > 0) {
-            console.log('Uploading new main image...');
+
             const uploadResult = await uploadImageToCloudinary(mainImage);
             if (!uploadResult) {
                 return NextResponse.json(
@@ -247,11 +247,11 @@ export async function PUT(request, { params }) {
             }
             mainImageUrl = uploadResult.secure_url;
             mainImageDimensions = { width: uploadResult.width, height: uploadResult.height };
-            console.log(`Main image uploaded successfully: ${mainImageDimensions.width}x${mainImageDimensions.height}`);
+
         }
 
         // Process content blocks
-        console.log('Processing content block images...');
+
         const processedBlocks = await optimizeContentBlockImages(contentBlocks, formData, existingStory.contentBlocks);
 
         // Update story
@@ -294,7 +294,7 @@ export async function PUT(request, { params }) {
         );
 
     } catch (error) {
-        console.error('PUT /api/feature/[slug] error:', error);
+
 
         if (error.code === 11000) {
             return NextResponse.json(
@@ -341,7 +341,7 @@ export async function DELETE(request, { params }) {
             { status: 200 }
         );
     } catch (error) {
-        console.error('DELETE /api/feature/[slug] error:', error);
+
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }

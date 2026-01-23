@@ -2,10 +2,7 @@
 
 'use client';
 
-
-import DynamicButton from "@/app/components/Share/Button/DynamicButton/DynamicButton";
 import Head from "next/head";
-import LetterReview from "@/app/components/Share/LetterReview/LetterReview";
 import NewsletterPage from "@/app/components/Share/NewsletterPage/NewsletterPage";
 import FAQSection from "../../Share/FAQSection/FAQSection";
 import useAOS from "../../hooks/useAOS";
@@ -31,7 +28,7 @@ const schemaData = {
             "contactType": "Customer Support"
         }
     },
-    "lastReviewed": "2025-05-18"
+    "lastReviewed": "2026-01-24"
 };
 
 

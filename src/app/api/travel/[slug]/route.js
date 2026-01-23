@@ -170,7 +170,7 @@ export async function POST(req, { params }) {
             { status: 201 }
         );
     } catch (error) {
-        console.error('Error in POST:', error);
+
         return new Response(
             JSON.stringify({
                 error: error.message || 'Failed to add/update travel'
@@ -232,7 +232,7 @@ export async function PUT(req, { params }) {
             { status: 200 }
         );
     } catch (error) {
-        console.error('Error in PUT:', error);
+
         return new Response(
             JSON.stringify({
                 error: error.message || 'Failed to update travel'

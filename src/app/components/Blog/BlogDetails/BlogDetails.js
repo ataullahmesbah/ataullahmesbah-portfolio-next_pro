@@ -298,7 +298,7 @@ export default function BlogContent({ blog }) {
                 JSON.parse(blog.structuredData) : blog.structuredData;
         }
     } catch (e) {
-        console.error("Error parsing structured data:", e);
+        // console.error("Error parsing structured data:", e);
     }
 
     const renderContent = (item, index) => {

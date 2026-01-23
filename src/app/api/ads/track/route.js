@@ -11,7 +11,7 @@ export async function POST(request) {
 
     try {
         const { adId, type } = await request.json();
-        console.log(`Tracking ${type} for ad:`, adId);
+ 
 
         if (type === 'impression') {
             await Ads.findByIdAndUpdate(adId, {
@@ -26,7 +26,7 @@ export async function POST(request) {
         return NextResponse.json({ success: true });
 
     } catch (error) {
-        console.error('Error tracking:', error);
+     
         return NextResponse.json(
             { success: false, error: 'Failed to track' },
             { status: 500 }

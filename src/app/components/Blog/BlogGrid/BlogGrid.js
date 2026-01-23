@@ -25,7 +25,7 @@ export default function BlogGrid({ blogs, currentPage, totalPages, error }) {
             <div className="text-center py-8 lg:py-12" data-aos="fade-up">
                 <div className="text-gray-400 text-4xl lg:text-6xl mb-4">📝</div>
                 <h3 className="text-lg lg:text-xl font-semibold text-gray-300 mb-2">No Blogs Published Yet</h3>
-                <p className="text-gray-400 text-sm lg:text-base">We're working on creating amazing content for you. Check back soon!</p>
+                <p className="text-gray-400 text-sm lg:text-base">We’re working on creating amazing content for you. Check back soon!</p>
             </div>
         );
     }

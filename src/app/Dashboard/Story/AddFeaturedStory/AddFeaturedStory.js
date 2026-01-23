@@ -173,7 +173,7 @@ export default function CreateFeaturedStory() {
             };
         });
 
-        console.log('Submitting content blocks:', blocksForSubmission);
+
         formDataToSend.append('contentBlocks', JSON.stringify(blocksForSubmission));
 
         try {
@@ -187,7 +187,7 @@ export default function CreateFeaturedStory() {
                 throw new Error(data.error || 'Failed to create story');
             }
 
-            console.log('Story created:', data);
+
             toast.success('Story created successfully!');
             router.push('/admin-dashboard/story/all-featured-story');
         } catch (error) {

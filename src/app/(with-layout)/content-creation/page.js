@@ -29,7 +29,7 @@ export default async function ContentCreationPage() {
     try {
         content = await getContentData();
     } catch (error) {
-        console.error("Error fetching content:", error);
+     
     }
 
     const youtubeVideos = content.filter(v => v.platform === 'YouTube');

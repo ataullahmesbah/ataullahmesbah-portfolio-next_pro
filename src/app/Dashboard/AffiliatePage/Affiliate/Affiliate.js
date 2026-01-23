@@ -27,7 +27,7 @@ export default function AdminAffiliatesPage() {
         try {
             const res = await fetch('/api/affiliate/list');
             const data = await res.json();
-            console.log('Fetch affiliates response:', data); // Debug response
+         
             if (res.ok) {
                 setAffiliates(data);
             } else {
