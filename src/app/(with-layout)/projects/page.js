@@ -15,7 +15,7 @@ const schemaData = {
     "url": "https://ataullahmesbah.com",
     "contactPoint": {
       "@type": "ContactPoint",
-      "email": "info@ataullahmesbah.com",
+      "email": "contact@ataullahmesbah.com",
       "contactType": "Customer Support"
     }
   },

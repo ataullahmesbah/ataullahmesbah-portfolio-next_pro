@@ -10,7 +10,7 @@ const schemaData = {
         "url": "https://ataullahmesbah.com",
         "contactPoint": {
             "@type": "ContactPoint",
-            "email": "info@ataullahmesbah.com",
+            "email": "contact@ataullahmesbah.com",
             "contactType": "Customer Support"
         }
     },
@@ -41,11 +41,11 @@ const TermsAndPolicy = () => {
                     <p className="text-lg text-gray-200 leading-relaxed">
                         Welcome to <strong>Ataullah Mesbah</strong>. By accessing or using our website, you agree to comply with these Terms and Policy. The terms <strong>&quot;we&quot;</strong>, <strong>&quot;our&quot;</strong>, or <strong>&quot;us&quot;</strong> refer to <strong>Ataullah Mesbah</strong>. If you have questions, contact us via{' '}
                         <a
-                            href="mailto:info@ataullahmesbah.com"
+                            href="mailto:contact@ataullahmesbah.com"
                             className="text-blue-400 hover:underline"
                             aria-label="Email customer support"
                         >
-                            info@ataullahmesbah.com
+                            contact@ataullahmesbah.com
                         </a>{' '}
                         or{' '}
                         <a
@@ -175,11 +175,11 @@ const TermsAndPolicy = () => {
                                 <li>
                                     <span className="font-medium text-gray-200">Email:</span>{' '}
                                     <a
-                                        href="mailto:info@ataullahmesbah.com"
+                                        href="mailto:contact@ataullahmesbah.com"
                                         className="text-blue-400 hover:underline"
                                         aria-label="Email customer support"
                                     >
-                                        info@ataullahmesbah.com
+                                        contact@ataullahmesbah.com
                                     </a>
                                 </li>
                                 <li>

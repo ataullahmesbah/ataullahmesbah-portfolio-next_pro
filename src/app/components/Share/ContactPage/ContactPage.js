@@ -13,9 +13,9 @@ const ContactPage = () => {
         {
             icon: <FaEnvelope className="text-2xl" />,
             title: "Email",
-            content: "info@ataullahmesbah.com",
+            content: "contact@ataullahmesbah.com",
             color: "purple",
-            link: "mailto:info@ataullahmesbah.com"
+            link: "mailto:contact@ataullahmesbah.com"
         },
         {
             icon: <FaPhone className="text-2xl" />,
