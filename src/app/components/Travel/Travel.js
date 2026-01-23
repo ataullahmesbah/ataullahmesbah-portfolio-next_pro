@@ -4,6 +4,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import ResponsiveImage from "./ResponsiveImage/ResponsiveImage";
 
 export default function MesbahOffWeGo({ travels = [] }) {
     const [isMounted, setIsMounted] = useState(false);
@@ -160,17 +161,13 @@ export default function MesbahOffWeGo({ travels = [] }) {
                                 {/* Card content remains the same */}
 
                                 <div className="relative h-60">
-                                    <Image
+                                    <ResponsiveImage
                                         src={site.imageUrl}
                                         alt={site.title}
-                                        fill
-                                        className="object-cover"
+                                        type="historical"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                                    <span className="absolute top-4 right-4 bg-gray-900/80 text-white px-3 py-1 rounded-full text-sm">
-                                        {site.location}
-                                    </span>
                                 </div>
+
                                 <div className="p-6">
                                     <h3 className="text-xl font-bold mb-2">{site.title}</h3>
                                     <p className="text-gray-300 mb-4 line-clamp-3">
@@ -210,35 +207,43 @@ export default function MesbahOffWeGo({ travels = [] }) {
 
             {/* Gallery Section */}
 
-            {/* Gallery Preview Section (Showing 8 Images) */}
+
+            {/* Gallery Preview Section */}
             <section className="py-16 px-6 max-w-7xl mx-auto">
                 <div className="text-center mb-16">
                     <h2 className="text-4xl font-bold mb-4">Travel Gallery</h2>
                     <div className="w-20 h-1 bg-green-600 mx-auto mb-4"></div>
                     <p className="text-gray-400 max-w-2xl mx-auto">
-                        A glimpse into my visual travel diary
+                        All images optimized at 1200×628px for consistent display
                     </p>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                     {gallery.slice(0, 8).map((photo) => (
-
-
                         <Link
                             key={photo._id}
                             href={`/mesbahoffwego/${photo.slug}`}
-                            className="group relative aspect-square overflow-hidden rounded-xl shadow-lg"
+                            className="group bg-gray-700 rounded-lg overflow-hidden shadow-lg transform hover:-translate-y-1 transition-all duration-300"
                         >
-                            <Image
-                                src={photo.imageUrl}
-                                alt={photo.title}
-                                fill
-                                className="object-cover transition-transform duration-500 group-hover:scale-110"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                <span className="text-white font-medium translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                            {/* Fixed height container for 1200x628 ratio */}
+                            <div className="relative h-48"> {/* Fixed height */}
+                                <Image
+                                    src={photo.imageUrl}
+                                    alt={photo.title}
+                                    fill
+                                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                    quality={80}
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            </div>
+                            <div className="p-4">
+                                <h3 className="font-medium text-white text-sm line-clamp-1">
                                     {photo.title}
-                                </span>
+                                </h3>
+                                <p className="text-gray-400 text-xs mt-1 line-clamp-1">
+                                    {photo.location}
+                                </p>
                             </div>
                         </Link>
                     ))}

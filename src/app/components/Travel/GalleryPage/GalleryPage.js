@@ -1,4 +1,4 @@
-// app/components/Travel/GalleryPage.jsx
+// app/components/Travel/GalleryPage.jsx - UPDATED
 'use client';
 
 import Image from "next/image";
@@ -8,23 +8,23 @@ import { useState } from "react";
 export default function GalleryPage({ gallery = [] }) {
     const [selectedCategory, setSelectedCategory] = useState('All');
 
-    // Extract unique categories from gallery items
-    const categories = ['All', ...new Set(gallery.map(item => item.tags).flat())];
+    // Extract unique categories
+    const categories = ['All', ...new Set(gallery.map(item => item.category).filter(Boolean))];
 
     // Filter gallery based on selected category
     const filteredGallery = selectedCategory === 'All'
         ? gallery
-        : gallery.filter(item => item.tags?.includes(selectedCategory));
+        : gallery.filter(item => item.category === selectedCategory);
 
     return (
         <div className="min-h-screen bg-gray-900 text-white py-16">
-            <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6">
                 {/* Gallery Header */}
                 <div className="text-center mb-16">
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">Travel Photo Gallery</h1>
                     <div className="w-20 h-1 bg-green-600 mx-auto mb-6"></div>
                     <p className="text-gray-400 max-w-2xl mx-auto">
-                        A visual journey through my adventures around the world
+                        All images optimized at 1200×628px for best display
                     </p>
                 </div>
 
@@ -35,8 +35,8 @@ export default function GalleryPage({ gallery = [] }) {
                             key={category}
                             onClick={() => setSelectedCategory(category)}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedCategory === category
-                                    ? 'bg-green-600 text-white'
-                                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                                ? 'bg-green-600 text-white'
+                                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                                 }`}
                         >
                             {category}
@@ -44,32 +44,46 @@ export default function GalleryPage({ gallery = [] }) {
                     ))}
                 </div>
 
-                {/* Gallery Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {/* Gallery Grid - FIXED 1200x628 display */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredGallery.map((photo) => (
                         <div
                             key={photo._id}
-                            className="group relative aspect-square overflow-hidden rounded-xl shadow-lg"
+                            className="group bg-gray-800 rounded-xl overflow-hidden shadow-lg transform hover:-translate-y-2 transition-all duration-300"
                         >
-                            <Image
-                                src={photo.imageUrl}
-                                alt={photo.title}
-                                fill
-                                className="object-cover transition-transform duration-500 group-hover:scale-110"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                                <h3 className="text-white font-medium translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                                    {photo.title}
-                                </h3>
-                                <p className="text-gray-300 text-sm mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                    {photo.location}
+                            {/* Image Container with FIXED aspect ratio (1200:628 = 1.91:1) */}
+                            <div className="relative h-64"> {/* Fixed height for 1200x628 ratio */}
+                                <Image
+                                    src={photo.imageUrl}
+                                    alt={photo.title}
+                                    fill
+                                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                    quality={85}
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            </div>
+
+                            {/* Content */}
+                            <div className="p-6">
+                                <h3 className="text-xl font-bold mb-2">{photo.title}</h3>
+                                <p className="text-gray-300 mb-4 line-clamp-2">
+                                    {photo.description}
                                 </p>
-                                <div className="mt-3 flex flex-wrap gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                    {photo.tags?.map(tag => (
-                                        <span key={tag} className="text-xs px-2 py-1 bg-gray-900/80 text-gray-300 rounded-full">
-                                            #{tag}
-                                        </span>
-                                    ))}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-gray-400 flex items-center gap-1">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        {photo.location}
+                                    </span>
+                                    <Link
+                                        href={`/mesbahoffwego/${photo.slug}`}
+                                        className="text-green-400 hover:text-green-300 font-medium text-sm"
+                                    >
+                                        View Details →
+                                    </Link>
                                 </div>
                             </div>
                         </div>

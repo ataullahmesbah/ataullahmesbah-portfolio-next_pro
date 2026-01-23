@@ -1,4 +1,4 @@
-// app/components/Travel/HistoricalPage.jsx
+// app/components/Travel/HistoricalPage.jsx - UPDATED
 'use client';
 
 import { useState } from 'react';
@@ -9,7 +9,6 @@ export default function HistoricalPage({ historical = [] }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 9;
 
-    // Filter to ensure only historical items (double protection)
     const filteredHistorical = historical.filter(item => item.category === 'Historical');
     const totalPages = Math.ceil(filteredHistorical.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -20,7 +19,7 @@ export default function HistoricalPage({ historical = [] }) {
 
     return (
         <div className="min-h-screen bg-gray-900 text-white py-16">
-            <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6">
                 {/* Page Header */}
                 <div className="text-center mb-16">
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">Historical Travel Sites</h1>
@@ -30,7 +29,6 @@ export default function HistoricalPage({ historical = [] }) {
                     </p>
                 </div>
 
-                {/* Show message if no historical sites */}
                 {filteredHistorical.length === 0 ? (
                     <div className="text-center py-12">
                         <p className="text-xl text-gray-400">No historical sites found</p>
@@ -40,16 +38,19 @@ export default function HistoricalPage({ historical = [] }) {
                     </div>
                 ) : (
                     <>
-                        {/* Historical Sites Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                        {/* Historical Sites Grid - FIXED 1200x628 display */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                             {currentItems.map(site => (
                                 <div key={site._id} className="bg-gray-800 rounded-xl overflow-hidden shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
-                                    <div className="relative h-60">
+                                    {/* Image Container with FIXED aspect ratio (1200:628 = 1.91:1) */}
+                                    <div className="relative h-64"> {/* Fixed height for 1200x628 ratio */}
                                         <Image
                                             src={site.imageUrl}
                                             alt={site.title}
                                             fill
                                             className="object-cover"
+                                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                            quality={85}
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
                                         <span className="absolute top-4 right-4 bg-gray-900/80 text-white px-3 py-1 rounded-full text-sm">
@@ -81,7 +82,7 @@ export default function HistoricalPage({ historical = [] }) {
                                 <button
                                     onClick={() => paginate(Math.max(1, currentPage - 1))}
                                     disabled={currentPage === 1}
-                                    className="px-4 py-2 rounded-lg bg-gray-800 text-white disabled:opacity-50"
+                                    className="px-4 py-2 rounded-lg bg-gray-800 text-white disabled:opacity-50 hover:bg-gray-700 transition-colors"
                                 >
                                     &larr; Prev
                                 </button>
@@ -112,7 +113,7 @@ export default function HistoricalPage({ historical = [] }) {
                                 <button
                                     onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
                                     disabled={currentPage === totalPages}
-                                    className="px-4 py-2 rounded-lg bg-gray-800 text-white disabled:opacity-50"
+                                    className="px-4 py-2 rounded-lg bg-gray-800 text-white disabled:opacity-50 hover:bg-gray-700 transition-colors"
                                 >
                                     Next &rarr;
                                 </button>

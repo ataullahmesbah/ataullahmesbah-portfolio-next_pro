@@ -6,10 +6,10 @@ Disallow: /admin-dashboard/
 Disallow: /moderator-dashboard/
 Disallow: /user-dashboard/
 Disallow: /accounts/
-Disallow: /api/
+
 
 # Allow all other pages
 Allow: /
 
-# Sitemap location (optional but recommended for SEO)
+# Sitemap location 
 Sitemap: https://ataullahmesbah.com/sitemap.xml

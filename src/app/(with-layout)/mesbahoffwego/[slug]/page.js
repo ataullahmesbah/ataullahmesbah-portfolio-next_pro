@@ -1,4 +1,5 @@
 // app/(with-layout)/mesbahoffwego/[slug]/page.js
+
 import TravelDetail from "@/app/components/Travel/TravelDetails/TravelDetails";
 import { Metadata } from "next";
 

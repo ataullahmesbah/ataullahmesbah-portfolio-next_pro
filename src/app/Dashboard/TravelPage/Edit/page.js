@@ -161,7 +161,7 @@ export default function EditTravel() {
                             </select>
                         </div>
                         <div className="mb-6">
-                            <label className="block text-white font-semibold mb-2">Image (optional)</label>
+                            <label className="block text-white font-semibold mb-2">Image (optional) 1200*628 PX</label>
                             <input type="file" onChange={handleFileChange} className="w-full p-3 text-white" accept="image/*" />
                         </div>
                         <button
