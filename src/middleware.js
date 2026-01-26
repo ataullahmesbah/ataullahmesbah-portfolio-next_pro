@@ -31,9 +31,18 @@ const ADMIN_ONLY_API_ROUTES = [
   // '/api/auth/register',
 ];
 
+
+const PUBLIC_API_ROUTES = [
+  '/api/products/orders', // POST method only
+];
+
+
+
+
 export async function middleware(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = req.nextUrl;
+  const method = req.method;
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || req.ip || 'unknown';
   const now = Date.now();
   const host = req.headers.get('host') || '';
@@ -185,6 +194,35 @@ export async function middleware(req) {
   //     );
   //   }
   // }
+
+
+  // ✅ PUBLIC ACCESS: Order Creation (POST)
+  if (pathname === '/api/products/orders' && method === 'POST') {
+    // Allow order creation without authentication
+    return NextResponse.next();
+  }
+
+  // ✅ PUBLIC ACCESS: Order Search by ID (GET with query params)
+  if (pathname === '/api/products/orders' && method === 'GET') {
+    const searchParams = req.nextUrl.searchParams;
+
+    // যদি orderId বা email দিয়ে search করা হয় (public access allowed)
+    if (searchParams.has('orderId') || searchParams.has('email') || searchParams.has('phone')) {
+      return NextResponse.next();
+    }
+
+    // যদি সব order fetch করতে চায় (admin/moderator required)
+    if (!searchParams.has('orderId') && !searchParams.has('email') && !searchParams.has('phone')) {
+      if (!token || (token.role !== 'admin' && token.role !== 'moderator')) {
+        return new NextResponse(
+          JSON.stringify({ error: 'Admin/Moderator access required to view all orders' }),
+          { status: 403, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+    return NextResponse.next();
+  }
+
 
   //  Admin API Protection 
 

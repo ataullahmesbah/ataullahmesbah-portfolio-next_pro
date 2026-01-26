@@ -312,11 +312,17 @@ export default function Checkout() {
     const getStorablePhoneNumber = (phone) => {
         if (!phone) return '';
 
+        // Remove all non-digits
         const cleanPhone = phone.replace(/\D/g, '');
 
-        // For Bangladesh: convert 01123456789 to 8801123456789
-        if (cleanPhone.length === 11 && cleanPhone.startsWith('01')) {
-            return `880${cleanPhone.slice(1)}`; // Remove the first 0 and add 880
+        // Ensure it's 11 digits starting with 01
+        if (cleanPhone.length === 11 && /^01[3-9]/.test(cleanPhone)) {
+            return cleanPhone; // Keep as is for Bangladesh
+        }
+
+        // If it's 10 digits (without leading 0), add 0
+        if (cleanPhone.length === 10 && /^1[3-9]/.test(cleanPhone)) {
+            return '0' + cleanPhone;
         }
 
         return cleanPhone;
@@ -325,14 +331,52 @@ export default function Checkout() {
 
     // Replace the handlePhoneChange function:
     const handlePhoneChange = (e) => {
-        const value = e.target.value.replace(/\D/g, '').slice(0, 11);
+        let value = e.target.value.replace(/\D/g, '').slice(0, 11);
+
+        // Automatically add 01 prefix if user starts with 7, 3, etc.
+        if (value.length === 10 && /^[3-9]/.test(value)) {
+            value = '01' + value;
+        }
+
+        // Ensure it starts with 01
+        if (value.length > 0 && !value.startsWith('01')) {
+            value = '01' + value.replace(/^0+/, '').slice(0, 9);
+        }
+
         setCustomerInfo((prev) => ({ ...prev, phone: value }));
-
-        // Clear any existing phone errors
         setValidationErrors(prev => ({ ...prev, phone: '' }));
-
         validateForm();
     };
+
+    // Add this validation before checkout:
+    const validatePhoneNumber = (phone, country = 'Bangladesh') => {
+        if (!phone) return { valid: false, message: 'Phone number is required' };
+
+        const cleanPhone = phone.replace(/\D/g, '');
+
+        if (country === 'Bangladesh') {
+            // Must be 11 digits starting with 01
+            if (cleanPhone.length !== 11) {
+                return {
+                    valid: false,
+                    message: 'Phone number must be 11 digits (01XXXXXXXXX)'
+                };
+            }
+
+            if (!/^01[3-9]/.test(cleanPhone)) {
+                return {
+                    valid: false,
+                    message: 'Invalid format. Must start with 01 (01XXXXXXXXX)'
+                };
+            }
+
+            return { valid: true, phone: cleanPhone };
+        }
+
+        // For other countries
+        return { valid: true, phone: cleanPhone };
+    };
+
     // Replace validateBangladeshPhone function:
     const validateBangladeshPhone = (phone) => {
         if (!phone) return false;
@@ -475,18 +519,19 @@ export default function Checkout() {
         setError('');
         setLoading(true);
 
-
-
-        // In handleCheckout function, replace the phone validation:
-        if (customerInfo.country === 'Bangladesh') {
-            if (!customerInfo.phone || customerInfo.phone.length !== 11 || !/^01[3-9]/.test(customerInfo.phone)) {
-                setError('Please enter a valid 11-digit Bangladesh phone number (01XXXXXXXXX)');
-                setLoading(false);
-                return;
-            }
+        // ✅ Validate phone number
+        const phoneValidation = validatePhoneNumber(customerInfo.phone, customerInfo.country);
+        if (!phoneValidation.valid) {
+            setError(phoneValidation.message);
+            showCustomToast(phoneValidation.message, 'error');
+            setLoading(false);
+            return;
         }
 
-        // Validate terms acceptance
+        // ✅ Prepare phone number for backend
+        const formattedPhone = phoneValidation.phone;
+
+        // ✅ Validate terms acceptance
         if (!acceptedTerms) {
             setError('Please accept the Terms & Conditions to proceed.');
             showCustomToast('Please accept the Terms & Conditions to proceed.', 'error');
@@ -494,7 +539,7 @@ export default function Checkout() {
             return;
         }
 
-        // Validate Bkash payment details
+        // ✅ Validate Bkash payment details
         if (paymentMethod === 'bkash') {
             if (!bkashNumber || !transactionId) {
                 setError('Please provide both Bkash number and Transaction ID.');
@@ -502,7 +547,7 @@ export default function Checkout() {
                 setLoading(false);
                 return;
             }
-            if (bkashNumber.length !== 11) {
+            if (bkashNumber.replace(/\D/g, '').length !== 11) {
                 setError('Please enter a valid 11-digit Bkash number.');
                 showCustomToast('Please enter a valid 11-digit Bkash number.', 'error');
                 setLoading(false);
@@ -510,33 +555,22 @@ export default function Checkout() {
             }
         }
 
+        // ✅ Validate form
+        if (!isFormValid) {
+            setError('Please fill in all required fields correctly.');
+            showCustomToast('Please fill in all required fields correctly.', 'error');
+            setLoading(false);
+            return;
+        }
+
+        // ✅ Validate cart
         const isCartValid = await validateCart();
         if (!isCartValid) {
             setLoading(false);
             return;
         }
 
-        if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.address) {
-            setError('Please fill in all required fields.');
-            showCustomToast('Please fill in all required fields.', 'error');
-            setLoading(false);
-            return;
-        }
-
-        if ((paymentMethod === 'cod' || paymentMethod === 'bkash') && customerInfo.country === 'Bangladesh' && (!customerInfo.district || !customerInfo.thana)) {
-            setError('Please select district and thana for delivery.');
-            showCustomToast('Please select district and thana for delivery.', 'error');
-            setLoading(false);
-            return;
-        }
-
-        if (!cart.length) {
-            setError('Your cart is empty.');
-            showCustomToast('Your cart is empty.', 'error');
-            setLoading(false);
-            return;
-        }
-
+        // ✅ Prepare order data
         const orderData = {
             orderId: generateOrderId(),
             products: cart.map((item) => ({
@@ -549,88 +583,128 @@ export default function Checkout() {
             })),
             customerInfo: {
                 ...customerInfo,
-                phone: getStorablePhoneNumber(customerInfo.phone),
+                phone: formattedPhone,
                 ...(paymentMethod === 'bkash' && {
-                    bkashNumber,
-                    transactionId
+                    bkashNumber: bkashNumber.replace(/\D/g, ''),
+                    transactionId: transactionId.trim().toUpperCase()
                 })
             },
             paymentMethod,
             status: paymentMethod === 'cod' || paymentMethod === 'bkash' ? 'pending' : 'pending_payment',
             total: Number.isFinite(payableAmount) ? payableAmount : 0,
-            discount,
-            shippingCharge: (paymentMethod === 'cod' || paymentMethod === 'bkash') && customerInfo.country === 'Bangladesh' ? (Number.isFinite(shippingCharge) ? shippingCharge : 0) : 0,
+            discount: discount || 0,
+            shippingCharge: (paymentMethod === 'cod' || paymentMethod === 'bkash') && customerInfo.country === 'Bangladesh'
+                ? (Number.isFinite(shippingCharge) ? shippingCharge : 0)
+                : 0,
             couponCode: appliedCoupon ? appliedCoupon.code : null,
-            acceptedTerms: true,
-            termsAcceptedAt: new Date().toISOString()
         };
 
-        setOrderData(orderData);
+        console.log('📦 Submitting order:', {
+            orderId: orderData.orderId,
+            customerEmail: orderData.customerInfo.email,
+            total: orderData.total
+        });
 
         try {
-            // ✅ COD & Bkash: Create order immediately
-            if (paymentMethod === 'cod' || paymentMethod === 'bkash') {
-                const orderResponse = await axios.post('/api/products/orders', orderData);
-                if (orderResponse.data.message === 'Order created') {
-                    if (appliedCoupon) {
+            const orderResponse = await axios.post('/api/products/orders', orderData);
+
+            if (orderResponse.data.success) {
+                // ✅ Coupon usage record
+                if (appliedCoupon) {
+                    try {
                         await axios.post('/api/products/coupons/record-usage', {
                             userId,
                             couponCode: appliedCoupon.code,
                             email: customerInfo.email,
                             phone: customerInfo.phone,
                         });
+                    } catch (couponError) {
+                        console.warn('Coupon usage recording failed:', couponError);
+                        // Continue even if coupon recording fails
                     }
-                    localStorage.removeItem('cart');
-                    window.dispatchEvent(new Event('cartUpdated'));
-                    showCustomToast(`Order ${orderData.orderId} placed successfully!`, 'success');
-                    setLoading(true);
-                    router.push(`/checkout/cod-success?orderId=${orderData.orderId}`);
-                } else {
-                    throw new Error('Order creation failed');
+                }
+
+                // ✅ Clear cart
+                localStorage.removeItem('cart');
+                window.dispatchEvent(new Event('cartUpdated'));
+
+                // ✅ Success message
+                showCustomToast(
+                    `Order #${orderData.orderId} placed successfully! Redirecting...`,
+                    'success'
+                );
+
+                // ✅ Redirect based on payment method
+                setTimeout(() => {
+                    if (paymentMethod === 'cod' || paymentMethod === 'bkash') {
+                        router.push(`/checkout/cod-success?orderId=${orderData.orderId}`);
+                    } else {
+                        router.push(`/order-success?orderId=${orderData.orderId}`);
+                    }
+                }, 1500);
+
+            } else {
+                throw new Error(orderResponse.data.error || 'Order creation failed');
+            }
+
+        } catch (err) {
+            console.error('❌ Checkout error:', {
+                status: err.response?.status,
+                data: err.response?.data,
+                message: err.message
+            });
+
+            // ✅ Handle specific error cases
+            let errorMessage = 'Order processing failed';
+
+            if (err.response?.data?.error) {
+                errorMessage = err.response.data.error;
+
+                // ✅ Handle duplicate order ID
+                if (err.response.data.code === 'DUPLICATE_ORDER') {
+                    // Regenerate order ID and retry
+                    const newOrderData = {
+                        ...orderData,
+                        orderId: generateOrderId()
+                    };
+
+                    showCustomToast('Retrying with new order ID...', 'info');
+
+                    try {
+                        const retryResponse = await axios.post('/api/products/orders', newOrderData);
+                        if (retryResponse.data.success) {
+                            // Success with new order ID
+                            localStorage.removeItem('cart');
+                            window.dispatchEvent(new Event('cartUpdated'));
+                            showCustomToast(`Order #${newOrderData.orderId} placed successfully!`, 'success');
+                            router.push(`/checkout/cod-success?orderId=${newOrderData.orderId}`);
+                            return;
+                        }
+                    } catch (retryError) {
+                        errorMessage = 'Failed to create order after retry';
+                    }
+                }
+
+                // ✅ Handle stock issues
+                if (err.response.data.details && Array.isArray(err.response.data.details)) {
+                    errorMessage = err.response.data.details.join(', ');
                 }
             }
 
+            // ✅ Network errors
+            if (err.code === 'ERR_NETWORK') {
+                errorMessage = 'Network error. Please check your connection and try again.';
+            }
 
-            // jodi Online Payment gateway active kori tahole ei else code visiable korte hobe 
+            // ✅ Timeout errors
+            if (err.code === 'ECONNABORTED') {
+                errorMessage = 'Request timeout. Please try again.';
+            }
 
-            //  Online Payment: Use API Route
-
-            // else if (paymentMethod === 'pay_first') {
-
-            //     const orderResponse = await axios.post('/api/products/orders', {
-            //         ...orderData,
-            //         status: 'pending_payment' 
-            //     });
-
-            //     if (orderResponse.data.message === 'Order created') {
-            //         console.log('✅ Order created with pending status:', orderData.orderId);
-
-
-            //         const response = await axios.post('/api/payment/sslcommerz-initiate', {
-            //             total_amount: payableAmount,
-            //             customerInfo: customerInfo,
-            //             orderData: orderData
-            //         });
-
-            //         if (response.data.status === 'SUCCESS' && response.data.GatewayPageURL) {
-            //             showCustomToast('Redirecting to payment gateway...', 'info');
-            //             setLoading(true);
-            //             window.location.href = response.data.GatewayPageURL;
-            //         } else {
-            //             throw new Error(response.data.failedreason || 'Payment initiation failed');
-            //         }
-            //     } else {
-            //         throw new Error('Order creation failed');
-            //     }
-            // }
-
-        } catch (err) {
-            const errorMessage = err.response?.data?.error || err.message || 'Payment processing failed';
             setError(errorMessage);
             showCustomToast(errorMessage, 'error');
             setLoading(false);
         }
-
     };
 
 
@@ -780,7 +854,7 @@ export default function Checkout() {
                                         <label className="block text-sm mb-1">Phone Number *</label>
                                         <div className="flex">
                                             <span className="inline-flex items-center px-3 text-sm bg-gray-700 border border-r-0 border-gray-600 rounded-l-md">
-                                                +88
+                                                +880
                                             </span>
                                             <input
                                                 type="text"
@@ -788,16 +862,33 @@ export default function Checkout() {
                                                 value={customerInfo.phone}
                                                 onChange={handlePhoneChange}
                                                 className="w-full bg-gray-700 border border-gray-600 rounded-r-md p-2 focus:outline-none focus:border-purple-500"
-                                                placeholder="01XXXXXXXXX"
+                                                placeholder="1XXXXXXXXX"
                                                 maxLength={11}
                                                 required
                                             />
                                         </div>
-                                        {customerInfo.phone && customerInfo.phone.length === 11 && /^01[3-9]/.test(customerInfo.phone) && (
-                                            <p className="text-green-400 text-xs mt-1">
-                                                ✅ +88{customerInfo.phone}
-                                            </p>
+
+                                        {/* Real-time validation display */}
+                                        {customerInfo.phone && (
+                                            <div className="mt-1 text-xs">
+                                                {customerInfo.phone.length === 11 && /^01[3-9]/.test(customerInfo.phone) ? (
+                                                    <p className="text-green-400 flex items-center gap-1">
+                                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                        </svg>
+                                                        Valid: +880{customerInfo.phone.slice(1)}
+                                                    </p>
+                                                ) : customerInfo.phone.length > 0 ? (
+                                                    <p className="text-yellow-400 flex items-center gap-1">
+                                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                        </svg>
+                                                        Enter 11 digits starting with 01
+                                                    </p>
+                                                ) : null}
+                                            </div>
                                         )}
+
                                         {validationErrors.phone && (
                                             <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
                                                 <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
