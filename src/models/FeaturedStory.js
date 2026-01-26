@@ -1,3 +1,5 @@
+// src/models/FeaturedStory.js
+
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 
@@ -160,7 +162,7 @@ FeaturedStorySchema.pre('save', function (next) {
 });
 
 // Index for better query performance
-FeaturedStorySchema.index({ slug: 1 });
+
 FeaturedStorySchema.index({ category: 1 });
 FeaturedStorySchema.index({ status: 1 });
 FeaturedStorySchema.index({ publishedDate: -1 });

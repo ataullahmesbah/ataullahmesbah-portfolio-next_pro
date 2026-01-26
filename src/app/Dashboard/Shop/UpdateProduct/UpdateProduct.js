@@ -263,9 +263,9 @@ export default function UpdateProduct() {
         data.append('targetCountry', formData.targetCountry || '');
         data.append('targetCity', formData.targetCity || '');
 
-        console.log('FormData entries:');
+    
         for (let [key, value] of data.entries()) {
-            console.log(`${key}:`, value instanceof File ? value.name : value);
+            // console.log(`${key}:`, value instanceof File ? value.name : value);
         }
 
         try {

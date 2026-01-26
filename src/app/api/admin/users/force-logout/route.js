@@ -20,7 +20,7 @@ export async function POST(req) {
 
         return NextResponse.json({ message: 'User will be logged out on next request' });
     } catch (error) {
-        console.error('Force logout error:', error);
+   
         return NextResponse.json({ message: 'Failed to force logout' }, { status: 500 });
     }
 }

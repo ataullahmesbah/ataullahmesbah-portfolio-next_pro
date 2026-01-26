@@ -10,7 +10,7 @@ const schemaData = {
     "url": "https://ataullahmesbah.com",
     "contactPoint": {
       "@type": "ContactPoint",
-      "email": "info@ataullahmesbah.com",
+      "email": "contact@ataullahmesbah.com",
       "contactType": "Customer Support"
     }
   },
@@ -110,11 +110,11 @@ const RefundPolicy = () => {
                 <li>
                   <span className="font-medium text-gray-200">Email:</span>{' '}
                   <a
-                    href="mailto:info@ataullahmesbah.com"
+                    href="mailto:contact@ataullahmesbah.com"
                     className="text-blue-400 hover:underline"
                     aria-label="Email customer support"
                   >
-                    info@ataullahmesbah.com
+                    contact@ataullahmesbah.com
                   </a>
                 </li>
                 <li>

@@ -13,7 +13,7 @@ export async function GET(request) {
         const content = await Content.find(query);
         return NextResponse.json(content);
     } catch (error) {
-        console.error("GET Error:", error);
+
         return NextResponse.json({ error: "Failed to fetch content" }, { status: 500 });
     }
 }
@@ -32,7 +32,7 @@ export async function POST(request) {
         await content.save();
         return NextResponse.json(content, { status: 201 });
     } catch (error) {
-        console.error("POST Error:", error);
+
         return NextResponse.json({ error: "Failed to add content" }, { status: 500 });
     }
 }

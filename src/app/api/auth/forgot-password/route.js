@@ -31,12 +31,12 @@ export async function POST(req) {
         user.otpExpiresAt = otpExpiresAt;
         await user.save();
 
-        // Send OTP to the user's email
+        // Send OTP to the user's email and get OTP
         await sendOTP(email, otp);
 
         return NextResponse.json({ message: 'Verification code sent successfully' });
     } catch (error) {
-        console.error('Forgot password error:', error);
+      
         return NextResponse.json({ message: 'Failed to process request' }, { status: 500 });
     }
 }

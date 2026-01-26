@@ -28,7 +28,7 @@ export async function GET(request) {
 
         return NextResponse.json(certification);
     } catch (error) {
-        console.error('GET certification error:', error);
+     
         return NextResponse.json({ message: 'Failed to fetch certification' }, { status: 500 });
     }
 }
@@ -76,7 +76,7 @@ export async function POST(request) {
 
         return NextResponse.json(certification, { status: 201 });
     } catch (error) {
-        console.error('POST certification error:', error);
+       
         return NextResponse.json({
             message: 'Failed to create certification',
             error: error.message
@@ -131,7 +131,7 @@ export async function PUT(request) {
 
         return NextResponse.json(certification);
     } catch (error) {
-        console.error('PUT certification error:', error);
+  
         return NextResponse.json({
             message: 'Failed to update certification',
             error: error.message
@@ -167,7 +167,7 @@ export async function DELETE(request) {
 
         return NextResponse.json({ message: 'Certification deleted' });
     } catch (error) {
-        console.error('DELETE certification error:', error);
+       
         return NextResponse.json({ message: 'Failed to delete certification' }, { status: 500 });
     }
 }

@@ -22,7 +22,7 @@ async function fetchProject(slug) {
         if (!data.project) throw new Error('Project not found');
         return data.project;
     } catch (err) {
-        console.error('Error fetching project:', err);
+
         throw err;
     }
 }

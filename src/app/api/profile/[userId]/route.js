@@ -38,7 +38,7 @@ export async function GET(req, { params }) {
             },
         });
     } catch (error) {
-        console.error('Error fetching profile:', error);
+   
         return NextResponse.json(
             { message: 'Internal server error' },
             { status: 500 }

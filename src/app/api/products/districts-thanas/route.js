@@ -74,7 +74,7 @@ export async function GET() {
         };
         return NextResponse.json(districtsThanas, { status: 200 });
     } catch (error) {
-        console.error('Error fetching districts and thanas:', error);
+
         return NextResponse.json({ error: 'Failed to fetch districts and thanas' }, { status: 500 });
     }
 }

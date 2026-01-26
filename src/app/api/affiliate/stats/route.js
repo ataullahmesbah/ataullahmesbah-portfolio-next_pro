@@ -147,7 +147,7 @@ export async function GET(request) {
 
         return NextResponse.json(affiliates);
     } catch (error) {
-        console.error('Fetch affiliate stats error:', error);
+
         return NextResponse.json({ message: 'Failed to fetch stats', error: error.message }, { status: 500 });
     }
 }

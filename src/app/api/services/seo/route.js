@@ -22,7 +22,7 @@ export async function GET(request) {
             return NextResponse.json(services, { status: 200 });
         }
     } catch (error) {
-        console.error('Error fetching SEO services:', error);
+
         return NextResponse.json({ error: 'Failed to fetch services' }, { status: 500 });
     }
 }
@@ -72,7 +72,7 @@ export async function POST(request) {
 
         return NextResponse.json({ message: 'Service created successfully', data: seoService }, { status: 201 });
     } catch (error) {
-        console.error('Error creating SEO service:', error);
+
         return NextResponse.json({ error: 'Failed to create service' }, { status: 500 });
     }
 }
@@ -132,7 +132,7 @@ export async function PUT(request) {
 
         return NextResponse.json({ message: 'Service updated successfully', data: updatedService }, { status: 200 });
     } catch (error) {
-        console.error('Error updating SEO service:', error);
+
         return NextResponse.json({ error: 'Failed to update service' }, { status: 500 });
     }
 }
@@ -155,7 +155,7 @@ export async function DELETE(request) {
 
         return NextResponse.json({ message: 'Service deleted successfully' }, { status: 200 });
     } catch (error) {
-        console.error('Error deleting SEO service:', error);
+
         return NextResponse.json({ error: 'Failed to delete service' }, { status: 500 });
     }
 }

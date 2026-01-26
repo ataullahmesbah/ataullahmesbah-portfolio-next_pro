@@ -96,7 +96,7 @@ export async function POST(req) {
         await newsletter.save();
         return NextResponse.json({ message: 'Newsletter created successfully', newsletter }, { status: 201 });
     } catch (error) {
-        console.error('Error creating newsletter:', error);
+     
         return NextResponse.json({ error: 'Failed to create newsletter', message: error.message }, { status: 500 });
     }
 }
@@ -163,7 +163,7 @@ export async function PUT(req) {
         await newsletter.save();
         return NextResponse.json({ message: 'Newsletter updated successfully', newsletter }, { status: 200 });
     } catch (error) {
-        console.error('Error updating newsletter:', error);
+      
         return NextResponse.json({ error: 'Failed to update newsletter', message: error.message }, { status: 500 });
     }
 }

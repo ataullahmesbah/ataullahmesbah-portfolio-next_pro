@@ -14,7 +14,7 @@ export default function CommentBox({ blogId }) {
     const [expandedComments, setExpandedComments] = useState({});
 
     useEffect(() => {
-        console.log('Received blogId:', blogId);
+    
         if (!blogId) {
             setError('Blog ID is missing. Cannot submit comments.');
         }

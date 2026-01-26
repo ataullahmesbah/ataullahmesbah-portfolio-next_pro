@@ -48,7 +48,7 @@ const ClientReviews = () => {
                 processReviews(data);
                 localStorage.setItem(cacheKey, JSON.stringify({ timestamp: now, data }));
             } catch (error) {
-                console.error("Error fetching reviews:", error);
+              
                 if (cachedData) {
                     const { data } = JSON.parse(cachedData);
                     processReviews(data);

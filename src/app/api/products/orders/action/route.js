@@ -110,7 +110,7 @@ export async function POST(request) {
 
         return NextResponse.json({ success: true }, { status: 200 });
     } catch (error) {
-        console.error(`Error performing ${action} on order:`, error);
+
         return NextResponse.json({ error: 'Failed to process action. Please try again.' }, { status: 500 });
     }
 }

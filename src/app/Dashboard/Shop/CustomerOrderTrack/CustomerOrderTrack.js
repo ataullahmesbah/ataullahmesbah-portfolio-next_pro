@@ -38,7 +38,7 @@ const CustomerOrderTrack = () => {
                 setOrder(data[0]);
                 toast.success("Order found successfully!");
             } catch (error) {
-                console.error("Error fetching order:", error);
+                // console.error("Error fetching order:", error);
                 toast.error(`Error: ${error.message}`);
                 setOrder(null);
             } finally {
@@ -89,7 +89,7 @@ const CustomerOrderTrack = () => {
             window.URL.revokeObjectURL(url);
             toast.success("Invoice downloaded successfully!");
         } catch (error) {
-            console.error("Error downloading invoice:", error);
+            // console.error("Error downloading invoice:", error);
             toast.error(`Error: ${error.message}`);
         }
     };

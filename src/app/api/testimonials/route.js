@@ -10,7 +10,7 @@ export async function GET() {
         const testimonials = await Testimonial.find().sort({ createdAt: -1 }).lean();
         return NextResponse.json(testimonials, { status: 200 });
     } catch (error) {
-        console.error("Error fetching testimonials:", error);
+
         return NextResponse.json(
             { error: "Failed to fetch testimonials", details: error.message },
             { status: 500 }
@@ -29,7 +29,7 @@ export async function POST(req) {
         const rating = parseFloat(formData.get('rating') && formData.get('rating').toString());
         const description = formData.get('description') && formData.get('description').toString().trim();
         const categoriesString = formData.get('categories') && formData.get('categories').toString();
-        const categories = categoriesString ? categoriesString.split(',').map(function(cat) { return cat.trim(); }).filter(function(cat) { return cat; }) : [];
+        const categories = categoriesString ? categoriesString.split(',').map(function (cat) { return cat.trim(); }).filter(function (cat) { return cat; }) : [];
         const imageFile = formData.get('image');
 
         // Validate required fields
@@ -49,14 +49,14 @@ export async function POST(req) {
 
         // Upload image to Cloudinary
         const buffer = Buffer.from(await imageFile.arrayBuffer());
-        const uploadResult = await new Promise(function(resolve, reject) {
+        const uploadResult = await new Promise(function (resolve, reject) {
             cloudinary.uploader.upload_stream(
                 {
                     folder: 'testimonials',
                     format: 'webp',
                     transformation: [{ width: 500, height: 500, crop: 'fill' }]
                 },
-                function(error, result) {
+                function (error, result) {
                     if (error) reject(error);
                     else resolve(result);
                 }
@@ -84,7 +84,7 @@ export async function POST(req) {
         );
 
     } catch (error) {
-        console.error("Error adding testimonial:", error);
+
         return NextResponse.json(
             {
                 error: "Failed to add testimonial",
@@ -131,7 +131,7 @@ export async function DELETE(req) {
         );
 
     } catch (error) {
-        console.error("Error deleting testimonial:", error);
+
         return NextResponse.json(
             { error: "Failed to delete testimonial", details: error.message },
             { status: 500 }

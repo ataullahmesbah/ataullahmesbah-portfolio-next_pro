@@ -40,14 +40,14 @@ export async function GET(req) {
             createdAt: -1 // Then newest first
         });
 
-        console.log('API - Found ads:', ads.length);
+ 
 
         return NextResponse.json({
             success: true,
             data: ads
         });
     } catch (error) {
-        console.error('Production Error fetching ads:', error);
+     
         return NextResponse.json({
             error: 'Failed to fetch ads'
         }, { status: 500 });
@@ -70,7 +70,7 @@ export async function POST(req) {
             message: `${type} tracked successfully`
         });
     } catch (error) {
-        console.error('Production Error tracking:', error);
+        
         return NextResponse.json({
             error: 'Failed to track'
         }, { status: 500 });

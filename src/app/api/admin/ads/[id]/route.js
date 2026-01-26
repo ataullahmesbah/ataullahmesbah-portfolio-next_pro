@@ -8,10 +8,10 @@ import cloudinary from '@/utils/cloudinary';
 export async function PUT(req, { params }) {
   await dbConnect();
   const { id } = params;
-  
+
   try {
     const formData = await req.formData();
-    
+
     let updateData = {
       buttonText: formData.get('buttonText')?.toString()?.trim(),
       buttonLink: formData.get('buttonLink')?.toString()?.trim(),
@@ -31,7 +31,7 @@ export async function PUT(req, { params }) {
     // Validate required fields
     if (!updateData.buttonText || !updateData.buttonLink) {
       return NextResponse.json(
-        { error: 'Button text and link are required' }, 
+        { error: 'Button text and link are required' },
         { status: 400 }
       );
     }
@@ -42,7 +42,7 @@ export async function PUT(req, { params }) {
         const imageBuffer = Buffer.from(await image.arrayBuffer());
         updateData.imageUrl = await new Promise((resolve, reject) => {
           const uploadStream = cloudinary.uploader.upload_stream(
-            { 
+            {
               folder: 'ads',
               transformation: [
                 { width: 300, height: 500, crop: 'fill' },
@@ -58,43 +58,43 @@ export async function PUT(req, { params }) {
         });
       } catch (uploadError) {
         return NextResponse.json(
-          { error: 'Image upload failed' }, 
+          { error: 'Image upload failed' },
           { status: 500 }
         );
       }
     }
 
-    const ad = await Ad.findByIdAndUpdate(id, updateData, { 
+    const ad = await Ad.findByIdAndUpdate(id, updateData, {
       new: true,
-      runValidators: true 
+      runValidators: true
     });
-    
+
     if (!ad) {
       return NextResponse.json(
-        { error: 'Ad not found' }, 
+        { error: 'Ad not found' },
         { status: 404 }
       );
     }
-    
+
     return NextResponse.json({
       success: true,
       message: 'Ad updated successfully',
       data: ad
     });
-    
+
   } catch (error) {
-    console.error('Production Error updating ad:', error);
-    
+
+
     if (error.name === 'ValidationError') {
       const errors = Object.values(error.errors).map(err => err.message);
       return NextResponse.json(
-        { error: errors.join(', ') }, 
+        { error: errors.join(', ') },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
-      { error: 'Internal server error' }, 
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
@@ -103,26 +103,26 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   await dbConnect();
   const { id } = params;
-  
+
   try {
     const ad = await Ad.findByIdAndDelete(id);
-    
+
     if (!ad) {
       return NextResponse.json(
-        { error: 'Ad not found' }, 
+        { error: 'Ad not found' },
         { status: 404 }
       );
     }
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       success: true,
-      message: 'Ad deleted successfully' 
+      message: 'Ad deleted successfully'
     });
-    
+
   } catch (error) {
-    console.error('Production Error deleting ad:', error);
+
     return NextResponse.json(
-      { error: 'Failed to delete ad' }, 
+      { error: 'Failed to delete ad' },
       { status: 500 }
     );
   }

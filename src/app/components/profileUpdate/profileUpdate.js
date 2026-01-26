@@ -90,7 +90,7 @@ export default function ProfileUpdate() {
                 setImagePreview(data.profile.image || '');
             }
         } catch (error) {
-            console.error('Error fetching profile:', error);
+
             toast.error('Failed to load profile');
         }
     };
@@ -183,7 +183,7 @@ export default function ProfileUpdate() {
         setLoading(true);
 
         try {
-            console.log('Submitting form data:', formData);
+
 
             const response = await fetch('/api/profile/update', {
                 method: 'POST',
@@ -192,7 +192,7 @@ export default function ProfileUpdate() {
             });
 
             const data = await response.json();
-            console.log('API response:', data);
+
 
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to update profile');
@@ -202,7 +202,7 @@ export default function ProfileUpdate() {
             router.push('/profile');
 
         } catch (error) {
-            console.error('Update error:', error);
+
             toast.error(error.message || 'Something went wrong');
 
             // Check for specific validation errors from Mongoose

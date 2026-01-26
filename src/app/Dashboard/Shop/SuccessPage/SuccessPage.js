@@ -52,7 +52,7 @@ export default function SuccessPage() {
                     setError('Order not found.');
                 }
             } catch (err) {
-                console.error('Failed to fetch order:', err);
+       
                 setError('Failed to load order details.');
             } finally {
                 setLoading(false);

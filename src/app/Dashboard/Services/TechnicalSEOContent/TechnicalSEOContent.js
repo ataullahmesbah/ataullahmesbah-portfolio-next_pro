@@ -385,7 +385,7 @@ const TechnicalSEOContent = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                         {/* Metrics Table */}
                         <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700">
-                            <h3 className="text-2xl font-bold text-white mb-6">Google's Core Web Vitals</h3>
+                            <h3 className="text-2xl font-bold text-white mb-6">Google’s Core Web Vitals</h3>
                             <div className="space-y-4">
                                 {coreWebVitals.map((vital, index) => (
                                     <div key={index} className="flex justify-between items-center p-4 bg-gray-700/50 rounded-lg">

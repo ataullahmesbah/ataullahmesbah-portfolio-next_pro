@@ -7,7 +7,7 @@ export async function POST(request) {
         const formData = await request.formData();
         const ipnData = Object.fromEntries(formData);
 
-        console.log('IPN Data:', ipnData);
+   
 
         // Handle IPN - Update database, send emails, etc.
         if (ipnData.status === 'VALID') {
@@ -19,7 +19,7 @@ export async function POST(request) {
 
         return NextResponse.json({ status: 'IPN_RECEIVED' });
     } catch (error) {
-        console.error('IPN processing error:', error);
+       
         return NextResponse.json({ error: 'IPN_FAILED' }, { status: 500 });
     }
 }

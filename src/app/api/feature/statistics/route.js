@@ -5,7 +5,7 @@ import FeaturedStory from '@/models/FeaturedStory';
 export async function GET(request) {
     try {
         await dbConnect();
-        console.log('Fetching statistics from /api/feature/statistics'); // Debug log
+   
 
         // Total Stories
         const totalStories = await FeaturedStory.countDocuments();
@@ -63,10 +63,10 @@ export async function GET(request) {
             storiesOverTime: storiesOverTime.map(s => ({ date: s._id, count: s.count })),
         };
 
-        console.log('Statistics fetched:', response); // Debug log
+      
         return NextResponse.json(response, { status: 200 });
     } catch (error) {
-        console.error('GET /api/feature/statistics error:', error);
+      
         return NextResponse.json({ error: 'Failed to fetch statistics' }, { status: 500 });
     }
 }

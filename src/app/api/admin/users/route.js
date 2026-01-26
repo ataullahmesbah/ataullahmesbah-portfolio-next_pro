@@ -13,7 +13,7 @@ export async function GET() {
         const users = await User.find({}, { password: 0, otp: 0, passwordResetToken: 0 }); // Exclude sensitive fields
         return NextResponse.json(users);
     } catch (error) {
-        console.error('Error fetching users:', error);
+
         return NextResponse.json({ message: 'Failed to fetch users' }, { status: 500 });
     }
 }
@@ -48,7 +48,7 @@ export async function PUT(req) {
 
         return NextResponse.json({ message: 'User updated successfully' });
     } catch (error) {
-        console.error('Error updating user:', error);
+
         return NextResponse.json({ message: 'Failed to update user' }, { status: 500 });
     }
 }
@@ -66,7 +66,7 @@ export async function DELETE(req) {
 
         return NextResponse.json({ message: 'User deleted successfully' });
     } catch (error) {
-        console.error('Error deleting user:', error);
+
         return NextResponse.json({ message: 'Failed to delete user' }, { status: 500 });
     }
 }

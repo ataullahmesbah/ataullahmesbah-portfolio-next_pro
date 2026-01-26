@@ -108,7 +108,7 @@ const LoginForm = () => {
                     password,
                 });
 
-                console.log('SignIn result:', result);
+
 
                 if (result?.error) {
                     // Handle specific errors
@@ -227,7 +227,7 @@ const LoginForm = () => {
                     <div>
                         <h3 className="text-lg font-medium text-white mb-2">Enter Verification Code</h3>
                         <p className="text-gray-400 text-sm mb-6">
-                            We've sent a 6-digit code to your email. Please enter it below.
+                            We’ve sent a 6-digit code to your email. Please enter it below.
                         </p>
 
                         <div className="flex justify-center space-x-3 mb-6">

@@ -84,7 +84,7 @@ export async function generateMetadata({ searchParams }) {
     };
   } catch (error) {
 
-    // ✅ Simple fallback metadata without console.log
+    
     return {
       title: 'Blog | Ataullah Mesbah - Technology Insights & Tutorials',
       description: 'Explore expert insights on AI, quantum computing, web development, and emerging technologies. Latest tutorials and tech trends by Ataullah Mesbah.',

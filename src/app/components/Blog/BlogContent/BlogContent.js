@@ -39,7 +39,7 @@ async function getBlogData(page = 1) {
             error: blogsData.error || null
         };
     } catch (error) {
-        console.error('❌ Error in getBlogData:', error);
+    
         return {
             blogs: [],
             currentPage: 1,

@@ -45,11 +45,11 @@ export async function POST(request) {
         if (ipAddress && ipAddress.includes(',')) {
             ipAddress = ipAddress.split(',')[0].trim(); // Take the first IP if multiple are present
         }
-        console.log("Captured IP Address:", ipAddress); // Debug log
+
 
         // Capture country
         const country = await getCountryFromIP(ipAddress);
-        console.log("Captured Country:", country); // Debug log
+
 
         // Save to database first (primary storage)
         const subscriber = new NewsletterSubscriber({
@@ -66,7 +66,7 @@ export async function POST(request) {
         const BREVO_LIST_ID = parseInt(process.env.BREVO_LIST_ID);
 
         if (!BREVO_API_KEY || !BREVO_LIST_ID) {
-            console.error("Brevo configuration missing");
+
             return NextResponse.json(
                 {
                     message: "Subscribed successfully (local)",
@@ -111,7 +111,7 @@ export async function POST(request) {
             );
 
         } catch (brevoError) {
-            console.error("Brevo sync failed:", brevoError.response?.data || brevoError.message);
+
             return NextResponse.json(
                 {
                     message: "Subscribed successfully!",
@@ -122,7 +122,7 @@ export async function POST(request) {
         }
 
     } catch (error) {
-        console.error("Subscription error:", error);
+
         return NextResponse.json(
             {
                 error: "Subscription failed",
@@ -155,7 +155,7 @@ export async function GET(request) {
             total: await NewsletterSubscriber.countDocuments()
         });
     } catch (error) {
-        console.error("Error fetching subscribers:", error);
+
         return NextResponse.json(
             { error: "Failed to fetch subscribers", details: error.message },
             { status: 500 }
@@ -207,7 +207,7 @@ export async function DELETE(request) {
                     }
                 );
             } catch (brevoError) {
-                console.error("Failed to delete from Brevo:", brevoError.response?.data || brevoError.message);
+
             }
         }
 
@@ -217,7 +217,7 @@ export async function DELETE(request) {
             message: "Subscriber deleted successfully"
         });
     } catch (error) {
-        console.error("Error deleting subscriber:", error);
+
         return NextResponse.json(
             { error: "Failed to delete subscriber", details: error.message },
             { status: 500 }
@@ -229,7 +229,7 @@ export async function DELETE(request) {
 
 async function getCountryFromIP(ip) {
     if (ip === 'unknown' || !ip || ip === '::1' || ip === '127.0.0.1') {
-        console.log("IP is localhost or unknown, returning 'Unknown'");
+
         return 'Unknown';
     }
 
@@ -237,33 +237,33 @@ async function getCountryFromIP(ip) {
         // Try ipinfo.io first
         const ipinfoToken = process.env.IPINFO_TOKEN;
         if (ipinfoToken) {
-            console.log(`Fetching country from ipinfo.io for IP: ${ip}`);
+
             const response = await fetch(`https://ipinfo.io/${ip}/json?token=${ipinfoToken}`);
             if (response.ok) {
                 const data = await response.json();
-                console.log("ipinfo.io response:", data);
+
                 return data.country || 'Unknown';
             } else {
-                console.log(`ipinfo.io failed with status: ${response.status}`);
+
             }
         } else {
-            console.log("IPINFO_TOKEN not set, falling back to ip-api.com");
+
         }
 
         // Fallback to ip-api.com if ipinfo.io fails
-        console.log(`Fetching country from ip-api.com for IP: ${ip}`);
+
         const fallbackResponse = await fetch(`http://ip-api.com/json/${ip}?fields=country`);
         if (fallbackResponse.ok) {
             const data = await fallbackResponse.json();
-            console.log("ip-api.com response:", data);
+
             return data.country || 'Unknown';
         } else {
-            console.log(`ip-api.com failed with status: ${fallbackResponse.status}`);
+
         }
 
         return 'Unknown';
     } catch (error) {
-        console.error("Error fetching country from IP:", error.message);
+
         return 'Unknown';
     }
 }

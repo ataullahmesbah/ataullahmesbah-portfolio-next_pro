@@ -21,7 +21,7 @@ export async function GET(request) {
             return NextResponse.json(packages, { status: 200 });
         }
     } catch (error) {
-        console.error('Error fetching web packages:', error);
+
         return NextResponse.json({ error: 'Failed to fetch packages' }, { status: 500 });
     }
 }
@@ -45,7 +45,7 @@ export async function POST(request) {
 
         return NextResponse.json({ message: 'Package created successfully', data: webPackage }, { status: 201 });
     } catch (error) {
-        console.error('Error creating web package:', error);
+
         return NextResponse.json({ error: 'Failed to create package' }, { status: 500 });
     }
 }
@@ -77,7 +77,7 @@ export async function PUT(request) {
 
         return NextResponse.json({ message: 'Package updated successfully', data: updatedPackage }, { status: 200 });
     } catch (error) {
-        console.error('Error updating web package:', error);
+
         return NextResponse.json({ error: 'Failed to update package' }, { status: 500 });
     }
 }
@@ -100,7 +100,7 @@ export async function DELETE(request) {
 
         return NextResponse.json({ message: 'Package deleted successfully' }, { status: 200 });
     } catch (error) {
-        console.error('Error deleting web package:', error);
+
         return NextResponse.json({ error: 'Failed to delete package' }, { status: 500 });
     }
 }

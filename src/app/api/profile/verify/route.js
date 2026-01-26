@@ -30,7 +30,7 @@ export async function POST(req) {
 
         return NextResponse.json({ message: `Verification ${status}`, profile });
     } catch (error) {
-        console.error('Error verifying profile:', error);
+       
         return NextResponse.json({ message: 'Something went wrong' }, { status: 500 });
     }
 }

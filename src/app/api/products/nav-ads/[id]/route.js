@@ -24,7 +24,7 @@ export async function DELETE(req, { params }) {
             message: 'Nav ad deleted successfully'
         });
     } catch (error) {
-        console.error('Error deleting nav ad:', error);
+   
         return NextResponse.json(
             { success: false, error: 'Failed to delete nav ad' },
             { status: 500 }

@@ -21,7 +21,7 @@ export async function GET(request, { params }) {
         await project.save();
         return NextResponse.json(project.toObject(), { status: 200 });
     } catch (error) {
-        console.error("Error fetching project:", error);
+
         return NextResponse.json({ error: "Failed to fetch project", message: error.message }, { status: 500 });
     }
 }
@@ -53,8 +53,8 @@ export async function PUT(request, { params }) {
         const projectLinkText = formData.get('projectLinkText') || 'Visit Project Site';
 
         // Add logging here
-        console.log("Received projectLink for PUT:", projectLink);
-        console.log("Received projectLinkText for PUT:", projectLinkText);
+
+
 
         const project = await Project.findById(id);
         if (!project) {
@@ -135,7 +135,7 @@ export async function PUT(request, { params }) {
         await project.save();
         return NextResponse.json({ message: "Project updated successfully", project }, { status: 200 });
     } catch (error) {
-        console.error("Error updating project:", error);
+
         return NextResponse.json({ error: "Failed to update project", message: error.message }, { status: 500 });
     }
 }
@@ -152,7 +152,7 @@ export async function DELETE(request, { params }) {
         }
         return NextResponse.json({ message: "Project deleted successfully" }, { status: 200 });
     } catch (error) {
-        console.error("Error deleting project:", error);
+
         return NextResponse.json({ error: "Failed to delete project", message: error.message }, { status: 500 });
     }
 }

@@ -23,7 +23,7 @@ export async function GET(request, { params }) {
 
         return new Response(JSON.stringify({ profile }), { status: 200 });
     } catch (error) {
-        console.error(error);
+
         return new Response(JSON.stringify({ message: 'Something went wrong' }), { status: 500 });
     }
 }

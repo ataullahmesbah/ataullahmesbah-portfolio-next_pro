@@ -11,10 +11,10 @@ export async function POST(req) {
         const { email, otp } = await req.json();
 
         // Find the user with the matching email
-        const user = await User.findOne({ 
+        const user = await User.findOne({
             email: email.toLowerCase()
         });
-        
+
         if (!user || user.otp !== otp) {
             return NextResponse.json({ message: 'Invalid OTP' }, { status: 400 });
         }
@@ -29,14 +29,14 @@ export async function POST(req) {
         user.otpExpiresAt = null;
         await user.save();
 
-        return NextResponse.json({ 
+        return NextResponse.json({
             message: 'OTP verified successfully',
             verified: true,
             email: user.email
         }, { status: 200 });
-        
+
     } catch (error) {
-        console.error('OTP Verification error:', error);
+
         return NextResponse.json({ message: 'OTP verification failed' }, { status: 500 });
     }
 }

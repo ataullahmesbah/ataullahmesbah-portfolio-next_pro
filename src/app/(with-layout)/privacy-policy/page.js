@@ -10,7 +10,7 @@ const schemaData = {
     "url": "https://ataullahmesbah.com",
     "contactPoint": {
       "@type": "ContactPoint",
-      "email": "info@ataullahmesbah.com",
+      "email": "contact@ataullahmesbah.com",
       "contactType": "Customer Support"
     }
   },
@@ -81,11 +81,11 @@ const PrivacyPolicy = () => {
               <p className="text-gray-200 mb-4">
                 You can contact us at{' '}
                 <a
-                  href="mailto:info@ataullahmesbah.com"
+                  href="mailto:contact@ataullahmesbah.com"
                   className="text-purple-600 underline hover:text-purple-700"
                   aria-label="Email customer support"
                 >
-                  info@ataullahmesbah.com
+                  contact@ataullahmesbah.com
                 </a>{' '}
                 to:
               </p>
@@ -118,11 +118,11 @@ const PrivacyPolicy = () => {
             <p className="text-sm italic text-gray-400 text-center">
               Note: For any privacy-related concerns, please reach out to us at{' '}
               <a
-                href="mailto:info@ataullahmesbah.com"
+                href="mailto:contact@ataullahmesbah.com"
                 className="text-purple-600 underline hover:text-purple-700"
                 aria-label="Email customer support"
               >
-                info@ataullahmesbah.com
+                contact@ataullahmesbah.com
               </a>.
             </p>
           </footer>

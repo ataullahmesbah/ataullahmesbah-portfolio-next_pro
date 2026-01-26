@@ -41,7 +41,7 @@ export async function POST(request) {
 
         return NextResponse.json({ success: true }, { status: 200 });
     } catch (error) {
-        console.error('IPN Error:', error);
+      
         return NextResponse.json(
             { error: error.message || 'IPN processing failed' },
             { status: 500 }

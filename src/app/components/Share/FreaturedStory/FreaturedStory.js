@@ -37,7 +37,7 @@ export default function FeaturedStory() {
                     setStory(null);
                 }
             } catch (error) {
-                console.error('Error fetching story:', error);
+
                 toast.error('Failed to load featured story');
                 setStory(null);
             } finally {
@@ -98,7 +98,7 @@ export default function FeaturedStory() {
         <>
             <Toaster position="top-right" />
             <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-                
+
 
                 {/* Featured Story Card */}
                 <div className="group bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl overflow-hidden border border-gray-700/50 hover:border-purple-500/50 transition-all duration-500 backdrop-blur-sm hover:shadow-2xl hover:shadow-purple-500/10">
@@ -154,98 +154,98 @@ export default function FeaturedStory() {
                                     {story.shortDescription || story.metaDescription}
                                 </p>
 
-                               {/* Stats - Responsive */}
-<div className="flex flex-wrap items-center gap-3 sm:gap-4 text-gray-400 text-xs">
-    {/* Published Date */}
-    <span className="flex items-center gap-1 flex-shrink-0">
-        <FiCalendar className="w-3 h-3 text-purple-400 flex-shrink-0" />
-        <span className="hidden xs:inline">
-            {new Date(story.publishedDate).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-            })}
-        </span>
-        <span className="xs:hidden">
-            {new Date(story.publishedDate).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric'
-            })}
-        </span>
-    </span>
+                                {/* Stats - Responsive */}
+                                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-gray-400 text-xs">
+                                    {/* Published Date */}
+                                    <span className="flex items-center gap-1 flex-shrink-0">
+                                        <FiCalendar className="w-3 h-3 text-purple-400 flex-shrink-0" />
+                                        <span className="hidden xs:inline">
+                                            {new Date(story.publishedDate).toLocaleDateString('en-US', {
+                                                month: 'short',
+                                                day: 'numeric',
+                                                year: 'numeric'
+                                            })}
+                                        </span>
+                                        <span className="xs:hidden">
+                                            {new Date(story.publishedDate).toLocaleDateString('en-US', {
+                                                month: 'short',
+                                                day: 'numeric'
+                                            })}
+                                        </span>
+                                    </span>
 
-    {/* Reading Time - Always visible */}
-    <span className="flex items-center gap-1 flex-shrink-0">
-        <FiClock className="w-3 h-3 text-blue-400 flex-shrink-0" />
-        <span>{story.readingTime || 5} min</span>
-    </span>
+                                    {/* Reading Time - Always visible */}
+                                    <span className="flex items-center gap-1 flex-shrink-0">
+                                        <FiClock className="w-3 h-3 text-blue-400 flex-shrink-0" />
+                                        <span>{story.readingTime || 5} min</span>
+                                    </span>
 
-    {/* Views - Hidden on very small screens */}
-    <span className="hidden sm:flex items-center gap-1 flex-shrink-0">
-        <FiEye className="w-3 h-3 text-green-400 flex-shrink-0" />
-        <span>{story.views || 0} views</span>
-    </span>
+                                    {/* Views - Hidden on very small screens */}
+                                    <span className="hidden sm:flex items-center gap-1 flex-shrink-0">
+                                        <FiEye className="w-3 h-3 text-green-400 flex-shrink-0" />
+                                        <span>{story.views || 0} views</span>
+                                    </span>
 
-    {/* Mobile Views - Compact version */}
-    <span className="sm:hidden flex items-center gap-1 flex-shrink-0">
-        <FiEye className="w-3 h-3 text-green-400 flex-shrink-0" />
-        <span>{story.views || 0}</span>
-    </span>
-</div>
+                                    {/* Mobile Views - Compact version */}
+                                    <span className="sm:hidden flex items-center gap-1 flex-shrink-0">
+                                        <FiEye className="w-3 h-3 text-green-400 flex-shrink-0" />
+                                        <span>{story.views || 0}</span>
+                                    </span>
+                                </div>
 
-{/* Author Info - Compact & Elegant (Enhanced Responsive) */}
-<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pt-4 border-t border-gray-700/50">
-    {/* Author Section */}
-    <div className="flex items-center gap-3 flex-1 min-w-0">
-        {/* Avatar */}
-        <div className="relative group flex-shrink-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg transition-transform group-hover:scale-110">
-                {story.author?.charAt(0)?.toUpperCase() || 'A'}
-            </div>
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300 -z-10"></div>
-        </div>
-        
-        {/* Author Info */}
-        <div className="flex-1 min-w-0">
-            <div className="flex flex-col xs:flex-row xs:items-center xs:gap-2">
-                <p className="text-white text-sm font-medium truncate">
-                    By{' '}
-                    <UserLink 
-                        author={story.author} 
-                        className="text-gray-300 hover:text-white transition-colors" 
-                    />
-                </p>
-                {/* Mobile Stats */}
-                <div className="flex items-center gap-2 mt-1 xs:mt-0 sm:hidden">
-                    <span className="text-gray-500 text-xs">•</span>
-                    <span className="text-gray-500 text-xs flex items-center gap-1">
-                        <FiClock className="w-3 h-3" />
-                        {story.readingTime || 5} min
-                    </span>
-                </div>
-            </div>
-            {/* Desktop Author Title */}
-            <p className="text-gray-500 text-xs hidden sm:block">Published author</p>
-        </div>
-    </div>
+                                {/* Author Info - Compact & Elegant (Enhanced Responsive) */}
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pt-4 border-t border-gray-700/50">
+                                    {/* Author Section */}
+                                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                                        {/* Avatar */}
+                                        <div className="relative group flex-shrink-0">
+                                            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg transition-transform group-hover:scale-110">
+                                                {story.author?.charAt(0)?.toUpperCase() || 'A'}
+                                            </div>
+                                            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300 -z-10"></div>
+                                        </div>
 
-    {/* Read More Button */}
-    <div className="flex sm:flex-shrink-0">
-        <Link
-            href={`/featured-story/${story.slug}`}
-            className="group/btn inline-flex items-center gap-2 text-purple-300 hover:text-white bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/30 hover:border-purple-400/50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 backdrop-blur-sm w-full sm:w-auto justify-center sm:justify-start"
-        >
-            <span className="whitespace-nowrap">Read More</span>
-            <FiArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1 flex-shrink-0" />
-        </Link>
-    </div>
-</div>
+                                        {/* Author Info */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex flex-col xs:flex-row xs:items-center xs:gap-2">
+                                                <p className="text-white text-sm font-medium truncate">
+                                                    By{' '}
+                                                    <UserLink
+                                                        author={story.author}
+                                                        className="text-gray-300 hover:text-white transition-colors"
+                                                    />
+                                                </p>
+                                                {/* Mobile Stats */}
+                                                <div className="flex items-center gap-2 mt-1 xs:mt-0 sm:hidden">
+                                                    <span className="text-gray-500 text-xs">•</span>
+                                                    <span className="text-gray-500 text-xs flex items-center gap-1">
+                                                        <FiClock className="w-3 h-3" />
+                                                        {story.readingTime || 5} min
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {/* Desktop Author Title */}
+                                            <p className="text-gray-500 text-xs hidden sm:block">Published author</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Read More Button */}
+                                    <div className="flex sm:flex-shrink-0">
+                                        <Link
+                                            href={`/featured-story/${story.slug}`}
+                                            className="group/btn inline-flex items-center gap-2 text-purple-300 hover:text-white bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/30 hover:border-purple-400/50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 backdrop-blur-sm w-full sm:w-auto justify-center sm:justify-start"
+                                        >
+                                            <span className="whitespace-nowrap">Read More</span>
+                                            <FiArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1 flex-shrink-0" />
+                                        </Link>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-               
+
             </div>
         </>
     );

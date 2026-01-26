@@ -74,7 +74,7 @@ export async function GET(request) {
             pages: Math.ceil(total / limit)
         }, { status: 200 });
     } catch (error) {
-        console.error('GET /api/feature error:', error);
+
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
@@ -107,7 +107,7 @@ async function uploadImageToCloudinary(file, options = {}) {
                 uploadOptions,
                 (error, result) => {
                     if (error) {
-                        console.error('Cloudinary upload error:', error);
+
                         return reject(error);
                     }
                     resolve(result);
@@ -117,7 +117,7 @@ async function uploadImageToCloudinary(file, options = {}) {
 
         return uploadResult;
     } catch (error) {
-        console.error('Image upload failed:', error);
+
         throw new Error('Image upload failed');
     }
 }
@@ -128,12 +128,12 @@ async function optimizeContentBlockImages(contentBlocks, formData) {
 
     for (const [index, block] of contentBlocks.entries()) {
         if (block.type === 'image') {
-            console.log(`Processing image block ${index}:`, block);
+
 
             // Get the image file from FormData using the imageKey
             const imageFile = formData.get(block.imageKey);
             if (!imageFile) {
-                console.error(`Image block ${index} missing image file`);
+
                 processedBlocks.push({
                     type: 'image',
                     imageUrl: '',
@@ -158,13 +158,9 @@ async function optimizeContentBlockImages(contentBlocks, formData) {
                     width: uploadResult.width,
                     height: uploadResult.height
                 });
-                console.log(`Successfully uploaded image block ${index}:`, {
-                    url: uploadResult.secure_url,
-                    dimensions: `${uploadResult.width}x${uploadResult.height}`,
-                    alt: block.alt || ''
-                });
+
             } catch (error) {
-                console.error(`Failed to upload image block ${index}:`, error);
+
                 processedBlocks.push({
                     type: 'image',
                     imageUrl: '',
@@ -236,7 +232,7 @@ export async function POST(request) {
             });
 
         } catch (error) {
-            console.error('Content blocks parse error:', error);
+
             return NextResponse.json(
                 { error: error.message || 'Invalid content blocks format' },
                 { status: 400 }
@@ -282,7 +278,7 @@ export async function POST(request) {
         }
 
         // Upload main image
-        console.log('Uploading main image...');
+
         const mainImageUpload = await uploadImageToCloudinary(mainImage);
 
         if (!mainImageUpload) {
@@ -292,13 +288,9 @@ export async function POST(request) {
             );
         }
 
-        console.log('Main image uploaded:', {
-            url: mainImageUpload.secure_url,
-            dimensions: `${mainImageUpload.width}x${mainImageUpload.height}`
-        });
 
-        // Process content blocks
-        console.log('Processing content block images...');
+
+
         const processedBlocks = await optimizeContentBlockImages(contentBlocks, formData);
 
         // Create story
@@ -349,7 +341,7 @@ export async function POST(request) {
         );
 
     } catch (error) {
-        console.error('POST /api/feature error:', error);
+
 
         if (error.code === 11000) {
             return NextResponse.json(

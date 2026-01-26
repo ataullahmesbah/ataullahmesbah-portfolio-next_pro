@@ -14,7 +14,7 @@ export async function GET() {
             data: navAds
         });
     } catch (error) {
-        console.error('Error fetching nav ads:', error);
+    
         return NextResponse.json({
             success: false,
             error: 'Failed to fetch nav ads'

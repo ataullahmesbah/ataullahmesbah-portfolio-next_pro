@@ -93,7 +93,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
                 setConversionRates(response.data);
             })
             .catch((err) => {
-                console.error('Error fetching conversion rates:', err);
+                // console.error('Error fetching conversion rates:', err);
                 showCustomToast('Failed to load currency conversion rates', 'error');
             });
     }, []);
@@ -212,7 +212,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             window.dispatchEvent(new Event('cartUpdated'));
             setIsCartOpen(true);
         } catch (error) {
-            console.error('Error validating product stock:', error);
+            // console.error('Error validating product stock:', error);
             showCustomToast(error.response?.data?.message || 'Error checking product availability', 'error');
         }
     };
@@ -272,7 +272,7 @@ export default function ProductDetailsClient({ product, latestProducts }) {
             showCustomToast(`Proceeding to cart with ${quantity} units of ${product.title}`, 'success');
             router.push('/cart');
         } catch (error) {
-            console.error('Error validating product stock:', error);
+            // console.error('Error validating product stock:', error);
             showCustomToast(error.response?.data?.message || 'Error checking product availability', 'error');
         }
     };

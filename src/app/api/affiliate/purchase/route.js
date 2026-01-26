@@ -31,7 +31,7 @@ export async function POST(request) {
 
         return NextResponse.json({ message: 'Purchase recorded' }, { status: 201 });
     } catch (error) {
-        console.error('Purchase affiliate error:', error);
+      
         return NextResponse.json({ message: 'Failed to record purchase', error: error.message }, { status: 500 });
     }
 }

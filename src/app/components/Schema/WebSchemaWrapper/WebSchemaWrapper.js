@@ -33,7 +33,7 @@ const WebSchemaWrapper = ({ page }) => {
                 {
                     "@type": "ContactPoint",
                     "telephone": "+8801571083401",
-                    "email": "info@ataullahmesbah.com",
+                    "email": "contact@ataullahmesbah.com",
                     "url": "https://www.ataullahmesbah.com/contact",
                     "contactType": ["customer service", "technical support"],
                     "areaServed": "BD",

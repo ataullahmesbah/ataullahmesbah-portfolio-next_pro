@@ -37,7 +37,7 @@ export async function GET(req) {
 
     return NextResponse.json({ logs, blockedIPs, ipCounts, allBlockedIPs });
   } catch (error) {
-    console.error(`Error fetching IP logs: ${error.message}`);
+   
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -71,7 +71,7 @@ export async function POST(req) {
 
     return NextResponse.json({ message: `${action} action performed on IP ${ip}` }, { status: 200 });
   } catch (error) {
-    console.error(`Error managing IP: ${error.message}`);
+ 
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -45,14 +45,7 @@ export default function AddCertificationForm() {
             data.append('credentialId', formData.credentialId);
             data.append('image', formData.image);
 
-            // Log FormData for debugging
-            console.log('Submitting FormData:', {
-                niche: formData.niche,
-                title: formData.title,
-                issuer: formData.issuer,
-                credentialId: formData.credentialId,
-                image: formData.image.name,
-            });
+           
 
             const res = await fetch('/api/certifications', {
                 method: 'POST',
@@ -66,7 +59,7 @@ export default function AddCertificationForm() {
             }
 
             const result = await res.json();
-            console.log('API success response:', result);
+           
 
             toast.success('Certification added successfully!');
             router.push('/admin-dashboard/certification/all-certifications');

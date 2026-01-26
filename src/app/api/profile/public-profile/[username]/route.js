@@ -70,7 +70,7 @@ export async function GET(req, { params }) {
     });
 
   } catch (error) {
-    console.error('Error fetching public profile:', error);
+    // console.error('Error fetching public profile:', error);
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }

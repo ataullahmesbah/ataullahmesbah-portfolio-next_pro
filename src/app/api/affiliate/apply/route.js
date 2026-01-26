@@ -11,7 +11,7 @@ import { authOptions } from '../../auth/[...nextauth]/route';
 export async function POST(request) {
     try {
         const session = await getServerSession(authOptions);
-        console.log('Session:', session); // Debug session
+      
 
         if (!session || !session.user || !session.user.id) {
             return NextResponse.json({ message: 'Unauthorized: No valid session' }, { status: 401 });
@@ -24,10 +24,10 @@ export async function POST(request) {
         }
 
         const affiliate = await Affiliate.create({ userId: session.user.id });
-        console.log('Affiliate created:', affiliate); // Debug creation
+     
         return NextResponse.json({ message: 'Affiliate request submitted', affiliate }, { status: 201 });
     } catch (error) {
-        console.error('Apply affiliate error:', error);
+       
         return NextResponse.json({ message: 'Failed to apply', error: error.message }, { status: 500 });
     }
 }

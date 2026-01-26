@@ -51,7 +51,7 @@ const WebDevsServices = () => {
                                 viewport={{ once: true }}
                                 className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed"
                             >
-                                In today's digital landscape, your website is your most valuable asset. I specialize in <strong className="text-purple-400">Next.js development</strong> to create high-converting, SEO-friendly websites that load instantly and provide exceptional user experiences across all devices.
+                                In today’s digital landscape, your website is your most valuable asset. I specialize in <strong className="text-purple-400">Next.js development</strong> to create high-converting, SEO-friendly websites that load instantly and provide exceptional user experiences across all devices.
                             </motion.p>
 
                             {/* Services - Minimal Cards */}

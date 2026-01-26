@@ -17,28 +17,28 @@ function calculateReadingTime(contentBlocks) {
 
 async function fetchStory(slug) {
     try {
-        console.log('Fetching story for slug:', slug);
+
         const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/feature/${slug}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             cache: 'no-store',
         });
 
-        console.log('Response status:', res.status);
+
         if (!res.ok) {
             if (res.status === 404) {
-                console.log('Story not found - 404');
+
                 return null;
             }
             throw new Error(`HTTP error! status: ${res.status}`);
         }
 
         const story = await res.json();
-        console.log('Story fetched successfully:', story.title);
+
         story.contentBlocks = Array.isArray(story.contentBlocks) ? story.contentBlocks : [];
         return story;
     } catch (error) {
-        console.error('Error fetching story:', error);
+
         return null;
     }
 }
@@ -61,7 +61,7 @@ async function fetchRelatedStories(category, excludeId) {
             readingTime: calculateReadingTime(story.contentBlocks),
         }));
     } catch (error) {
-        console.error('Error fetching related stories:', error);
+
         return [];
     }
 }
@@ -100,7 +100,7 @@ export async function generateMetadata({ params }) {
 export default async function StoryDetail({ params }) {
     const story = await fetchStory(params.slug);
     if (!story) {
-        console.log('Story not found, showing 404');
+
         notFound();
     }
 

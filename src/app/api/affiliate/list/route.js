@@ -16,10 +16,10 @@ export async function GET(request) {
 
         await dbConnect();
         const affiliates = await Affiliate.find().populate('userId', 'username email');
-        console.log('Fetch affiliates response:', affiliates); // Debug
+      
         return NextResponse.json(affiliates);
     } catch (error) {
-        console.error('Fetch affiliates error:', error);
+    
         return NextResponse.json({ message: 'Failed to fetch affiliates', error: error.message }, { status: 500 });
     }
 }

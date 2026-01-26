@@ -22,13 +22,13 @@ export default function AllProductsMod() {
         try {
             setIsRefreshing(true);
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            console.log('Fetching from:', `${apiUrl}/api/products`);
+           
             const res = await fetch(`${apiUrl}/api/products`, { cache: 'no-store' });
             if (!res.ok) {
                 throw new Error(`HTTP error ${res.status}: Failed to fetch products`);
             }
             const data = await res.json();
-            console.log('Fetched products:', data);
+           
             const productList = Array.isArray(data) ? data : data.message ? [] : data;
             setProducts(productList);
             setFilteredProducts(productList);

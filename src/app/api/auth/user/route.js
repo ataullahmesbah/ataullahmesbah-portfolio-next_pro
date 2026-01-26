@@ -16,7 +16,7 @@ export async function POST(req) {
 
         return NextResponse.json({ name: user.username });
     } catch (error) {
-        console.error('Error fetching user:', error);
+      
         return NextResponse.json({ message: 'Failed to fetch user' }, { status: 500 });
     }
 }

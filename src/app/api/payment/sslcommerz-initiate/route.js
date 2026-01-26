@@ -44,7 +44,7 @@ export async function POST(request) {
 
         return NextResponse.json(response.data);
     } catch (error) {
-        console.error('SSLCommerz initiation error:', error);
+        // console.error('SSLCommerz initiation error:', error);
         return NextResponse.json(
             { error: 'Payment initiation failed', details: error.message },
             { status: 500 }

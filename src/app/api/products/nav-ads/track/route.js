@@ -21,7 +21,7 @@ export async function POST(req) {
             message: `${type} tracked successfully`
         });
     } catch (error) {
-        console.error('Error tracking nav ad:', error);
+    
         return NextResponse.json({
             success: false,
             error: 'Failed to track'

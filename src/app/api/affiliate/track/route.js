@@ -27,7 +27,7 @@ export async function GET(request) {
         });
         return response;
     } catch (error) {
-        console.error('Track affiliate error:', error);
+
         return NextResponse.redirect('https://ataullahmesbah.com');
     }
 }

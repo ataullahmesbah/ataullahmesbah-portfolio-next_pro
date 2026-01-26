@@ -26,7 +26,7 @@ export async function POST(request) {
 
         return NextResponse.json({ message: 'Visit recorded' }, { status: 201 });
     } catch (error) {
-        console.error('Track visit error:', error);
+
         return NextResponse.json({ message: 'Failed to record visit', error: error.message }, { status: 500 });
     }
 }

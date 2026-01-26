@@ -11,7 +11,7 @@ export async function DELETE(request, { params }) {
         if (!content) return NextResponse.json({ error: "Content not found" }, { status: 404 });
         return NextResponse.json({ message: "Content deleted" }, { status: 200 });
     } catch (error) {
-        console.error("DELETE Error:", error);
+     
         return NextResponse.json({ error: "Failed to delete content" }, { status: 500 });
     }
 }
@@ -36,7 +36,7 @@ export async function PUT(request, { params }) {
         if (!content) return NextResponse.json({ error: "Content not found" }, { status: 404 });
         return NextResponse.json(content, { status: 200 });
     } catch (error) {
-        console.error("PUT Error:", error);
+      
         return NextResponse.json({ error: "Failed to update content" }, { status: 500 });
     }
 }

@@ -18,7 +18,7 @@ export async function GET(request) {
 
         return new Response(JSON.stringify({ pending, verified }), { status: 200 });
     } catch (error) {
-        console.error('Error fetching verifications:', error);
+
         return new Response(JSON.stringify({ message: 'Something went wrong' }), { status: 500 });
     }
 }
@@ -50,7 +50,7 @@ export async function PUT(request) {
 
         return new Response(JSON.stringify({ profile }), { status: 200 });
     } catch (error) {
-        console.error('Error updating verification:', error);
+
         return new Response(JSON.stringify({ message: 'Something went wrong' }), { status: 500 });
     }
 }
@@ -74,7 +74,7 @@ export async function DELETE(request) {
 
         return new Response(JSON.stringify({ message: 'User profile deleted successfully' }), { status: 200 });
     } catch (error) {
-        console.error('Error deleting profile:', error);
+
         return new Response(JSON.stringify({ message: 'Something went wrong' }), { status: 500 });
     }
 }

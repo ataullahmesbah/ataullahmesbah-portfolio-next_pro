@@ -29,7 +29,7 @@ export async function POST(req) {
             verified: true
         });
     } catch (error) {
-        console.error('Verify forgot password error:', error);
+   
         return NextResponse.json({ message: 'Failed to verify code' }, { status: 500 });
     }
 }

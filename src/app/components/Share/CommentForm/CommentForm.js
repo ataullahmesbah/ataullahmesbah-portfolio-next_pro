@@ -34,7 +34,7 @@ const CommentForm = ({ blogSlug }) => {
             setComment('');
             router.refresh(); // Refresh the page to show the new comment
         } catch (err) {
-            console.error(err);
+
             alert('Failed to add comment');
         }
     };

@@ -33,7 +33,7 @@ export default function CartPage() {
                 setConversionRates(response.data);
             })
             .catch((err) => {
-                console.error('Error fetching conversion rates:', err);
+
                 showCustomToast('Failed to load currency conversion rates', 'error');
             });
     }, []);
@@ -89,13 +89,13 @@ export default function CartPage() {
                                 .map(size => size.name);
                         }
                     } catch (error) {
-                        console.error(`Error fetching product ${productId}:`, error);
+
                     }
                 }
 
                 setAvailableSizesMap(sizesMap);
             } catch (error) {
-                console.error('Error fetching sizes:', error);
+
             }
         };
 
@@ -119,7 +119,7 @@ export default function CartPage() {
             });
             return response.data;
         } catch (error) {
-            console.error('Error validating quantity:', error);
+
             return {
                 valid: false,
                 message: error.response?.data?.message || 'Error checking product availability'
@@ -159,7 +159,7 @@ export default function CartPage() {
                 );
             }
         } catch (error) {
-            console.error('Error updating quantity:', error);
+
             showCustomToast('Failed to update quantity', 'error');
         } finally {
             setIsLoading(false);
@@ -284,7 +284,7 @@ export default function CartPage() {
                 'success'
             );
         } catch (error) {
-            console.error('Error changing size:', error);
+
             showCustomToast('Failed to update size', 'error');
         } finally {
             setIsLoading(false);
@@ -301,7 +301,7 @@ export default function CartPage() {
 
     const handleProceedToCheckout = async () => {
         setIsLoading(true);
-        console.log('Cart before checkout:', cart);
+        // console.log('Cart before checkout:', cart);
         try {
             // Check for quantity limits before validation
             const exceededLimitItems = cart.filter(item => item.quantity > 3);
@@ -368,7 +368,7 @@ export default function CartPage() {
                             }
                             return item;
                         } catch (error) {
-                            console.error(`Error updating product ${item._id}:`, error);
+
                             showCustomToast(`Failed to validate ${item.title}`, 'error');
                             return item;
                         }
@@ -385,7 +385,7 @@ export default function CartPage() {
 
             router.push('/checkout');
         } catch (error) {
-            console.error('Error validating cart:', error);
+
             showCustomToast('Failed to validate cart items', 'error');
         } finally {
             setIsLoading(false);

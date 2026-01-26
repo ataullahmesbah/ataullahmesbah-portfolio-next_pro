@@ -30,7 +30,7 @@ export default function ShopAds() {
                 }
             }
         } catch (error) {
-            console.error('Error fetching nav ads:', error);
+            // console.error('Error fetching nav ads:', error);
         }
     };
 
@@ -65,7 +65,7 @@ export default function ShopAds() {
                 body: JSON.stringify({ adId, type: 'impression' }),
             });
         } catch (error) {
-            console.error('Error tracking impression:', error);
+            // console.error('Error tracking impression:', error);
         }
     };
 
@@ -77,7 +77,7 @@ export default function ShopAds() {
                 body: JSON.stringify({ adId, type: 'click' }),
             });
         } catch (error) {
-            console.error('Error tracking click:', error);
+            // console.error('Error tracking click:', error);
         }
     };
 
@@ -89,7 +89,7 @@ export default function ShopAds() {
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
             } catch (error) {
-                console.error('Failed to copy:', error);
+                // console.error('Failed to copy:', error);
             }
         }
     };

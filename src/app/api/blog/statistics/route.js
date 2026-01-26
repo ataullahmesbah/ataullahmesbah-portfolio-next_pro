@@ -7,7 +7,7 @@ export async function GET(request) {
   try {
     // Total Blogs
     const totalBlogs = await Blog.countDocuments({});
-    console.log('Total Blogs:', totalBlogs);
+
 
     // Blogs by Category
     const blogsByCategory = await Blog.aggregate([
@@ -16,7 +16,7 @@ export async function GET(request) {
       { $sort: { count: -1 } },
       { $limit: 10 },
     ]);
-    console.log('Blogs by Category:', blogsByCategory);
+
 
     // Most Popular Blogs (by views)
     const popularBlogsRaw = await Blog.find({})
@@ -28,7 +28,7 @@ export async function GET(request) {
       ...blog,
       views: Number(blog.views || 0), // Ensure views is a number
     }));
-    console.log('Popular Blogs:', popularBlogs);
+
 
     // Recent Blogs (by publishDate)
     const latestBlogsRaw = await Blog.find({})
@@ -41,7 +41,7 @@ export async function GET(request) {
       views: Number(blog.views || 0), // Ensure views is a number
       publishDate: blog.publishDate ? new Date(blog.publishDate).toLocaleDateString() : 'N/A',
     }));
-    console.log('Latest Blogs:', latestBlogs);
+
 
     const responseData = {
       totalBlogs: totalBlogs || 0,
@@ -50,7 +50,7 @@ export async function GET(request) {
       latestBlogs: latestBlogs || [],
     };
 
-    console.log('Final Response Data:', responseData);
+
     return new Response(JSON.stringify(responseData), {
       status: 200,
       headers: {
@@ -59,7 +59,7 @@ export async function GET(request) {
       },
     });
   } catch (error) {
-    console.error("Error fetching blog statistics:", error);
+
     return new Response(JSON.stringify({ error: 'Failed to fetch statistics', message: error.message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

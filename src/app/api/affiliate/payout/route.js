@@ -36,7 +36,7 @@ export async function POST(request) {
 
         return NextResponse.json({ message: 'Payout initiated', payout }, { status: 201 });
     } catch (error) {
-        console.error('Payout error:', error);
+     
         return NextResponse.json({ message: 'Failed to initiate payout', error: error.message }, { status: 500 });
     }
 }

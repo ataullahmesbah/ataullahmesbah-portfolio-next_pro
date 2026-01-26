@@ -27,7 +27,7 @@ export default function AffiliateDashboardPage() {
         try {
             const res = await fetch('/api/affiliate/user');
             const data = await res.json();
-            console.log('Affiliate dashboard response:', data); // Debug response
+          
             if (res.ok) {
                 setData(data);
                 if (data.affiliate?.status === 'approved') {

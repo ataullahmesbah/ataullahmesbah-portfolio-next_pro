@@ -58,7 +58,7 @@ export async function PUT(req, { params }) {
     const requiredFields = ['title', 'metaTitle', 'metaDescription', 'author'];
     const missingFields = requiredFields.filter(field => !formData.get(field));
     if (missingFields.length > 0) {
-      console.error('Missing required fields:', missingFields);
+
       return NextResponse.json(
         { success: false, error: `Missing required fields: ${missingFields.join(', ')}` },
         { status: 400, headers: { 'Cache-Control': 'no-store, max-age=0' } }
@@ -203,7 +203,7 @@ export async function PUT(req, { params }) {
             }
             const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
             if (item.data.match(markdownLinkRegex)) {
-              console.log('Markdown hyperlinks detected in text:', item.data);
+
             }
             return {
               type: 'text',
@@ -233,20 +233,20 @@ export async function PUT(req, { params }) {
 
     try {
       await blog.save();
-      console.log('Blog saved successfully:', blog);
+
       return NextResponse.json(
         { success: true, data: blog },
         { headers: { 'Cache-Control': 'no-store, max-age=0' } }
       );
     } catch (error) {
-      console.error('Error saving blog:', error);
+
       return NextResponse.json(
         { success: false, error: error.message || 'Failed to save blog' },
         { status: 500, headers: { 'Cache-Control': 'no-store, max-age=0' } }
       );
     }
   } catch (error) {
-    console.error('Blog update error:', error);
+
     return NextResponse.json(
       { success: false, error: error.message || 'Failed to update blog' },
       { status: 500, headers: { 'Cache-Control': 'no-store, max-age=0' } }

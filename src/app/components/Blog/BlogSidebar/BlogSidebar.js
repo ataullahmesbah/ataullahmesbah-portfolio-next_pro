@@ -15,7 +15,7 @@ async function getTrendingBlogs() {
         const data = await res.json();
         return data.blogs || [];
     } catch (error) {
-        console.error('Error fetching trending blogs:', error);
+     
         return [];
     }
 }

@@ -28,7 +28,7 @@ export async function POST(request) {
         doc.setFontSize(9);
         doc.setFont("helvetica", "normal");
         doc.text("3 Muirfield Cresent, E14 9SZ, Bangladesh", 105, 22, { align: "center" });
-        doc.text("+8801732183389 | sooqraone.shop@gmail.com", 105, 27, { align: "center" });
+        doc.text("+8801571083401 | contact@ataullahmesbah.com", 105, 27, { align: "center" });
 
         // Invoice Header
         doc.setFontSize(12);
@@ -159,7 +159,7 @@ export async function POST(request) {
             },
         });
     } catch (error) {
-        console.error("Error generating invoice:", error);
+       
         return NextResponse.json(
             { error: `Failed to generate invoice: ${error.message}` },
             { status: 500 }

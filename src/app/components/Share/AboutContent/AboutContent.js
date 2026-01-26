@@ -108,7 +108,7 @@ const AboutContent = () => {
                             <div className="space-y-4 text-gray-300">
                                 <p>
                                     Transitioned from traditional SEO to focusing on <span className="text-blue-300 font-medium">Generative Engine Optimization (GEO)</span>
-                                    - for Google's Search Generative Experience and AI-powered search platforms.
+                                    - for Google’s Search Generative Experience and AI-powered search platforms.
                                 </p>
                                 <p>
                                     Developing strategies for <span className="text-blue-300 font-medium">conversational queries and semantic understanding</span>,
@@ -204,7 +204,7 @@ const AboutContent = () => {
                             <h3 className="text-xl font-semibold mb-4 text-amber-300">Beyond Digital: My Creative Pursuits</h3>
                             <div className="space-y-4 text-gray-300">
                                 <p>
-                                    As an avid traveler, I've explored <span className="text-amber-300 font-medium">15+ countries</span>, documenting architectural marvels and cultural narratives through photography and writing.
+                                    As an avid traveler, I’ve explored <span className="text-amber-300 font-medium">15+ countries</span>, documenting architectural marvels and cultural narratives through photography and writing.
                                 </p>
                                 <p>
                                     My travel content reaches <span className="text-amber-300 font-medium">50,000+ monthly readers</span>, blending destination guides with insights on digital nomadism and remote work strategies.
@@ -222,7 +222,7 @@ const AboutContent = () => {
             <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
                 <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">Ready to Elevate Your Digital Presence?</h2>
                 <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                    Whether you need SEO expertise, a custom web solution, or content strategy - let's create something remarkable.
+                    Whether you need SEO expertise, a custom web solution, or content strategy - let’s create something remarkable.
                 </p>
 
                 <Link

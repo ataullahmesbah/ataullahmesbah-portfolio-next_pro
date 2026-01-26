@@ -14,7 +14,7 @@ export default function ShippingCharges() {
         try {
             setError('');
             const response = await axios.get('/api/products/shipping-charges');
-            console.log('Shipping Charges Response:', response.data);
+
             const chargeMap = { 'Dhaka-Chattogram': 0, 'Others': 0 };
             response.data.forEach(c => {
                 if (c.type === 'Dhaka-Chattogram' || c.type === 'Others') {
@@ -53,7 +53,7 @@ export default function ShippingCharges() {
                 { type: 'Dhaka-Chattogram', charge: Number(dhakaChattogramCharge) },
                 { type: 'Others', charge: Number(othersCharge) }
             ];
-            console.log('Submitting:', payload);
+
             await axios.post('/api/products/shipping-charges', payload);
             alert('Shipping charges updated successfully');
             fetchCharges();
@@ -74,7 +74,7 @@ export default function ShippingCharges() {
                     { type: 'Dhaka-Chattogram', charge: 100 },
                     { type: 'Others', charge: 150 }
                 ];
-                console.log('Resetting:', payload);
+
                 await axios.post('/api/products/shipping-charges', payload);
                 alert('Charges reset to default');
                 fetchCharges();

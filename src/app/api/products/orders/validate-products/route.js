@@ -69,7 +69,7 @@ export async function POST(request) {
         });
 
     } catch (error) {
-        console.error('Product validation error:', error);
+      
         return NextResponse.json(
             { error: 'Failed to validate products. Please try again.' },
             { status: 500 }

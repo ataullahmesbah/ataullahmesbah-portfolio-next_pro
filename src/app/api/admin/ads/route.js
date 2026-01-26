@@ -101,7 +101,7 @@ export async function POST(req) {
         );
 
     } catch (error) {
-        console.error('Production Error creating ad:', error);
+       
 
         if (error.name === 'ValidationError') {
             const errors = Object.values(error.errors).map(err => err.message);
@@ -125,7 +125,7 @@ export async function GET() {
         const ads = await Ad.find().sort({ priority: -1, createdAt: -1 });
         return NextResponse.json(ads);
     } catch (error) {
-        console.error('Production Error fetching ads:', error);
+      
         return NextResponse.json(
             { error: 'Failed to fetch ads' },
             { status: 500 }

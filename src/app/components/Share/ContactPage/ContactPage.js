@@ -13,9 +13,9 @@ const ContactPage = () => {
         {
             icon: <FaEnvelope className="text-2xl" />,
             title: "Email",
-            content: "info@ataullahmesbah.com",
+            content: "contact@ataullahmesbah.com",
             color: "purple",
-            link: "mailto:info@ataullahmesbah.com"
+            link: "mailto:contact@ataullahmesbah.com"
         },
         {
             icon: <FaPhone className="text-2xl" />,
@@ -59,7 +59,7 @@ const ContactPage = () => {
                             transition={{ delay: 0.3, duration: 0.8 }}
                             className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 mb-3"
                         >
-                            Let's Work Together
+                            Let’s Work Together
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0 }}
@@ -88,7 +88,7 @@ const ContactPage = () => {
                                 Book A Meeting Today!
                             </h2>
                             <p className="text-gray-400 mt-2 text-sm sm:text-base">
-                                Fill out the form and I'll get back to you within 24 hours
+                                Fill out the form and I’ll get back to you within 24 hours
                             </p>
                         </div>
                         <div className="flex-grow flex flex-col">

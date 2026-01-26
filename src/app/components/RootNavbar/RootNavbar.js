@@ -8,7 +8,7 @@ const RootNavbar = () => {
                 {/* Email */}
                 <div className="text-center sm:text-left">
                     <h3 className="text-sm sm:text-base">
-                        info@ataullahmesbah.com
+                        contact@ataullahmesbah.com
                     </h3>
                 </div>
 

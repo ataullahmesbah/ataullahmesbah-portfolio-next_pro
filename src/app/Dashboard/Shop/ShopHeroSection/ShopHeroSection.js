@@ -56,7 +56,7 @@ const ShopHeroSection = () => {
           setSlides(formattedSlides);
         }
       } catch (error) {
-        console.error("Error fetching banners:", error);
+        // console.error("Error fetching banners:", error);
         // Fallback slides if API fails
         setSlides([{
           title: "Welcome to Our Shop",

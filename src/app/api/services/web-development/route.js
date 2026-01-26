@@ -20,7 +20,7 @@ export async function GET(request) {
             return NextResponse.json(services, { status: 200 });
         }
     } catch (error) {
-        console.error('Error fetching web development services:', error);
+
         return NextResponse.json({ error: 'Failed to fetch services' }, { status: 500 });
     }
 }
@@ -45,7 +45,7 @@ export async function POST(request) {
 
         return NextResponse.json({ message: 'Service created successfully', data: webService }, { status: 201 });
     } catch (error) {
-        console.error('Error creating web development service:', error);
+
         return NextResponse.json({ error: 'Failed to create service' }, { status: 500 });
     }
 }
@@ -78,7 +78,7 @@ export async function PUT(request) {
 
         return NextResponse.json({ message: 'Service updated successfully', data: updatedService }, { status: 200 });
     } catch (error) {
-        console.error('Error updating web development service:', error);
+
         return NextResponse.json({ error: 'Failed to update service' }, { status: 500 });
     }
 }
@@ -101,7 +101,7 @@ export async function DELETE(request) {
 
         return NextResponse.json({ message: 'Service deleted successfully' }, { status: 200 });
     } catch (error) {
-        console.error('Error deleting web development service:', error);
+
         return NextResponse.json({ error: 'Failed to delete service' }, { status: 500 });
     }
 }

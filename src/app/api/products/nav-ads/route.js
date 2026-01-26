@@ -25,7 +25,7 @@ export async function GET() {
             data: activeAds
         });
     } catch (error) {
-        console.error('Error fetching nav ads:', error);
+
         return NextResponse.json({
             success: false,
             error: 'Failed to fetch nav ads'
@@ -48,7 +48,7 @@ export async function POST(req) {
             data: navAd
         }, { status: 201 });
     } catch (error) {
-        console.error('Error creating nav ad:', error);
+
 
         if (error.name === 'ValidationError') {
             const errors = Object.values(error.errors).map(err => err.message);
