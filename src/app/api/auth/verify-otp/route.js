@@ -10,10 +10,7 @@ export async function POST(req) {
         await dbConnect();
         const { email, otp } = await req.json();
 
-        // Find the user with the matching email
-        const user = await User.findOne({
-            email: email.toLowerCase()
-        });
+        const user = await User.findOne({ email: email.toLowerCase() });
 
         if (!user || user.otp !== otp) {
             return NextResponse.json({ message: 'Invalid OTP' }, { status: 400 });
@@ -24,6 +21,12 @@ export async function POST(req) {
             return NextResponse.json({ message: 'OTP has expired' }, { status: 400 });
         }
 
+        // ✅ IMPORTANT FIX: Clear forceLogout during OTP verification
+        // This ensures user can login after role change
+        if (user.forceLogout) {
+            user.forceLogout = false;
+        }
+
         // Clear OTP
         user.otp = null;
         user.otpExpiresAt = null;
@@ -32,11 +35,12 @@ export async function POST(req) {
         return NextResponse.json({
             message: 'OTP verified successfully',
             verified: true,
-            email: user.email
+            email: user.email,
+            forceLogoutCleared: true
         }, { status: 200 });
 
     } catch (error) {
-
+        console.error('OTP Verification Error:', error);
         return NextResponse.json({ message: 'OTP verification failed' }, { status: 500 });
     }
 }

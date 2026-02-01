@@ -1,17 +1,17 @@
-
 // providers/Providers.jsx
 'use client';
 
 import { SessionProvider } from "next-auth/react";
 
+
 export default function Providers({ children }) {
     return (
         <SessionProvider
-            refetchInterval={5 * 60} // Refetch session every 5 minutes
+            refetchInterval={60} // Refetch session every 60 seconds (better for real-time updates)
             refetchOnWindowFocus={true}
+            refetchWhenOffline={false}
         >
             {children}
-            {/* ToastProvider is now in layout.js outside of SessionProvider but inside Providers */}
         </SessionProvider>
     );
 }

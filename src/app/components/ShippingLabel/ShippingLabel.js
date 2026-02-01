@@ -459,7 +459,7 @@ const ShippingLabel = ({ order, onClose }) => {
                     </div>
 
                     <div class="footer">
-                        <strong>SOOQRA ONE</strong> - www.sooqra.com
+                        <strong>SOOQRA ONE</strong> - www.sooqraone.com
                     </div>
                 </div>
                 
@@ -673,7 +673,7 @@ const ShippingLabel = ({ order, onClose }) => {
                             marginTop: '1mm',
                             flexShrink: 0
                         }}>
-                            <strong>SOOQRA ONE</strong> - www.sooqra.com
+                            <strong>SOOQRA ONE</strong> - www.sooqraone.com
                         </div>
                     </div>
                 </div>

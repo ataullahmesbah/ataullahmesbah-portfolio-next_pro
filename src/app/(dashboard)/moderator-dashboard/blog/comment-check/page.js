@@ -1,10 +1,11 @@
-import AdminComments from "@/app/Dashboard/CommentControl/CommentControl";
+import ModeratorComments from "@/app/Dashboard/ModeratorDashboard/Blogs/ModeratorComments/ModeratorComments";
+
 
 
 const page = () => {
     return (
         <div>
-            <AdminComments />
+            <ModeratorComments />
         </div>
     );
 };

@@ -85,6 +85,7 @@ const LoginForm = () => {
     };
 
     // In your handleVerifyOTP function, add better error handling
+    // app/LoginForm/LoginForm.jsx - handleVerifyOTP function
     const handleVerifyOTP = async (e) => {
         e.preventDefault();
         setIsLoading(true);
@@ -101,20 +102,30 @@ const LoginForm = () => {
             const data = await res.json();
 
             if (res.ok && data.verified) {
-                // ✅ FIX: Now login with credentials after OTP verification
+                // ✅ FIX: Now login with credentials
                 const result = await signIn('credentials', {
                     redirect: false,
                     email,
                     password,
+                    callbackUrl: '/',
                 });
 
-
+                console.log('SignIn Result:', result);
 
                 if (result?.error) {
                     // Handle specific errors
-                    if (result.error.includes('force logout') || result.error.includes('session terminated')) {
-                        setError('Your session was terminated. Please login again.');
-                        showErrorToast('Session terminated. Please login again.');
+                    if (result.error.includes('force logout') ||
+                        result.error.includes('session terminated') ||
+                        result.error.includes('terminated by admin')) {
+
+                        // This shouldn't happen now as we cleared forceLogout
+                        // But just in case
+                        setError('Your session was terminated. Please try logging in again.');
+                        showErrorToast('Session issue. Please try again.');
+
+                        // Reset to login step
+                        setStep('login');
+                        setOtp('');
                     } else if (result.error.includes('inactive')) {
                         setError('Your account is inactive. Please contact admin.');
                         showErrorToast('Account inactive. Please contact admin.');
@@ -122,7 +133,12 @@ const LoginForm = () => {
                         setError(result.error);
                         showErrorToast(result.error);
                     }
+                } else if (result?.url) {
+                    // Login successful
+                    showSuccessToast('Login successful!');
+                    router.push(result.url || '/');
                 } else {
+                    // Login successful but no URL
                     showSuccessToast('Login successful!');
                     router.push('/');
                 }
@@ -138,6 +154,8 @@ const LoginForm = () => {
             setIsLoading(false);
         }
     };
+
+
     // Show loading state while checking session
     if (status === 'loading') {
         return (

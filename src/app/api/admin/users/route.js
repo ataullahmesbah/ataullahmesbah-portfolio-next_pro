@@ -18,40 +18,62 @@ export async function GET() {
     }
 }
 
-// Update user role or status
+
 export async function PUT(req) {
     try {
         await dbConnect();
         const { userId, role, status } = await req.json();
 
-        // Find the user
         const user = await User.findById(userId);
         if (!user) {
             return NextResponse.json({ message: 'User not found' }, { status: 404 });
         }
 
-        // Update role if provided
-        if (role) {
-            user.role = role;
-            user.forceLogout = true; // Force logout when role changes
+        const updates = {};
+        let forceLogoutNeeded = false;
+
+        // Check if role is changing
+        if (role && role !== user.role) {
+            updates.role = role;
+            forceLogoutNeeded = true;
         }
 
-        // Update status if provided
-        if (status) {
-            user.status = status;
+        // Check if status is changing
+        if (status && status !== user.status) {
+            updates.status = status;
             if (status === 'inactive') {
-                user.forceLogout = true; // Force logout when deactivated
+                forceLogoutNeeded = true;
             }
         }
 
-        await user.save();
+        // Apply updates
+        if (Object.keys(updates).length > 0) {
+            Object.assign(user, updates);
 
-        return NextResponse.json({ message: 'User updated successfully' });
+            // Only set forceLogout if actually needed
+            if (forceLogoutNeeded) {
+                user.forceLogout = true;
+            }
+
+            await user.save();
+
+            return NextResponse.json({
+                message: 'User updated successfully',
+                forceLogout: user.forceLogout,
+                roleChanged: role && role !== user.role
+            });
+        }
+
+        return NextResponse.json({
+            message: 'No changes made'
+        });
+
     } catch (error) {
-
+        console.error('Update User Error:', error);
         return NextResponse.json({ message: 'Failed to update user' }, { status: 500 });
     }
 }
+
 
 // Delete a user
 export async function DELETE(req) {

@@ -24,6 +24,7 @@ const ADMIN_ONLY_API_ROUTES = [
   '/api/products/orders',
   '/api/admin/verify',
   '/api/admin/ip-logs',
+  '/api/comments',
   '/api/comments/approved',
   '/api/comments/pending',
   '/api/products/config',

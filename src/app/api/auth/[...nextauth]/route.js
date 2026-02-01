@@ -7,6 +7,7 @@ import User from '@/models/User';
 import dbConnect from '@/lib/dbMongoose';
 import UserProfile from '@/models/UserProfile';
 
+
 export const authOptions = {
     providers: [
         CredentialsProvider({
@@ -29,10 +30,15 @@ export const authOptions = {
                         throw new Error('Invalid email or password');
                     }
 
-                    // ✅ FIX: Check force logout but don't clear it during login attempt
+                    // ✅ FIX: Check force logout but handle it differently
+                    // If forceLogout is true, we'll clear it and allow login
+                    // This ensures user can login after role change
                     if (user.forceLogout) {
-                        // Don't clear forceLogout here, let the session callback handle it
-                        throw new Error('Your session has been terminated by admin. Please login again.');
+                        // Clear forceLogout flag but don't throw error
+                        // User needs to be able to login after role change
+                        user.forceLogout = false;
+                        await user.save();
+                        // We're NOT throwing error here - allowing login
                     }
 
                     // Check if user is active
@@ -52,7 +58,7 @@ export const authOptions = {
                         req.headers?.['x-real-ip'] ||
                         'unknown';
 
-                    // Ensure loginHistory exists before pushing
+                    // Ensure loginHistory exists
                     if (!user.loginHistory) {
                         user.loginHistory = [];
                     }
@@ -74,11 +80,12 @@ export const authOptions = {
                         id: user._id.toString(),
                         name: user.username,
                         email: user.email,
-                        role: user.role
+                        role: user.role,
+                        forceLogout: false // Always set to false on new login
                     };
 
                 } catch (error) {
-
+                    console.error('Authorization Error:', error);
                     throw new Error(error.message || 'Authentication failed');
                 }
             },
@@ -87,27 +94,29 @@ export const authOptions = {
 
     callbacks: {
         async jwt({ token, user, trigger, session }) {
-            // Add user info to token on sign in
+            // Initial sign in
             if (user) {
-                token.role = user.role;
                 token.id = user.id;
+                token.role = user.role;
+                token.forceLogout = false; // Reset on new login
             }
 
-            // ✅ FIX: Check force logout but handle it properly
+            // Check for force logout in real-time
             if (token.id) {
                 try {
                     await dbConnect();
-                    const user = await User.findById(token.id);
-                    if (user && user.forceLogout) {
-                        // Only clear forceLogout if this is a new session (not during login)
-                        if (trigger !== 'signIn') {
-                            user.forceLogout = false;
-                            await user.save();
-                        }
+                    const userDoc = await User.findById(token.id);
+
+                    if (userDoc?.forceLogout) {
+                        token.forceLogout = true;
                         token.error = 'Force logout by admin';
+
+                        // Clear the flag after detecting
+                        userDoc.forceLogout = false;
+                        await userDoc.save();
                     }
                 } catch (error) {
-
+                    console.error('JWT callback error:', error);
                 }
             }
 
@@ -115,43 +124,32 @@ export const authOptions = {
         },
 
         async session({ session, token }) {
-            // Pass error to session if exists
-            if (token.error) {
-                session.error = token.error;
-            }
-
-            // Add user info to session
+            // Copy token properties to session
             if (token.id) {
                 session.user.id = token.id;
                 session.user.role = token.role;
+                session.forceLogout = token.forceLogout || false;
 
+                if (token.error) {
+                    session.error = token.error;
+                }
+
+                // Fetch additional user profile data
                 try {
                     await dbConnect();
-
-                    // ✅ FIX: Check force logout but don't clear during session creation
-                    const user = await User.findById(token.id);
-                    if (user && user.forceLogout) {
-                        session.error = 'Force logout by admin';
-                        // Don't clear forceLogout here, let the middleware handle it
-                    }
-
-                    // Fetch user profile data
                     const userProfile = await UserProfile.findOne({ userId: token.id });
-                    session.user.image = userProfile?.image || null;
-                    session.user.intro = userProfile?.intro || null;
-                    session.user.displayName = userProfile?.displayName || null;
 
+                    if (userProfile) {
+                        session.user.image = userProfile.image;
+                        session.user.intro = userProfile.intro;
+                        session.user.displayName = userProfile.displayName;
+                    }
                 } catch (error) {
-
+                    console.error('Session profile fetch error:', error);
                 }
             }
 
             return session;
-        },
-
-        async redirect({ url, baseUrl }) {
-            // Redirect to home page after login
-            return baseUrl;
         }
     },
 

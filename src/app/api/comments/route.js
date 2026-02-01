@@ -3,6 +3,7 @@
 import { NextResponse } from 'next/server';
 import Comment from '@/models/Comment';
 import dbConnect from '@/lib/dbMongoose';
+import { getToken } from 'next-auth/jwt'; // ADD THIS
 
 // Common error responses
 const missingFieldsError = NextResponse.json(
@@ -22,7 +23,7 @@ const serverError = (action) =>
         { status: 500 }
     );
 
-// GET: Fetch approved comments for a specific blog
+// app/api/comments/route.js - GET method
 export async function GET(request) {
     await dbConnect();
     const { searchParams } = new URL(request.url);
@@ -36,22 +37,29 @@ export async function GET(request) {
     }
 
     try {
+
         const comments = await Comment.find({
             blogId,
             isApproved: true
         })
             .select('name email text replies createdAt')
+            .sort({ createdAt: -1 })
             .lean();
 
         const filteredComments = comments.map(comment => ({
             ...comment,
-            replies: comment.replies.filter(reply => reply.isApproved)
+            replies: comment.replies
+                .filter(reply => reply.isApproved)
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         }));
 
         return NextResponse.json(filteredComments, { status: 200 });
     } catch (error) {
-
-        return serverError('fetch comments');
+        console.error('Fetch comments error:', error);
+        return NextResponse.json(
+            { error: 'Failed to fetch comments' },
+            { status: 500 }
+        );
     }
 }
 
@@ -151,16 +159,31 @@ export async function PATCH(request) {
     }
 }
 
-// DELETE: Delete a comment or reply
+
+
+// DELETE: Delete a comment or reply (Admin only)
 export async function DELETE(request) {
     await dbConnect();
     try {
+        // ✅ ADD: Check if user is admin
+        const token = await getToken({ req: request });
+
+        if (!token || token.role !== 'admin') {
+            return NextResponse.json(
+                { error: 'Access denied. Admin role required' },
+                { status: 403 }
+            );
+        }
+
         const { commentId, replyId } = await request.json();
 
         if (replyId) {
             const comment = await Comment.findOne({ 'replies._id': replyId });
             if (!comment) {
-                return notFoundError('Reply');
+                return NextResponse.json(
+                    { error: 'Reply not found' },
+                    { status: 404 }
+                );
             }
 
             comment.replies = comment.replies.filter(
@@ -176,7 +199,10 @@ export async function DELETE(request) {
         if (commentId) {
             const result = await Comment.findByIdAndDelete(commentId);
             if (!result) {
-                return notFoundError('Comment');
+                return NextResponse.json(
+                    { error: 'Comment not found' },
+                    { status: 404 }
+                );
             }
             return NextResponse.json(
                 { message: 'Comment deleted successfully' },
@@ -189,7 +215,10 @@ export async function DELETE(request) {
             { status: 400 }
         );
     } catch (error) {
-
-        return serverError('delete comment');
+        console.error('Delete error:', error);
+        return NextResponse.json(
+            { error: 'Failed to delete' },
+            { status: 500 }
+        );
     }
 }
