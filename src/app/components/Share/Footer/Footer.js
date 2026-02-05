@@ -1,8 +1,9 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { FaFacebookF, FaTwitter, FaLinkedinIn, FaGithub } from 'react-icons/fa';
 import { FiPlay } from 'react-icons/fi';
 import { IoCallOutline } from "react-icons/io5";
-import MainLogo from '../MainLogo/MainLogo';
+
 
 const Footer = () => {
     return (
@@ -11,13 +12,24 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {/* Logo and Description */}
                     <div className="lg:col-span-1">
-                        <div className="flex justify-center md:justify-start">
 
 
+                        <Link href="/" className="flex items-center">
+                            <Image
+                                src="/mesbahatm.svg"
+                                alt="Ataullah Mesbah"
+                                width={250}
+                                height={100}
+                                className="
+                                   h-6 w-auto      /* 36px - ভালো balance */
+                                   md:h-8 w-auto  /* 40px */
+                                   lg:h-8 w-auto  /* 44px */
+                                   object-contain
+                               "
+                                priority
+                            />
+                        </Link>
 
-
-                            <MainLogo />
-                        </div>
                         <p className="text-sm mt-3 text-center md:text-left">Web Developer | SEO Specialist | Traveler</p>
                         <p className="text-xs text-gray-400 mt-2 text-center md:text-left">
                             Creating modern websites, enhancing search visibility, and discovering new horizons.

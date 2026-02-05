@@ -178,7 +178,7 @@ const Navbar = () => {
             <div className="bg-gray-900 py-5 border-b border-gray-800">
                 <nav className="flex poppins-regular container mx-auto justify-between text-white items-center px-4">
                     {/* Logo */}
-                    <Link href="/">
+                    {/* <Link href="/">
                         <h1 className="flex justify-center items-center ">
                             <svg
                                 id="Layer_1"
@@ -237,10 +237,28 @@ const Navbar = () => {
                             </svg>
 
 
-                            {/* <MainLogo /> */}
+                           
                         </h1>
-                    </Link>
+                    </Link> */}
 
+
+
+                    <Link href="/" className="flex items-center">
+                        <Image
+                            src="/mesbahatm.svg"
+                            alt="Ataullah Mesbah"
+                            width={250}
+                            height={100}
+                            className="
+            h-6 w-auto      /* 36px - ভালো balance */
+            md:h-8 w-auto  /* 40px */
+            lg:h-10 w-auto  /* 44px */
+            object-contain
+        "
+                            priority
+                        />
+                    </Link>
+                    
                     {/* Mobile Menu Icon and Cart */}
                     <div className="lg:hidden flex items-center space-x-4">
                         {cartCount > 0 && (
