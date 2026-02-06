@@ -54,7 +54,7 @@ export default function PublicProfile({ username: propUsername }) {
                 // Update tab title dynamically
                 document.title = `${data.user.displayName || data.user.username} - ${data.profile?.title || 'Professional'} in ${data.profile?.location || 'Unknown Location'} | Ataullah Mesbah`;
             } catch (error) {
-             
+
             } finally {
                 setLoading(false);
             }
@@ -84,6 +84,41 @@ export default function PublicProfile({ username: propUsername }) {
     const primaryRole = getPrimaryRole();
     const roleIcon = RoleIcons[primaryRole] || RoleIcons.default;
     const expertBadge = ExpertBadges[primaryRole] || ExpertBadges.default;
+
+
+    const MobileTabButton = ({ active, onClick, icon, label }) => (
+        <button
+            onClick={onClick}
+            className={`
+      flex flex-col items-center justify-center py-2 px-3 flex-1 min-w-[80px]
+      ${active
+                    ? 'text-purple-600 border-b-2 border-purple-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }
+    `}
+        >
+            {icon}
+            <span className="text-xs mt-1 font-medium">{label}</span>
+        </button>
+    );
+
+    // Desktop Tab Button Component
+    const TabButton = ({ active, onClick, icon, label }) => (
+        <button
+            onClick={onClick}
+            className={`
+      flex items-center py-4 px-6 text-sm font-medium
+      ${active
+                    ? 'text-purple-600 border-b-2 border-purple-600'
+                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }
+    `}
+        >
+            {icon}
+            {label}
+        </button>
+    );
+
 
     if (loading) return <UiLoader />;
     if (!user) return <div className="min-h-screen flex items-center justify-center">Profile not found</div>;
@@ -137,10 +172,11 @@ export default function PublicProfile({ username: propUsername }) {
                             >
                                 <Image
                                     src={profile?.image || '/default-profile.png'}
-                                    alt="Profile"
+                                    alt={`${profile?.displayName || user.username}'s profile picture`}
                                     width={160}
                                     height={160}
                                     className="w-40 h-40 rounded-full object-cover border-4 border-white shadow-lg"
+                                    priority={true}
                                 />
                                 {profile?.verification === 'accepted' && (
                                     <motion.div
@@ -238,9 +274,46 @@ export default function PublicProfile({ username: propUsername }) {
                         transition={{ delay: 0.2 }}
                         className="bg-white rounded-xl shadow-xl overflow-hidden"
                     >
-                        {/* Navigation Tabs */}
+                        {/* Navigation Tabs Desktop and Mobile */}
+
+
                         <div className="border-b border-gray-200">
-                            <nav className="flex -mb-px">
+                            {/* Mobile View - Centered with reduced padding */}
+                            <nav className="flex md:hidden justify-center -mb-px space-x-1 px-2">
+                                <MobileTabButton
+                                    active={activeTab === 'experience'}
+                                    onClick={() => setActiveTab('experience')}
+                                    icon={
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        </svg>
+                                    }
+                                    label="Experience"
+                                />
+                                <MobileTabButton
+                                    active={activeTab === 'portfolio'}
+                                    onClick={() => setActiveTab('portfolio')}
+                                    icon={
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                        </svg>
+                                    }
+                                    label="Work"
+                                />
+                                <MobileTabButton
+                                    active={activeTab === 'skills'}
+                                    onClick={() => setActiveTab('skills')}
+                                    icon={
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                        </svg>
+                                    }
+                                    label="Skills"
+                                />
+                            </nav>
+
+                            {/* Desktop View */}
+                            <nav className="hidden md:flex -mb-px">
                                 <TabButton
                                     active={activeTab === 'experience'}
                                     onClick={() => setActiveTab('experience')}
@@ -273,6 +346,7 @@ export default function PublicProfile({ username: propUsername }) {
                                 />
                             </nav>
                         </div>
+
 
                         {/* Tab Content */}
                         <div className="p-8">

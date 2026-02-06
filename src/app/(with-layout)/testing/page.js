@@ -1,18 +1,10 @@
-import Test from "@/app/components/test/test";
-
+import UiLoader from '@/app/components/Loader/UiLoader/UiLoader';
+import React from 'react';
 
 const page = () => {
   return (
-    <div className="   bg-slate-950">
-
-      <div className="py-10">
-
-        <Test />
-
-      </div>
-
-
-
+    <div>
+      <UiLoader />
     </div>
   );
 };
