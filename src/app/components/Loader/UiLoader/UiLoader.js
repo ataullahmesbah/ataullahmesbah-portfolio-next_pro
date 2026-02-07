@@ -1,272 +1,136 @@
-// components/UiLoader/UiLoader.js
 'use client';
-
-import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
 
-const UiLoader = ({
-    size = 'md',
-    variant = 'spinner', // 'spinner', 'dots', 'pulse', 'ring', 'gradient'
-    fullPage = false,
-    delay = 0,
-    message = '',
-    showProgress = false,
-    progress = 0,
-    theme = 'purple', // 'purple', 'purple-gradient', 'dark', 'light'
-    className = ''
-}) => {
-    const [showLoader, setShowLoader] = useState(delay === 0);
-    const [fadeOut, setFadeOut] = useState(false);
+const MesbahCustomLoader = () => {
+    const fullName = "ATAULLAH MESBAH";
+    const [activeLetters, setActiveLetters] = useState([]);
+    const [phase, setPhase] = useState('entering');
+    const [exitProgress, setExitProgress] = useState(0);
+    const [showLoader, setShowLoader] = useState(true);
 
-    // Optional delay before showing loader
+    // Letter appearance
     useEffect(() => {
-        if (delay > 0) {
-            const timer = setTimeout(() => setShowLoader(true), delay);
+        if (phase !== 'entering') return;
+
+        const timer = setTimeout(() => {
+            if (activeLetters.length < fullName.length) {
+                if (activeLetters.length === 7) {
+                    setActiveLetters((prev) => [...prev, ' ']);
+                } else {
+                    setActiveLetters((prev) => [...prev, fullName[activeLetters.length]]);
+                }
+            } else {
+                setPhase('holding');
+            }
+        }, 80);
+
+        return () => clearTimeout(timer);
+    }, [activeLetters, phase]);
+
+    // Phase transitions
+    useEffect(() => {
+        if (phase === 'holding') {
+            const timer = setTimeout(() => {
+                setPhase('exiting');
+            }, 1000);
             return () => clearTimeout(timer);
         }
-    }, [delay]);
 
-    // Handle fade out when progress completes
-    useEffect(() => {
-        if (showProgress && progress >= 100) {
-            setTimeout(() => setFadeOut(true), 500);
+        if (phase === 'exiting') {
+            const duration = 700;
+            const startTime = Date.now();
+
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                setExitProgress(progress);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // একটু দেরি করে সম্পূর্ণ লোডার সরিয়ে ফেলা
+                    setTimeout(() => {
+                        setShowLoader(false);
+                    }, 300);
+                }
+            };
+
+            requestAnimationFrame(animate);
         }
-    }, [progress, showProgress]);
+    }, [phase]);
 
-    if (!showLoader || fadeOut) return null;
-
-    // Theme configurations
-    const themeConfig = {
-        purple: {
-            primary: 'bg-purple-500',
-            secondary: 'bg-purple-400',
-            light: 'bg-purple-100',
-            text: 'text-purple-600',
-            gradient: 'from-purple-500 to-purple-700'
-        },
-        'purple-gradient': {
-            primary: 'bg-gradient-to-r from-purple-500 to-purple-700',
-            secondary: 'bg-gradient-to-r from-purple-400 to-purple-600',
-            light: 'bg-purple-100',
-            text: 'text-purple-600',
-            gradient: 'from-purple-500 via-purple-600 to-purple-700'
-        },
-        dark: {
-            primary: 'bg-gray-800',
-            secondary: 'bg-gray-600',
-            light: 'bg-gray-200',
-            text: 'text-gray-700',
-            gradient: 'from-gray-700 to-gray-900'
-        },
-        light: {
-            primary: 'bg-white',
-            secondary: 'bg-gray-300',
-            light: 'bg-gray-100',
-            text: 'text-gray-600',
-            gradient: 'from-white to-gray-200'
-        }
-    };
-
-    const currentTheme = themeConfig[theme];
-
-    // Size configurations
-    const sizeConfig = {
-        sm: {
-            loader: 'h-8 w-8',
-            text: 'text-sm',
-            message: 'text-xs',
-            progress: 'h-1'
-        },
-        md: {
-            loader: 'h-12 w-12',
-            text: 'text-base',
-            message: 'text-sm',
-            progress: 'h-1.5'
-        },
-        lg: {
-            loader: 'h-16 w-16',
-            text: 'text-lg',
-            message: 'text-base',
-            progress: 'h-2'
-        },
-        xl: {
-            loader: 'h-20 w-20',
-            text: 'text-xl',
-            message: 'text-lg',
-            progress: 'h-2.5'
-        }
-    };
-
-    const currentSize = sizeConfig[size];
-
-    // Loader Variants
-    const LoaderVariant = () => {
-        switch (variant) {
-            case 'dots':
-                return (
-                    <div className="flex items-center justify-center space-x-2">
-                        {[0, 1, 2].map((i) => (
-                            <motion.div
-                                key={i}
-                                className={`w-3 h-3 rounded-full ${currentTheme.primary}`}
-                                animate={{
-                                    y: [0, -10, 0],
-                                    scale: [1, 1.2, 1]
-                                }}
-                                transition={{
-                                    duration: 0.6,
-                                    repeat: Infinity,
-                                    delay: i * 0.1
-                                }}
-                            />
-                        ))}
-                    </div>
-                );
-
-            case 'pulse':
-                return (
-                    <motion.div
-                        className={`${currentSize.loader} rounded-full ${currentTheme.primary}`}
-                        animate={{
-                            scale: [1, 1.2, 1],
-                            opacity: [0.5, 1, 0.5]
-                        }}
-                        transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                    />
-                );
-
-            case 'ring':
-                return (
-                    <div className="relative">
-                        <div className={`${currentSize.loader} rounded-full border-4 border-t-transparent border-r-transparent ${theme === 'purple-gradient' ? 'border-gradient-to-r from-purple-500 to-purple-700' : 'border-purple-200'}`}></div>
-                        <div className={`absolute top-0 left-0 ${currentSize.loader} rounded-full border-4 ${theme === 'purple-gradient' ? 'border-gradient-to-r from-purple-500 to-purple-700' : 'border-purple-500'} border-b-transparent border-l-transparent animate-spin`}></div>
-                    </div>
-                );
-
-            case 'gradient':
-                return (
-                    <div className="relative">
-                        <div className={`${currentSize.loader} rounded-full bg-gradient-to-r ${currentTheme.gradient} animate-spin`}>
-                            <div className="absolute inset-2 bg-white dark:bg-gray-900 rounded-full"></div>
-                        </div>
-                    </div>
-                );
-
-            case 'spinner':
-            default:
-                return (
-                    <div className="relative">
-                        {/* Outer ring with gradient */}
-                        <div className={`${currentSize.loader} rounded-full border-4 ${theme === 'purple-gradient' ? 'border-gradient-to-r from-purple-500 to-purple-700' : 'border-purple-200'}`}></div>
-                        
-                        {/* Spinning gradient arc */}
-                        <div className={`absolute top-0 left-0 ${currentSize.loader} rounded-full border-4 ${theme === 'purple-gradient' ? 'border-gradient-to-r from-purple-500 to-purple-700' : 'border-purple-500'} border-t-transparent animate-spin`}></div>
-                        
-                        {/* Inner decorative elements */}
-                        <motion.div
-                            className="absolute inset-2 rounded-full border-2 border-purple-300/30"
-                            animate={{
-                                rotate: 360
-                            }}
-                            transition={{
-                                duration: 3,
-                                repeat: Infinity,
-                                ease: "linear"
-                            }}
-                        />
-                    </div>
-                );
-        }
-    };
+    if (!showLoader) return null;
 
     return (
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
             <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className={`flex flex-col items-center justify-center min-h-screen px-4 ${fullPage ? 'fixed inset-0 z-50 backdrop-blur-sm' : ''} ${className}`}
-                style={fullPage ? {
-                    background: theme === 'purple-gradient' 
-                        ? 'radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.1) 0%, rgba(139, 92, 246, 0.05) 50%, transparent 100%)'
-                        : undefined
-                } : {}}
+                className="fixed inset-0 z-50 flex items-center justify-center w-screen h-screen"
+                style={{
+                    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
+                }}
+                initial={{ y: 0 }}
+                animate={{
+                    y: phase === 'exiting' ? '-100vh' : 0,
+                    scale: phase === 'exiting' ? 0.9 : 1,
+                    opacity: phase === 'exiting' ? 0 : 1
+                }}
+                transition={{
+                    duration: 1.2,
+                    ease: [0.22, 1, 0.36, 1]
+                }}
             >
-                <div className="flex flex-col items-center space-y-4">
-                    {/* Main Loader */}
-                    <LoaderVariant />
+                <div className="relative w-full max-w-[90vw] sm:max-w-[28rem] md:max-w-[32rem] px-4">
+                    {/* Boxed characters */}
+                    <div className="flex justify-center items-center flex-wrap gap-1">
+                        {fullName.split('').map((char, i) => (
+                            <motion.div
+                                key={i}
+                                className={`flex items-center justify-center 
+                                    ${activeLetters.includes(char)
+                                        ? 'bg-gradient-to-br from-white/30 to-white/10'
+                                        : 'bg-transparent'}
+                                    rounded-md p-1.5 sm:p-2 shadow-lg`}
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{
+                                    opacity: activeLetters.includes(char) ? 1 : 0,
+                                    scale: activeLetters.includes(char) ? 1 : 0.8,
+                                }}
+                                transition={{
+                                    opacity: { duration: 0.3 },
+                                    scale: { duration: 0.4, ease: "easeOut" }
+                                }}
+                            >
+                                <span className="text-white text-sm sm:text-base font-semibold tracking-wider">
+                                    {char}
+                                </span>
+                            </motion.div>
+                        ))}
+                    </div>
 
-                    {/* Progress Bar (Optional) */}
-                    {showProgress && (
-                        <div className="w-48 mt-4">
-                            <div className="h-1 w-full bg-purple-100 rounded-full overflow-hidden">
-                                <motion.div
-                                    className={`h-full ${theme === 'purple-gradient' ? 'bg-gradient-to-r from-purple-500 to-purple-700' : 'bg-purple-500'}`}
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${progress}%` }}
-                                    transition={{ duration: 0.5 }}
-                                />
-                            </div>
-                            <div className="flex justify-between text-xs text-purple-600 mt-1">
-                                <span>Loading</span>
-                                <span>{progress}%</span>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Message */}
-                    {message && (
-                        <motion.p
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className={`${currentSize.message} font-medium ${currentTheme.text} text-center mt-3 max-w-xs`}
-                        >
-                            {message}
-                        </motion.p>
-                    )}
-
-                    {/* Decorative Elements */}
-                    {fullPage && variant === 'spinner' && (
-                        <>
-                            {/* Animated background dots */}
-                            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                                {[...Array(15)].map((_, i) => (
-                                    <motion.div
-                                        key={i}
-                                        className="absolute w-1 h-1 rounded-full bg-purple-300/20"
-                                        style={{
-                                            left: `${Math.random() * 100}%`,
-                                            top: `${Math.random() * 100}%`,
-                                        }}
-                                        animate={{
-                                            scale: [0.5, 1, 0.5],
-                                            opacity: [0.2, 0.5, 0.2]
-                                        }}
-                                        transition={{
-                                            duration: 2 + Math.random(),
-                                            repeat: Infinity,
-                                            delay: Math.random() * 2
-                                        }}
-                                    />
-                                ))}
-                            </div>
-
-                            {/* Glow effect */}
-                            <div className="absolute inset-0 pointer-events-none">
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
-                            </div>
-                        </>
-                    )}
+                    {/* Progress bar */}
+                    <motion.div
+                        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 h-0.5 bg-gradient-to-r from-transparent via-white to-transparent overflow-hidden"
+                        style={{
+                            width: '200px',
+                            opacity: phase === 'exiting' ? 1 : 0.7
+                        }}
+                    >
+                        <motion.div
+                            className="h-full bg-white"
+                            initial={{ width: "0%" }}
+                            animate={{ width: phase === 'exiting' ? "100%" : "0%" }}
+                            transition={{
+                                duration: 1,
+                                ease: [0.22, 1, 0.36, 1],
+                                delay: phase === 'exiting' ? 0 : 0
+                            }}
+                        />
+                    </motion.div>
                 </div>
             </motion.div>
         </AnimatePresence>
     );
 };
 
-export default UiLoader;
+export default MesbahCustomLoader;
