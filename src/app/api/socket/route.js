@@ -1,6 +1,6 @@
 // portfolio/app/api/socket/route.js
 import { getServerSession } from 'next-auth/next';
-import Chat from '@/src/models/Chat';
+// import Chat from '@/src/models/Chat';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import dbConnect from '@/lib/dbMongoose';
 

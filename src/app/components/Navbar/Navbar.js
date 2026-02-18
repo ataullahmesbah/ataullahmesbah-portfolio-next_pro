@@ -258,7 +258,7 @@ const Navbar = () => {
                             priority
                         />
                     </Link>
-                    
+
                     {/* Mobile Menu Icon and Cart */}
                     <div className="lg:hidden flex items-center space-x-4">
                         {cartCount > 0 && (

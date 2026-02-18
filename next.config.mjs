@@ -2,9 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    appDir: true,
+     optimizeFonts: false,  
+    // appDir: true,
     serverComponentsExternalPackages: ['mongoose'],
-    serverActions: true,
+    // serverActions: true,
   },
   images: {
     remotePatterns: [
