@@ -6,7 +6,7 @@ import SessionChecker from "@/providers/SessionChecker/SessionChecker";
 import ToastProvider from "./components/Share/ToastProvider/ToastProvider";
 import AdsModal from "./components/Ads/AdsModal/AdsModal";
 
-const inter = Inter({ subsets: ["latin"] });
+// const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   metadataBase: new URL("https://www.ataullahmesbah.com"),
@@ -128,7 +128,13 @@ export default function RootLayout({ children }) {
       </head>
 
       <body
-        className={`${inter.className} antialiased`}
+        // inter.className remove করো
+        className="antialiased"
+        // system font fallback দাও (Inter এর মতো দেখাবে)
+        style={{
+          fontFamily:
+            'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+        }}
         suppressHydrationWarning={true}
       >
         <Providers>
