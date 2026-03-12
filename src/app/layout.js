@@ -1,4 +1,4 @@
-import { Inter, Poppins } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers/Providers";
 import Script from "next/script";
@@ -6,18 +6,7 @@ import SessionChecker from "@/providers/SessionChecker/SessionChecker";
 import ToastProvider from "./components/Share/ToastProvider/ToastProvider";
 import AdsModal from "./components/Ads/AdsModal/AdsModal";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
-  display: "swap",
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   metadataBase: new URL("https://www.ataullahmesbah.com"),
@@ -99,7 +88,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
+    <html lang="en">
       <head>
         {/* Favicon */}
         <link rel="icon" href="/log.svg" type="image/svg+xml" />
@@ -138,7 +127,10 @@ export default function RootLayout({ children }) {
 
       </head>
 
-      <body>
+      <body
+        className={`${inter.className} antialiased`}
+        suppressHydrationWarning={true}
+      >
         <Providers>
           <SessionChecker />
           <AdsModal />

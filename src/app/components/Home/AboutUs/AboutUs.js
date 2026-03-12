@@ -142,7 +142,7 @@ const AboutUs = () => {
                             <h2 className='text-gray-100 font-semibold text-2xl'>
                                 A Web Developer, Video Editor, Content Creator & Digital Strategist
                             </h2>
-                            <p
+                            <div
                                 className="text-base poppins-regular animate-on-scroll"
                                 style={{
                                     transform: 'translateY(20px)',
@@ -159,8 +159,7 @@ const AboutUs = () => {
                                     <span className="text-purple-400 font-medium"> backend </span>
                                     technologies.
                                 </p>
-
-                            </p>
+                            </div>
 
                             <p
                                 className="text-base poppins-regular animate-on-scroll"

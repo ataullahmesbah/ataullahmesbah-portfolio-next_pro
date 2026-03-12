@@ -1,5 +1,9 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 
+import dns from 'node:dns/promises';
+
+dns.setServers(['1.1.1.1', '8.8.8.8']);
+
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB;
 

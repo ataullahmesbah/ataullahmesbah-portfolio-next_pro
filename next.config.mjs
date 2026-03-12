@@ -1,12 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  turbopack: {},
   reactStrictMode: true,
-  experimental: {
-     optimizeFonts: false,  
-    // appDir: true,
-    serverComponentsExternalPackages: ['mongoose'],
-    // serverActions: true,
-  },
+
+  // mongoose-এর জন্য
+  serverExternalPackages: ['mongoose'],
+
   images: {
     remotePatterns: [
       {
@@ -19,12 +18,17 @@ const nextConfig = {
       },
       {
         protocol: 'http',
-        hostname: '**', // Remove in production
+        hostname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'maps.googleapis.com',
       },
     ],
-    domains: ['img.youtube.com', '*', 'maps.googleapis.com'],
     unoptimized: true,
   },
+
+  // webpack কনফিগারেশন
   webpack: (config, { isServer }) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
@@ -34,6 +38,7 @@ const nextConfig = {
       fs: false,
       child_process: false,
     };
+
     if (!isServer) {
       config.resolve.alias = {
         ...config.resolve.alias,
@@ -43,8 +48,10 @@ const nextConfig = {
         aws4: false,
       };
     }
+
     return config;
   },
+
   async rewrites() {
     return [
       {
@@ -57,6 +64,7 @@ const nextConfig = {
       },
     ];
   },
+
   async headers() {
     return [
       {
@@ -78,8 +86,6 @@ const nextConfig = {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin',
           },
-
-
           {
             key: 'Content-Security-Policy',
             value: `
@@ -92,30 +98,16 @@ const nextConfig = {
               frame-ancestors 'none';
             `.replace(/\s+/g, ' ').trim()
           },
-
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains; preload',
           },
         ],
       },
-      // Blog Updated Path
       {
         source: '/api/:path*',
         headers: [
           { key: 'Cache-Control', value: 'no-store, max-age=0' },
-        ],
-      },
-      {
-        source: '/admin-dashboard/blog/:path*',
-        headers: [
-          { key: 'Cache-Control', value: 'no-store, max-age=0' },
-        ],
-      },
-      // Blog Updated Path
-      {
-        source: '/api/:path*',
-        headers: [
           {
             key: 'Access-Control-Allow-Origin',
             value: process.env.NEXTAUTH_URL || 'http://localhost:3000',
@@ -145,6 +137,12 @@ const nextConfig = {
             key: 'Access-Control-Allow-Headers',
             value: 'Content-Type',
           },
+        ],
+      },
+      {
+        source: '/admin-dashboard/blog/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'no-store, max-age=0' },
         ],
       },
       {

@@ -2,41 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ============================= */
-/* Global Font = Inter */
-/* ============================= */
+/* RESET unnecessary Next.ts default variables */
+:root {
+  --foreground-rgb: 0, 0, 0;
+}
 
+/* GLOBAL STYLES */
 body {
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  @apply bg-gray-50 text-black antialiased;
 }
-
-/* ============================= */
-/* Poppins Utility Classes */
-/* ============================= */
-
-.poppins-regular {
-  font-family: var(--font-poppins);
-  font-weight: 400;
-}
-
-.poppins-medium {
-  font-family: var(--font-poppins);
-  font-weight: 500;
-}
-
-.poppins-semibold {
-  font-family: var(--font-poppins);
-  font-weight: 600;
-}
-
-.poppins-bold {
-  font-family: var(--font-poppins);
-  font-weight: 700;
-}
-
-/* ============================= */
-/* Amsterdam Font (If locally added) */
-/* ============================= */
 
 .amsfonts {
   font-family: 'New Amsterdam', sans-serif;
