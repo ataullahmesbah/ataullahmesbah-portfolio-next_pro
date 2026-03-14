@@ -6,6 +6,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { FiPlus, FiTrash2, FiImage, FiType, FiCode, FiVideo, FiSave, FiArrowLeft, FiTag } from 'react-icons/fi';
 import { useDebounce } from '@/app/components/hooks/useDebounce';
 import slugify from 'slugify';
+import Image from 'next/image';
 
 // Predefined categories
 const PREDEFINED_CATEGORIES = ['featured', 'tech', 'travel', 'seo', 'personal', 'lifestyle', 'business'];
@@ -35,7 +36,9 @@ export default function CreateFeaturedStory() {
             type: 'paragraph',
             content: '',
             caption: '',
-            alt: ''
+            alt: '',
+            imageUrl: '',  // Add this
+            imageFile: null,
         }],
     });
 
@@ -50,6 +53,32 @@ export default function CreateFeaturedStory() {
             setCategories([...PREDEFINED_CATEGORIES, ...customCategories]);
         }
     }, []);
+
+    // Cleanup image URLs on unmount
+    useEffect(() => {
+        return () => {
+            // Cleanup main image preview
+            if (formData.mainImage) {
+                try {
+                    const mainImageUrl = URL.createObjectURL(formData.mainImage);
+                    URL.revokeObjectURL(mainImageUrl);
+                } catch (error) {
+                    console.log('Error revoking main image URL:', error);
+                }
+            }
+
+            // Cleanup content block image previews
+            formData.contentBlocks.forEach(block => {
+                if (block.imageUrl && block.imageUrl.startsWith('blob:')) {
+                    try {
+                        URL.revokeObjectURL(block.imageUrl);
+                    } catch (error) {
+                        console.log('Error revoking block image URL:', error);
+                    }
+                }
+            });
+        };
+    }, [formData.mainImage, formData.contentBlocks]); // Add dependencies
 
     // Generate slug and check availability
     useEffect(() => {
@@ -250,6 +279,11 @@ export default function CreateFeaturedStory() {
 
         setLoading(true);
         try {
+            // Cleanup old URL if exists BEFORE creating new one
+            if (formData.contentBlocks[index]?.imageUrl) {
+                URL.revokeObjectURL(formData.contentBlocks[index].imageUrl);
+            }
+
             const previewUrl = URL.createObjectURL(file);
 
             const updatedBlocks = [...formData.contentBlocks];
@@ -461,11 +495,14 @@ export default function CreateFeaturedStory() {
                                     required
                                 />
                                 {formData.mainImage && (
-                                    <div className="mt-4">
-                                        <img
+                                    <div className="mt-4 relative h-48 w-full max-w-2xl">
+                                        <Image
                                             src={URL.createObjectURL(formData.mainImage)}
                                             alt="Main image preview"
-                                            className="max-h-48 rounded-xl border border-gray-600"
+                                            fill
+                                            className="object-contain rounded-xl border border-gray-600"
+                                            sizes="(max-width: 768px) 100vw, 500px"
+                                            unoptimized={true}
                                         />
                                     </div>
                                 )}
@@ -528,7 +565,7 @@ export default function CreateFeaturedStory() {
                                                         type: newType,
                                                         content: newType !== 'image' ? block.content || '' : '',
                                                         imageUrl: newType === 'image' ? block.imageUrl || '' : '',
-                                                        imageFile: newType === 'image' ? block.imageFile || null : null,
+                                                        imageFile: newType === 'image' ? block.imageFile || null : null, // Add this
                                                         caption: block.caption || '',
                                                         alt: block.alt || '',
                                                         ...(newType === 'heading' && { level: block.level || 2 }),
@@ -574,11 +611,14 @@ export default function CreateFeaturedStory() {
                                                     className="w-full px-4 py-3 rounded-xl bg-gray-700/50 border border-gray-600 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-purple-600 file:text-white hover:file:bg-purple-700 transition-all"
                                                 />
                                                 {block.imageUrl && (
-                                                    <div className="mt-4">
-                                                        <img
+                                                    <div className="mt-4 relative h-48 w-full max-w-2xl">
+                                                        <Image
                                                             src={block.imageUrl}
                                                             alt="Content block preview"
-                                                            className="max-h-48 rounded-xl border border-gray-600"
+                                                            fill
+                                                            className="object-contain rounded-xl border border-gray-600"
+                                                            sizes="(max-width: 768px) 100vw, 500px"
+                                                            unoptimized={true}
                                                         />
                                                     </div>
                                                 )}

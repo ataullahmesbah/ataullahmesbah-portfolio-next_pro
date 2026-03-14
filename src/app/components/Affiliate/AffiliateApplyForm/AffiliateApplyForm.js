@@ -37,7 +37,7 @@ export default function AffiliateApplyForm({ onApply }) {
                 toast.success(
                     <div className="text-center">
                         <p className="font-bold">Application Submitted!</p>
-                        <p className="text-sm">We'll review your application shortly</p>
+                        <p className="text-sm">We&apos;ll review your application shortly</p>
                     </div>,
                     {
                         position: 'top-center',

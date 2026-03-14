@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 
 const EditNewsletterPage = ({ params }) => {
     const { data: session } = useSession();
@@ -289,11 +290,14 @@ const EditNewsletterPage = ({ params }) => {
                                 {formData.existingImage && (
                                     <div className="mb-4">
                                         <p className="text-sm text-gray-400 mb-2">Current Image:</p>
-                                        <div className="relative aspect-video rounded-lg overflow-hidden">
-                                            <img
+                                        <div className="relative rounded-lg overflow-hidden" style={{ width: '100%', height: 'auto' }}>
+                                            <Image
                                                 src={formData.existingImage}
                                                 alt="Current newsletter"
+                                                width={1920}
+                                                height={1080}
                                                 className="object-cover w-full h-full"
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                             />
                                         </div>
                                     </div>

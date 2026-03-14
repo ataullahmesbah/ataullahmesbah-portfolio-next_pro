@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
+import Image from 'next/image';
 
 const CONTENT_TYPES = [
     { value: 'text-h1', label: 'Heading 1 (h1)' },
@@ -508,10 +509,18 @@ const UpdateBlogPostPage = () => {
                                                 {section.existingImageUrl && !section.image && (
                                                     <div className="mt-2">
                                                         <p className="text-xs text-gray-400 mb-1">Current Image:</p>
-                                                        <img
+                                                        <Image
                                                             src={section.existingImageUrl}
                                                             alt="Current content"
-                                                            className="h-32 object-contain mx-auto"
+                                                            width={300}
+                                                            height={128}
+                                                            className="object-contain mx-auto"
+                                                            style={{
+                                                                height: '128px',
+                                                                width: 'auto',
+                                                                margin: '0 auto'
+                                                            }}
+                                                            sizes="(max-width: 768px) 100vw, 300px"
                                                         />
                                                     </div>
                                                 )}

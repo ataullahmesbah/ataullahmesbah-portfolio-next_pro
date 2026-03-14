@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
+import Image from 'next/image';
 
 export default function AddFeaturedStoryMod() {
     const { data: session } = useSession();
@@ -85,7 +86,7 @@ export default function AddFeaturedStoryMod() {
             return block;
         });
 
-      
+
         formDataToSend.append('contentBlocks', JSON.stringify(blocksForSubmission));
 
         try {
@@ -99,7 +100,7 @@ export default function AddFeaturedStoryMod() {
                 throw new Error(data.error || 'Failed to create story');
             }
 
-        
+
             toast.success('Story created successfully!');
             router.push('/moderator-dashboard/featured-story/all-story');
         } catch (error) {
@@ -281,11 +282,18 @@ export default function AddFeaturedStoryMod() {
                                     required
                                 />
                                 {formData.mainImage && (
-                                    <div className="mt-2">
-                                        <img
+                                    <div className="mt-2 relative h-40 w-full">
+                                        <Image
                                             src={URL.createObjectURL(formData.mainImage)}
                                             alt="Preview"
-                                            className="max-h-40 rounded"
+                                            fill
+                                            className="object-contain rounded"
+                                            sizes="(max-width: 768px) 100vw, 300px"
+                                            unoptimized={true}
+                                            onLoad={(e) => {
+                                                // cleanup এর জন্য URL track করা
+                                                e.target.src = URL.createObjectURL(formData.mainImage)
+                                            }}
                                         />
                                     </div>
                                 )}
@@ -367,11 +375,15 @@ export default function AddFeaturedStoryMod() {
                                                 className="w-full p-2 rounded bg-gray-600 text-white"
                                             />
                                             {block.imageUrl && (
-                                                <div className="mt-2">
-                                                    <img
+                                                <div className="mt-2 relative h-40 w-full">
+                                                    <Image
                                                         src={block.imageUrl}
                                                         alt="Preview"
-                                                        className="max-h-40 rounded"
+                                                        fill
+                                                        className="object-contain rounded"
+                                                        sizes="(max-width: 768px) 100vw, 300px"
+                                                        onError={(e) => {
+                                                        }}
                                                     />
                                                 </div>
                                             )}

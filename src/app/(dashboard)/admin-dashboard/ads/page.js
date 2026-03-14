@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 const availablePages = ['*', '/', '/shop', '/blog', '/about', '/contact'];
 
@@ -232,7 +233,14 @@ export default function AdsAdmin() {
                 {previewImage && (
                   <div className="mt-4">
                     <p className="text-sm text-gray-400 mb-2">Preview (300×500px):</p>
-                    <img src={previewImage} alt="Ad preview" className="w-[150px] h-[250px] object-cover rounded-lg" />
+                    <Image
+                      src={previewImage}
+                      alt="Ad preview"
+                      width={150}
+                      height={250}
+                      unoptimized={true}
+                      className="object-cover rounded-lg"
+                    />
                   </div>
                 )}
                 <p className="text-xs text-gray-400 mt-1">Image must be exactly 300 pixels wide and 500 pixels tall</p>
@@ -409,12 +417,14 @@ export default function AdsAdmin() {
                   >
                     <div className="relative">
                       <div className="w-full h-48 relative">
-                        <img
+                        <Image
                           src={ad.imageUrl}
                           alt={`Ad: ${ad.buttonText}`}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
+                          unoptimized={true}
                           onError={(e) => {
-                            e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjUwMCIgdmlld0JveD0iMCAwIDMwMCA1MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iNTAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgMjI1SDE3NVYyNzVIMTI1VjIyNVpNMTUwIDE3NUMxNjMuODA3IDE3NSAxNzUgMTg2LjE5MyAxNzUgMjAwQzE3NSAyMTMuODA3IDE2My44MDcgMjI1IDE1MCAyMjVDMTM2LjE5MyAyMjUgMTI1IDIxMy44MDcgMTI1IDIwMEMxMjUgMTg2LjE5MyAxMzYuMTkzIDE3NSAxNTAgMTc1WiIgZmlsbD0iOUI5QjlCIi8+CjxwYXRoIGQ9Ik0yMDAgMzI1SDEwMEM5NC40NzcgMzI1IDkwIDMyMC41MjMgOTAgMzE1VjE4NUM5MCAxNzkuNDc3IDk0LjQ3NyAxNzUgMTAwIDE3NUgyMDBDMjA1LjUyMyAxNzUgMjEwIDE3OS40NzcgMjEwIDE4NVYzMTVDMjEwIDMyMC41MjMgMjA1LjUyMyAzMjUgMjAwIDMyNVpNMTAwIDE4NVYzMTVIMjAwVjE4NUgxMDBaIiBmaWxsPSI5QjlCOUIiLz4KPC9zdmc+';
+                            e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjUwMCIgdmlld0JveD0iMCAwIDMwMCA1MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iNTAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgMjI1SDE3NVYyNzVIMTI1VjIyNVpNMTUwIDE3NUMxNjMuODA3IDE3NSAxNzUgMTg2LjE5MyAxNzUgMjAwQzE3NSAyMTMuODA3IDE2My44MDcgMjI1IDE1MCAyMjVDMTM2LjE5MyAyMjUgMTI1IDIxMy44MDcgMTI1IDIwMEMxMjUgMTg2LjE5MyAxMzYuMTkzIDE3NSAxNTAgMTc1WiIgZmlsbD0iOUI5QjlCIi8+CjxwYXRoIGQ9Ik0yMDAgMzI1SDEwMEM5NC40NzcgMzI1IDkwIDMyMC41MjMgOTAgMzE1VjE4NUM5MCAxNzkuNDc3IDk0LjQ3NyAxNzUgMTAwIDE3NUgyMDBDMjA1LjUyMyAxNzUgMjEwIDE3OS40NzcgMjEwIDE4NVYzMTVDMjEwIDMyMC41MjMgMjA1LjUyMyAzMjUgMjAwIDMyNVpNMTAwIDE4NVYzMTVIMjAwVjE4NUgxMDBaIiBmaWxsPSI5QjlCOUIiLz4KPC9zdmc+'
                           }}
                         />
                       </div>

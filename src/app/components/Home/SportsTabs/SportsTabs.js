@@ -19,8 +19,8 @@ const SportsTabs = () => {
         <div className="bg-gray-50 py-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center space-y-5 lg:space-y-6 mb-12">
-                    <h1 className="title text-3xl font-bold text-blue-800">Barcelona's Golden Generation Memories</h1>
-                    <p className="subtitle text-gray-700">Relive the unforgettable moments of Barcelona's golden era from 2009 to 2012.</p>
+                    <h1 className="title text-3xl font-bold text-blue-800">Barcelona&apos;s Golden Generation Memories</h1>
+                    <p className="subtitle text-gray-700">Relive the unforgettable moments of Barcelona&apos;s golden era from 2009 to 2012.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

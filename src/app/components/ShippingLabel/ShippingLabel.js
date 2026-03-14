@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { useRef, useState, useEffect } from 'react';
 
 const ShippingLabel = ({ order, onClose }) => {
@@ -578,15 +579,19 @@ const ShippingLabel = ({ order, onClose }) => {
                             flexShrink: 0
                         }}>
                             {barcodeDataUrl && (
-                                <img
+                                <Image
                                     src={barcodeDataUrl}
                                     alt="Barcode"
+                                    width={300}
+                                    height={75}
                                     style={{
-                                        maxWidth: '100%',
+                                        width: 'auto',
                                         height: '20mm',
                                         display: 'block',
                                         margin: '0 auto'
                                     }}
+                                    className="object-contain"
+                                    unoptimized={true}
                                 />
                             )}
                         </div>

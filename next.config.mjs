@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  turbopack: {},
+  // turbopack: {},
   reactStrictMode: true,
 
   // mongoose-এর জন্য
-  serverExternalPackages: ['mongoose'],
+  // serverExternalPackages: ['mongoose'],
 
   images: {
     remotePatterns: [

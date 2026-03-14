@@ -353,7 +353,7 @@ const EcommerceSEOContent = () => {
                             Trusted by <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">Leading Ecommerce Platforms</span>
                         </h2>
                         <p className="text-gray-400 max-w-2xl mx-auto">
-                            From Shopify to custom solutions, our Ecommerce SEO strategies are tailored to your platform's unique architecture and requirements.
+                            From Shopify to custom solutions, our Ecommerce SEO strategies are tailored to your platform&apos;s unique architecture and requirements.
                         </p>
                     </div>
 
@@ -390,7 +390,7 @@ const EcommerceSEOContent = () => {
                                 <FiCheck className="w-8 h-8 text-purple-400" />
                             </div>
                             <h4 className="text-white font-semibold mb-2">Platform-Specific SEO</h4>
-                            <p className="text-gray-400 text-sm">Custom strategies for each platform's architecture</p>
+                            <p className="text-gray-400 text-sm">Custom strategies for each platform&apos;s architecture</p>
                         </div>
 
                         <div className="text-center">
@@ -506,7 +506,7 @@ const EcommerceSEOContent = () => {
                                     <FiCheck className="w-5 h-5 text-green-400 mt-1 flex-shrink-0" />
                                     <div>
                                         <h4 className="font-semibold text-white">SGE Ready</h4>
-                                        <p className="text-gray-400">Optimized for Google's AI search experience</p>
+                                        <p className="text-gray-400">Optimized for Google&apos;s AI search experience</p>
                                     </div>
                                 </div>
                             </div>

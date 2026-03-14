@@ -92,7 +92,7 @@ export default function GEOSGEFAQ() {
                             GEO & SGE FAQ
                         </h2>
                         <p className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto" data-aos="fade-in" data-aos-delay="100">
-                            Expert answers about AI Search Optimization, Generative Engine Optimization, and Google's Search Generative Experience
+                            Expert answers about AI Search Optimization, Generative Engine Optimization, and Google&apos;s Search Generative Experience
                         </p>
                     </div>
 

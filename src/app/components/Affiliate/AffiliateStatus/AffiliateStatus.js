@@ -72,7 +72,7 @@ export default function AffiliateStatus({ affiliate }) {
                         <div className="bg-gray-700/50 rounded-lg p-4 border border-gray-600">
                             <h3 className="text-lg font-medium text-white mb-2">Application Submitted</h3>
                             <p className="text-gray-300">
-                                Your affiliate application is under review. We'll notify you once it's processed.
+                                Your affiliate application is under review. We&apos;ll notify you once it&apos;s processed.
                                 This typically takes 1-2 business days.
                             </p>
                         </div>

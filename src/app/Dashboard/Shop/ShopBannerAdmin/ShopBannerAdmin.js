@@ -448,11 +448,10 @@ const ShopBannerAdmin = () => {
                 <button
                   type="submit"
                   disabled={uploading || !isFormValid()}
-                  className={`px-6 py-2 rounded-lg text-white font-medium flex items-center gap-2 ${
-                    uploading || !isFormValid()
-                      ? 'bg-gray-600 cursor-not-allowed'
-                      : 'bg-purple-600 hover:bg-purple-700'
-                  }`}
+                  className={`px-6 py-2 rounded-lg text-white font-medium flex items-center gap-2 ${uploading || !isFormValid()
+                    ? 'bg-gray-600 cursor-not-allowed'
+                    : 'bg-purple-600 hover:bg-purple-700'
+                    }`}
                 >
                   {uploading && (
                     <svg
@@ -481,8 +480,8 @@ const ShopBannerAdmin = () => {
                       ? 'Updating...'
                       : 'Creating...'
                     : editingId
-                    ? 'Update Banner'
-                    : 'Create Banner'}
+                      ? 'Update Banner'
+                      : 'Create Banner'}
                 </button>
               </div>
             </form>
@@ -503,10 +502,13 @@ const ShopBannerAdmin = () => {
                 <div key={banner._id} className="p-6 hover:bg-gray-700/50 transition-colors">
                   <div className="flex items-start gap-6">
                     <div className="flex-shrink-0 w-32 h-24 rounded-lg overflow-hidden border border-gray-600">
-                      <img
+                      <Image
                         src={banner.image}
                         alt={banner.title}
+                        width={128}
+                        height={96}
                         className="w-full h-full object-cover"
+                        sizes="128px"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
