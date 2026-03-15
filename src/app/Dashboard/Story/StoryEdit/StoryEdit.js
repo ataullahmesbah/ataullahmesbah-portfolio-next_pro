@@ -6,6 +6,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { FiPlus, FiTrash2, FiImage, FiType, FiCode, FiVideo, FiSave, FiArrowLeft, FiTag } from 'react-icons/fi';
 import { useDebounce } from '@/app/components/hooks/useDebounce';
 import slugify from 'slugify';
+import Image from 'next/image';
 
 
 const PREDEFINED_CATEGORIES = ['featured', 'tech', 'travel', 'seo', 'personal', 'lifestyle', 'business'];
@@ -36,7 +37,9 @@ export default function EditFeaturedStory() {
             type: 'paragraph',
             content: '',
             caption: '',
-            alt: ''
+            alt: '',
+            imageUrl: '',  // Add this
+            imageFile: null,
         }],
     });
 
@@ -94,6 +97,32 @@ export default function EditFeaturedStory() {
             generateAndCheckSlug(debouncedTitle);
         }
     }, [debouncedTitle]);
+
+    // Cleanup image URLs on unmount
+    useEffect(() => {
+        return () => {
+            // Cleanup main image preview
+            if (formData.mainImage) {
+                try {
+                    const mainImageUrl = URL.createObjectURL(formData.mainImage);
+                    URL.revokeObjectURL(mainImageUrl);
+                } catch (error) {
+                    console.log('Error revoking main image URL:', error);
+                }
+            }
+
+            // Cleanup content block image previews
+            formData.contentBlocks.forEach(block => {
+                if (block.imageUrl && block.imageUrl.startsWith('blob:')) {
+                    try {
+                        URL.revokeObjectURL(block.imageUrl);
+                    } catch (error) {
+                        console.log('Error revoking block image URL:', error);
+                    }
+                }
+            });
+        };
+    }, [formData.mainImage, formData.contentBlocks]);
 
     const generateAndCheckSlug = async (title) => {
         const baseSlug = slugify(title, {
@@ -274,6 +303,12 @@ export default function EditFeaturedStory() {
 
         setLoading(true);
         try {
+            // Cleanup old URL if exists BEFORE creating new one
+            if (formData.contentBlocks[index]?.imageUrl &&
+                formData.contentBlocks[index].imageUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(formData.contentBlocks[index].imageUrl);
+            }
+
             const previewUrl = URL.createObjectURL(file);
             const updatedBlocks = [...formData.contentBlocks];
             updatedBlocks[index] = {
@@ -486,22 +521,31 @@ export default function EditFeaturedStory() {
                                 />
                                 <div className="mt-4">
                                     {formData.mainImage ? (
-                                        <img
-                                            src={URL.createObjectURL(formData.mainImage)}
-                                            alt="New main image preview"
-                                            className="max-h-48 rounded-xl border border-gray-600"
-                                        />
+                                        <div className="relative h-48 w-full max-w-2xl">
+                                            <Image
+                                                src={URL.createObjectURL(formData.mainImage)}
+                                                alt="New main image preview"
+                                                fill
+                                                className="object-contain rounded-xl border border-gray-600"
+                                                sizes="(max-width: 768px) 100vw, 500px"
+                                                unoptimized={true}
+                                            />
+                                        </div>
                                     ) : (
                                         <div>
                                             <p className="text-gray-400 text-sm mb-2">Current Image:</p>
-                                            <img
-                                                src={`/api/feature/${slug}`}
-                                                alt="Current main image"
-                                                className="max-h-48 rounded-xl border border-gray-600"
-                                                onError={(e) => {
-                                                    e.target.src = '/images/placeholder.jpg';
-                                                }}
-                                            />
+                                            <div className="relative h-48 w-full max-w-2xl">
+                                                <Image
+                                                    src={`/api/feature/${slug}`}
+                                                    alt="Current main image"
+                                                    fill
+                                                    className="object-contain rounded-xl border border-gray-600"
+                                                    sizes="(max-width: 768px) 100vw, 500px"
+                                                    onError={(e) => {
+                                                        e.target.src = '/images/placeholder.jpg';
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -609,11 +653,14 @@ export default function EditFeaturedStory() {
                                                     className="w-full px-4 py-3 rounded-xl bg-gray-700/50 border border-gray-600 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-purple-600 file:text-white hover:file:bg-purple-700 transition-all"
                                                 />
                                                 {block.imageUrl && (
-                                                    <div className="mt-4">
-                                                        <img
+                                                    <div className="mt-4 relative h-48 w-full max-w-2xl">
+                                                        <Image
                                                             src={block.imageUrl}
                                                             alt="Content block preview"
-                                                            className="max-h-48 rounded-xl border border-gray-600"
+                                                            fill
+                                                            className="object-contain rounded-xl border border-gray-600"
+                                                            sizes="(max-width: 768px) 100vw, 500px"
+                                                            unoptimized={block.imageUrl.startsWith('blob:')}
                                                         />
                                                     </div>
                                                 )}

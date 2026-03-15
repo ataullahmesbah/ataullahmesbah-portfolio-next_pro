@@ -1,10 +1,9 @@
-// app/admin-dashboard/travel/add/page.js
-
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function AddTravel() {
     const [form, setForm] = useState({
@@ -16,6 +15,16 @@ export default function AddTravel() {
     });
     const [loading, setLoading] = useState(false);
     const [slugPreview, setSlugPreview] = useState('');
+    const [previewUrl, setPreviewUrl] = useState(null);
+
+    // Cleanup preview URL on unmount
+    useEffect(() => {
+        return () => {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        };
+    }, [previewUrl]);
 
     const handleTitleChange = (e) => {
         const title = e.target.value;
@@ -47,6 +56,12 @@ export default function AddTravel() {
             toast.success('Travel added/updated successfully');
             setForm({ title: '', description: '', location: '', category: 'Journey', image: null });
             setSlugPreview('');
+
+            // Cleanup preview URL
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+                setPreviewUrl(null);
+            }
         } catch (error) {
             toast.error('Error: ' + (error.response?.data?.error || 'Failed to save'));
         } finally {
@@ -54,7 +69,22 @@ export default function AddTravel() {
         }
     };
 
-    const handleFileChange = (e) => setForm({ ...form, image: e.target.files[0] });
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setForm({ ...form, image: file });
+
+        // Cleanup previous preview URL
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+        }
+
+        // Create new preview URL
+        if (file) {
+            setPreviewUrl(URL.createObjectURL(file));
+        } else {
+            setPreviewUrl(null);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-800 p-6">
@@ -66,7 +96,7 @@ export default function AddTravel() {
                     <input
                         type="text"
                         value={form.title}
-                        onChange={handleTitleChange} // Updated handler
+                        onChange={handleTitleChange}
                         className="w-full p-3 rounded-lg bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
                         required
                     />
@@ -76,6 +106,7 @@ export default function AddTravel() {
                         </p>
                     )}
                 </div>
+
                 <div className="mb-6">
                     <label className="block text-white font-semibold mb-2">Description</label>
                     <textarea
@@ -86,6 +117,7 @@ export default function AddTravel() {
                         required
                     />
                 </div>
+
                 <div className="mb-6">
                     <label className="block text-white font-semibold mb-2">Location</label>
                     <input
@@ -103,7 +135,6 @@ export default function AddTravel() {
                         value={form.category}
                         onChange={e => {
                             setForm({ ...form, category: e.target.value });
-                            // Show specific requirements based on category
                         }}
                         className="w-full p-3 rounded-lg bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
                     >
@@ -139,17 +170,20 @@ export default function AddTravel() {
                             <li className="text-gray-400">⚡ Images will be automatically optimized to WebP</li>
                         </ul>
 
-                        {/* Image Preview with 1200x628 aspect ratio */}
-                        {form.image && (
+                        {/* Image Preview with Next.js Image */}
+                        {previewUrl && (
                             <div className="mt-4 pt-4 border-t border-gray-700">
                                 <p className="text-gray-400 text-sm mb-2">Preview (2:1 ratio):</p>
                                 <div className="relative w-full h-32 bg-gray-800 rounded-lg overflow-hidden border border-gray-600">
-                                    <img
-                                        src={URL.createObjectURL(form.image)}
+                                    <Image
+                                        src={previewUrl}
                                         alt="Preview"
-                                        className="absolute inset-0 w-full h-full object-cover"
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 768px) 100vw, 500px"
+                                        unoptimized={true}
                                     />
-                                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded z-10">
                                         1200×628
                                     </div>
                                 </div>

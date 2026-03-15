@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
+import Image from 'next/image';
 
 export default function EditFeaturedStoryMod() {
     const { data: session } = useSession();
@@ -18,7 +19,13 @@ export default function EditFeaturedStoryMod() {
         category: 'featured',
         tags: '',
         keyPoints: '',
-        contentBlocks: [{ type: 'paragraph', content: '', caption: '' }],
+        contentBlocks: [{
+            type: 'paragraph',
+            content: '',
+            caption: '',
+            imageUrl: '',  // Add this
+            imageFile: null  // Add this
+        }],
     });
 
     useEffect(() => {
@@ -40,6 +47,9 @@ export default function EditFeaturedStoryMod() {
                     contentBlocks: data.contentBlocks.map(block => ({
                         ...block,
                         imageFile: null,
+                        imageUrl: block.type === 'image' ? block.imageUrl : '',
+                        // Add these if they don't exist
+                        imageFile: null,
                         imageUrl: block.type === 'image' ? block.imageUrl : ''
                     }))
                 });
@@ -51,6 +61,33 @@ export default function EditFeaturedStoryMod() {
         };
         fetchStory();
     }, [slug]);
+
+
+    // Cleanup image URLs on unmount
+    useEffect(() => {
+        return () => {
+            // Cleanup main image preview
+            if (formData.mainImage) {
+                try {
+                    const mainImageUrl = URL.createObjectURL(formData.mainImage);
+                    URL.revokeObjectURL(mainImageUrl);
+                } catch (error) {
+                    console.log('Error revoking main image URL:', error);
+                }
+            }
+
+            // Cleanup content block image previews
+            formData.contentBlocks.forEach(block => {
+                if (block.imageUrl && block.imageUrl.startsWith('blob:')) {
+                    try {
+                        URL.revokeObjectURL(block.imageUrl);
+                    } catch (error) {
+                        console.log('Error revoking block image URL:', error);
+                    }
+                }
+            });
+        };
+    }, [formData.mainImage, formData.contentBlocks]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -185,6 +222,12 @@ export default function EditFeaturedStoryMod() {
 
         setLoading(true);
         try {
+            // Cleanup old URL if exists BEFORE creating new one
+            if (formData.contentBlocks[index]?.imageUrl &&
+                formData.contentBlocks[index].imageUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(formData.contentBlocks[index].imageUrl);
+            }
+
             const previewUrl = URL.createObjectURL(file);
             const updatedBlocks = [...formData.contentBlocks];
             updatedBlocks[index] = {
@@ -289,12 +332,25 @@ export default function EditFeaturedStoryMod() {
                                     className="w-full p-2 rounded bg-gray-600 text-white"
                                 />
                                 {formData.mainImage ? (
-                                    <div className="mt-2">
-                                        <img src={URL.createObjectURL(formData.mainImage)} alt="Preview" className="max-h-40 rounded" />
+                                    <div className="mt-2 relative h-40 w-full max-w-md">
+                                        <Image
+                                            src={URL.createObjectURL(formData.mainImage)}
+                                            alt="Preview"
+                                            fill
+                                            className="object-contain rounded"
+                                            sizes="(max-width: 768px) 100vw, 400px"
+                                            unoptimized={true}
+                                        />
                                     </div>
                                 ) : (
-                                    <div className="mt-2">
-                                        <img src={formData.mainImage || '/images/placeholder.jpg'} alt="Current" className="max-h-40 rounded" />
+                                    <div className="mt-2 relative h-40 w-full max-w-md">
+                                        <Image
+                                            src={formData.mainImage || '/images/placeholder.jpg'}
+                                            alt="Current"
+                                            fill
+                                            className="object-contain rounded"
+                                            sizes="(max-width: 768px) 100vw, 400px"
+                                        />
                                     </div>
                                 )}
                             </div>
@@ -369,8 +425,15 @@ export default function EditFeaturedStoryMod() {
                                                 className="w-full p-2 rounded bg-gray-600 text-white"
                                             />
                                             {block.imageUrl && (
-                                                <div className="mt-2">
-                                                    <img src={block.imageUrl} alt="Preview" className="max-h-40 rounded" />
+                                                <div className="mt-2 relative h-40 w-full max-w-md">
+                                                    <Image
+                                                        src={block.imageUrl}
+                                                        alt="Preview"
+                                                        fill
+                                                        className="object-contain rounded"
+                                                        sizes="(max-width: 768px) 100vw, 400px"
+                                                        unoptimized={block.imageUrl.startsWith('blob:')}
+                                                    />
                                                 </div>
                                             )}
                                         </div>
