@@ -3,6 +3,12 @@
 import ContactPage from "@/app/components/Share/ContactPage/ContactPage";
 import Head from "next/head";
 
+
+export const viewport = {
+    width: 'device-width',
+    initialScale: 1,
+};
+
 const schemaData = {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -48,7 +54,6 @@ export const metadata = {
     keywords: 'contact, Ataullah Mesbah, inquiries, support, collaboration, email, social media',
     authors: [{ name: 'Ataullah Mesbah' }],
     robots: 'index, follow',
-    viewport: 'width=device-width, initial-scale=1',
     openGraph: {
         title: 'Contact - Ataullah Mesbah',
         description: "Reach out to Ataullah Mesbah for inquiries or collaboration opportunities.",

@@ -1,5 +1,5 @@
 import HomePageContent from "../components/HomePageContent/HomePageContent";
-
+export const dynamic = 'force-dynamic';
 
 
 

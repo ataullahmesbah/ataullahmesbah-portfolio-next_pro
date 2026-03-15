@@ -3,6 +3,11 @@
 
 import LetterNews from "@/app/components/News/LetterNews/LetterNews";
 
+export const viewport = {
+    width: 'device-width',
+    initialScale: 1,
+};
+
 
 export const metadata = {
     title: 'Letter | Ataullah Mesbah',
@@ -10,7 +15,6 @@ export const metadata = {
     keywords: 'newsletter, Ataullah Mesbah, updates, insights, subscription, exclusive content',
     authors: [{ name: 'Ataullah Mesbah' }],
     robots: 'index, follow',
-    viewport: 'width=device-width, initial-scale=1',
     openGraph: {
         title: 'Letter - Ataullah Mesbah',
         description: "Subscribe to Ataullah Mesbah's newsletter for the latest updates and exclusive content.",

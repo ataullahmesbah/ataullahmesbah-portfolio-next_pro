@@ -3,6 +3,11 @@
 import ProjectsPage from "@/app/components/Projects/Projects";
 import Head from "next/head";
 
+export const viewport = {
+    width: 'device-width',
+    initialScale: 1,
+};
+
 const schemaData = {
   "@context": "https://schema.org",
   "@type": "WebPage",
@@ -49,7 +54,6 @@ export const metadata = {
   keywords: 'projects, Ataullah Mesbah, AI, web development, technology, portfolio, innovation',
   authors: [{ name: 'Ataullah Mesbah' }],
   robots: 'index, follow',
-  viewport: 'width=device-width, initial-scale=1',
   openGraph: {
     title: 'Projects - Ataullah Mesbah',
     description: "Explore Ataullah Mesbah's portfolio of projects in AI, web development, and technology.",

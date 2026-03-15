@@ -1,6 +1,5 @@
 'use client';
 
-
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaUserTie, FaBars, FaTimes } from 'react-icons/fa';

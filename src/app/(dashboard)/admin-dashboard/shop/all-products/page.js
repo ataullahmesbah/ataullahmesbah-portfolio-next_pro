@@ -1,5 +1,5 @@
 import AllProducts from '@/app/Dashboard/Shop/AllProducts/AllProducts';
-import React from 'react';
+export const dynamic = 'force-dynamic';
 
 const page = () => {
     return (

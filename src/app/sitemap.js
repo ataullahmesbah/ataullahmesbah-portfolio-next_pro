@@ -4,6 +4,7 @@ import FeaturedStory from "@/models/FeaturedStory";
 import Blog from "@/models/Blog";
 import Products from "@/models/Products";
 import dbConnect from "@/lib/dbMongoose";
+export const dynamic = 'force-dynamic';
 
 export default async function sitemap() {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ataullahmesbah.com";

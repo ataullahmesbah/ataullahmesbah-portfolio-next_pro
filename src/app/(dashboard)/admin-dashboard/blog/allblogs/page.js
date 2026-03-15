@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { FaEye, FaTrashAlt, FaEdit, FaSearch, FaCalendarAlt, FaFilter } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default function AllBlogs() {
     const [blogs, setBlogs] = useState([]);

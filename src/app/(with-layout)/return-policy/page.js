@@ -1,3 +1,10 @@
+
+export const viewport = {
+    width: 'device-width',
+    initialScale: 1,
+};
+
+
 const schemaData = {
   "@context": "https://schema.org",
   "@type": "WebPage",
@@ -149,7 +156,6 @@ export const metadata = {
   keywords: 'refund policy, return policy, exchange policy, Ataullah Mesbah, customer support',
   authors: [{ name: 'Ataullah Mesbah' }],
   robots: 'index, follow',
-  viewport: 'width=device-width, initial-scale=1',
   openGraph: {
     title: 'Return Policy - Ataullah Mesbah',
     description: "Learn about Ataullah Mesbah's exchange and return policy, including refund processes and eligibility.",

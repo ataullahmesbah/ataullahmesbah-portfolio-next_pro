@@ -1,3 +1,8 @@
+export const viewport = {
+    width: 'device-width',
+    initialScale: 1,
+};
+
 const schemaData = {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -216,7 +221,6 @@ export const metadata = {
     keywords: 'terms and policy, Ataullah Mesbah, website usage, user responsibilities, intellectual property, refund policy',
     authors: [{ name: 'Ataullah Mesbah' }],
     robots: 'index, follow',
-    viewport: 'width=device-width, initial-scale=1',
     openGraph: {
         title: 'Terms and Policy - Ataullah Mesbah',
         description: "Official Terms and Policy for using Ataullah Mesbah’s website and services.",

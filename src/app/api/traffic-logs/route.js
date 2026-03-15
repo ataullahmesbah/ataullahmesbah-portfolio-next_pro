@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server';
 import dbConnect from "@/lib/dbMongoose";
 import TrafficLog from "@/models/TrafficLog";
 

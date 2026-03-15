@@ -1,3 +1,9 @@
+
+export const viewport = {
+    width: 'device-width',
+    initialScale: 1,
+};
+
 const schemaData = {
   "@context": "https://schema.org",
   "@type": "WebPage",
@@ -138,7 +144,6 @@ export const metadata = {
   keywords: 'privacy policy, Ataullah Mesbah, data protection, user rights, personal information, website privacy',
   authors: [{ name: 'Ataullah Mesbah' }],
   robots: 'index, follow',
-  viewport: 'width=device-width, initial-scale=1',
   openGraph: {
     title: 'Privacy Policy - Ataullah Mesbah',
     description: "Understand how Ataullah Mesbah collects, uses, and protects your personal information.",
