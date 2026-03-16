@@ -13,7 +13,7 @@ import StatisticsClient from "@/app/components/Story/Statistics/Statistics";
 
 async function fetchStatistics() {
     try {
-        const res = await fetch(`${process.env.NEXTAUTH_URL}/api/feature/statistics`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/feature/statistics`, {
             cache: 'no-store',
         });
         if (!res.ok) {

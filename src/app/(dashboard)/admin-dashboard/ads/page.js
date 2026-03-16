@@ -1,9 +1,10 @@
 'use client';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+
 
 const availablePages = ['*', '/', '/shop', '/blog', '/about', '/contact'];
 

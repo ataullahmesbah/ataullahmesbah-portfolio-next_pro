@@ -7,8 +7,10 @@ export async function POST(request) {
         // Process payment (your existing logic)
         // ...
 
-        // Record affiliate purchase
-        await fetch('http://localhost:3000/api/affiliate/purchase', {
+       F
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        
+        await fetch(`${baseUrl}/api/affiliate/purchase`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ productId, amount }),
@@ -16,7 +18,9 @@ export async function POST(request) {
 
         return NextResponse.json({ message: 'Purchase successful' }, { status: 201 });
     } catch (error) {
-
-        return NextResponse.json({ message: 'Failed to process purchase', error: error.message }, { status: 500 });
+        return NextResponse.json({ 
+            message: 'Failed to process purchase', 
+            error: error.message 
+        }, { status: 500 });
     }
 }

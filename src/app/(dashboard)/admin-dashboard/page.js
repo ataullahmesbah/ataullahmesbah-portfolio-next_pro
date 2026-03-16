@@ -32,16 +32,16 @@ export default function AdminDashboardPage() {
             let GreetingIcon;
             if (hours >= 5 && hours < 12) {
                 timeGreeting = 'Good Morning';
-                GreetingIcon = <FaSun className="text-yellow-500" />; // Sun for morning
+                GreetingIcon = <FaSun className="text-yellow-500" />;
             } else if (hours >= 12 && hours < 17) {
                 timeGreeting = 'Good Afternoon';
-                GreetingIcon = <FaCloudSun className="text-orange-400" />; // CloudSun for afternoon
+                GreetingIcon = <FaCloudSun className="text-orange-400" />;
             } else if (hours >= 17 && hours < 22) {
                 timeGreeting = 'Good Evening';
-                GreetingIcon = <FaMoon className="text-indigo-500" />; // Moon for evening
+                GreetingIcon = <FaMoon className="text-indigo-500" />;
             } else {
                 timeGreeting = 'Good Night';
-                GreetingIcon = <FaStar className="text-blue-300" />; // Star for night
+                GreetingIcon = <FaStar className="text-blue-300" />;
             }
 
             const userName = session?.user?.name || 'Guest';
@@ -50,7 +50,7 @@ export default function AdminDashboardPage() {
         };
 
         updateGreeting();
-        const interval = setInterval(updateGreeting, 60000); // Update every minute
+        const interval = setInterval(updateGreeting, 60000);
 
         return () => clearInterval(interval);
     }, [session]);

@@ -1,5 +1,5 @@
 // app/components/Blog/BlogGrid.jsx
-
+'use client';
 import BlogCard from "../BlogCard/BlogCard";
 import Pagination from "../Pagination/Pagination";
 
