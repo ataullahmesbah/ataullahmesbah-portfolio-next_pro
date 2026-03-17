@@ -7,6 +7,7 @@ import { useRouter, useParams } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
+export const dynamic = 'force-dynamic';
 
 const CONTENT_TYPES = [
     { value: 'text-h1', label: 'Heading 1 (h1)' },

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
+export const dynamic = 'force-dynamic';
 
 const EditNewsletterPage = ({ params }) => {
     const { data: session } = useSession();

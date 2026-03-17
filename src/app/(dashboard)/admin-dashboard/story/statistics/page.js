@@ -2,7 +2,7 @@
 // app/admin/statistics/page.js
 
 import StatisticsClient from "@/app/components/Story/Statistics/Statistics";
-
+export const dynamic = 'force-dynamic';
 
 // export async function generateMetadata() {
 //     return {
