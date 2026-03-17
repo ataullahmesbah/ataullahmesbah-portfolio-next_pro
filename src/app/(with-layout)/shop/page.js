@@ -1,3 +1,5 @@
+'use client';
+
 
 import ShopAds from '@/app/Dashboard/Shop/ShopAds/ShopAds';
 import ShopClient from '@/app/Dashboard/Shop/ShopClient/ShopClient';
