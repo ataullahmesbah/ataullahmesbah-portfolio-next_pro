@@ -3,6 +3,7 @@ import ShopAds from '@/app/Dashboard/Shop/ShopAds/ShopAds';
 import ShopClient from '@/app/Dashboard/Shop/ShopClient/ShopClient';
 import ShopHeroSection from '@/app/Dashboard/Shop/ShopHeroSection/ShopHeroSection';
 import { Suspense } from 'react';
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
     const products = await getProducts();
