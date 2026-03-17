@@ -1,11 +1,10 @@
-'use client';
-
-
+// No 'use client' here – this is Server Component
 import ShopAds from '@/app/Dashboard/Shop/ShopAds/ShopAds';
-import ShopClient from '@/app/Dashboard/Shop/ShopClient/ShopClient';
 import ShopHeroSection from '@/app/Dashboard/Shop/ShopHeroSection/ShopHeroSection';
+import ShopClient from '@/app/Dashboard/Shop/ShopClient/ShopClient'; // Client component
 import { Suspense } from 'react';
-export const dynamic = 'force-dynamic';
+
+export const dynamic = 'force-dynamic'; // Real-time data for shop
 
 export async function generateMetadata() {
     const products = await getProducts();
@@ -18,9 +17,11 @@ export async function generateMetadata() {
         openGraph: {
             title: 'Premium Shop - Ataullah Mesbah',
             description,
-            url: `${process.env.NEXTAUTH_URL}/shop`,
+            url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://ataullahmesbah.com'}/shop`,
             type: 'website',
-            images: products[0]?.mainImage ? [{ url: products[0].mainImage, width: 400, height: 200, alt: products[0].title }] : [],
+            images: products[0]?.mainImage
+                ? [{ url: products[0].mainImage, width: 1200, height: 630, alt: products[0].title }]
+                : [],
         },
         twitter: {
             card: 'summary_large_image',
@@ -37,13 +38,13 @@ function getStructuredData(products) {
         '@type': 'CollectionPage',
         name: 'Premium Shop',
         description: 'Browse our collection of high-quality products at Ataullah Mesbah.',
-        url: `${process.env.NEXTAUTH_URL}/shop`,
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://ataullahmesbah.com'}/shop`,
         itemListElement: products.map((product, index) => ({
             '@type': 'Product',
             position: index + 1,
             name: product.title,
             image: product.mainImage,
-            url: `${process.env.NEXTAUTH_URL}/shop/${product.slug}`,
+            url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://ataullahmesbah.com'}/shop/${product.slug}`,
             offers: {
                 '@type': 'Offer',
                 priceCurrency: 'BDT',
@@ -55,8 +56,9 @@ function getStructuredData(products) {
 }
 
 async function getProducts() {
-    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/products`, {
+    const res = await fetch('/api/products', {  // ← Relative URL – best for Vercel
         next: { tags: ['products'], revalidate: 60 },
+        cache: 'no-store', // optional if you want always fresh
     });
     if (!res.ok) {
         throw new Error('Failed to fetch products');
@@ -70,10 +72,10 @@ export default async function Shop() {
     try {
         products = await getProducts();
     } catch (error) {
-        // console.error('Error fetching products:', error);
+        console.error('Shop products fetch error:', error);
         return (
             <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto">
+                <div className="max-w-7xl mx-auto text-center">
                     <h1 className="text-4xl font-bold mb-8">Shop</h1>
                     <p className="text-red-400 text-lg">Failed to load products. Please try again later.</p>
                 </div>
@@ -82,22 +84,19 @@ export default async function Shop() {
     }
 
     return (
-        <main className="min-h-screen "
+        <main
+            className="min-h-screen"
             style={{
                 background: 'linear-gradient(to right, #111827, #111827 20%, #0f172a 70%, #111111 100%)',
             }}
         >
-
-            {/* Shop Ads */}
-
+            {/* Shop Ads – assuming it's server or client safe */}
             <ShopAds />
 
             {/* Hero Banner */}
             <ShopHeroSection />
 
-
-
-            {/* Main Content */}
+            {/* Main Content with Suspense for client part */}
             <div className="container mx-auto px-4 sm:px-6 py-12">
                 <Suspense fallback={<LoadingSkeleton />}>
                     <ShopClient products={products} structuredData={getStructuredData(products)} />
