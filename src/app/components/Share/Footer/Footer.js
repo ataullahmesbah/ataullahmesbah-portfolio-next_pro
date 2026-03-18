@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaFacebookF, FaTwitter, FaLinkedinIn, FaGithub } from 'react-icons/fa';
@@ -11,23 +13,23 @@ const Footer = () => {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {/* Logo and Description */}
+                    
                     <div className="lg:col-span-1">
-
-
+                        {/* Brand Logo - FIXED & RESPONSIVE */}
                         <Link href="/" className="flex items-center">
-                            <Image
-                                src="/mesbahatm.svg"
-                                alt="Ataullah Mesbah"
-                                width={250}
-                                height={100}
-                                className="
-                                   h-6 w-auto      /* 36px - ভালো balance */
-                                   md:h-8 w-auto  /* 40px */
-                                   lg:h-8 w-auto  /* 44px */
-                                   object-contain
-                               "
-                                priority
-                            />
+                            <div className="relative w-[160px] sm:w-[200px] md:w-[220px] lg:w-[240px] xl:w-[260px] h-28">
+                                <Image
+                                    src="/brand1.svg"
+                                    alt="Ataullah Mesbah"
+                                    width={320}
+                                    height={192}
+                                    className="w-full h-auto object-contain select-none pointer-events-none transition-all duration-300 hover:scale-105"
+                                    priority
+                                    draggable={false}
+                                    onContextMenu={(e) => e.preventDefault()}
+                                    onDragStart={(e) => e.preventDefault()}
+                                />
+                            </div>
                         </Link>
 
                         <p className="text-sm mt-3 text-center md:text-left">Web Developer | SEO Specialist | Traveler</p>
@@ -35,6 +37,9 @@ const Footer = () => {
                             Creating modern websites, enhancing search visibility, and discovering new horizons.
                         </p>
                     </div>
+
+
+
 
 
 

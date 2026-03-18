@@ -175,88 +175,34 @@ const Navbar = () => {
 
     if (!pathname.includes('dashboard')) {
         return (
-            <div className="bg-gray-900 py-5 border-b border-gray-800">
-                <nav className="flex poppins-regular container mx-auto justify-between text-white items-center px-4">
-                    {/* Logo */}
-                    {/* <Link href="/">
-                        <h1 className="flex justify-center items-center ">
-                            <svg
-                                id="Layer_1"
-                                data-name="Layer 1"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 440.15 57.69"
-                                className="w-full h-auto"
-                            >
-                                <defs>
-                                    <style>
-                                        {`.cls-1, .cls-3, .cls-4 {
-                      fill: #fff;
-                    }
-                    .cls-1 {
-                      stroke: #e6e6e6;
-                      stroke-miterlimit: 10;
-                      stroke-width: 2px;
-                    }
-                    .cls-2 {
-                      font-size: 31px;
-                      font-family: BritannicBold, Britannic;
-                    }
-                    .cls-3 {
-                      font-size: 38px;
-                      font-family: BritannicBold, Britannic Regular;
-                    }`}
-                                    </style>
-                                </defs>
-                                <rect
-                                    className="cls-1"
-                                    x="150.01"
-                                    y="4.95"
-                                    width="49"
-                                    height="36.35"
-                                    rx="8.75"
-                                />
-                                <text
-                                    className="cls-2"
-                                    transform="translate(155.72 31.58) scale(0.96 1)"
-                                >
-                                    am
-                                </text>
-                                <text
-                                    className="cls-3"
-                                    transform="translate(0 33.34) scale(1.03 1)"
-                                >
-                                    ataullah
-                                </text>
-                                <text className="cls-3" transform="translate(205 33.34)">
-                                    mesbah
-                                </text>
-                                <polygon
-                                    className="cls-4"
-                                    points="47.06 49.22 284.59 49.22 57.65 57.69 47.06 49.22"
-                                />
-                            </svg>
+            <div className="bg-gray-900 border-b border-gray-800 py-2">
+                <nav className="flex poppins-regular container mx-auto justify-between text-white items-center px-4 h-16 md:h-18 ">
 
-
-                           
-                        </h1>
-                    </Link> */}
-
-
-
+                    {/* brand logo */}
+                    {/* Brand Logo - FIXED & RESPONSIVE */}
                     <Link href="/" className="flex items-center">
-                        <Image
-                            src="/mesbahatm.svg"
-                            alt="Ataullah Mesbah"
-                            width={250}
-                            height={100}
-                            className="
-            h-6 w-auto      /* 36px - ভালো balance */
-            md:h-8 w-auto  /* 40px */
-            lg:h-10 w-auto  /* 44px */
-            object-contain
-        "
-                            priority
-                        />
+                        <div className="relative w-[180px] sm:w-[220px] md:w-[240px] lg:w-[250px] xl:w-[280px] h-auto">
+                            <Image
+                                src="/brand1.svg"
+                                alt="Ataullah Mesbah"
+                                width={320}           // Max width for large screen (SVG scale hobe)
+                                height={192}          // Maintain 250:150 ≈ 5:3 ratio (320:192)
+                                className="
+        w-full 
+        h-auto 
+        object-contain 
+        select-none 
+        pointer-events-none 
+        transition-all 
+        duration-300 
+        hover:scale-105
+      "
+                                priority              // Navbar logo – fast load
+                                draggable={false}
+                                onContextMenu={(e) => e.preventDefault()}
+                                onDragStart={(e) => e.preventDefault()}
+                            />
+                        </div>
                     </Link>
 
                     {/* Mobile Menu Icon and Cart */}

@@ -56,13 +56,17 @@ function getStructuredData(products) {
 }
 
 async function getProducts() {
-    const res = await fetch('/api/products', {  // ← Relative URL – best for Vercel
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ataullahmesbah.com'; // fallback Vercel preview
+
+    const res = await fetch(`${baseUrl}/api/products`, {
         next: { tags: ['products'], revalidate: 60 },
-        cache: 'no-store', // optional if you want always fresh
+        cache: 'no-store',
     });
+
     if (!res.ok) {
-        throw new Error('Failed to fetch products');
+        throw new Error(`Failed to fetch products: ${res.status}`);
     }
+
     const products = await res.json();
     return products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
