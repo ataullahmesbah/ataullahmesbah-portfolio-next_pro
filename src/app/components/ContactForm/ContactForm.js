@@ -102,7 +102,7 @@ const ContactForm = ({ onSuccess }) => {
                             id="firstName"
                             value={formData.firstName}
                             onChange={handleChange}
-                            className={`mt-1 block w-full px-4 py-3 bg-gray-800 border ${errors.firstName ? 'border-red-500' : 'border-gray-700'} rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                            className={`mt-1 block w-full px-4 py-3 bg-gray-300 border ${errors.firstName ? 'border-red-500' : 'border-gray-700'} rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-700 focus:border-transparent`}
                         />
                         {errors.firstName && <p className="mt-1 text-sm text-red-400">{errors.firstName}</p>}
                     </div>
@@ -116,7 +116,7 @@ const ContactForm = ({ onSuccess }) => {
                             id="lastName"
                             value={formData.lastName}
                             onChange={handleChange}
-                            className={`mt-1 block w-full px-4 py-3 bg-gray-800 border ${errors.lastName ? 'border-red-500' : 'border-gray-700'} rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                            className={`mt-1 block w-full px-4 py-3 bg-gray-300 border ${errors.lastName ? 'border-red-500' : 'border-gray-700'} rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-700 focus:border-transparent`}
                         />
                         {errors.lastName && <p className="mt-1 text-sm text-red-400">{errors.lastName}</p>}
                     </div>
@@ -133,7 +133,7 @@ const ContactForm = ({ onSuccess }) => {
                             id="email"
                             value={formData.email}
                             onChange={handleChange}
-                            className={`mt-1 block w-full px-4 py-3 bg-gray-800 border ${errors.email ? 'border-red-500' : 'border-gray-700'} rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                            className={`mt-1 block w-full px-4 py-3 bg-gray-300 border ${errors.email ? 'border-red-500' : 'border-gray-700'} rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-700 focus:border-transparent`}
                         />
                         {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
                     </div>
@@ -147,7 +147,7 @@ const ContactForm = ({ onSuccess }) => {
                             id="phone"
                             value={formData.phone}
                             onChange={handleChange}
-                            className={`mt-1 block w-full px-4 py-3 bg-gray-800 border ${errors.phone ? 'border-red-500' : 'border-gray-700'} rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                            className={`mt-1 block w-full px-4 py-3 bg-gray-300 border ${errors.phone ? 'border-red-500' : 'border-gray-700'} rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-700 focus:border-transparent`}
                         />
                         {errors.phone && <p className="mt-1 text-sm text-red-400">{errors.phone}</p>}
                     </div>
@@ -163,7 +163,7 @@ const ContactForm = ({ onSuccess }) => {
                         rows="5"
                         value={formData.message}
                         onChange={handleChange}
-                        className={`mt-1 block w-full px-4 py-3 bg-gray-800 border ${errors.message ? 'border-red-500' : 'border-gray-700'} rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                        className={`mt-1 block w-full px-4 py-3 bg-gray-300 border ${errors.message ? 'border-red-500' : 'border-gray-700'} rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-700 focus:border-transparent`}
                     ></textarea>
                     {errors.message && <p className="mt-1 text-sm text-red-400">{errors.message}</p>}
                 </div>
