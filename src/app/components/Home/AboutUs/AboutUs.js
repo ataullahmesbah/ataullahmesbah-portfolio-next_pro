@@ -7,9 +7,9 @@ import useAOS from '../../hooks/useAOS';
 import { FiPlay } from 'react-icons/fi';
 
 const firstVideo = {
-    id: "vNYLJs4G56I",
-    title: "Exploring Kashmir",
-    thumbnail: "https://i.ytimg.com/vi/vNYLJs4G56I/hqdefault.jpg"
+    id: "OPZwx7qAi4U",
+    title: "Ataullah Mesbah | Web Developer & Digital Marketing Specialist",
+    thumbnail: "https://i.ytimg.com/vi/OPZwx7qAi4U/hqdefault.jpg"
 };
 
 const AboutUs = () => {
@@ -111,7 +111,7 @@ const AboutUs = () => {
                                     {/* Play Icon */}
                                     <div className="absolute inset-0 flex items-center justify-center">
                                         <svg
-                                            className="w-14 h-14 text-blue-300/60 drop-shadow-lg hover:scale-110 transition-transform"
+                                            className="w-16 h-16  text-red-600 drop-shadow-lg hover:scale-110 transition-transform"
                                             viewBox="0 0 24 24"
                                         >
                                             <path

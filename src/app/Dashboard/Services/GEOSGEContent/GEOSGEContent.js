@@ -43,7 +43,7 @@ const GEOSGEContent = () => {
           {/* YouTube Video - Properly sized */}
           <div className="relative aspect-video bg-black">
             <iframe
-              src="https://www.youtube.com/embed/1ckTRFRRA1E?si=H-GisBIGUStV1x2l"
+              src="https://www.youtube.com/embed/OPZwx7qAi4U?si=crVYwW_pZI2ev8Sn"
               title="GEO & SGE Optimization Case Study"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
