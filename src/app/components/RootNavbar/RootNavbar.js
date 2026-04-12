@@ -34,7 +34,7 @@ const RootNavbar = () => {
                     <Link href='https://www.youtube.com/@ataullah.mesbah' target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">
                         <FaYoutube />
                     </Link>
-                    <Link href="https://www.linkedin.com/in/ataullah-mesbah/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">
+                    <Link href="https://www.linkedin.com/in/ataullah-mesbah" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700">
                         <FaLinkedinIn />
                     </Link>
                 </div>

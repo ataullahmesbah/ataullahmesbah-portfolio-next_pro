@@ -1,12 +1,9 @@
 import HomePageContent from "../components/HomePageContent/HomePageContent";
 export const dynamic = 'force-dynamic';
 
-
-
-// ✅ SEO & Meta Configuration
 export const metadata = {
     title: 'Ataullah Mesbah - From Code to Content, SEO to Sales & Travel',
-    description: 'Discover the journey of Ataullah Mesbah — from development and content creation to SEO, sales, and global travel. Learn more about his work, story, and projects.',
+    description: 'Ataullah Mesbah is a Full-Stack Developer and SEO Specialist helping businesses build high-performance websites, rank on Google, and grow globally through modern development and AI-powered SEO strategies.',
     keywords: 'Ataullah Mesbah, SEO Expert, Developer, Content Creator, Traveler, Sales Strategist, Affiliate Marketing, Pouvoir en ligne, Web Consultant',
     authors: [{ name: 'Ataullah Mesbah', url: 'https://ataullahmesbah.com' }],
     openGraph: {

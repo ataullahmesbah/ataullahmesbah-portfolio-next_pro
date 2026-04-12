@@ -11,6 +11,8 @@ import AdsModal from "./components/Ads/AdsModal/AdsModal";
 export const metadata = {
   metadataBase: new URL("https://www.ataullahmesbah.com"),
 
+  applicationName: "Ataullah Mesbah",
+
   title: {
     default: "Full-Stack Developer & SEO Specialist | Ataullah Mesbah",
     template: "%s | Ataullah Mesbah",
@@ -59,6 +61,7 @@ export const metadata = {
   },
 
   openGraph: {
+    siteName: "Ataullah Mesbah",
     type: "website",
     url: "https://www.ataullahmesbah.com",
     title: "Ataullah Mesbah | Full-Stack Developer & SEO Strategist",
@@ -88,12 +91,12 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" itemScope itemType="https://schema.org/WebPage">
       <head>
         {/* Favicon */}
         <link rel="icon" href="/log.svg" type="image/svg+xml" />
 
-        {/* Structured Data (Person Schema) */}
+        {/* 1. Person Schema */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -111,14 +114,46 @@ export default function RootLayout({ children }) {
                 "Next.js",
                 "React",
                 "Node.js",
-                "Technical SEO",
-                "AI Search Optimization",
-                "Generative Engine Optimization",
-                "Web Development",
+                "Web Developer",
+                "Electrical and Electronics Engineering",
               ],
+              sameAs: [
+                "https://www.linkedin.com/in/ataullah-mesbah",
+                "https://x.com/ataullah_mesbah",
+                "https://www.youtube.com/@ataullah.mesbah"
+              ]
             }),
           }}
         />
+
+        {/* 2. Website Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Ataullah Mesbah",
+              alternateName: "Ataullah Mesbah",
+              url: "https://www.ataullahmesbah.com",
+            }),
+          }}
+        />
+
+        {/* 3. Organization Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Ataullah Mesbah",
+              url: "https://www.ataullahmesbah.com",
+              logo: "https://www.ataullahmesbah.com/log.svg",
+            }),
+          }}
+        />
+
 
         {/* Google Ads Script */}
 
